@@ -51,7 +51,15 @@ public class AskActivity extends Activity {
     Key again;
     boolean alive;
 
+    int themeBuilt;
+
+    @Override protected void onResume() {
+        super.onResume();
+        Theme.stale(this, themeBuilt);
+    }
+
     @Override protected void onCreate(Bundle b) {
+        themeBuilt = Theme.apply(this);
         super.onCreate(b);
         dp = getResources().getDisplayMetrics().density;
         sp = getResources().getDisplayMetrics().scaledDensity;

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tasbih untuk ubin home: ic_dzikir tanpa kotak latar, seperti ikon AL-QUR'AN, supaya menyatu di semua tema. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path android:fillColor="#FFF5AA14"
+        android:pathData="M22,8a2.6,2.6 0 1 0 5.2,0a2.6,2.6 0 1 0 -5.2,0zM14.5,11.5a2.6,2.6 0 1 0 5.2,0a2.6,2.6 0 1 0 -5.2,0zM29.3,11.5a2.6,2.6 0 1 0 5.2,0a2.6,2.6 0 1 0 -5.2,0zM11,18.5a2.6,2.6 0 1 0 5.2,0a2.6,2.6 0 1 0 -5.2,0zM32.8,18.5a2.6,2.6 0 1 0 5.2,0a2.6,2.6 0 1 0 -5.2,0zM12.5,26a2.6,2.6 0 1 0 5.2,0a2.6,2.6 0 1 0 -5.2,0zM31.3,26a2.6,2.6 0 1 0 5.2,0a2.6,2.6 0 1 0 -5.2,0zM17.5,31.5a2.6,2.6 0 1 0 5.2,0a2.6,2.6 0 1 0 -5.2,0zM26.3,31.5a2.6,2.6 0 1 0 5.2,0a2.6,2.6 0 1 0 -5.2,0z" />
+    <path android:fillColor="#FFECE6D8"
+        android:pathData="M22,35h5l1.5,8h-8z" />
+</vector>

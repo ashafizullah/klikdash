@@ -9,4 +9,10 @@
         <item name="android:windowShowWallpaper">false</item>
         <item name="android:windowNoTitle">true</item>
     </style>
+
+    <!-- Tema SIANG (lihat Theme.java): dialog dan widget bawaan bergaya terang. Warna jendela diatur Theme.apply. -->
+    <style name="KlikDash.Light" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowShowWallpaper">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
 </resources>

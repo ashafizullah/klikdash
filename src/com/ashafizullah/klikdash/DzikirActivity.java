@@ -34,6 +34,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import static com.ashafizullah.klikdash.HomeActivity.ACTIVE;
 import static com.ashafizullah.klikdash.HomeActivity.AMBER;
 import static com.ashafizullah.klikdash.HomeActivity.BG;
 import static com.ashafizullah.klikdash.HomeActivity.DIM;
@@ -41,6 +42,7 @@ import static com.ashafizullah.klikdash.HomeActivity.FAINT;
 import static com.ashafizullah.klikdash.HomeActivity.INK;
 import static com.ashafizullah.klikdash.HomeActivity.LINE;
 import static com.ashafizullah.klikdash.HomeActivity.PANEL;
+import static com.ashafizullah.klikdash.HomeActivity.SOFT;
 import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 
 /**
@@ -50,7 +52,6 @@ import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 public class DzikirActivity extends Activity {
 
     static final int MATCH = ViewGroup.LayoutParams.MATCH_PARENT, WRAP = ViewGroup.LayoutParams.WRAP_CONTENT;
-    static final int TRANSLATION = 0xFFD9D3C5, ACTIVE_BG = 0xFF1A1710;
     static final String PAGI = "pagi", PETANG = "petang";
 
     static final class Item {
@@ -75,7 +76,15 @@ public class DzikirActivity extends Activity {
     Chip cPagi, cPetang;
     Counter counter;
 
+    int themeBuilt;
+
+    @Override protected void onResume() {
+        super.onResume();
+        Theme.stale(this, themeBuilt);
+    }
+
     @Override protected void onCreate(Bundle b) {
+        themeBuilt = Theme.apply(this);
         super.onCreate(b);
         dp = getResources().getDisplayMetrics().density;
         sp = getResources().getDisplayMetrics().scaledDensity;
@@ -305,7 +314,7 @@ public class DzikirActivity extends Activity {
         body.addView(arab, al);
         latin = serif(15, AMBER & 0xCCFFFFFF);
         body.addView(latin, margin(14));
-        meaning = serif(17, TRANSLATION);
+        meaning = serif(17, SOFT);
         body.addView(meaning, margin(10));
         note = text("", fMono, 11, DIM);
         note.setLetterSpacing(0.15f);
@@ -503,7 +512,7 @@ public class DzikirActivity extends Activity {
             int w = getWidth(), h = getHeight();
             boolean sel = i == cur, ok = done(i);
             if (down || sel) {
-                fill.setColor(down ? PANEL : ACTIVE_BG);
+                fill.setColor(down ? PANEL : ACTIVE);
                 c.drawRect(0, 0, w, h, fill);
             }
             if (sel) {

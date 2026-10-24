@@ -11,8 +11,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
@@ -59,8 +57,12 @@ import java.util.TimeZone;
 /** KlikDash: launcher ringan untuk headunit 1280x720. Tanpa animasi, tanpa library. */
 public class HomeActivity extends Activity {
 
-    static final int BG = 0xFF0B0B0A, PANEL = 0xFF151513, LINE = 0xFF2B2A26, TEXT = 0xFFECE6D8,
-            DIM = 0xFF8A8478, FAINT = 0xFF4A4740, AMBER = 0xFFFFB000, INK = 0xFF0B0B0A;
+    // Palet tema aktif, diisi Theme.apply (nilai di sini = tema AMBER). AMBER = warna aksen tema; INK = teks di atas
+    // aksen; SOFT = teks sekunder yang panjang (terjemahan); ACTIVE = latar baris yang sedang dibaca; WARN = peringatan
+    // (suhu CPU, kecepatan), tetap amber di tema mana pun.
+    static int BG = 0xFF0B0B0A, PANEL = 0xFF151513, LINE = 0xFF2B2A26, TEXT = 0xFFECE6D8,
+            DIM = 0xFF8A8478, FAINT = 0xFF4A4740, AMBER = 0xFFFFB000, INK = 0xFF0B0B0A,
+            SOFT = 0xFFD9D3C5, ACTIVE = 0xFF1A1710, WARN = 0xFFFFB000;
 
     static final int MATCH = ViewGroup.LayoutParams.MATCH_PARENT;
     static final int WRAP = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -125,7 +127,7 @@ public class HomeActivity extends Activity {
     TextView clock, day, date, hijri, speed, drawerTitle, drawerCount, temp;
 
     // Suhu CPU headunit dari sensor thermal; dibaca tiap 5 detik selama home tampil.
-    static final int HOT = 0xFFFF5A3C;
+    static int HOT = 0xFFFF5A3C;
     final String cpuZone = findCpuZone();
     final Runnable tempTick = new Runnable() {
         @Override public void run() {
@@ -166,7 +168,7 @@ public class HomeActivity extends Activity {
         }
         if (c > 1000) c = Math.round(c / 1000f); // sensor melaporkan mili-derajat
         temp.setText(c >= 85 ? "CPU " + c + "°C · PANAS" : "CPU " + c + "°C");
-        temp.setTextColor(c >= 85 ? HOT : c >= 70 ? AMBER : DIM);
+        temp.setTextColor(c >= 85 ? HOT : c >= 70 ? WARN : DIM);
     }
     Gauge gauge;
     PrayerView prayerView;
@@ -194,7 +196,10 @@ public class HomeActivity extends Activity {
         }
     };
 
+    int themeBuilt;
+
     @Override protected void onCreate(Bundle b) {
+        themeBuilt = Theme.apply(this);
         super.onCreate(b);
         dp = getResources().getDisplayMetrics().density;
         sp = getResources().getDisplayMetrics().scaledDensity;
@@ -208,15 +213,8 @@ public class HomeActivity extends Activity {
         fMono = font("mono.ttf", "'wdth' 100, 'wght' 400");
         fMonoBold = font("mono.ttf", "'wdth' 100, 'wght' 700");
 
-        // Ikon dibuat monokrom hangat; warna asli muncul saat ditekan.
-        ColorMatrix cm = new ColorMatrix();
-        cm.setSaturation(0f);
-        cm.postConcat(new ColorMatrix(new float[]{
-                1f, 0, 0, 0, 0,
-                0, .94f, 0, 0, 0,
-                0, 0, .82f, 0, 0,
-                0, 0, 0, 1f, 0}));
-        mono = new ColorMatrixColorFilter(cm);
+        // Ikon dibuat monokrom dalam warna tema; warna asli muncul saat ditekan.
+        mono = Theme.iconFilter();
 
         loadSlots();
         loadApps();
@@ -265,6 +263,7 @@ public class HomeActivity extends Activity {
 
     @Override protected void onResume() {
         super.onResume();
+        if (Theme.stale(this, themeBuilt)) return;
         QuranService.listeners.add(onQuran);
         reloadPrefs();
         onQuran.run();
@@ -319,7 +318,7 @@ public class HomeActivity extends Activity {
             lastKmh = kmh;
             lastKmhAt = speedAt;
             speed.setText(String.valueOf(kmh));
-            speed.setTextColor(kmh > 100 ? AMBER : TEXT); // di atas batas tol
+            speed.setTextColor(kmh > 100 ? WARN : TEXT); // di atas batas tol
         }
         @Override public void onStatusChanged(String p, int s, Bundle b) { }
         @Override public void onProviderEnabled(String p) { }
@@ -506,7 +505,8 @@ public class HomeActivity extends Activity {
             App a = new App();
             a.cn = new ComponentName(r.activityInfo.packageName, r.activityInfo.name);
             a.label = String.valueOf(r.loadLabel(pm)).trim();
-            a.icon = r.loadIcon(pm).mutate();
+            a.icon = DzikirActivity.class.getName().equals(r.activityInfo.name)
+                    ? getDrawable(R.drawable.ic_dzikir_tile).mutate() : r.loadIcon(pm).mutate();
             apps.add(a);
             appByKey.put(a.cn.flattenToString(), a);
             if (!appByPkg.containsKey(a.cn.getPackageName())) appByPkg.put(a.cn.getPackageName(), a);
@@ -1029,7 +1029,7 @@ public class HomeActivity extends Activity {
         void drawDragState(Canvas c) {
             int w = getWidth(), h = getHeight();
             if (dragging) {
-                fill.setColor(0xD90B0B0A);
+                fill.setColor(0xD9000000 | BG & 0xFFFFFF);
                 c.drawRect(0, 0, w, h, fill);
             }
             if (target) {

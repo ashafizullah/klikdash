@@ -62,6 +62,7 @@ public class SettingsActivity extends Activity {
     AiPanel ai;
 
     @Override protected void onCreate(Bundle b) {
+        Theme.apply(this);
         super.onCreate(b);
         dp = getResources().getDisplayMetrics().density;
         sp = getResources().getDisplayMetrics().scaledDensity;
@@ -205,6 +206,18 @@ public class SettingsActivity extends Activity {
                 "Hari ini " + titleCase(HomeActivity.hijriText(System.currentTimeMillis(), off))
                         + ". Dihitung dengan Umm al-Qura (sama dengan kalender Kemenag). Geser per hari bila hasil "
                         + "rukyat berbeda.", shift));
+
+        Key[] themes = new Key[Theme.NAMES.length];
+        int cur = Theme.saved(this);
+        for (int i = 0; i < themes.length; i++) {
+            final int t = i;
+            themes[i] = key(Theme.NAMES[i], t == cur, () -> {
+                if (t == Theme.saved(this)) return;
+                Theme.save(this, t);
+                recreate(); // home dan layar lain menyusul saat tampil lagi (Theme.stale)
+            });
+        }
+        list.addView(row("TEMA", Theme.DESC[cur], themes));
 
         list.addView(row("PINTASAN HOME",
                 "Tekan lama pintasan di home untuk mengganti atau memindahkan aplikasinya. Atur ulang mengembalikan susunan "
@@ -383,7 +396,7 @@ public class SettingsActivity extends Activity {
     }
 
     TextView paragraph(String s) {
-        TextView d = text(s, fSerif, 16, 0xFFD9D3C5);
+        TextView d = text(s, fSerif, 16, HomeActivity.SOFT);
         d.setSingleLine(false);
         d.setLineSpacing(0, 1.25f);
         return d;

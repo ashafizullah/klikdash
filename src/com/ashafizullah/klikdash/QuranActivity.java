@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
+import static com.ashafizullah.klikdash.HomeActivity.ACTIVE;
 import static com.ashafizullah.klikdash.HomeActivity.AMBER;
 import static com.ashafizullah.klikdash.HomeActivity.BG;
 import static com.ashafizullah.klikdash.HomeActivity.DIM;
@@ -30,13 +31,13 @@ import static com.ashafizullah.klikdash.HomeActivity.FAINT;
 import static com.ashafizullah.klikdash.HomeActivity.INK;
 import static com.ashafizullah.klikdash.HomeActivity.LINE;
 import static com.ashafizullah.klikdash.HomeActivity.PANEL;
+import static com.ashafizullah.klikdash.HomeActivity.SOFT;
 import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 
 /** Al-Qur'an offline: daftar surah di kiri, mushaf + terjemahan di kanan, pemutar di bawah. */
 public class QuranActivity extends Activity {
 
     static final int MATCH = ViewGroup.LayoutParams.MATCH_PARENT, WRAP = ViewGroup.LayoutParams.WRAP_CONTENT;
-    static final int ACTIVE_BG = 0xFF1A1710, TRANSLATION = 0xFFD9D3C5;
     static final Locale ID = new Locale("id", "ID");
 
     float dp, sp;
@@ -59,7 +60,10 @@ public class QuranActivity extends Activity {
 
     final Runnable onService = this::refreshPlayer;
 
+    int themeBuilt;
+
     @Override protected void onCreate(Bundle b) {
+        themeBuilt = Theme.apply(this);
         super.onCreate(b);
         dp = getResources().getDisplayMetrics().density;
         sp = getResources().getDisplayMetrics().scaledDensity;
@@ -99,7 +103,7 @@ public class QuranActivity extends Activity {
         loading = text("", fMonoBold, 14, AMBER);
         loading.setLetterSpacing(0.3f);
         overlay.addView(loading, new LinearLayout.LayoutParams(WRAP, WRAP));
-        loadSub = text("", fSerif, 17, TRANSLATION);
+        loadSub = text("", fSerif, 17, SOFT);
         loadSub.setSingleLine(false);
         loadSub.setGravity(Gravity.CENTER);
         loadSub.setMaxWidth(px(640));
@@ -171,6 +175,7 @@ public class QuranActivity extends Activity {
 
     @Override protected void onResume() {
         super.onResume();
+        if (Theme.stale(this, themeBuilt)) return;
         QuranService.listeners.add(onService);
         followed = -1;
         followedSurah = -1;
@@ -611,7 +616,7 @@ public class QuranActivity extends Activity {
             indo = new TextView(QuranActivity.this);
             indo.setTypeface(fSerif);
             indo.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
-            indo.setTextColor(TRANSLATION);
+            indo.setTextColor(SOFT);
             indo.setLineSpacing(0, 1.3f);
             LayoutParams il = new LayoutParams(MATCH, WRAP);
             il.topMargin = px(10);
@@ -630,7 +635,7 @@ public class QuranActivity extends Activity {
             indo.setGravity(center ? Gravity.CENTER_HORIZONTAL : Gravity.START);
             active = act;
             live.setVisibility(act ? VISIBLE : GONE);
-            setBackgroundColor(act ? ACTIVE_BG : 0);
+            setBackgroundColor(act ? ACTIVE : 0);
             invalidate();
         }
 
