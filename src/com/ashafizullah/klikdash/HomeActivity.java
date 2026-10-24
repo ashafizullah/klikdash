@@ -178,7 +178,10 @@ public class HomeActivity extends Activity {
     int drawerCols = 7;
 
     final BroadcastReceiver timeRx = new BroadcastReceiver() {
-        @Override public void onReceive(Context c, Intent i) { updateTime(); }
+        @Override public void onReceive(Context c, Intent i) {
+            updateTime();
+            if (!Intent.ACTION_TIME_TICK.equals(i.getAction())) PrayerAlarm.schedule(c); // jam/zona waktu diubah
+        }
     };
 
     final LocationListener locRx = new LocationListener() {
@@ -253,6 +256,7 @@ public class HomeActivity extends Activity {
         updateTime();
         startLocation();
         Tweaks.applyAsync();
+        PrayerAlarm.allowOverlay(this);
         // Baru menyala (bukan sekadar dibangun ulang, mis. ganti tema atau pembaruan): sambutan.
         if (SystemClock.elapsedRealtime() < 5 * 60_000L) root.post(() -> Welcome.maybeShow(this, prefs));
     }
@@ -267,6 +271,8 @@ public class HomeActivity extends Activity {
         super.onResume();
         if (Theme.stale(this, themeBuilt)) return;
         QuranService.listeners.add(onQuran);
+        PrayerAlarm.home = new java.lang.ref.WeakReference<>(this);
+        PrayerAlarm.schedule(this);
         reloadPrefs();
         onQuran.run();
         updateTime();
@@ -376,6 +382,7 @@ public class HomeActivity extends Activity {
         prayerView.stopTicking();
         temp.removeCallbacks(tempTick);
         QuranService.listeners.remove(onQuran);
+        if (PrayerAlarm.home.get() == this) PrayerAlarm.home.clear();
         super.onPause();
     }
 
@@ -554,10 +561,10 @@ public class HomeActivity extends Activity {
         }
         // Belum pernah dapat lokasi: tebak ibu kota zona waktu.
         String tz = TimeZone.getDefault().getID();
-        if (tz.equals("Asia/Makassar")) { lat = -5.1477; lon = 119.4327; city = "MAKASSAR"; }
-        else if (tz.equals("Asia/Jayapura")) { lat = -2.5337; lon = 140.7181; city = "JAYAPURA"; }
-        else if (tz.equals("Asia/Pontianak")) { lat = -0.0263; lon = 109.3425; city = "PONTIANAK"; }
-        else { lat = -6.2088; lon = 106.8456; city = "JAKARTA"; }
+        double[] g = PrayerTimes.guess(tz);
+        lat = g[0];
+        lon = g[1];
+        city = PrayerTimes.guessCity(tz);
         locApprox = true;
     }
 
@@ -571,6 +578,7 @@ public class HomeActivity extends Activity {
         e.apply();
         prayDayKey = -1;
         updateTime();
+        PrayerAlarm.schedule(this);
     }
 
     /** Set lokasi manual lewat adb: am start -n com.ashafizullah.klikdash/.HomeActivity --es lat -6.1754 --es lon 106.8272 --es city Jakarta */

@@ -73,6 +73,23 @@ final class Compat {
         return new Notification.Builder(c, channel);
     }
 
+    /**
+     * Notifikasi penting tanpa suara (mis. pengingat sholat): channel IMPORTANCE_HIGH supaya muncul di atas aplikasi
+     * lain, tanpa bunyi dan getar. Android 7 tanpa channel: prioritas tinggi, tampil di panel notifikasi.
+     */
+    @SuppressWarnings("deprecation")
+    static Notification.Builder alertNotification(Context c, String channel, String name) {
+        if (!O) return new Notification.Builder(c).setPriority(Notification.PRIORITY_HIGH);
+        NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm.getNotificationChannel(channel) == null) {
+            NotificationChannel ch = new NotificationChannel(channel, name, NotificationManager.IMPORTANCE_HIGH);
+            ch.setSound(null, null);
+            ch.enableVibration(false);
+            nm.createNotificationChannel(ch);
+        }
+        return new Notification.Builder(c, channel);
+    }
+
     /** Izin "pasang aplikasi tak dikenal" per aplikasi baru ada di Android 8; di Android 7 penginstal sistem yang bertanya. */
     static boolean canRequestPackageInstalls(Activity a) {
         return !O || a.getPackageManager().canRequestPackageInstalls();

@@ -36,6 +36,21 @@ final class PrayerTimes {
         return out;
     }
 
+    /** Belum pernah dapat lokasi GPS: ibu kota zona waktu (WIB/WITA/WIT), {lat, lon}. Nama lewat {@link #guessCity}. */
+    static double[] guess(String tz) {
+        if (tz.equals("Asia/Makassar")) return new double[]{-5.1477, 119.4327};
+        if (tz.equals("Asia/Jayapura")) return new double[]{-2.5337, 140.7181};
+        if (tz.equals("Asia/Pontianak")) return new double[]{-0.0263, 109.3425};
+        return new double[]{-6.2088, 106.8456};
+    }
+
+    static String guessCity(String tz) {
+        if (tz.equals("Asia/Makassar")) return "MAKASSAR";
+        if (tz.equals("Asia/Jayapura")) return "JAYAPURA";
+        if (tz.equals("Asia/Pontianak")) return "PONTIANAK";
+        return "JAKARTA";
+    }
+
     private static double julian(int y, int m, int d) {
         if (m <= 2) { y -= 1; m += 12; }
         double a = Math.floor(y / 100.0);

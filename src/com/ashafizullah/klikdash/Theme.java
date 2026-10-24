@@ -54,6 +54,9 @@ final class Theme {
         set(t);
     }
 
+    /** Palet saja, tanpa aktivitas (mis. notifikasi melayang dari BroadcastReceiver). */
+    static void load(Context c) { set(saved(c)); }
+
     /** Sebelum super.onCreate: pasang palet dan gaya jendela (gelap/terang, untuk dialog dan widget bawaan). */
     static int apply(Activity a) {
         set(saved(a));

@@ -233,6 +233,14 @@ public class SettingsActivity extends Activity {
                     else Welcome.show(this, c);
                 })));
 
+        boolean pa = PrayerAlarm.enabled(prefs);
+        list.addView(row("PENGINGAT SHOLAT",
+                "Notifikasi saat masuk waktu Subuh, Dzuhur, Ashar, Maghrib, dan Isya, tanpa adzan. Muncul juga di atas "
+                        + "aplikasi lain seperti Maps.",
+                key("NYALA", pa, () -> setPrayerAlert(true)),
+                key("MATI", !pa, () -> setPrayerAlert(false)),
+                key("COBA", false, () -> PrayerAlarm.notify(this, 3, System.currentTimeMillis()))));
+
         list.addView(row("PINTASAN HOME",
                 "Tekan lama pintasan di home untuk mengganti atau memindahkan aplikasinya. Atur ulang mengembalikan susunan "
                         + "bawaan KlikDash.",
@@ -340,6 +348,13 @@ public class SettingsActivity extends Activity {
                 });
             }
         }, "update-download").start();
+    }
+
+    void setPrayerAlert(boolean on) {
+        prefs.edit().putBoolean("prayerAlert", on).apply();
+        PrayerAlarm.schedule(this);
+        PrayerAlarm.allowOverlay(this);
+        show(TAB_LAUNCHER, true);
     }
 
     void setWelcome(int mode) {
