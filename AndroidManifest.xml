@@ -11,8 +11,6 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- Pembaruan dari Pengaturan bila ADB lokal tidak tersedia (Android meminta konfirmasi) -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <!-- Menawarkan uninstall KlikDash lama (com.klikdash.app); Android 9+ butuh izin ini untuk ACTION_DELETE. -->
-    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
     <application
         android:label="KlikDash"

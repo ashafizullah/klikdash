@@ -275,14 +275,7 @@ public class HomeActivity extends Activity {
         tempTick.run();
         refreshDefaultHome();
         startSpeed();
-        if (!oldPkgAsked) {
-            oldPkgAsked = true;
-            HomeSwitch.offerRemoveOld(this, prefs, this::refreshDefaultHome);
-        }
     }
-
-    /** Tawaran menghapus KlikDash lama muncul sekali per proses, bukan setiap kembali ke home. */
-    boolean oldPkgAsked;
 
     // ---------------------------------------------------------------- tanggal Hijriah
 
