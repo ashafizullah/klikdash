@@ -936,14 +936,13 @@ public class HomeActivity extends Activity {
     View buildHome() {
         int n = tileCount(prefs);
         shown = n - 1;
-        // Makin sedikit ubin, makin besar panel jam: 12 ubin = ukuran biasa; dengan 9 dan 6 jam, kecepatan, tanggal, dan
-        // jadwal sholat membesar. Di 6 ubin tinggi layar sudah habis untuk jam, jadi 4 ubin memakai panel jam yang sama
-        // dan lebar sisanya untuk ubin yang lebih besar.
-        int big = n == 12 ? 0 : n == 9 ? 1 : 2;
-        float k = 1 + 0.12f * big; // skala tulisan panel jam selain jam dan kecepatan
+        // Lebih sedikit ubin (9, 6, 4): panel jam lebih besar. Jam, kecepatan, tanggal, dan jadwal sholat membesar
+        // sejauh tinggi layar masih cukup bersama penggaris 24 jam; batas itu sudah tercapai di 9 ubin, jadi 6 dan 4
+        // memakai panel jam yang sama dan lebar sisanya untuk ubin yang lebih besar.
+        int big = n == 12 ? 0 : 1;
+        float k = 1 + 0.06f * big; // skala tulisan panel jam selain jam dan kecepatan
         float panelH = portrait ? hDp * (0.42f + 0.06f * big) : hDp;
-        // Tidak cukup tinggi untuk penggaris 24 jam; dengan 6 atau 4 ubin tempatnya dipakai jam yang lebih besar.
-        boolean shortPanel = panelH < 560 || big == 2;
+        boolean shortPanel = panelH < 560; // tidak cukup tinggi untuk penggaris 24 jam
 
         // Jam sebesar mungkin: jam dan kecepatan 3 digit (ukurannya 0,43 × jam) muat berdampingan di lebar panel, dan
         // sebanding tinggi layar. Lebar diukur dengan digit terlebar (angka font ini tidak sama lebar) pada ukuran sp.
@@ -960,7 +959,7 @@ public class HomeActivity extends Activity {
         float spDp = sp / dp, availH = portrait ? panelH - 24 : screenH - 48;
         float fixed = 48 + 14 * spDp + 42 + 1.3f * (18 + (panelH < 560 ? 28 : 36) + 13) * k * spDp + 14 + 104 * k
                 + (shortPanel ? 0 : 74);
-        float clockFit = (availH - fixed - (big == 0 ? 8 : 24)) / clockLine;
+        float clockFit = (availH - fixed - 8) / clockLine;
 
         // Landscape: panel jam di kiri, 34% lebar; dengan ubin lebih sedikit selebar yang dibutuhkan jam (sampai 55%).
         // Portrait: panel jam di atas, ubin di bawah.
