@@ -124,7 +124,7 @@ public class HomeActivity extends Activity {
 
     View home;
     LinearLayout drawer;
-    TextView clock, day, date, hijri, speed, drawerTitle, drawerCount, temp;
+    TextView clock, day, date, hijri, speed, drawerTitle, drawerCount, temp, ram, disk;
 
     // Suhu CPU headunit dari sensor thermal; dibaca tiap 5 detik selama home tampil.
     static int HOT = 0xFFFF5A3C;
@@ -132,6 +132,7 @@ public class HomeActivity extends Activity {
     final Runnable tempTick = new Runnable() {
         @Override public void run() {
             updateTemp();
+            updateMemory();
             temp.postDelayed(this, 5000);
         }
     };
@@ -153,6 +154,41 @@ public class HomeActivity extends Activity {
             return s == null ? null : s.trim();
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    /** Panel kiri sempit (headunit 800/1024 px): label pendek supaya baris status tidak terpotong. */
+    String diskLabel = "PENYIMPANAN";
+
+    /** RAM dan penyimpanan internal yang terpakai, dalam persen; peringatan di atas 85% dan 90%. */
+    void updateMemory() {
+        long total = 0, avail = -1;
+        try (java.io.BufferedReader r = new java.io.BufferedReader(new java.io.FileReader("/proc/meminfo"))) {
+            for (String l; (l = r.readLine()) != null && (total == 0 || avail < 0); ) {
+                if (l.startsWith("MemTotal:")) total = kb(l);
+                else if (l.startsWith("MemAvailable:")) avail = kb(l);
+            }
+        } catch (Exception ignored) { }
+        if (total > 0 && avail >= 0) {
+            int p = (int) Math.round(100.0 * (total - avail) / total);
+            ram.setText("RAM " + p + "%");
+            ram.setTextColor(p >= 85 ? WARN : DIM);
+        } else {
+            ram.setText("");
+        }
+        android.os.StatFs fs = new android.os.StatFs(android.os.Environment.getDataDirectory().getPath());
+        long size = fs.getTotalBytes();
+        int p = size > 0 ? (int) Math.round(100.0 * (size - fs.getAvailableBytes()) / size) : 0;
+        disk.setText(diskLabel + " " + p + "%");
+        disk.setTextColor(p >= 90 ? WARN : DIM);
+    }
+
+    /** "MemTotal:        4194304 kB" → 4194304 */
+    static long kb(String line) {
+        try {
+            return Long.parseLong(line.replaceAll("[^0-9]", ""));
+        } catch (NumberFormatException e) {
+            return 0;
         }
     }
 
@@ -728,9 +764,6 @@ public class HomeActivity extends Activity {
         TextView tag = text("KLIKDASH  ·  " + model, fMono, 12, DIM);
         tag.setLetterSpacing(0.25f);
         top.addView(tag, new LinearLayout.LayoutParams(0, WRAP, 1f));
-        temp = text("", fMonoBold, 12, DIM);
-        temp.setLetterSpacing(0.15f);
-        top.addView(temp);
         // Pengaturan KlikDash (tampilan, Hemat Daya, asisten AI). Kotak sentuh 48dp walau ikonnya kecil.
         TextView gear = text("⚙", fMonoBold, 18, DIM);
         gear.setGravity(Gravity.CENTER);
@@ -739,6 +772,21 @@ public class HomeActivity extends Activity {
         top.addView(gear, new LinearLayout.LayoutParams(px(48), px(48)));
         top.setGravity(Gravity.CENTER_VERTICAL);
         left.addView(top);
+
+        // Kondisi headunit: suhu CPU, RAM, dan penyimpanan terpakai (diperbarui tiap 5 detik, lihat tempTick).
+        diskLabel = leftDp < 380 ? "DISK" : "PENYIMPANAN";
+        LinearLayout stats = new LinearLayout(this);
+        stats.setOrientation(LinearLayout.HORIZONTAL);
+        temp = text("", fMonoBold, 11, DIM);
+        ram = text("", fMonoBold, 11, DIM);
+        disk = text("", fMonoBold, 11, DIM);
+        for (TextView t : new TextView[]{temp, ram, disk}) {
+            t.setLetterSpacing(0.15f);
+            LinearLayout.LayoutParams sl = new LinearLayout.LayoutParams(WRAP, WRAP);
+            if (t != temp) sl.leftMargin = px(18);
+            stats.addView(t, sl);
+        }
+        left.addView(stats);
 
         // Muncul hanya bila KlikDash belum jadi tampilan utama (lihat refreshDefaultHome).
         makeDefault = new Button("JADIKAN TAMPILAN UTAMA", true);
