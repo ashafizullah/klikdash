@@ -44,6 +44,8 @@ public class AskActivity extends Activity {
     AiVoice voice;
     SpeechRecognizer recognizer;
     boolean androidStt;
+    /** Uji pengenal suara saja (build pengembangan, --ez stt true): hasilnya ditampilkan, tidak dikirim ke AI. */
+    boolean sttOnly;
 
     int state = IDLE;
     Mic mic;
@@ -144,6 +146,16 @@ public class AskActivity extends Activity {
 
     /** Cek profil & izin mikrofon, lalu langsung mendengarkan. */
     void start() {
+        // Uji pengenal suara tanpa profil AI: adb shell am start -n com.ashafizullah.klikdash/.AskActivity --ez stt true
+        boolean dev = (getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+        if (dev && getIntent().getBooleanExtra("stt", false)) {
+            getIntent().removeExtra("stt");
+            sttOnly = true;
+            again.setVisibility(View.INVISIBLE);
+            setState(LISTEN, "MENDENGARKAN…");
+            listenAndroid();
+            return;
+        }
         profile = AiStore.active(this);
         if (profile == null || profile.apiKey.isEmpty()) {
             who.setText("");
@@ -164,7 +176,6 @@ public class AskActivity extends Activity {
         // Uji tanpa mikrofon: adb shell am start -n com.ashafizullah.klikdash/.AskActivity --es q "putar surat Yasin"
         // Hanya di build pengembangan (debuggable): TANYA bisa dibuka aplikasi lain, jadi di APK rilis aplikasi lain
         // tidak boleh menitipkan perintah teks untuk dijalankan AI.
-        boolean dev = (getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0;
         String typed = dev ? getIntent().getStringExtra("q") : null;
         if (typed != null && !typed.trim().isEmpty()) {
             getIntent().removeExtra("q");
@@ -219,7 +230,9 @@ public class AskActivity extends Activity {
         heard.setText("");
         answer.setText("");
         again.setVisibility(View.INVISIBLE);
-        androidStt = SpeechRecognizer.isRecognitionAvailable(this);
+        // Pilihan di Pengaturan › Asisten AI; ElevenLabs tanpa API key → tetap Android.
+        androidStt = SpeechRecognizer.isRecognitionAvailable(this)
+                && (!AiStore.elStt(this) || AiStore.elKey(this).isEmpty());
         voice.hush();
         setState(LISTEN, "MENDENGARKAN…");
         if (androidStt) listenAndroid(); else listenEleven();
@@ -227,7 +240,7 @@ public class AskActivity extends Activity {
 
     void listenAndroid() {
         if (recognizer == null) {
-            recognizer = SpeechRecognizer.createSpeechRecognizer(this);
+            recognizer = SpeechRecognizer.createSpeechRecognizer(this, AiVoice.recognizer(this));
             recognizer.setRecognitionListener(new RecognitionListener() {
                 @Override public void onReadyForSpeech(Bundle p) { }
                 @Override public void onBeginningOfSpeech() { }
@@ -243,12 +256,15 @@ public class AskActivity extends Activity {
 
                 @Override public void onResults(Bundle r) {
                     String s = first(r);
+                    android.util.Log.i("KlikDashAI", "STT Android: " + s.length() + " huruf");
                     if (s.isEmpty()) idle("TIDAK TERDENGAR", "Ketuk mikrofon lalu ucapkan perintah, misalnya “putar surat Yasin”.");
+                    else if (sttOnly) idle("TERDENGAR", "“" + s + "”");
                     else ask(s);
                 }
 
                 @Override public void onError(int e) {
                     mic.level(0);
+                    android.util.Log.i("KlikDashAI", "STT Android error " + e);
                     if (e == SpeechRecognizer.ERROR_NO_MATCH || e == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
                         idle("TIDAK TERDENGAR", "Ketuk mikrofon lalu ucapkan perintah, misalnya “putar surat Yasin”.");
                     } else if (!AiStore.elKey(AskActivity.this).isEmpty()) {

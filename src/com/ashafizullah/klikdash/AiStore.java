@@ -130,6 +130,9 @@ final class AiStore {
     /** Pakai suara ElevenLabs untuk jawaban (kalau key & voice terisi); selain itu TTS Android. */
     static boolean elTts(Context c) { return prefs(c).getBoolean("elTts", true); }
 
+    /** Pengenalan suara lewat ElevenLabs Scribe, bukan pengenal Android (bawaan: Android bila ada). */
+    static boolean elStt(Context c) { return prefs(c).getBoolean("elStt", false); }
+
     static void saveEleven(Context c, String key, String voice, String model, boolean tts) {
         prefs(c).edit().putString("elKey", encrypt(key)).putString("elVoice", voice)
                 .putString("elModel", model.isEmpty() ? EL_MODEL : model).putBoolean("elTts", tts).apply();

@@ -93,8 +93,8 @@ public class SettingsActivity extends Activity {
 
     @Override protected void onResume() {
         super.onResume();
-        // Kembali dari pengaturan sistem: status tampilan utama mungkin berubah.
-        if (current == TAB_LAUNCHER) show(TAB_LAUNCHER, true);
+        // Kembali dari pengaturan sistem atau Play Store: status tampilan utama atau mesin suara mungkin berubah.
+        if (current == TAB_LAUNCHER || current == TAB_AI) show(current, true);
     }
 
     @Override protected void onDestroy() {

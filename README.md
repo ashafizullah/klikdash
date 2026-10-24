@@ -111,6 +111,14 @@ The old NWD launcher is **not removed**. Its process stays because it also handl
   the list of installed app names, the current time and, when a command needs it, the location, goes to the AI
   provider of the active profile. Usage is billed to your own accounts. Nothing goes through a KlikDash server.
   The AI can be wrong: check what it did, and do not rely on it for anything safety-critical.
+- **Android voice (optional).** With **Suara jawaban › ANDROID**, answers are read by the headunit's own
+  text-to-speech engine through the standard Android API. If the headunit has none, KlikDash opens
+  [Speech Recognition & Synthesis](https://play.google.com/store/apps/details?id=com.google.android.tts) (Speech
+  Services by Google) in the Play Store. It is a separate, free app from Google under Google's own terms; KlikDash
+  does not include or redistribute it. With the Indonesian voice downloaded in its settings, answers are spoken
+  offline on the headunit. For listening, KlikDash uses the Android speech recognizer when one is installed, such
+  as the [Google app](https://play.google.com/store/apps/details?id=com.google.android.googlequicksearchbox); what
+  you say is then processed by Google instead of ElevenLabs.
 - **Security.** Enabled ADB over WiFi gives full access to the headunit. Only connect the headunit to a
   private network (such as your own phone's hotspot), never to public WiFi.
 - **Prayer-time accuracy** is within ±1 minute of the Kemenag schedule (compared for Jakarta,

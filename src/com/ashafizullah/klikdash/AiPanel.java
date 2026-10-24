@@ -75,22 +75,53 @@ final class AiPanel {
         list.addView(a.row("SUARA JAWABAN",
                 hasTts ? "ElevenLabs butuh internet dan memakai kuota akun ElevenLabs; bila gagal, otomatis memakai "
                         + "suara Android."
-                        : "Headunit ini tidak punya mesin suara Android, jadi jawaban hanya bisa dibacakan oleh "
-                        + "ElevenLabs. Tanpa ElevenLabs, jawaban tampil sebagai teks saja.",
+                        : "Headunit ini belum punya mesin suara Android, jadi jawaban hanya bisa dibacakan oleh "
+                        + "ElevenLabs. Ketuk ANDROID untuk memasang Speech Recognition & Synthesis dari Google "
+                        + "(gratis, bisa offline) di Play Store.",
                 a.key("ELEVENLABS", el || !hasTts, () -> setTts(true)),
-                a.key("ANDROID", el ? false : hasTts, () -> setTts(false)),
+                a.key("ANDROID", el ? false : hasTts, () -> {
+                    if (hasTts) setTts(false); else openStore("com.google.android.tts");
+                }),
                 a.key("DENGAR", false, this::speakTest)));
 
+        boolean elStt = AiStore.elStt(a);
         list.addView(a.row("PENGENALAN SUARA",
-                hasStt ? "Pintasan TANYA memakai pengenal suara bawaan Android (bahasa Indonesia). Bila gagal, rekaman "
-                        + "dikirim ke ElevenLabs Scribe untuk ditranskripsi."
-                        : "Headunit ini tidak punya pengenal suara Android, jadi ucapan Anda direkam lalu ditranskripsi "
-                        + "oleh ElevenLabs Scribe. Isi API key ElevenLabs agar pintasan TANYA bisa mendengar."));
+                hasStt ? "Android memakai pengenal suara Google, tanpa kuota ElevenLabs; bila gagal, rekaman dikirim ke "
+                        + "ElevenLabs Scribe. ElevenLabs mentranskripsi rekaman ucapan Anda dan memakai kuota akun "
+                        + "ElevenLabs; tanpa API key-nya, Android yang dipakai."
+                        : "Headunit ini belum punya pengenal suara Android, jadi ucapan Anda ditranskripsi oleh "
+                        + "ElevenLabs Scribe (isi API key-nya di atas). Ketuk ANDROID untuk memasang aplikasi Google "
+                        + "(gratis) dari Play Store.",
+                a.key("ELEVENLABS", elStt || !hasStt, () -> setStt(true)),
+                a.key("ANDROID", !elStt && hasStt, () -> {
+                    if (hasStt) setStt(false); else openStore("com.google.android.googlequicksearchbox");
+                })));
     }
 
     static String mask(String key) {
         if (key == null || key.isEmpty()) return "kosong";
         return "••••" + (key.length() > 8 ? key.substring(key.length() - 4) : "");
+    }
+
+    /**
+     * Belum ada mesin atau pengenal suara Android: buka aplikasinya di Play Store (Speech Recognition & Synthesis untuk
+     * suara, aplikasi Google untuk pengenal suara).
+     */
+    void openStore(String id) {
+        try {
+            a.startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW,
+                    Uri.parse("market://details?id=" + id)));
+        } catch (android.content.ActivityNotFoundException e) {
+            try {
+                a.startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW,
+                        Uri.parse("https://play.google.com/store/apps/details?id=" + id)));
+            } catch (android.content.ActivityNotFoundException ignored) { } // tanpa toko dan browser: notifikasi saja
+        }
+    }
+
+    void setStt(boolean eleven) {
+        AiStore.prefs(a).edit().putBoolean("elStt", eleven).apply();
+        render();
     }
 
     void setTts(boolean eleven) {

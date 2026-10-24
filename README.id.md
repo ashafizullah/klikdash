@@ -112,6 +112,14 @@ Launcher NWD lama **tidak dihapus**. Prosesnya tetap ada karena juga menangani i
   daftar nama aplikasi terpasang, jam sekarang, dan lokasi bila perintahnya butuh, dikirim ke penyedia AI profil
   yang aktif. Pemakaian ditagihkan ke akun Anda sendiri. Tidak ada yang lewat server KlikDash. AI bisa keliru:
   periksa apa yang dilakukannya, dan jangan andalkan untuk hal yang menyangkut keselamatan.
+- **Suara Android (opsional).** Dengan **Suara jawaban › ANDROID**, jawaban dibacakan mesin suara (TTS) headunit
+  sendiri lewat API standar Android. Bila headunit belum punya, KlikDash membuka
+  [Speech Recognition & Synthesis](https://play.google.com/store/apps/details?id=com.google.android.tts) (Speech
+  Services by Google) di Play Store. Itu aplikasi terpisah dan gratis dari Google dengan ketentuan Google sendiri;
+  KlikDash tidak menyertakan atau menyebarkannya ulang. Setelah suara bahasa Indonesia diunduh di pengaturannya,
+  jawaban dibacakan offline di headunit. Untuk mendengar, KlikDash memakai pengenal suara Android bila ada, misalnya
+  dari [aplikasi Google](https://play.google.com/store/apps/details?id=com.google.android.googlequicksearchbox);
+  ucapan Anda lalu diproses Google, bukan ElevenLabs.
 - **Keamanan.** ADB WiFi yang aktif memberi akses penuh ke headunit. Hanya sambungkan headunit ke jaringan
   pribadi (misalnya hotspot HP sendiri), jangan ke WiFi publik.
 - **Akurasi jadwal sholat** ±1 menit dibanding jadwal Kemenag (sudah dibandingkan untuk Jakarta,

@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -59,6 +60,33 @@ final class AiVoice {
     }
 
     /** Ada mesin TTS terpasang? Headunit NWD umumnya tidak punya (hanya suara TXZ milik NWD). */
+    /**
+     * Mesin TTS yang dipakai: pilihan di pengaturan Android bila terpasang, selain itu yang pertama ditemukan. Android
+     * sendiri hanya memilih otomatis mesin bawaan sistem, jadi tanpa ini Speech Services by Google yang dipasang dari
+     * Play Store tidak terpakai bila pengaturan "mesin pilihan" kosong (umum di headunit).
+     */
+    static String androidEngine(Context c) {
+        List<android.content.pm.ResolveInfo> rs = c.getPackageManager().queryIntentServices(
+                new android.content.Intent(TextToSpeech.Engine.INTENT_ACTION_TTS_SERVICE), 0);
+        String def = android.provider.Settings.Secure.getString(c.getContentResolver(), "tts_default_synth");
+        for (android.content.pm.ResolveInfo r : rs) if (r.serviceInfo.packageName.equals(def)) return def;
+        return rs.isEmpty() ? null : rs.get(0).serviceInfo.packageName;
+    }
+
+    /**
+     * Layanan pengenal suara: pilihan di pengaturan Android bila ada, selain itu yang pertama ditemukan (mis. aplikasi
+     * Google yang dipasang dari Play Store). Tanpa pilihan di pengaturan, SpeechRecognizer di Android 10 langsung gagal
+     * (ERROR_CLIENT) walau layanannya terpasang.
+     */
+    static android.content.ComponentName recognizer(Context c) {
+        String def = android.provider.Settings.Secure.getString(c.getContentResolver(), "voice_recognition_service");
+        if (def != null && !def.isEmpty()) return android.content.ComponentName.unflattenFromString(def);
+        List<android.content.pm.ResolveInfo> rs = c.getPackageManager().queryIntentServices(
+                new android.content.Intent(android.speech.RecognitionService.SERVICE_INTERFACE), 0);
+        return rs.isEmpty() ? null
+                : new android.content.ComponentName(rs.get(0).serviceInfo.packageName, rs.get(0).serviceInfo.name);
+    }
+
     static boolean hasAndroidTts(Context c) {
         return !c.getPackageManager().queryIntentServices(
                 new android.content.Intent(TextToSpeech.Engine.INTENT_ACTION_TTS_SERVICE), 0).isEmpty();
@@ -143,22 +171,28 @@ final class AiVoice {
         if (tts == null) {
             pendingSay = text;
             pendingDone = done;
+            String engine = androidEngine(ctx);
             tts = new TextToSpeech(ctx, status -> {
                 ttsReady = status == TextToSpeech.SUCCESS;
-                if (ttsReady) tts.setLanguage(new Locale("id", "ID"));
+                int lang = ttsReady ? tts.setLanguage(new Locale("id", "ID")) : TextToSpeech.LANG_NOT_SUPPORTED;
+                android.util.Log.i("KlikDashAI", "TTS Android " + engine + (ttsReady ? "" : " gagal") + ", id-ID " + lang);
                 String s = pendingSay;
                 Runnable d = pendingDone;
                 pendingSay = null;
                 pendingDone = null;
+                if (!ttsReady) {
+                    tts.shutdown();
+                    tts = null; // coba lagi lain kali (mis. mesin baru dipasang)
+                }
                 if (s != null) speakNow(s, d);
-            });
+            }, engine);
             return;
         }
         speakNow(text, done);
     }
 
     void speakNow(String text, Runnable done) {
-        if (!ttsReady) { post(done); return; }
+        if (!ttsReady || tts == null) { post(done); return; }
         tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override public void onStart(String id) { }
             @Override public void onDone(String id) { post(done); }
