@@ -43,8 +43,8 @@ merender animasi 3D (~40% CPU).
 
 ## Fitur
 
-- **Home:** jam besar, kecepatan dari GPS, tanggal Masehi dan Hijriah, suhu CPU, serta 11 pintasan yang bisa
-  disusun ulang dengan tekan lama.
+- **Home:** jam besar, kecepatan dari GPS, tanggal Masehi dan Hijriah, suhu CPU, serta hingga 11 pintasan yang bisa
+  disusun ulang dengan tekan lama (tampilkan 12, 9, 6, atau 4 pintasan: makin sedikit, makin besar dan mudah dibaca).
 - **Jadwal sholat:** offline, metode Kemenag, lokasi dari GPS, hitung mundur ke waktu sholat berikutnya.
 - **Al-Qur'an:** 114 surah dengan teks dan terjemahan Kemenag, murattal Mishary Rashid Alafasy per ayat, bisa
   dibaca offline.

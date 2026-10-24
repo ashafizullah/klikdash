@@ -82,8 +82,22 @@ public class HomeActivity extends Activity {
             {"com.ashafizullah.klikdash/.AskActivity", "TANYA"}, // asisten AI suara; Radio tetap ada di Semua
     };
     static final int SLOTS = DEFAULTS.length;
+    /**
+     * Pilihan jumlah ubin home (slot + ubin "Semua"), diatur di Pengaturan. Lebih sedikit = ubin, ikon, dan tulisan
+     * lebih besar. Slot yang tidak tampil tetap tersimpan dan muncul lagi bila jumlahnya ditambah.
+     */
+    static final int[] TILE_COUNTS = {12, 9, 6, 4};
+
+    static int tileCount(SharedPreferences p) {
+        int n = p.getInt("tiles", SLOTS + 1);
+        for (int c : TILE_COUNTS) if (c == n) return n;
+        return SLOTS + 1;
+    }
+
     /** Grid home: slot + ubin "Semua"; jumlah kolom dipilih dari ukuran layar (lihat measureScreen). */
     int cols = 4, rows = 3;
+    /** Jumlah slot yang tampil di home (ubin "Semua" sesudahnya); tetap sampai home dibangun ulang. */
+    int shown = SLOTS;
 
     // Ukuran layar dalam dp; tata letak dihitung dari sini, bukan ditulis mati untuk 1280×720.
     float wDp, hDp;
@@ -231,7 +245,7 @@ public class HomeActivity extends Activity {
         @Override public void onReceive(Context c, Intent i) {
             loadApps();
             adapter.notifyDataSetChanged();
-            for (Tile t : tiles) t.invalidate();
+            for (Tile t : tiles) if (t != null) t.invalidate();
         }
     };
 
@@ -316,6 +330,7 @@ public class HomeActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         if (Theme.stale(this, themeBuilt)) return;
+        if (tileCount(openPrefs()) != shown + 1) { recreate(); return; } // jumlah ubin diganti di Pengaturan
         keepOrientation();
         QuranService.listeners.add(onQuran);
         PrayerAlarm.home = new java.lang.ref.WeakReference<>(this);
@@ -765,8 +780,10 @@ public class HomeActivity extends Activity {
         float leftDp = portrait ? wDp - 48 : Math.max(260, Math.min(480, wDp * 0.34f));
         float panelH = portrait ? hDp * 0.42f : hDp;
         float gridW = portrait ? wDp - 48 : wDp - 48 - leftDp - 57;
-        cols = portrait || gridW < 600 ? 3 : 4;
-        rows = (SLOTS + 1 + cols - 1) / cols;
+        int n = tileCount(prefs);
+        shown = n - 1;
+        cols = n == 4 ? 2 : n == 12 && !portrait && gridW >= 600 ? 4 : 3;
+        rows = (n + cols - 1) / cols;
         boolean shortPanel = panelH < 560; // tidak cukup tinggi untuk penggaris 24 jam
         // Jam sebesar mungkin: jam dan kecepatan 3 digit (ukurannya 0,43 × jam) muat berdampingan di lebar panel, dan
         // sebanding tinggi layar. Lebar diukur dengan digit terlebar (angka font ini tidak sama lebar) pada ukuran sp.
@@ -903,7 +920,8 @@ public class HomeActivity extends Activity {
             line.setOrientation(LinearLayout.HORIZONTAL);
             for (int c = 0; c < cols; c++) {
                 int idx = r * cols + c;
-                if (idx > SLOTS) break;
+                if (idx > shown) break;
+                if (idx == shown) idx = SLOTS; // ubin "Semua" selalu terakhir
                 Tile t = new Tile(idx);
                 tiles[idx] = t;
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, MATCH, 1f);
@@ -1147,14 +1165,15 @@ public class HomeActivity extends Activity {
         @Override protected void onDraw(Canvas c) {
             drawFrame(c);
             int w = getWidth(), h = getHeight();
-            float k = Math.max(0.55f, Math.min(1.25f, Math.min(w / (float) px(180), h / (float) px(190))));
+            // Ubin besar (sedikit ubin, layar besar) memperbesar ikon dan tulisan, sampai 1,8×.
+            float k = Math.max(0.55f, Math.min(1.8f, Math.min(w / (float) px(180), h / (float) px(190))));
             int m = Math.round(px(16) * k);
-            small.setTextSize(sp(11) * Math.max(0.85f, Math.min(1.1f, k)));
+            small.setTextSize(sp(11) * Math.max(0.85f, Math.min(1.4f, k)));
             boolean all = idx == SLOTS;
             App a = all ? null : appFor(idx);
 
             small.setColor(down ? INK : (idx < cols ? AMBER : DIM));
-            c.drawText(String.format(Locale.US, "%02d", idx + 1), m, m + small.getTextSize(), small);
+            c.drawText(String.format(Locale.US, "%02d", (all ? shown : idx) + 1), m, m + small.getTextSize(), small);
 
             int icon = Math.round(px(60) * k);
             String name, sub = null;

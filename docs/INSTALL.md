@@ -101,6 +101,9 @@ working.**
 - **Change a tile's app:** long-press the tile, release in place, then pick an app.
 - **Swap two tiles:** long-press a tile, drag it onto another one, and release.
 - **All apps:** tap the **SEMUA** tile. Long-press an app there to open its info (for example to uninstall).
+- **Bigger tiles:** tap **⚙**, then under **JUMLAH PINTASAN** (number of shortcuts) pick 9, 6 or 4 (default 12,
+  including SEMUA). Fewer tiles means bigger tiles, icons and text. Hidden shortcuts are kept and come back when you
+  raise the number again.
 - **CPU temperature** at the top left turns amber from 70 °C and red ("PANAS", hot) from 85 °C.
 
 ## Power saver (Hemat Daya)

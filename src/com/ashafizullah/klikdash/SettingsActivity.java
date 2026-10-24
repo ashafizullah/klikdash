@@ -219,6 +219,20 @@ public class SettingsActivity extends Activity {
         }
         list.addView(row("TEMA", Theme.DESC[cur], themes));
 
+        int tc = HomeActivity.tileCount(prefs);
+        Key[] counts = new Key[HomeActivity.TILE_COUNTS.length];
+        for (int i = 0; i < counts.length; i++) {
+            final int n = HomeActivity.TILE_COUNTS[i];
+            counts[i] = key(String.valueOf(n), n == tc, () -> {
+                prefs.edit().putInt("tiles", n).apply();
+                show(TAB_LAUNCHER, true); // home dibangun ulang saat tampil lagi
+            });
+            counts[i].minWidth = px(56);
+        }
+        list.addView(row("JUMLAH PINTASAN",
+                "Pintasan di home, termasuk SEMUA. Makin sedikit, makin besar pintasan, ikon, dan tulisannya. Pintasan "
+                        + "yang tidak tampil tetap tersimpan dan muncul lagi bila jumlahnya ditambah.", counts));
+
         int wm = Welcome.mode(prefs);
         list.addView(row("SAMBUTAN",
                 "Tampil di home saat headunit menyala. " + (wm == Welcome.MODE_OFF ? "Sekarang dimatikan."
