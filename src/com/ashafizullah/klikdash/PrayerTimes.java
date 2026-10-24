@@ -1,4 +1,4 @@
-package com.klikdash.app;
+package com.ashafizullah.klikdash;
 
 import java.util.Calendar;
 import java.util.TimeZone;

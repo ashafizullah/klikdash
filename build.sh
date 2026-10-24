@@ -6,8 +6,8 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-VERSION_NAME=${VERSION_NAME:-1.3.1}
-VERSION_CODE=${VERSION_CODE:-5}
+VERSION_NAME=${VERSION_NAME:-1.4.0}
+VERSION_CODE=${VERSION_CODE:-6}
 
 SDK=${ANDROID_HOME:-$HOME/Library/Android/sdk}
 BT=$SDK/build-tools/36.0.0
@@ -27,7 +27,7 @@ if [ "$MODE" = "release" ] || [ ! -s assets/quran.txt ]; then rm -f build/assets
 
 # Build pengembangan (bukan rilis) diberi android:debuggable, untuk uji TANYA lewat adb (lihat AskActivity).
 DEBUG_FLAG=""; [ "$MODE" != "release" ] && DEBUG_FLAG="--debug-mode"
-# PKG=com.klikdash.demo ./build.sh release: salinan dengan nama paket lain (mis. rekam tutorial "pasang pertama kali"
+# PKG=com.ashafizullah.klikdash.demo ./build.sh release: salinan dengan nama paket lain (mis. rekam tutorial "pasang pertama kali"
 # tanpa menghapus KlikDash yang terpasang).
 [ -n "${PKG:-}" ] && DEBUG_FLAG="$DEBUG_FLAG --rename-manifest-package $PKG"
 "$BT/aapt2" link -o build/base.apk -I "$JAR" --manifest AndroidManifest.xml -A build/assets -0 ttf $DEBUG_FLAG \
@@ -78,8 +78,8 @@ fi
 
 if [ "$MODE" = "install" ]; then
     adb -s "$DEVICE" install -r build/klikdash.apk
-    adb -s "$DEVICE" shell pm grant com.klikdash.app android.permission.ACCESS_FINE_LOCATION
-    adb -s "$DEVICE" shell pm grant com.klikdash.app android.permission.ACCESS_COARSE_LOCATION
-    adb -s "$DEVICE" shell cmd package set-home-activity com.klikdash.app/.HomeActivity
+    adb -s "$DEVICE" shell pm grant com.ashafizullah.klikdash android.permission.ACCESS_FINE_LOCATION
+    adb -s "$DEVICE" shell pm grant com.ashafizullah.klikdash android.permission.ACCESS_COARSE_LOCATION
+    adb -s "$DEVICE" shell cmd package set-home-activity com.ashafizullah.klikdash/.HomeActivity
     adb -s "$DEVICE" shell am start -a android.intent.action.MAIN -c android.intent.category.HOME
 fi

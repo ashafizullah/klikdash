@@ -1,4 +1,4 @@
-package com.klikdash.app;
+package com.ashafizullah.klikdash;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;

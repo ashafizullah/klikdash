@@ -1,4 +1,4 @@
-package com.klikdash.app;
+package com.ashafizullah.klikdash;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -32,7 +32,7 @@ import java.util.Map;
  */
 final class Updater {
     static final String LATEST = "https://api.github.com/repos/ashafizullah/klikdash/releases/latest";
-    static final String ACTION_STATUS = "com.klikdash.app.INSTALL_STATUS";
+    static final String ACTION_STATUS = "com.ashafizullah.klikdash.INSTALL_STATUS";
 
     static final class Release {
         String version, notes, apkUrl;

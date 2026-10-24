@@ -1,4 +1,4 @@
-package com.klikdash.app;
+package com.ashafizullah.klikdash;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -23,14 +23,14 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
-import static com.klikdash.app.HomeActivity.AMBER;
-import static com.klikdash.app.HomeActivity.BG;
-import static com.klikdash.app.HomeActivity.DIM;
-import static com.klikdash.app.HomeActivity.FAINT;
-import static com.klikdash.app.HomeActivity.INK;
-import static com.klikdash.app.HomeActivity.LINE;
-import static com.klikdash.app.HomeActivity.PANEL;
-import static com.klikdash.app.HomeActivity.TEXT;
+import static com.ashafizullah.klikdash.HomeActivity.AMBER;
+import static com.ashafizullah.klikdash.HomeActivity.BG;
+import static com.ashafizullah.klikdash.HomeActivity.DIM;
+import static com.ashafizullah.klikdash.HomeActivity.FAINT;
+import static com.ashafizullah.klikdash.HomeActivity.INK;
+import static com.ashafizullah.klikdash.HomeActivity.LINE;
+import static com.ashafizullah.klikdash.HomeActivity.PANEL;
+import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 
 /** Al-Qur'an offline: daftar surah di kiri, mushaf + terjemahan di kanan, pemutar di bawah. */
 public class QuranActivity extends Activity {

@@ -1,4 +1,4 @@
-package com.klikdash.app;
+package com.ashafizullah.klikdash;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -74,11 +74,11 @@ public class HomeActivity extends Activity {
             {"com.google.android.youtube/.app.honeycomb.Shell$HomeActivity", "YOUTUBE"},
             {"com.nwd.android.phone/.home_horizontalActivity", "TELEPON"},
             {"com.nwd.android.video.ui/.home_horizontalActivity", "VIDEO"},
-            {"com.klikdash.app/.DzikirActivity", "DZIKIR"},
-            {"com.klikdash.app/.QuranActivity", "AL-QUR'AN"},
+            {"com.ashafizullah.klikdash/.DzikirActivity", "DZIKIR"},
+            {"com.ashafizullah.klikdash/.QuranActivity", "AL-QUR'AN"},
             {"com.nwd.carkit360camera/.home_horizontalActivity", "KAMERA 360"},
             {"com.android.car.setting/.home_horizontalActivity", "SISTEM"},
-            {"com.klikdash.app/.AskActivity", "TANYA"}, // asisten AI suara; Radio tetap ada di Semua
+            {"com.ashafizullah.klikdash/.AskActivity", "TANYA"}, // asisten AI suara; Radio tetap ada di Semua
     };
     static final int SLOTS = DEFAULTS.length;
     /** Grid home: slot + ubin "Semua"; jumlah kolom dipilih dari ukuran layar (lihat measureScreen). */
@@ -275,7 +275,14 @@ public class HomeActivity extends Activity {
         tempTick.run();
         refreshDefaultHome();
         startSpeed();
+        if (!oldPkgAsked) {
+            oldPkgAsked = true;
+            HomeSwitch.offerRemoveOld(this, prefs, this::refreshDefaultHome);
+        }
     }
+
+    /** Tawaran menghapus KlikDash lama muncul sekali per proses, bukan setiap kembali ke home. */
+    boolean oldPkgAsked;
 
     // ---------------------------------------------------------------- tanggal Hijriah
 
@@ -553,7 +560,7 @@ public class HomeActivity extends Activity {
         updateTime();
     }
 
-    /** Set lokasi manual lewat adb: am start -n com.klikdash.app/.HomeActivity --es lat -6.1754 --es lon 106.8272 --es city Jakarta */
+    /** Set lokasi manual lewat adb: am start -n com.ashafizullah.klikdash/.HomeActivity --es lat -6.1754 --es lon 106.8272 --es city Jakarta */
     void applyLocationExtras(Intent i) {
         Bundle x = i != null ? i.getExtras() : null;
         if (x == null || !x.containsKey("lat") || !x.containsKey("lon")) return;

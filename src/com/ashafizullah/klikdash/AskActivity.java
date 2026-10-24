@@ -1,4 +1,4 @@
-package com.klikdash.app;
+package com.ashafizullah.klikdash;
 
 import android.Manifest;
 import android.app.Activity;
@@ -20,14 +20,14 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import static com.klikdash.app.HomeActivity.AMBER;
-import static com.klikdash.app.HomeActivity.BG;
-import static com.klikdash.app.HomeActivity.DIM;
-import static com.klikdash.app.HomeActivity.FAINT;
-import static com.klikdash.app.HomeActivity.INK;
-import static com.klikdash.app.HomeActivity.LINE;
-import static com.klikdash.app.HomeActivity.PANEL;
-import static com.klikdash.app.HomeActivity.TEXT;
+import static com.ashafizullah.klikdash.HomeActivity.AMBER;
+import static com.ashafizullah.klikdash.HomeActivity.BG;
+import static com.ashafizullah.klikdash.HomeActivity.DIM;
+import static com.ashafizullah.klikdash.HomeActivity.FAINT;
+import static com.ashafizullah.klikdash.HomeActivity.INK;
+import static com.ashafizullah.klikdash.HomeActivity.LINE;
+import static com.ashafizullah.klikdash.HomeActivity.PANEL;
+import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 
 /**
  * Ubin TANYA: dengar perintah, jalankan lewat AI + alat mobil (AiTools), bacakan jawabannya.
@@ -153,7 +153,7 @@ public class AskActivity extends Activity {
         who.setText((profile.name + " · " + (profile.model.isEmpty() ? AiStore.CLAUDE_MODEL : profile.model)).toUpperCase(HomeActivity.ID));
         again.setLabel("TANYA LAGI");
         again.setOnClickListener(v -> listen());
-        // Uji tanpa mikrofon: adb shell am start -n com.klikdash.app/.AskActivity --es q "putar surat Yasin"
+        // Uji tanpa mikrofon: adb shell am start -n com.ashafizullah.klikdash/.AskActivity --es q "putar surat Yasin"
         // Hanya di build pengembangan (debuggable): TANYA bisa dibuka aplikasi lain, jadi di APK rilis aplikasi lain
         // tidak boleh menitipkan perintah teks untuk dijalankan AI.
         boolean dev = (getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0;

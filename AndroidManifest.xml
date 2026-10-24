@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.klikdash.app">
+    package="com.ashafizullah.klikdash">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- Pembaruan dari Pengaturan bila ADB lokal tidak tersedia (Android meminta konfirmasi) -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- Menawarkan uninstall KlikDash lama (com.klikdash.app); Android 9+ butuh izin ini untuk ACTION_DELETE. -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
     <application
         android:label="KlikDash"
@@ -41,7 +43,7 @@
             android:name=".QuranActivity"
             android:label="Al-Qur'an"
             android:icon="@drawable/ic_quran"
-            android:taskAffinity="com.klikdash.app.quran"
+            android:taskAffinity="com.ashafizullah.klikdash.quran"
             android:launchMode="singleTask"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden|navigation|uiMode|density|locale|layoutDirection|fontScale">
             <intent-filter>
@@ -54,7 +56,7 @@
             android:name=".DzikirActivity"
             android:label="Dzikir"
             android:icon="@drawable/ic_dzikir"
-            android:taskAffinity="com.klikdash.app.dzikir"
+            android:taskAffinity="com.ashafizullah.klikdash.dzikir"
             android:launchMode="singleTask"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden|navigation|uiMode|density|locale|layoutDirection|fontScale">
             <intent-filter>
@@ -66,7 +68,7 @@
         <activity
             android:name=".SettingsActivity"
             android:label="Pengaturan KlikDash"
-            android:taskAffinity="com.klikdash.app.settings"
+            android:taskAffinity="com.ashafizullah.klikdash.settings"
             android:launchMode="singleTask"
             android:excludeFromRecents="true"
             android:windowSoftInputMode="adjustResize"
@@ -76,7 +78,7 @@
             android:name=".AskActivity"
             android:label="Tanya"
             android:icon="@drawable/ic_ask"
-            android:taskAffinity="com.klikdash.app.ask"
+            android:taskAffinity="com.ashafizullah.klikdash.ask"
             android:launchMode="singleTask"
             android:excludeFromRecents="true"
             android:screenOrientation="unspecified">

@@ -9,7 +9,7 @@ klikdash/
 ├── AndroidManifest.xml
 ├── build.sh                  build + pasang ke headunit
 ├── klikdash.keystore         kunci tanda tangan APK (jangan hilang, lihat Catatan)
-├── src/com/klikdash/app/
+├── src/com/ashafizullah/klikdash/
 │   ├── HomeActivity.java     launcher: pintasan, jam, sholat, suhu, drag & drop
 │   ├── PrayerTimes.java      perhitungan jadwal sholat (algoritma praytimes.org)
 │   ├── QuranActivity.java    tampilan mushaf + pemutar
@@ -74,7 +74,7 @@ sampai `set-home-activity` dijalankan ulang.
 
 Aplikasi mengunduh audionya sendiri (lihat Fitur). Untuk mengisi ke-114 surah sekaligus (1,6 GB) tanpa
 memakai koneksi headunit, unduh di komputer lalu kirim lewat ADB. Lokasi filenya:
-`/sdcard/Android/data/com.klikdash.app/files/quran/audio/SSSAAA.mp3`.
+`/sdcard/Android/data/com.ashafizullah.klikdash/files/quran/audio/SSSAAA.mp3`.
 
 ```bash
 # unduh (sekali)
@@ -85,7 +85,7 @@ for z in zips/*.zip; do unzip -qq -o -j "$z" '*.mp3' -d audio; done
 mkdir -p intro && mv audio/*000.mp3 intro/
 
 # kirim ke headunit (~20 menit lewat WiFi)
-adb push audio /sdcard/Android/data/com.klikdash.app/files/quran/
+adb push audio /sdcard/Android/data/com.ashafizullah.klikdash/files/quran/
 ```
 
 Basmalah sebelum ayat 1 (kecuali Al-Fatihah dan At-Taubah) memakai `001001.mp3`.
@@ -135,7 +135,7 @@ Skrip ini juga membersihkan teks:
 - **Nama kota tidak terdeteksi otomatis**, karena geocoder di perangkat ini tidak mengembalikan hasil.
   Nama kota bisa diisi manual dan tetap dipakai selama posisi masih dalam radius 15 km:
   ```bash
-  adb shell am start -n com.klikdash.app/.HomeActivity --es lat -6.1754 --es lon 106.8272 --es city "Jakarta"
+  adb shell am start -n com.ashafizullah.klikdash/.HomeActivity --es lat -6.1754 --es lon 106.8272 --es city "Jakarta"
   ```
 - **`klikdash.keystore`** (alias `kokpit`) wajib dicadangkan di tempat aman, misalnya lampiran password
   manager. File ini tidak ikut di repo. Password-nya ada di **macOS Keychain** (servis `klikdash-keystore`):

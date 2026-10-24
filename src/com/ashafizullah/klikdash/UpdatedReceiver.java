@@ -1,4 +1,4 @@
-package com.klikdash.app;
+package com.ashafizullah.klikdash;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

@@ -1,4 +1,4 @@
-package com.klikdash.app;
+package com.ashafizullah.klikdash;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -18,6 +18,8 @@ import android.widget.Toast;
 final class HomeSwitch {
     static final String NWD_PROP = "persist.nwd.launcher.default";
     static final String NEED_ADB = "Belum berhasil. Aktifkan USB debugging di Opsi pengembang, lalu coba lagi.";
+    /** Nama paket sampai 1.3.1. Android menganggapnya aplikasi lain, jadi versi lama tetap terpasang di sampingnya. */
+    static final String OLD_PKG = "com.klikdash.app";
 
     private HomeSwitch() { }
 
@@ -51,7 +53,7 @@ final class HomeSwitch {
             return;
         }
         String cur = getprop(NWD_PROP), me = a.getPackageName();
-        if (!cur.isEmpty() && !cur.equals(me)) prefs.edit().putString("nwdPrev", cur).apply();
+        if (!cur.isEmpty() && !cur.equals(me) && !cur.equals(OLD_PKG)) prefs.edit().putString("nwdPrev", cur).apply();
         Tweaks.shellAsync("setprop " + NWD_PROP + " " + me + "; cmd package set-home-activity " + me + "/.HomeActivity",
                 ok -> a.runOnUiThread(() -> {
                     if (done != null) done.run();
@@ -79,6 +81,32 @@ final class HomeSwitch {
                             });
                 })
                 .show();
+    }
+
+    /**
+     * Bila KlikDash lama ({@link #OLD_PKG}) masih terpasang, tawarkan untuk menghapusnya. Kalau versi lama masih
+     * tampilan utama, versi ini dijadikan tampilan utama dulu supaya headunit tidak kehilangan launcher-nya.
+     */
+    static void offerRemoveOld(Activity a, SharedPreferences prefs, Runnable done) {
+        try {
+            a.getPackageManager().getPackageInfo(OLD_PKG, 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            return;
+        }
+        Runnable uninstall = () -> a.startActivity(new Intent(Intent.ACTION_DELETE, android.net.Uri.parse("package:" + OLD_PKG)));
+        SettingsActivity.showDark(new AlertDialog.Builder(a)
+                .setTitle("KlikDash lama masih terpasang")
+                .setMessage("Sejak 1.4.0 KlikDash memakai nama paket baru, jadi versi lama terpasang terpisah. Hapus versi "
+                        + "lama? Pengaturan, kunci AI, lokasi dan unduhan Al-Qur'an perlu diatur ulang di versi ini.")
+                .setNegativeButton("Nanti", null)
+                .setPositiveButton("Hapus", (dlg, w) -> {
+                    // Gagal jadi tampilan utama (ADB mati): versi lama dibiarkan, toast makeDefault menjelaskannya.
+                    if (isNwd() && OLD_PKG.equals(getprop(NWD_PROP))) makeDefault(a, prefs, () -> {
+                        if (done != null) done.run();
+                        if (isDefault(a)) uninstall.run();
+                    });
+                    else uninstall.run();
+                }));
     }
 
     /** Activity HOME bawaan: milik paket {@code pkg}, atau launcher lain selain KlikDash. */

@@ -1,4 +1,4 @@
-package com.klikdash.app;
+package com.ashafizullah.klikdash;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -24,17 +24,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.klikdash.app.HomeActivity.AMBER;
-import static com.klikdash.app.HomeActivity.BG;
-import static com.klikdash.app.HomeActivity.DIM;
-import static com.klikdash.app.HomeActivity.FAINT;
-import static com.klikdash.app.HomeActivity.INK;
-import static com.klikdash.app.HomeActivity.LINE;
-import static com.klikdash.app.HomeActivity.PANEL;
-import static com.klikdash.app.HomeActivity.TEXT;
-import static com.klikdash.app.SettingsActivity.ID;
-import static com.klikdash.app.SettingsActivity.MATCH;
-import static com.klikdash.app.SettingsActivity.WRAP;
+import static com.ashafizullah.klikdash.HomeActivity.AMBER;
+import static com.ashafizullah.klikdash.HomeActivity.BG;
+import static com.ashafizullah.klikdash.HomeActivity.DIM;
+import static com.ashafizullah.klikdash.HomeActivity.FAINT;
+import static com.ashafizullah.klikdash.HomeActivity.INK;
+import static com.ashafizullah.klikdash.HomeActivity.LINE;
+import static com.ashafizullah.klikdash.HomeActivity.PANEL;
+import static com.ashafizullah.klikdash.HomeActivity.TEXT;
+import static com.ashafizullah.klikdash.SettingsActivity.ID;
+import static com.ashafizullah.klikdash.SettingsActivity.MATCH;
+import static com.ashafizullah.klikdash.SettingsActivity.WRAP;
 
 /**
  * Tab Hemat Daya: larang aplikasi pihak ketiga berjalan di latar (appops RUN_ANY_IN_BACKGROUND/RUN_IN_BACKGROUND

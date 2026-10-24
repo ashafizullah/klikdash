@@ -1,4 +1,4 @@
-package com.klikdash.app;
+package com.ashafizullah.klikdash;
 
 import android.app.AlertDialog;
 import android.net.Uri;
@@ -10,8 +10,8 @@ import android.widget.Toast;
 
 import java.util.List;
 
-import static com.klikdash.app.SettingsActivity.MATCH;
-import static com.klikdash.app.SettingsActivity.WRAP;
+import static com.ashafizullah.klikdash.SettingsActivity.MATCH;
+import static com.ashafizullah.klikdash.SettingsActivity.WRAP;
 
 /**
  * Tab Asisten AI: profil penyedia (Claude atau OpenAI-compatible, bisa lebih dari satu, satu aktif) dan suara

@@ -1,4 +1,4 @@
-package com.klikdash.app;
+package com.ashafizullah.klikdash;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -6,11 +6,11 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.view.View;
 
-import static com.klikdash.app.HomeActivity.AMBER;
-import static com.klikdash.app.HomeActivity.INK;
-import static com.klikdash.app.HomeActivity.LINE;
-import static com.klikdash.app.HomeActivity.PANEL;
-import static com.klikdash.app.HomeActivity.TEXT;
+import static com.ashafizullah.klikdash.HomeActivity.AMBER;
+import static com.ashafizullah.klikdash.HomeActivity.INK;
+import static com.ashafizullah.klikdash.HomeActivity.LINE;
+import static com.ashafizullah.klikdash.HomeActivity.PANEL;
+import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 
 /** Tombol teks bergaya KlikDash; amber bila {@code on}. Dipakai Pengaturan dan TANYA. */
 final class Key extends View {
