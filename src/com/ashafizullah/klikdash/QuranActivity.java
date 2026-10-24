@@ -45,6 +45,7 @@ public class QuranActivity extends Activity {
 
     int surah = 1;            // surah yang sedang ditampilkan
     int followed = -1;        // indeks global ayat terakhir yang diikuti scroll
+    int followedSurah = -1;   // surah pemutar yang terakhir diikuti tampilan
     boolean showLatin, showIndo;
 
     ListView surahList, ayahList;
@@ -172,6 +173,7 @@ public class QuranActivity extends Activity {
         super.onResume();
         QuranService.listeners.add(onService);
         followed = -1;
+        followedSurah = -1;
         if (QuranData.loaded()) refreshPlayer();
     }
 
@@ -228,7 +230,7 @@ public class QuranActivity extends Activity {
         surahList = list();
         surahAdapter = new SurahAdapter();
         surahList.setAdapter(surahAdapter);
-        surahList.setOnItemClickListener((p, v, pos, id) -> open(pos + 1, 1));
+        surahList.setOnItemClickListener((p, v, pos, id) -> pickSurah(pos + 1));
         left.addView(surahList, new LinearLayout.LayoutParams(MATCH, 0, 1f));
         row.addView(left, portrait ? new LinearLayout.LayoutParams(MATCH, px(hDp * 0.34f))
                 : new LinearLayout.LayoutParams(px(listDp()), MATCH));
@@ -352,14 +354,22 @@ public class QuranActivity extends Activity {
         hArab.setText(q.arab);
         ayahAdapter.notifyDataSetChanged();
         surahAdapter.notifyDataSetChanged();
-        int pos = a <= 1 ? 0 : a - 1 + offset();
-        ayahList.setSelectionFromTop(pos, 0);
         followed = -1;
         refreshPlayer();
+        // Sesudah refreshPlayer: invalidateViews() di sana membatalkan lompatan scroll. Bila refreshPlayer sudah
+        // pindah ke surah yang sedang diputar, biarkan posisinya.
+        if (surah == s) ayahList.setSelectionFromTop(a <= 1 ? 0 : a - 1 + offset(), 0);
     }
 
+    /** Saat murattal diputar, tap surah langsung memutarnya (satu ketukan sambil menyetir); selain itu hanya membuka. */
+    void pickSurah(int s) {
+        if (QuranService.playing && s != QuranService.surah) QuranService.play(this, s, 1);
+        open(s, 1);
+    }
+
+    /** Surah yang tampil = surah pemutar: jeda/lanjut. Surah lain: putar dari awal. */
     void togglePlay() {
-        if (QuranService.active || QuranService.surah == surah) {
+        if (QuranService.surah == surah) {
             QuranService.send(this, QuranService.ACTION_TOGGLE);
         } else {
             QuranService.play(this, surah, 1);
@@ -413,7 +423,13 @@ public class QuranActivity extends Activity {
         surahList.invalidateViews();
 
         if (QuranService.playing) {
-            if (s != surah) open(s, a);
+            // Ikuti pemutar hanya saat ia pindah surah (mode LANJUT, ⏮/⏭), supaya surah yang baru dibuka tidak
+            // langsung ditimpa surah yang masih diputar.
+            if (s != followedSurah) {
+                followedSurah = s;
+                if (s != surah) open(s, a);
+            }
+            if (s != surah) return;
             int g = QuranData.index(s, a);
             if (g != followed) {
                 followed = g;
