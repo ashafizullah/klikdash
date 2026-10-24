@@ -275,12 +275,10 @@ public class SettingsActivity extends Activity {
                 String cur = Updater.installedVersion(this);
                 if (e != null) {
                     updateKey.setLabel("CEK UPDATE");
-                    showDark(new AlertDialog.Builder(this).setTitle("Gagal mengecek").setMessage(e)
-                            .setPositiveButton("OK", null));
+                    Notice.show(this, Notice.FAIL, "Cek update", e);
                 } else if (rel == null || Updater.compare(rel.version, cur) <= 0) {
                     show(TAB_LAUNCHER, true);
-                    android.widget.Toast.makeText(this, "KlikDash " + cur + " sudah versi terbaru",
-                            android.widget.Toast.LENGTH_LONG).show();
+                    Notice.ok(this, "KlikDash " + cur + " sudah versi terbaru");
                 } else {
                     updateKey.setLabel("CEK UPDATE");
                     String notes = rel.notes.length() > 700 ? rel.notes.substring(0, 700) + "…" : rel.notes;
@@ -305,16 +303,13 @@ public class SettingsActivity extends Activity {
                     prog.setMessage("Memasang… KlikDash akan tertutup sebentar lalu terbuka lagi.");
                     Updater.install(this, apk, () -> runOnUiThread(() -> {
                         prog.dismiss();
-                        android.widget.Toast.makeText(this, "Izinkan KlikDash memasang aplikasi, lalu cek update lagi",
-                                android.widget.Toast.LENGTH_LONG).show();
+                        Notice.info(this, "Izinkan KlikDash memasang aplikasi, lalu cek update lagi");
                     }));
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> {
                     prog.dismiss();
-                    showDark(new AlertDialog.Builder(this).setTitle("Pembaruan gagal")
-                            .setMessage(e.getMessage() != null ? e.getMessage() : "Coba lagi nanti")
-                            .setPositiveButton("OK", null));
+                    Notice.show(this, Notice.FAIL, "Pembaruan", e.getMessage() != null ? e.getMessage() : "Coba lagi nanti");
                 });
             }
         }, "update-download").start();
@@ -328,7 +323,7 @@ public class SettingsActivity extends Activity {
                     SharedPreferences.Editor e = prefs.edit();
                     for (int i = 0; i < HomeActivity.SLOTS; i++) e.remove("s" + i).remove("l" + i);
                     e.apply();
-                    android.widget.Toast.makeText(this, "Pintasan dikembalikan ke bawaan", android.widget.Toast.LENGTH_SHORT).show();
+                    Notice.ok(this, "Pintasan dikembalikan ke bawaan");
                 }));
     }
 
@@ -446,6 +441,7 @@ public class SettingsActivity extends Activity {
         bg.setStroke(Math.round(density), LINE);
         d.getWindow().setBackgroundDrawable(bg);
         d.show();
+        Notice.track(d);
         return d;
     }
 

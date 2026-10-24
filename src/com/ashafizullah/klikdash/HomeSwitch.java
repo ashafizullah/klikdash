@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.provider.Settings;
-import android.widget.Toast;
 
 /**
  * Menjadikan KlikDash tampilan utama, atau kembali ke launcher bawaan. Firmware NWD mengabaikan pilihan
@@ -55,7 +54,7 @@ final class HomeSwitch {
         Tweaks.shellAsync("setprop " + NWD_PROP + " " + me + "; cmd package set-home-activity " + me + "/.HomeActivity",
                 ok -> a.runOnUiThread(() -> {
                     if (done != null) done.run();
-                    Toast.makeText(a, isDefault(a) ? "KlikDash sekarang tampilan utama" : NEED_ADB, Toast.LENGTH_LONG).show();
+                    if (isDefault(a)) Notice.ok(a, "KlikDash sekarang tampilan utama"); else Notice.fail(a, NEED_ADB);
                 }));
     }
 
@@ -75,7 +74,7 @@ final class HomeSwitch {
                                     + (stock != null ? "; cmd package set-home-activity " + stock.flattenToShortString() : "")
                                     + "; input keyevent KEYCODE_HOME",
                             ok -> {
-                                if (!ok) a.runOnUiThread(() -> Toast.makeText(a, NEED_ADB, Toast.LENGTH_LONG).show());
+                                if (!ok) Notice.fail(a, NEED_ADB);
                             });
                 })
                 .show();

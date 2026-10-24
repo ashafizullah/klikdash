@@ -44,7 +44,6 @@ import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -535,7 +534,7 @@ public class HomeActivity extends Activity {
             try {
                 if (li != null) { startActivity(li); return; }
             } catch (Exception ignored) { }
-            Toast.makeText(this, "Tidak bisa membuka aplikasi", Toast.LENGTH_SHORT).show();
+            Notice.fail(this, "Tidak bisa membuka aplikasi");
         }
     }
 

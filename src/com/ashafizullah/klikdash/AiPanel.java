@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -101,7 +100,7 @@ final class AiPanel {
 
     void speakTest() {
         if (AiStore.elKey(a).isEmpty() && !AiVoice.hasAndroidTts(a)) {
-            toast("Isi API key & voice ID ElevenLabs dulu");
+            Notice.info(a, "Isi API key & voice ID ElevenLabs dulu");
             return;
         }
         if (voice == null) voice = new AiVoice(a);
@@ -109,22 +108,26 @@ final class AiPanel {
     }
 
     void test(AiStore.Profile p, Key k) {
-        if (p.apiKey.isEmpty()) { toast("API key belum diisi"); return; }
+        if (p.apiKey.isEmpty()) { Notice.info(a, "API key belum diisi"); return; }
         k.setLabel("MENGUJI…");
         k.setEnabled(false);
         new Thread(() -> {
             String msg;
+            int kind;
             try {
                 String r = new AiClient(a, p).ask("Tes koneksi. Jawab satu kalimat singkat bahwa kamu siap, tanpa memakai alat.");
                 msg = r.isEmpty() ? "Tersambung" : r;
+                kind = Notice.OK;
             } catch (Exception e) {
-                msg = "Gagal: " + (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
+                msg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+                kind = Notice.FAIL;
             }
             final String m = msg;
+            final int kd = kind;
             a.runOnUiThread(() -> {
                 k.setLabel("UJI");
                 k.setEnabled(true);
-                SettingsActivity.showDark(new AlertDialog.Builder(a).setTitle(p.name).setMessage(m).setPositiveButton("OK", null));
+                Notice.show(a, kd, p.name, m);
             });
         }, "ai-test").start();
     }
@@ -160,9 +163,9 @@ final class AiPanel {
             String n = name.getText().toString().trim(), u = AiClient.trim(url.getText().toString());
             String m = model.getText().toString().trim(), k = key.getText().toString().trim();
             if (u.isEmpty()) u = p.claude() ? AiStore.CLAUDE_URL : AiStore.OPENAI_URL;
-            if (!u.startsWith("https://") && !u.startsWith("http://")) { toast("Base URL harus diawali https://"); return; }
-            if (m.isEmpty() && !p.claude()) { toast("Isi nama model"); return; }
-            if (k.isEmpty() && p.apiKey.isEmpty()) { toast("Isi API key"); return; }
+            if (!u.startsWith("https://") && !u.startsWith("http://")) { Notice.info(a, "Base URL harus diawali https://"); return; }
+            if (m.isEmpty() && !p.claude()) { Notice.info(a, "Isi nama model"); return; }
+            if (k.isEmpty() && p.apiKey.isEmpty()) { Notice.info(a, "Isi API key"); return; }
             p.name = n.isEmpty() ? (p.claude() ? "Claude" : "OpenAI-compatible") : n;
             p.baseUrl = u;
             p.model = m;
@@ -180,7 +183,7 @@ final class AiPanel {
         String u = AiClient.trim(url.getText().toString());
         if (u.isEmpty()) u = p.claude() ? AiStore.CLAUDE_URL : AiStore.OPENAI_URL;
         final String key = k, base = u;
-        if (key.isEmpty() && !p.claude()) { toast("Isi API key dulu"); return; }
+        if (key.isEmpty() && !p.claude()) { Notice.info(a, "Isi API key dulu"); return; }
         new Thread(() -> {
             List<String> ids;
             try {
@@ -191,7 +194,7 @@ final class AiPanel {
             if (ids.isEmpty() && p.claude()) ids = java.util.Arrays.asList(AiStore.CLAUDE_MODELS);
             final List<String> list = ids;
             a.runOnUiThread(() -> {
-                if (list.isEmpty()) { toast("Daftar model tidak tersedia; ketik nama model"); return; }
+                if (list.isEmpty()) { Notice.info(a, "Daftar model tidak tersedia; ketik nama model"); return; }
                 String[] items = list.toArray(new String[0]);
                 int sel = list.indexOf(model.getText().toString().trim());
                 SettingsActivity.showDark(new AlertDialog.Builder(a)
@@ -283,7 +286,7 @@ final class AiPanel {
     /** Suara berbahasa Indonesia terpopuler dari Voice Library, lalu suara yang sudah ada di akun. */
     void pickVoice() {
         String key = AiStore.elKey(a);
-        if (key.isEmpty()) { toast("Isi API key ElevenLabs dulu"); return; }
+        if (key.isEmpty()) { Notice.info(a, "Isi API key ElevenLabs dulu"); return; }
         AlertDialog wait = SettingsActivity.showDark(new AlertDialog.Builder(a).setMessage("Mengambil daftar suara…"));
         new Thread(() -> {
             List<Voice> vs = new java.util.ArrayList<>();
@@ -324,7 +327,7 @@ final class AiPanel {
             final String e = err;
             a.runOnUiThread(() -> {
                 wait.dismiss();
-                if (vs.isEmpty()) { toast("Gagal mengambil suara" + (e != null ? ": " + e : "")); return; }
+                if (vs.isEmpty()) { Notice.fail(a, "Daftar suara tidak bisa diambil" + (e != null ? ": " + e : "")); return; }
                 showVoices(key, vs);
             });
         }, "el-voices").start();
@@ -388,6 +391,4 @@ final class AiPanel {
             });
         }, "el-add").start();
     }
-
-    void toast(String s) { Toast.makeText(a, s, Toast.LENGTH_SHORT).show(); }
 }
