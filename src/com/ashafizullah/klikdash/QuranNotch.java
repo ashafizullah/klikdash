@@ -16,7 +16,8 @@ import java.util.Locale;
 
 /**
  * "Notch" murattal di home: pil berwarna aksen tema (seperti tombol aktif) yang menggantung dari tepi atas, tampil selama
- * QuranService aktif. Isinya surah · ayat, jeda/putar, dan berikutnya; ketuk teksnya untuk membuka Al-Qur'an.
+ * QuranService aktif. Isinya surah · ayat, jeda/putar, dan berikutnya; ketuk teksnya untuk membuka Al-Qur'an, tekan
+ * lama untuk menghentikan murattal.
  * Statis (tanpa animasi), diperbarui lewat {@link #refresh} dari pendengar QuranService di home. Dijeda lebih dari
  * {@link #IDLE_HIDE_MS}: tersembunyi sampai murattal diputar lagi.
  */
@@ -49,6 +50,14 @@ final class QuranNotch extends LinearLayout {
         tl.leftMargin = Math.round(12 * dp);
         info.addView(title, tl);
         info.setOnClickListener(v -> a.startActivity(new Intent(a, QuranActivity.class)));
+        // Tekan lama di mana saja pada notch: hentikan murattal (notch ikut hilang).
+        View.OnLongClickListener stop = v -> {
+            v.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS);
+            QuranService.send(a, QuranService.ACTION_STOP);
+            return true;
+        };
+        info.setOnLongClickListener(stop);
+        setOnLongClickListener(stop);
         addView(info, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         toggle = button("", bold, () -> QuranService.send(a, QuranService.ACTION_TOGGLE));

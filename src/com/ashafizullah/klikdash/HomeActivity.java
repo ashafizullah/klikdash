@@ -245,6 +245,10 @@ public class HomeActivity extends Activity {
         // Direct boot: saat boot penyimpanan biasa (CE) masih terkunci beberapa detik, dan firmware hanya bisa
         // memilih launcher yang directBootAware. Maka pengaturan disimpan di penyimpanan DE.
         prefs = openPrefs();
+        // Baru menyala: rotasi sekarang adalah bawaan firmware, catat untuk keepOrientation.
+        if (SystemClock.elapsedRealtime() < 5 * 60_000L) {
+            prefs.edit().putInt("homeRotation", getWindowManager().getDefaultDisplay().getRotation()).apply();
+        }
 
         fHeavy = font("display.ttf", "'opsz' 72, 'wght' 800");
         fBold = font("display.ttf", "'opsz' 36, 'wght' 700");
@@ -312,6 +316,7 @@ public class HomeActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         if (Theme.stale(this, themeBuilt)) return;
+        keepOrientation();
         QuranService.listeners.add(onQuran);
         PrayerAlarm.home = new java.lang.ref.WeakReference<>(this);
         PrayerAlarm.schedule(this);
@@ -474,6 +479,31 @@ public class HomeActivity extends Activity {
     }
 
     // ---------------------------------------------------------------- data
+
+    private static Integer nwdRotation;
+
+    /**
+     * Home kembali ke rotasi bawaan firmware. Aplikasi seperti Maps bisa memutar layar ke potret, dan headunit tanpa
+     * sensor putar membiarkannya begitu setelah aplikasi itu ditutup. Firmware NWD mengabaikan setRequestedOrientation
+     * dari home, jadi rotasinya dikembalikan lewat pengaturan sistem (ADB lokal, seperti Tweaks). Rotasi bawaan dicatat
+     * saat headunit baru menyala; NWD: ro.boot.nwd.rotation. Belum diketahui: dibiarkan (mis. headunit tegak).
+     */
+    void keepOrientation() {
+        if (nwdRotation == null) { // getprop menjalankan proses: sekali saja
+            int r = -1;
+            if (HomeSwitch.isNwd()) {
+                try { r = Integer.parseInt(HomeSwitch.getprop("ro.boot.nwd.rotation")); } catch (NumberFormatException ignored) { }
+            }
+            nwdRotation = r;
+        }
+        int want = prefs.getInt("homeRotation", nwdRotation);
+        if (want < 0 || want > 3 || getWindowManager().getDefaultDisplay().getRotation() == want) return;
+        boolean free = android.provider.Settings.System.getInt(getContentResolver(),
+                android.provider.Settings.System.ACCELEROMETER_ROTATION, 0) == 1;
+        // Kunci sebentar ke rotasi itu, lalu kembalikan putar otomatis bila tadinya aktif (rotasi tetap di sana).
+        Tweaks.shellAsync("settings put system accelerometer_rotation 0; settings put system user_rotation " + want
+                + (free ? "; settings put system accelerometer_rotation 1" : ""));
+    }
 
     /**
      * Prefs di penyimpanan DE; pindahkan sekali dari CE (versi lama) begitu CE sudah terbuka.
