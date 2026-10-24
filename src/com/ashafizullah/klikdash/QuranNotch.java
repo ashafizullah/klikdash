@@ -109,7 +109,9 @@ final class QuranNotch extends LinearLayout {
         int s = QuranService.surah, ay = QuranService.ayah;
         String name = QuranData.loaded() ? QuranData.get(s).latin.toUpperCase(HomeActivity.ID)
                 : String.format(Locale.US, "SURAH %d", s);
-        state.setText(QuranService.playing ? "MURATTAL" : "JEDA");
+        // Mode ulang/berhenti terlihat juga dari home, supaya "kok surah ini diulang terus" tidak terjadi diam-diam.
+        boolean plain = QuranService.mode == QuranService.MODE_CONTINUE && QuranService.stopAfter == 0;
+        state.setText(!QuranService.playing ? "JEDA" : plain ? "MURATTAL" : QuranService.modeLabel());
         title.setText(QuranService.bismillah ? name + "  ·  BASMALAH"
                 : String.format(Locale.US, "%s  ·  %d/%d", name, ay, QuranData.count(s)));
         toggle.setText(QuranService.playing ? "❚❚" : "▶");

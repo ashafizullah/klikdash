@@ -320,6 +320,12 @@ public class QuranActivity extends Activity {
         bar.setGravity(Gravity.CENTER_VERTICAL);
         bar.setPadding(px(28), px(12), px(16), px(12));
 
+        // Mode di kiri, jauh dari ⏭: sambil menyetir, ketukan ⏭ dulu sering meleset ke sini dan mengubah mode.
+        cMode = new Chip("", this::showModeDialog);
+        LinearLayout.LayoutParams ml = new LinearLayout.LayoutParams(WRAP, px(64));
+        ml.rightMargin = px(24);
+        bar.addView(cMode, ml);
+
         LinearLayout np = new LinearLayout(this);
         np.setOrientation(LinearLayout.VERTICAL);
         npTitle = text("", fBold, 24, TEXT);
@@ -340,11 +346,6 @@ public class QuranActivity extends Activity {
         pl.rightMargin = px(8);
         bar.addView(kPlay, pl);
         bar.addView(kNext, new LinearLayout.LayoutParams(px(kw), px(64)));
-
-        cMode = new Chip("", () -> QuranService.setMode(this, (QuranService.mode + 1) % 3));
-        LinearLayout.LayoutParams ml = new LinearLayout.LayoutParams(WRAP, px(64));
-        ml.leftMargin = px(16);
-        bar.addView(cMode, ml);
         return bar;
     }
 
@@ -417,9 +418,8 @@ public class QuranActivity extends Activity {
             npSub.setTextColor(DIM);
         }
         kPlay.setPlaying(QuranService.playing);
-        cMode.setLabel(QuranService.mode == QuranService.MODE_REPEAT_AYAH ? "ULANG AYAT"
-                : QuranService.mode == QuranService.MODE_REPEAT_SURAH ? "ULANG SURAH" : "LANJUT");
-        cMode.setOn(QuranService.mode != QuranService.MODE_CONTINUE);
+        cMode.setLabel(QuranService.modeLabel());
+        cMode.setOn(QuranService.mode != QuranService.MODE_CONTINUE || QuranService.stopAfter > 0);
         refreshDownload();
 
         // Harus SEBELUM setSelectionFromTop: invalidateViews() menyimpan posisi scroll saat ini
@@ -452,6 +452,116 @@ public class QuranActivity extends Activity {
 
     /** Nomor ayat untuk posisi daftar (baris basmalah dihitung sebagai ayat 1). */
     int ayahAt(int pos) { return Math.max(1, pos + 1 - offset()); }
+
+    // ---------------------------------------------------------------- mode pemutaran
+
+    static final int[] TIMES = {2, 3, 5, 7, 0}; // 0 = terus
+
+    /** Pilihan pemutaran: mode, berapa kali diulang, dan surah terakhir. Berlaku langsung, juga di tengah bacaan. */
+    void showModeDialog() {
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(px(24), px(4), px(24), px(8));
+        Runnable[] fill = new Runnable[1];
+        fill[0] = () -> {
+            box.removeAllViews();
+            int m = QuranService.mode, r = QuranService.repeat, st = QuranService.stopAfter;
+            box.addView(caption("SETELAH SELESAI"));
+            String[] names = {"LANJUT", "ULANG AYAT", "ULANG SURAH"};
+            int[] modes = {QuranService.MODE_CONTINUE, QuranService.MODE_REPEAT_AYAH, QuranService.MODE_REPEAT_SURAH};
+            Chip[] mc = new Chip[3];
+            for (int i = 0; i < 3; i++) {
+                final int v = modes[i];
+                mc[i] = new Chip(names[i], () -> { QuranService.setMode(this, v, r, st); fill[0].run(); });
+                mc[i].setOn(m == v);
+            }
+            box.addView(chipRow(mc));
+            if (m != QuranService.MODE_CONTINUE) {
+                box.addView(caption("BERAPA KALI"));
+                Chip[] tc = new Chip[TIMES.length];
+                for (int i = 0; i < TIMES.length; i++) {
+                    final int v = TIMES[i];
+                    tc[i] = new Chip(v == 0 ? "TERUS" : v + "×", () -> { QuranService.setMode(this, m, v, st); fill[0].run(); });
+                    tc[i].setOn(r == v);
+                }
+                box.addView(chipRow(tc));
+            }
+            box.addView(caption("BERHENTI SETELAH"));
+            int here = QuranService.active ? QuranService.surah : surah;
+            Chip none = new Chip("TIDAK", () -> { QuranService.setMode(this, m, r, 0); fill[0].run(); });
+            none.setOn(st == 0);
+            Chip thisOne = new Chip("SURAH INI", () -> { QuranService.setMode(this, m, r, here); fill[0].run(); });
+            thisOne.setOn(st != 0 && st == here);
+            Chip pick = new Chip(st != 0 && st != here ? "SAMPAI " + QuranService.surahName(st).toUpperCase(ID)
+                    : "PILIH SURAH…", () -> pickStopSurah(fill[0]));
+            pick.setOn(st != 0 && st != here);
+            box.addView(chipRow(new Chip[]{none, thisOne, pick}));
+            box.addView(hint(modeHint()));
+        };
+        fill[0].run();
+        SettingsActivity.showDark(new android.app.AlertDialog.Builder(this)
+                .setTitle("Pemutaran murattal")
+                .setView(box)
+                .setPositiveButton("Selesai", null));
+    }
+
+    /** Penjelasan pilihan saat ini, dalam satu kalimat. */
+    String modeHint() {
+        int m = QuranService.mode, r = QuranService.repeat, st = QuranService.stopAfter;
+        String end = st > 0 ? "berhenti setelah " + QuranService.surahName(st) + "." : "terus sampai An-Nas.";
+        if (m == QuranService.MODE_REPEAT_AYAH) {
+            return r == 0 ? "Ayat yang sama diulang terus, sampai Anda mengubahnya."
+                    : "Tiap ayat diputar " + r + " kali, lalu lanjut ke ayat berikutnya; " + end;
+        }
+        if (m == QuranService.MODE_REPEAT_SURAH) {
+            return r == 0 ? "Surah yang sama diulang terus, sampai Anda mengubahnya."
+                    : "Tiap surah diputar " + r + " kali, lalu lanjut ke surah berikutnya; " + end;
+        }
+        return "Otomatis lanjut ke ayat dan surah berikutnya, " + end;
+    }
+
+    void pickStopSurah(Runnable then) {
+        String[] names = new String[QuranData.SURAH_COUNT];
+        for (int i = 0; i < names.length; i++) {
+            names[i] = String.format(Locale.US, "%03d  %s", i + 1, QuranService.surahName(i + 1));
+        }
+        SettingsActivity.showDark(new android.app.AlertDialog.Builder(this)
+                .setTitle("Berhenti setelah surah")
+                .setItems(names, (d, w) -> {
+                    QuranService.setMode(this, QuranService.mode, QuranService.repeat, w + 1);
+                    then.run();
+                })
+                .setNegativeButton("Batal", null));
+    }
+
+    TextView caption(String s) {
+        TextView t = text(s, fMonoBold, 11, DIM);
+        t.setLetterSpacing(0.2f);
+        t.setPadding(0, px(20), 0, px(10));
+        return t;
+    }
+
+    TextView hint(String s) {
+        TextView t = new TextView(this);
+        t.setText(s);
+        t.setTypeface(fSerif);
+        t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        t.setTextColor(SOFT);
+        t.setLineSpacing(0, 1.2f);
+        t.setPadding(0, px(18), 0, 0);
+        return t;
+    }
+
+    LinearLayout chipRow(Chip[] chips) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        for (int i = 0; i < chips.length; i++) {
+            LinearLayout.LayoutParams l = new LinearLayout.LayoutParams(WRAP, px(48));
+            if (i > 0) l.leftMargin = px(8);
+            row.addView(chips[i], l);
+        }
+        return row;
+    }
 
     // ---------------------------------------------------------------- helpers
 
@@ -692,7 +802,12 @@ public class QuranActivity extends Activity {
 
         void setOn(boolean v) { on = v; invalidate(); }
 
-        void setLabel(String s) { label = s; requestLayout(); invalidate(); }
+        void setLabel(String s) {
+            label = s;
+            setContentDescription(s);
+            requestLayout();
+            invalidate();
+        }
 
         /** Lebar mengikuti teks bila tidak ditentukan pasti (WRAP), supaya muat di layar sempit. */
         @Override protected void onMeasure(int wSpec, int hSpec) {

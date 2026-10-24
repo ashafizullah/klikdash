@@ -51,6 +51,12 @@ public class QuranService extends Service
 
     // Status dibaca langsung oleh UI (satu proses, thread utama).
     static int surah = 1, ayah = 1, mode = MODE_CONTINUE;
+    /** ULANG AYAT/SURAH: berapa kali tiap ayat/surah diputar sebelum lanjut; 0 = terus diulang. */
+    static int repeat;
+    /** Berhenti setelah surah ini selesai diputar (0 = tidak, lanjut sampai An-Nas). */
+    static int stopAfter;
+    /** Sudah berapa kali ayat dan surah yang sedang diputar selesai; diulang dari nol tiap pengguna memilih. */
+    static int ayahPlays, surahPlays;
     static boolean playing, active, bismillah, missing;
     /** buffering: menunggu file ayat yang sedang diputar selesai diunduh. dlSurah 0 = tidak ada unduhan. */
     static boolean buffering;
@@ -97,12 +103,31 @@ public class QuranService extends Service
         surah = p.getInt("s", 1);
         ayah = p.getInt("a", 1);
         mode = p.getInt("mode", MODE_CONTINUE);
+        repeat = p.getInt("repeat", 0);
+        stopAfter = p.getInt("stopAfter", 0);
     }
 
-    static void setMode(Context c, int m) {
+    /** Mode, jumlah ulangan (0 = terus), dan surah terakhir (0 = tidak ada); berlaku mulai ayat yang sedang diputar. */
+    static void setMode(Context c, int m, int times, int lastSurah) {
         mode = m;
-        c.getSharedPreferences("quran", MODE_PRIVATE).edit().putInt("mode", m).apply();
+        repeat = times;
+        stopAfter = lastSurah;
+        ayahPlays = surahPlays = 0;
+        c.getSharedPreferences("quran", MODE_PRIVATE).edit().putInt("mode", m).putInt("repeat", times)
+                .putInt("stopAfter", lastSurah).apply();
         notifyListeners();
+    }
+
+    /** Untuk tombol mode, notch, dan notifikasi: "LANJUT", "LANJUT → AN-NAS", "ULANG AYAT 3×", "ULANG SURAH ∞". */
+    static String modeLabel() {
+        if (mode == MODE_CONTINUE) {
+            return stopAfter > 0 ? "LANJUT → " + surahName(stopAfter).toUpperCase(Locale.US) : "LANJUT";
+        }
+        return (mode == MODE_REPEAT_AYAH ? "ULANG AYAT " : "ULANG SURAH ") + (repeat == 0 ? "∞" : repeat + "×");
+    }
+
+    static String surahName(int s) {
+        return QuranData.loaded() ? QuranData.get(s).latin : "Surah " + s;
     }
 
     static void notifyListeners() {
@@ -153,6 +178,10 @@ public class QuranService extends Service
     @Override public int onStartCommand(Intent i, int flags, int id) {
         startForeground(1, notification());
         String a = i != null ? i.getAction() : null;
+        if (ACTION_PLAY.equals(a) || ACTION_NEXT.equals(a) || ACTION_PREV.equals(a)) {
+            ayahPlays = surahPlays = 0; // pilihan pengguna: hitungan ulang mulai lagi
+            android.util.Log.i("KlikDashQuran", "DBG reset oleh " + a);
+        }
         if (ACTION_PLAY.equals(a)) {
             start(i.getIntExtra("s", surah), i.getIntExtra("a", 1), true);
         } else if (ACTION_TOGGLE.equals(a)) {
@@ -233,6 +262,8 @@ public class QuranService extends Service
             player.prepare();
             player.start();
             playing = true;
+            android.util.Log.i("KlikDashQuran", "putar " + surah + ":" + (bismillah ? "basmalah" : ayah)
+                    + " (" + modeLabel() + ")");
         } catch (Exception e) {
             release();
             playing = false;
@@ -241,21 +272,38 @@ public class QuranService extends Service
     }
 
     @Override public void onCompletion(MediaPlayer mp) {
+        // Sebagian MediaPlayer melapor selesai dua kali untuk satu file; yang kedua harus diabaikan, kalau tidak
+        // hitungan ulang (ULANG SURAH 2×) terhitung lagi dan surah diputar sekali lebih banyak.
+        if (mp != player) return;
+        android.util.Log.i("KlikDashQuran", "DBG selesai " + surah + ":" + ayah + " b=" + bismillah + " ayahPlays=" + ayahPlays + " surahPlays=" + surahPlays + " mode=" + mode + " repeat=" + repeat + " stop=" + stopAfter);
         if (bismillah) {
             bismillah = false;
             playCurrent();
             return;
         }
-        if (mode == MODE_REPEAT_AYAH) {
+        if (mode == MODE_REPEAT_AYAH && (repeat == 0 || ++ayahPlays < repeat)) {
             playCurrent();
-        } else if (ayah < QuranData.count(surah)) {
+            return;
+        }
+        ayahPlays = 0;
+        if (ayah < QuranData.count(surah)) {
             start(surah, ayah + 1, false);
-        } else if (mode == MODE_REPEAT_SURAH) {
+            return;
+        }
+        // Akhir surah.
+        if (mode == MODE_REPEAT_SURAH && (repeat == 0 || ++surahPlays < repeat)) {
             start(surah, 1, true);
-        } else if (surah < QuranData.SURAH_COUNT) {
-            start(surah + 1, 1, true);
+            return;
+        }
+        surahPlays = 0;
+        if (surah == stopAfter || surah >= QuranData.SURAH_COUNT) {
+            // Lepas player (bukan sekadar jeda): putar lagi mulai ulang ayat ini, dan player lama tidak bisa
+            // melapor selesai lagi.
+            release();
+            playing = false;
+            publish();
         } else {
-            pause();
+            start(surah + 1, 1, true);
         }
     }
 
@@ -408,7 +456,7 @@ public class QuranService extends Service
             String name = QuranData.loaded() ? QuranData.get(dlSurah).latin : "Surah " + dlSurah;
             return "Mengunduh " + name + " " + dlDone + "/" + dlTotal;
         }
-        return RECITER;
+        return mode == MODE_CONTINUE && stopAfter == 0 ? RECITER : RECITER + " · " + modeLabel();
     }
 
     void publish() {
