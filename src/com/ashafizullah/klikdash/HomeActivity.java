@@ -231,6 +231,8 @@ public class HomeActivity extends Activity {
         drawer = buildDrawer();
         drawer.setVisibility(View.GONE);
         root.addView(home, MATCH, MATCH);
+        notch = new QuranNotch(this, fBold, fMonoBold);
+        root.addView(notch, QuranNotch.params(dp)); // di bawah laci aplikasi, yang menutupinya saat dibuka
         root.addView(drawer, MATCH, MATCH);
         setContentView(root);
 
@@ -265,7 +267,11 @@ public class HomeActivity extends Activity {
         if (results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED) startLocation();
     }
 
-    final Runnable onQuran = () -> { for (Tile t : tiles) if (t != null) t.invalidate(); };
+    QuranNotch notch;
+    final Runnable onQuran = () -> {
+        for (Tile t : tiles) if (t != null) t.invalidate();
+        notch.refresh();
+    };
 
     @Override protected void onResume() {
         super.onResume();
