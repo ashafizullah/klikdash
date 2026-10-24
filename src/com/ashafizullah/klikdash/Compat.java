@@ -33,6 +33,26 @@ final class Compat {
      * bila tidak ada, instans bawaan file (ditebalkan bila wght ≥ 600).
      */
     static Typeface font(AssetManager am, String file, String axes, Typeface fallback) {
+        String key = file + '|' + axes;
+        synchronized (FONTS) {
+            Typeface t = FONTS.get(key);
+            if (t == null) {
+                t = load(am, file, axes);
+                if (t == null) return fallback;
+                FONTS.put(key, t);
+            }
+            return t;
+        }
+    }
+
+    /**
+     * Font yang sudah dimuat, per file + sumbu. Tiap aktivitas (dan tiap recreate, mis. ganti tema) memakai font yang
+     * sama; tanpa cache, display.ttf (±300 KB) dibaca ulang dari APK beberapa kali per layar.
+     */
+    private static final java.util.Map<String, Typeface> FONTS = new java.util.HashMap<>();
+
+    /** null bila gagal. */
+    private static Typeface load(AssetManager am, String file, String axes) {
         try {
             if (Build.VERSION.SDK_INT >= 28) {
                 Typeface.Builder b = new Typeface.Builder(am, file);
@@ -55,7 +75,7 @@ final class Compat {
                 }
             }
         } catch (Exception ignored) { }
-        return fallback;
+        return null;
     }
 
     /** Android 8+ melarang startService dari latar untuk layanan yang akan foreground; Android 7 belum mengenalnya. */

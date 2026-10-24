@@ -44,7 +44,7 @@ public class AskActivity extends Activity {
     AiVoice voice;
     SpeechRecognizer recognizer;
     boolean androidStt;
-    /** Uji pengenal suara saja (build pengembangan, --ez stt true): hasilnya ditampilkan, tidak dikirim ke AI. */
+    /** Uji pengenal suara saja (build debuggable, DEBUGGABLE=1 ./build.sh, --ez stt true): ditampilkan, tidak dikirim ke AI. */
     boolean sttOnly;
 
     int state = IDLE;
@@ -174,7 +174,7 @@ public class AskActivity extends Activity {
         again.setLabel("TANYA LAGI");
         again.setOnClickListener(v -> listen());
         // Uji tanpa mikrofon: adb shell am start -n com.ashafizullah.klikdash/.AskActivity --es q "putar surat Yasin"
-        // Hanya di build pengembangan (debuggable): TANYA bisa dibuka aplikasi lain, jadi di APK rilis aplikasi lain
+        // Hanya di build debuggable (DEBUGGABLE=1 ./build.sh install): TANYA bisa dibuka aplikasi lain, jadi di APK rilis aplikasi lain
         // tidak boleh menitipkan perintah teks untuk dijalankan AI.
         String typed = dev ? getIntent().getStringExtra("q") : null;
         if (typed != null && !typed.trim().isEmpty()) {

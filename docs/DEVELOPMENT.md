@@ -67,6 +67,7 @@ adb connect 192.168.1.17:5555
 ./build.sh release      # public release APK without the Quran text → build/klikdash-<version>.apk
 ./build.sh install      # build, install, grant location, make it the home app
 DEVICE=1.2.3.4:5555 ./build.sh install   # if the headunit's IP changes
+DEBUGGABLE=1 ./build.sh install          # debuggable build, needed for the adb TANYA tests (see AskActivity)
 ```
 
 Always install with `./build.sh install`. With a plain `adb install`, the home preference can be lost until

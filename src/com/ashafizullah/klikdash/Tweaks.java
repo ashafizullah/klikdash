@@ -64,6 +64,38 @@ final class Tweaks {
         }, "tweaks").start();
     }
 
+    private static volatile boolean compiling;
+
+    /**
+     * Kompilasi AOT KlikDash (dexopt "speed"), sekali per pemasangan/pembaruan. Android mengompilasi aplikasi lewat
+     * dexopt latar yang menunggu perangkat diam dan sedang dicas; headunit hampir tidak pernah begitu, jadi tanpa ini
+     * KlikDash terus diinterpretasi/JIT dan cold start-nya lambat. {@code cmd package compile} ada sejak Android 7.
+     * Ditunda 30 detik supaya tidak berebut CPU dengan boot; gagal (ADB tidak aktif): dicoba lagi saat home dibuat ulang.
+     */
+    static void compileAsync(android.content.Context c, android.content.SharedPreferences p) {
+        long installed;
+        try {
+            installed = c.getPackageManager().getPackageInfo(c.getPackageName(), 0).lastUpdateTime;
+        } catch (Exception e) {
+            return;
+        }
+        if (compiling || p.getLong("compiledFor", 0) == installed) return;
+        compiling = true;
+        String pkg = c.getPackageName();
+        new Thread(() -> {
+            try {
+                Thread.sleep(30_000);
+                // Kompilasi bisa makan puluhan detik di headunit; tunggu hasilnya, bukan batas 15 detik bawaan.
+                if (exec("cmd package compile -m speed -f " + pkg, 180_000).contains("Success")) {
+                    p.edit().putLong("compiledFor", installed).apply();
+                }
+            } catch (IOException | InterruptedException ignored) {
+            } finally {
+                compiling = false;
+            }
+        }, "dexopt").start();
+    }
+
     private static String read(String path) {
         try (BufferedReader r = new BufferedReader(new FileReader(path))) {
             String s = r.readLine();

@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
@@ -43,11 +44,9 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -108,8 +107,11 @@ public class HomeActivity extends Activity {
 
     static class App {
         ComponentName cn;
-        String label;
+        String label, upper; // upper: label huruf besar, untuk ubin dan laci
+        /** Ikon asli untuk ubin; null bila aplikasi tidak di ubin (dimuat lagi saat perlu, lihat iconOf). */
         Drawable icon;
+        /** Ikon laci, sudah digambar seukuran sel (lihat queryApps); null setelah onTrimMemory. */
+        Bitmap bmp;
     }
 
     float dp, sp;
@@ -124,15 +126,23 @@ public class HomeActivity extends Activity {
     final Map<String, App> appByKey = new HashMap<>();
     final Map<String, App> appByPkg = new HashMap<>();
 
-    final SimpleDateFormat fmtClock = new SimpleDateFormat("HH:mm", Locale.US);
-    final SimpleDateFormat fmtDay = new SimpleDateFormat("EEEE", ID);
-    final SimpleDateFormat fmtDate = new SimpleDateFormat("d MMMM yyyy", ID);
+    /**
+     * Nama hari dan bulan ditulis sendiri, bukan SimpleDateFormat dengan locale id: data ICU Indonesia dimuat saat
+     * proses start dan menunda home 60–145 ms di headunit (atrace). Sama dengan keluaran locale id ("Jumat").
+     */
+    static final String[] HARI = {"MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"};
+    static final String[] BULAN = {"JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS",
+            "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"};
+
+    static String two(int n) { return n < 10 ? "0" + n : String.valueOf(n); }
 
     // Lokasi & jadwal sholat. Tanpa GPS, dipakai kota perkiraan dari zona waktu.
     double lat, lon;
     String city;
     boolean locApprox;
     int[] pray, prayTomorrow;
+    /** "04:31" dst., dihitung sekali per hari untuk PrayerView yang digambar ulang tiap detik. */
+    String[] prayText;
     int prayDayKey = -1;
     LocationManager lm;
 
@@ -142,11 +152,14 @@ public class HomeActivity extends Activity {
 
     // Suhu CPU headunit dari sensor thermal; dibaca tiap 5 detik selama home tampil.
     static int HOT = 0xFFFF5A3C;
-    final String cpuZone = findCpuZone();
+    /** Berkas suhu CPU; dicari sekali per proses (memindai /sys/class/thermal). */
+    static String cpuZone;
+    /** Hitungan tempTick sejak home tampil; penyimpanan jarang berubah, jadi dibaca tiap 12 tick (1 menit). */
+    int statTicks;
     final Runnable tempTick = new Runnable() {
         @Override public void run() {
             updateTemp();
-            updateMemory();
+            updateMemory(statTicks++ % 12 == 0);
             temp.postDelayed(this, 5000);
         }
     };
@@ -174,8 +187,8 @@ public class HomeActivity extends Activity {
     /** Panel kiri sempit (headunit 800/1024 px): label pendek supaya baris status tidak terpotong. */
     String diskLabel = "PENYIMPANAN";
 
-    /** RAM dan penyimpanan internal yang terpakai, dalam persen; peringatan di atas 85% dan 90%. */
-    void updateMemory() {
+    /** RAM dan (bila {@code withDisk}) penyimpanan internal yang terpakai, dalam persen; peringatan di atas 85% dan 90%. */
+    void updateMemory(boolean withDisk) {
         long total = 0, avail = -1;
         try (java.io.BufferedReader r = new java.io.BufferedReader(new java.io.FileReader("/proc/meminfo"))) {
             for (String l; (l = r.readLine()) != null && (total == 0 || avail < 0); ) {
@@ -185,40 +198,51 @@ public class HomeActivity extends Activity {
         } catch (Exception ignored) { }
         if (total > 0 && avail >= 0) {
             int p = (int) Math.round(100.0 * (total - avail) / total);
-            ram.setText("RAM " + p + "%");
-            ram.setTextColor(p >= 85 ? WARN : DIM);
+            show(ram, "RAM " + p + "%", p >= 85 ? WARN : DIM);
         } else {
-            ram.setText("");
+            show(ram, "", DIM);
         }
+        if (!withDisk) return;
         android.os.StatFs fs = new android.os.StatFs(android.os.Environment.getDataDirectory().getPath());
         long size = fs.getTotalBytes();
         int p = size > 0 ? (int) Math.round(100.0 * (size - fs.getAvailableBytes()) / size) : 0;
-        disk.setText(diskLabel + " " + p + "%");
-        disk.setTextColor(p >= 90 ? WARN : DIM);
+        show(disk, diskLabel + " " + p + "%", p >= 90 ? WARN : DIM);
     }
+
+    /**
+     * setText hanya bila teksnya berubah. TextView selebar WRAP_CONTENT meminta layout ulang seluruh home di tiap
+     * setText, walau teksnya sama; kecepatan dan status headunit diperbarui tiap 1–5 detik.
+     */
+    static void show(TextView t, String s, int color) {
+        if (!TextUtils.equals(t.getText(), s)) t.setText(s);
+        if (t.getCurrentTextColor() != color) t.setTextColor(color);
+    }
+
+    static void show(TextView t, String s) { show(t, s, t.getCurrentTextColor()); }
 
     /** "MemTotal:        4194304 kB" → 4194304 */
     static long kb(String line) {
-        try {
-            return Long.parseLong(line.replaceAll("[^0-9]", ""));
-        } catch (NumberFormatException e) {
-            return 0;
+        long v = 0;
+        for (int i = 0; i < line.length(); i++) {
+            char ch = line.charAt(i);
+            if (ch >= '0' && ch <= '9') v = v * 10 + (ch - '0');
         }
+        return v;
     }
 
     void updateTemp() {
+        if (cpuZone == null) cpuZone = findCpuZone();
         String s = readLine(cpuZone);
-        if (s == null) { temp.setText(""); return; }
+        if (s == null) { show(temp, ""); return; }
         int c;
         try {
             c = Integer.parseInt(s);
         } catch (NumberFormatException e) {
-            temp.setText("");
+            show(temp, "");
             return;
         }
         if (c > 1000) c = Math.round(c / 1000f); // sensor melaporkan mili-derajat
-        temp.setText(c >= 85 ? "CPU " + c + "°C · PANAS" : "CPU " + c + "°C");
-        temp.setTextColor(c >= 85 ? HOT : c >= 70 ? WARN : DIM);
+        show(temp, c >= 85 ? "CPU " + c + "°C · PANAS" : "CPU " + c + "°C", c >= 85 ? HOT : c >= 70 ? WARN : DIM);
     }
     Gauge gauge;
     PrayerView prayerView;
@@ -243,9 +267,8 @@ public class HomeActivity extends Activity {
 
     final BroadcastReceiver pkgRx = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) {
-            loadApps();
-            adapter.notifyDataSetChanged();
-            for (Tile t : tiles) if (t != null) t.invalidate();
+            home.removeCallbacks(reloadApps);
+            home.postDelayed(reloadApps, 500);
         }
     };
 
@@ -274,11 +297,10 @@ public class HomeActivity extends Activity {
         mono = Theme.iconFilter();
 
         loadSlots();
-        loadApps();
         loadLocation();
 
+        // Tanpa latar sendiri: latar jendela (Theme.apply) sudah BG, dua kali mengisi layar penuh hanya membebani GPU.
         FrameLayout root = new FrameLayout(this);
-        root.setBackgroundColor(BG);
         root.setFitsSystemWindows(true);
         measureScreen();
         home = buildHome();
@@ -289,6 +311,15 @@ public class HomeActivity extends Activity {
         root.addView(notch, QuranNotch.params(dp)); // di bawah laci aplikasi, yang menutupinya saat dibuka
         root.addView(drawer, MATCH, MATCH);
         setContentView(root);
+        // Daftar aplikasi sesudah frame pertama: pemuat ikon memegang kunci ResourcesManager yang juga ditunggu main
+        // thread saat start (30–55 ms, atrace). Label ubin tampil dulu, ikon menyusul.
+        root.getViewTreeObserver().addOnPreDrawListener(new android.view.ViewTreeObserver.OnPreDrawListener() {
+            @Override public boolean onPreDraw() {
+                root.getViewTreeObserver().removeOnPreDrawListener(this);
+                root.post(HomeActivity.this::loadApps); // berjalan sesudah frame ini selesai
+                return true;
+            }
+        });
 
         IntentFilter tf = new IntentFilter(Intent.ACTION_TIME_TICK);
         tf.addAction(Intent.ACTION_TIME_CHANGED);
@@ -312,6 +343,7 @@ public class HomeActivity extends Activity {
         updateTime();
         startLocation();
         Tweaks.applyAsync();
+        Tweaks.compileAsync(this, prefs);
         PrayerAlarm.allowOverlay(this);
         // Baru menyala (bukan sekadar dibangun ulang, mis. ganti tema atau pembaruan): sambutan.
         if (SystemClock.elapsedRealtime() < 5 * 60_000L) root.post(() -> Welcome.maybeShow(this, prefs));
@@ -322,24 +354,36 @@ public class HomeActivity extends Activity {
     }
 
     QuranNotch notch;
+    /** Murattal berganti ayat atau status: hanya ubin Al-Qur'an ("▶ surah : ayat") dan notch yang berubah. */
     final Runnable onQuran = () -> {
-        for (Tile t : tiles) if (t != null) t.invalidate();
+        for (Tile t : tiles) if (t != null && t.quran()) t.invalidate();
         notch.refresh();
     };
+
+    /** Semua ubin dan notch: saat home tampil lagi (dzikir pagi/petang, murattal bisa berubah selama di latar). */
+    void refreshTiles() {
+        for (Tile t : tiles) if (t != null) t.invalidate();
+        notch.refresh();
+    }
 
     @Override protected void onResume() {
         super.onResume();
         if (Theme.stale(this, themeBuilt)) return;
-        if (tileCount(openPrefs()) != shown + 1) { recreate(); return; } // jumlah ubin diganti di Pengaturan
+        reloadPrefs();
+        if (tileCount(prefs) != shown + 1) { recreate(); return; } // jumlah ubin diganti di Pengaturan
         keepOrientation();
         QuranService.listeners.add(onQuran);
         PrayerAlarm.home = new java.lang.ref.WeakReference<>(this);
         PrayerAlarm.schedule(this);
-        reloadPrefs();
-        onQuran.run();
+        if (iconsTrimmed) { // ikon laci dilepas onTrimMemory selama di latar
+            iconsTrimmed = false;
+            loadApps();
+        }
+        refreshTiles();
         updateTime();
         prayerView.startTicking();
         temp.removeCallbacks(tempTick);
+        statTicks = 0;
         tempTick.run();
         refreshDefaultHome();
         startSpeed();
@@ -354,7 +398,21 @@ public class HomeActivity extends Activity {
      * Umm al-Qura (ICU bawaan Android), cocok dengan kalender Kemenag untuk Oktober 2026. Koreksi ±2 hari diatur
      * di Pengaturan (atau ketuk tanggalnya), untuk jaga-jaga bila hasil rukyat berbeda.
      */
-    String hijriText(long now) { return hijriText(now, prefs.getInt("hijriOffset", 0)); }
+    String hijriText(long now) {
+        int off = prefs.getInt("hijriOffset", 0);
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(now);
+        long key = (c.get(Calendar.YEAR) * 1000L + c.get(Calendar.DAY_OF_YEAR)) * 100 + off + 50;
+        if (key != hijriKey) {
+            hijriKey = key;
+            hijriCache = hijriText(now, off);
+        }
+        return hijriCache;
+    }
+
+    /** Teks Hijriah hanya berganti bila tanggal atau koreksinya berganti; IslamicCalendar (ICU) mahal dibuat tiap menit. */
+    String hijriCache;
+    long hijriKey = -1;
 
     static String hijriText(long now, int offsetDays) {
         android.icu.util.IslamicCalendar c = new android.icu.util.IslamicCalendar();
@@ -379,16 +437,19 @@ public class HomeActivity extends Activity {
     static volatile int lastKmh;
     static volatile long lastKmhAt;
 
+    /** Waktu fix terakhir: GPS dan passive sama-sama mengirim fix GPS yang sama, cukup diproses sekali. */
+    long speedFixTime;
+
     final LocationListener speedRx = new LocationListener() {
         @Override public void onLocationChanged(Location l) {
-            if (!l.hasSpeed()) return;
+            if (!l.hasSpeed() || l.getTime() == speedFixTime) return;
+            speedFixTime = l.getTime();
             speedAt = SystemClock.elapsedRealtime();
             int kmh = Math.round(l.getSpeed() * 3.6f);
             if (kmh < 3) kmh = 0; // diam: abaikan goyangan GPS
             lastKmh = kmh;
             lastKmhAt = speedAt;
-            speed.setText(String.valueOf(kmh));
-            speed.setTextColor(kmh > 100 ? WARN : TEXT); // di atas batas tol
+            show(speed, String.valueOf(kmh), kmh > 100 ? WARN : TEXT); // di atas batas tol
         }
         @Override public void onStatusChanged(String p, int s, Bundle b) { }
         @Override public void onProviderEnabled(String p) { }
@@ -398,10 +459,7 @@ public class HomeActivity extends Activity {
     /** Tanpa pembaruan 5 detik (GPS hilang sinyal): tampilkan "--" alih-alih angka basi. */
     final Runnable speedStale = new Runnable() {
         @Override public void run() {
-            if (SystemClock.elapsedRealtime() - speedAt > 5000) {
-                speed.setText("--");
-                speed.setTextColor(TEXT);
-            }
+            if (SystemClock.elapsedRealtime() - speedAt > 5000) show(speed, "--", TEXT);
             speed.postDelayed(this, 1000);
         }
     };
@@ -435,8 +493,12 @@ public class HomeActivity extends Activity {
         startActivity(new Intent(this, SettingsActivity.class));
     }
 
+    /** Di thread latar: isDefault menjalankan getprop (proses baru), terlalu lambat untuk onResume di headunit. */
     void refreshDefaultHome() {
-        makeDefault.setVisibility(HomeSwitch.isDefault(this) ? View.GONE : View.VISIBLE);
+        new Thread(() -> {
+            boolean def = HomeSwitch.isDefault(this);
+            runOnUiThread(() -> makeDefault.setVisibility(def ? View.GONE : View.VISIBLE));
+        }, "home-default").start();
     }
 
     @Override protected void onPause() {
@@ -458,7 +520,7 @@ public class HomeActivity extends Activity {
         @Override public void onReceive(Context c, Intent i) {
             wakeAt = SystemClock.elapsedRealtime();
             reloadPrefs();
-            onQuran.run();
+            refreshTiles();
             updateTime();
             Welcome.maybeShow(HomeActivity.this, prefs);
         }
@@ -495,7 +557,7 @@ public class HomeActivity extends Activity {
 
     // ---------------------------------------------------------------- data
 
-    private static Integer nwdRotation;
+    private static volatile Integer nwdRotation;
 
     /**
      * Home kembali ke rotasi bawaan firmware. Aplikasi seperti Maps bisa memutar layar ke potret, dan headunit tanpa
@@ -504,20 +566,24 @@ public class HomeActivity extends Activity {
      * saat headunit baru menyala; NWD: ro.boot.nwd.rotation. Belum diketahui: dibiarkan (mis. headunit tegak).
      */
     void keepOrientation() {
-        if (nwdRotation == null) { // getprop menjalankan proses: sekali saja
-            int r = -1;
-            if (HomeSwitch.isNwd()) {
-                try { r = Integer.parseInt(HomeSwitch.getprop("ro.boot.nwd.rotation")); } catch (NumberFormatException ignored) { }
+        // Di thread latar: getprop pertama menjalankan 2–3 proses, ±50–70 ms di onResume saat cold start (atrace).
+        SharedPreferences p = prefs;
+        new Thread(() -> {
+            if (nwdRotation == null) { // getprop menjalankan proses: sekali saja
+                int r = -1;
+                if (HomeSwitch.isNwd()) {
+                    try { r = Integer.parseInt(HomeSwitch.getprop("ro.boot.nwd.rotation")); } catch (NumberFormatException ignored) { }
+                }
+                nwdRotation = r;
             }
-            nwdRotation = r;
-        }
-        int want = prefs.getInt("homeRotation", nwdRotation);
-        if (want < 0 || want > 3 || getWindowManager().getDefaultDisplay().getRotation() == want) return;
-        boolean free = android.provider.Settings.System.getInt(getContentResolver(),
-                android.provider.Settings.System.ACCELEROMETER_ROTATION, 0) == 1;
-        // Kunci sebentar ke rotasi itu, lalu kembalikan putar otomatis bila tadinya aktif (rotasi tetap di sana).
-        Tweaks.shellAsync("settings put system accelerometer_rotation 0; settings put system user_rotation " + want
-                + (free ? "; settings put system accelerometer_rotation 1" : ""));
+            int want = p.getInt("homeRotation", nwdRotation);
+            if (want < 0 || want > 3 || getWindowManager().getDefaultDisplay().getRotation() == want) return;
+            boolean free = android.provider.Settings.System.getInt(getContentResolver(),
+                    android.provider.Settings.System.ACCELEROMETER_ROTATION, 0) == 1;
+            // Kunci sebentar ke rotasi itu, lalu kembalikan putar otomatis bila tadinya aktif (rotasi tetap di sana).
+            Tweaks.shellAsync("settings put system accelerometer_rotation 0; settings put system user_rotation " + want
+                    + (free ? "; settings put system accelerometer_rotation 1" : ""));
+        }, "orientation").start();
     }
 
     /**
@@ -528,9 +594,15 @@ public class HomeActivity extends Activity {
     @SuppressWarnings("deprecation")
     SharedPreferences openPrefs() {
         Context de = createDeviceProtectedStorageContext();
-        if (getSystemService(UserManager.class).isUserUnlocked()) de.moveSharedPreferencesFrom(this, "klikdash");
+        // Pindah sekali per proses: moveSharedPreferencesFrom membaca isi folder di disk tiap dipanggil.
+        if (!prefsMoved && getSystemService(UserManager.class).isUserUnlocked()) {
+            de.moveSharedPreferencesFrom(this, "klikdash");
+            prefsMoved = true;
+        }
         return de.getSharedPreferences("klikdash", MODE_MULTI_PROCESS);
     }
+
+    private static boolean prefsMoved;
 
     /** Ambil ulang ubin dan lokasi dari disk (lihat openPrefs), juga perubahan dari Pengaturan. */
     void reloadPrefs() {
@@ -548,8 +620,6 @@ public class HomeActivity extends Activity {
             loadLocation();
             prayDayKey = -1;
             loadApps();
-            adapter.notifyDataSetChanged();
-            for (Tile t : tiles) if (t != null) t.invalidate();
             updateTime();
         }
     };
@@ -591,10 +661,54 @@ public class HomeActivity extends Activity {
         tiles[b].invalidate();
     }
 
+    /** false sampai daftar aplikasi pertama selesai dimuat: ubin belum boleh dianggap kosong. */
+    boolean appsReady;
+    /** Pemuatan terakhir; hasil pemuatan yang lebih lama dibuang. */
+    int appsGen;
+
+    /**
+     * Daftar aplikasi dimuat di thread latar: label dan ikon semua aplikasi terlalu lambat untuk main thread saat
+     * headunit baru menyala. Perubahan paket datang beruntun (PACKAGE_CHANGED), jadi ditunda sebentar dan digabung.
+     */
     void loadApps() {
-        apps.clear();
-        appByKey.clear();
-        appByPkg.clear();
+        final int gen = ++appsGen;
+        final java.util.Set<String> keep = slotPackages();
+        final int iconPx = px(64); // ikon laci terbesar, lihat Cell
+        new Thread(() -> {
+            List<App> list = queryApps(keep, iconPx);
+            runOnUiThread(() -> {
+                if (gen != appsGen || isDestroyed()) return;
+                apps.clear();
+                appByKey.clear();
+                appByPkg.clear();
+                for (App a : list) {
+                    apps.add(a);
+                    appByKey.put(a.cn.flattenToString(), a);
+                    if (!appByPkg.containsKey(a.cn.getPackageName())) appByPkg.put(a.cn.getPackageName(), a);
+                }
+                appsReady = true;
+                adapter.notifyDataSetChanged();
+                drawerCount.setText(apps.size() + " APLIKASI");
+                for (Tile t : tiles) if (t != null) t.invalidate();
+            });
+        }, "apps").start();
+    }
+
+    final Runnable reloadApps = this::loadApps;
+
+    /** Paket aplikasi di ubin home: ikon aslinya disimpan, yang lain cukup bitmap laci. */
+    java.util.Set<String> slotPackages() {
+        java.util.Set<String> s = new java.util.HashSet<>();
+        for (ComponentName cn : slotCn) if (cn != null) s.add(cn.getPackageName());
+        return s;
+    }
+
+    /**
+     * Di thread latar. Ikon laci digambar sekali ke bitmap seukuran sel: ikon asli sering beresolusi besar atau ikon
+     * adaptif (dua lapis + topeng), mahal digambar ulang tiap sel muncul saat laci digulir, dan boros RAM.
+     */
+    List<App> queryApps(java.util.Set<String> keep, int iconPx) {
+        List<App> list = new ArrayList<>();
         PackageManager pm = getPackageManager();
         Intent q = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
         for (ResolveInfo r : pm.queryIntentActivities(q, 0)) {
@@ -602,13 +716,52 @@ public class HomeActivity extends Activity {
             App a = new App();
             a.cn = new ComponentName(r.activityInfo.packageName, r.activityInfo.name);
             a.label = String.valueOf(r.loadLabel(pm)).trim();
-            a.icon = DzikirActivity.class.getName().equals(r.activityInfo.name)
+            a.upper = a.label.toUpperCase(ID);
+            Drawable d = DzikirActivity.class.getName().equals(r.activityInfo.name)
                     ? getDrawable(R.drawable.ic_dzikir_tile).mutate() : r.loadIcon(pm).mutate();
-            apps.add(a);
-            appByKey.put(a.cn.flattenToString(), a);
-            if (!appByPkg.containsKey(a.cn.getPackageName())) appByPkg.put(a.cn.getPackageName(), a);
+            a.bmp = render(d, iconPx);
+            if (keep.contains(a.cn.getPackageName())) a.icon = d;
+            list.add(a);
         }
-        Collections.sort(apps, (x, y) -> x.label.compareToIgnoreCase(y.label));
+        Collections.sort(list, (x, y) -> x.label.compareToIgnoreCase(y.label));
+        return list;
+    }
+
+    static Bitmap render(Drawable d, int size) {
+        Bitmap b = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+        d.setBounds(0, 0, size, size);
+        d.draw(new Canvas(b));
+        return b;
+    }
+
+    /** Ikon asli untuk ubin; dimuat bila belum ada (aplikasi baru dipasang di ubin, atau setelah onTrimMemory). */
+    Drawable iconOf(App a) {
+        if (a.icon == null) {
+            try {
+                a.icon = DzikirActivity.class.getName().equals(a.cn.getClassName())
+                        ? getDrawable(R.drawable.ic_dzikir_tile).mutate() : getPackageManager().getActivityIcon(a.cn).mutate();
+            } catch (PackageManager.NameNotFoundException e) {
+                a.icon = new ColorDrawable(0);
+            }
+        }
+        return a.icon;
+    }
+
+    boolean iconsTrimmed;
+
+    /**
+     * RAM sistem menipis saat home di latar (mis. Maps/Waze di depan): lepas ikon laci, dibuat ulang di onResume.
+     * Launcher yang lebih kecil lebih jarang dibunuh, jadi kembali ke home tidak perlu cold start. Ikon ubin tetap.
+     */
+    @Override public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        if (level < TRIM_MEMORY_BACKGROUND || apps.isEmpty()) return;
+        java.util.Set<String> keep = slotPackages();
+        for (App a : apps) {
+            a.bmp = null;
+            if (!keep.contains(a.cn.getPackageName())) a.icon = null;
+        }
+        iconsTrimmed = true;
     }
 
     App appFor(int slot) {
@@ -729,6 +882,8 @@ public class HomeActivity extends Activity {
         if (key == prayDayKey) return;
         prayDayKey = key;
         pray = PrayerTimes.compute(now, lat, lon);
+        prayText = new String[pray.length];
+        for (int i = 0; i < pray.length; i++) prayText[i] = String.format(Locale.US, "%02d:%02d", pray[i] / 60, pray[i] % 60);
         Calendar t = (Calendar) now.clone();
         t.add(Calendar.DAY_OF_MONTH, 1);
         prayTomorrow = PrayerTimes.compute(t, lat, lon);
@@ -740,20 +895,23 @@ public class HomeActivity extends Activity {
         return -1;
     }
 
+    int dzikirState = -1;
+
     void updateTime() {
         if (clock == null) return;
-        computePrayer(Calendar.getInstance());
+        Calendar now = Calendar.getInstance(); // zona waktu saat ini, juga sesudah diganti
+        computePrayer(now);
         if (prayerView != null) prayerView.invalidate();
-        TimeZone tz = TimeZone.getDefault();
-        fmtClock.setTimeZone(tz);
-        fmtDay.setTimeZone(tz);
-        fmtDate.setTimeZone(tz);
-        Date now = new Date();
-        clock.setText(fmtClock.format(now));
-        day.setText(fmtDay.format(now).toUpperCase(ID));
-        date.setText(fmtDate.format(now).toUpperCase(ID));
-        hijri.setText(hijriText(now.getTime()));
+        show(clock, two(now.get(Calendar.HOUR_OF_DAY)) + ":" + two(now.get(Calendar.MINUTE)));
+        show(day, HARI[now.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY]);
+        show(date, now.get(Calendar.DAY_OF_MONTH) + " " + BULAN[now.get(Calendar.MONTH)] + " " + now.get(Calendar.YEAR));
+        show(hijri, hijriText(now.getTimeInMillis()));
         gauge.invalidate();
+        int dz = dzikirPagi() ? 1 : 0; // ubin Dzikir berganti PAGI → PETANG saat Ashar, walau home terus tampil
+        if (dz != dzikirState) {
+            dzikirState = dz;
+            for (Tile t : tiles) if (t != null) t.invalidate();
+        }
     }
 
     // ---------------------------------------------------------------- layout
@@ -1046,6 +1204,16 @@ public class HomeActivity extends Activity {
 
     float sp(float v) { return v * sp; }
 
+    final Paint iconPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
+    final Rect iconRect = new Rect();
+
+    void drawIcon(Canvas c, Bitmap b, int left, int top, int size, boolean color) {
+        iconRect.set(left, top, left + size, top + size);
+        iconPaint.setColorFilter(color ? null : mono);
+        iconPaint.setAlpha(color ? 255 : 225);
+        c.drawBitmap(b, null, iconRect, iconPaint);
+    }
+
     void drawIcon(Canvas c, Drawable d, int left, int top, int size, boolean color) {
         d.setBounds(left, top, left + size, top + size);
         d.setColorFilter(color ? null : mono);
@@ -1105,7 +1273,9 @@ public class HomeActivity extends Activity {
             setOnClickListener(v -> {
                 if (idx == SLOTS) { openDrawer(-1); return; }
                 App a = appFor(idx);
-                if (a == null) openDrawer(idx); else launch(a.cn);
+                if (a != null) launch(a.cn);
+                else if (!appsReady && slotCn[idx] != null) launch(slotCn[idx]); // daftar aplikasi belum termuat
+                else openDrawer(idx);
             });
             if (idx < SLOTS) {
                 // Tekan lama: geser ke ubin lain = tukar posisi; lepas di tempat = pilih aplikasi.
@@ -1145,6 +1315,11 @@ public class HomeActivity extends Activity {
 
         boolean dragging, target;
 
+        boolean quran() {
+            App a = idx < SLOTS ? appFor(idx) : null;
+            return a != null && QuranActivity.class.getName().equals(a.cn.getClassName());
+        }
+
         /** Ubin asal saat diseret: diredupkan. Ubin tujuan: bingkai amber tebal. */
         void drawDragState(Canvas c) {
             int w = getWidth(), h = getHeight();
@@ -1171,6 +1346,7 @@ public class HomeActivity extends Activity {
             small.setTextSize(sp(11) * Math.max(0.85f, Math.min(1.4f, k)));
             boolean all = idx == SLOTS;
             App a = all ? null : appFor(idx);
+            boolean loading = !all && a == null && !appsReady && slotCn[idx] != null;
 
             small.setColor(down ? INK : (idx < cols ? AMBER : DIM));
             c.drawText(String.format(Locale.US, "%02d", (all ? shown : idx) + 1), m, m + small.getTextSize(), small);
@@ -1189,8 +1365,8 @@ public class HomeActivity extends Activity {
                 name = "SEMUA";
                 sub = "APLIKASI  →";
             } else if (a != null) {
-                drawIcon(c, a.icon, w - m - icon, m, icon, down);
-                name = slotLabel[idx] != null ? slotLabel[idx] : a.label.toUpperCase(ID);
+                drawIcon(c, iconOf(a), w - m - icon, m, icon, down);
+                name = slotLabel[idx] != null ? slotLabel[idx] : a.upper;
                 if (DzikirActivity.class.getName().equals(a.cn.getClassName())) {
                     sub = dzikirPagi() ? "PAGI" : "PETANG";
                 }
@@ -1198,6 +1374,8 @@ public class HomeActivity extends Activity {
                 if (QuranActivity.class.getName().equals(a.cn.getClassName()) && QuranService.playing) {
                     sub = String.format(Locale.US, "▶ %d : %d", QuranService.surah, QuranService.ayah);
                 }
+            } else if (loading) {
+                name = slotLabel[idx] != null ? slotLabel[idx] : ""; // daftar aplikasi belum termuat, ikon menyusul
             } else {
                 name = slotLabel[idx] != null ? slotLabel[idx] : "KOSONG";
                 sub = "KETUK UNTUK ISI";
@@ -1210,7 +1388,7 @@ public class HomeActivity extends Activity {
                 c.drawText(ss, 0, ss.length(), m, base, small);
                 base -= small.getTextSize() + px(10) * k;
             }
-            label.setColor(down ? INK : (a == null && !all ? FAINT : TEXT));
+            label.setColor(down ? INK : (a == null && !all && !loading ? FAINT : TEXT));
             // Label panjang dikecilkan dulu (sampai 60%), baru dipotong kalau masih tidak muat.
             float avail = w - m * 2, size = sp(30) * k;
             label.setTextSize(size);
@@ -1273,9 +1451,9 @@ public class HomeActivity extends Activity {
             drawFrame(c);
             if (app == null) return;
             int w = getWidth(), h = getHeight(), icon = Math.min(px(64), Math.round(h * 0.42f));
-            drawIcon(c, app.icon, (w - icon) / 2, Math.round(h * 0.15f), icon, down);
+            if (app.bmp != null) drawIcon(c, app.bmp, (w - icon) / 2, Math.round(h * 0.15f), icon, down);
             label.setColor(down ? INK : TEXT);
-            CharSequence s = TextUtils.ellipsize(app.label.toUpperCase(ID), label, w - px(20), TextUtils.TruncateAt.END);
+            CharSequence s = TextUtils.ellipsize(app.upper, label, w - px(20), TextUtils.TruncateAt.END);
             c.drawText(s, 0, s.length(), w / 2f, h - px(20), label);
         }
     }
@@ -1421,7 +1599,7 @@ public class HomeActivity extends Activity {
                 name.setColor(i == next ? AMBER : DIM);
                 c.drawText(PrayerTimes.NAMES[i], x, px(28), name);
                 time.setColor(color);
-                c.drawText(String.format(Locale.US, "%02d:%02d", pray[i] / 60, pray[i] % 60), x, px(64), time);
+                c.drawText(prayText[i], x, px(64), time);
             }
 
             int target = next >= 0 ? pray[next] : 1440 + prayTomorrow[0];

@@ -65,6 +65,7 @@ adb connect 192.168.1.17:5555
 ./build.sh release      # APK rilis publik tanpa teks Al-Qur'an → build/klikdash-<versi>.apk
 ./build.sh install      # build, pasang, beri izin lokasi, jadikan home
 DEVICE=1.2.3.4:5555 ./build.sh install   # kalau IP headunit berubah
+DEBUGGABLE=1 ./build.sh install          # build debuggable, perlu untuk uji TANYA lewat adb (lihat AskActivity)
 ```
 
 Selalu pasang lewat `./build.sh install`. Kalau memakai `adb install` biasa, preferensi home bisa hilang

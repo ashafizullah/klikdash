@@ -32,8 +32,12 @@ final class HomeSwitch {
         }
     }
 
+    /** getprop menjalankan proses: cukup sekali per proses, firmware tidak berubah selama berjalan. */
+    private static volatile Boolean nwd;
+
     static boolean isNwd() {
-        return "true".equals(getprop("ro.nwd.start.launcher.by.fw")) || !getprop(NWD_PROP).isEmpty();
+        if (nwd == null) nwd = "true".equals(getprop("ro.nwd.start.launcher.by.fw")) || !getprop(NWD_PROP).isEmpty();
+        return nwd;
     }
 
     static boolean isDefault(Context c) {
