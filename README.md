@@ -51,7 +51,8 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
 - **Dhikr:** morning and evening readings with a guided counter.
 - **Power saver:** stop apps such as Netflix or Spotify from running in the background.
 - **Voice assistant TANYA (optional):** say *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai Waze"* or
-  *"buka Zlink"*. Bring your own Claude or OpenAI-compatible key, with an ElevenLabs voice.
+  *"buka Zlink"*. Bring your own Claude or OpenAI-compatible key; it listens and speaks with the headunit's
+  free Android voice or with ElevenLabs.
 - **Settings & updates:** the ⚙ button on the home screen; **CEK UPDATE** installs new versions without a computer.
 
 ## Install
@@ -107,18 +108,20 @@ The old NWD launcher is **not removed**. Its process stays because it also handl
 
 ## Notes
 
-- **Voice assistant privacy and cost.** What you say is sent to ElevenLabs to be transcribed, and the text, with
+- **Voice assistant privacy and cost.** What you say is transcribed by the recognizer chosen under
+  **Pengenalan suara**: Android (the Google app, processed by Google) or ElevenLabs Scribe. The text, with
   the list of installed app names, the current time and, when a command needs it, the location, goes to the AI
   provider of the active profile. Usage is billed to your own accounts. Nothing goes through a KlikDash server.
   The AI can be wrong: check what it did, and do not rely on it for anything safety-critical.
-- **Android voice (optional).** With **Suara jawaban › ANDROID**, answers are read by the headunit's own
-  text-to-speech engine through the standard Android API. If the headunit has none, KlikDash opens
-  [Speech Recognition & Synthesis](https://play.google.com/store/apps/details?id=com.google.android.tts) (Speech
-  Services by Google) in the Play Store. It is a separate, free app from Google under Google's own terms; KlikDash
-  does not include or redistribute it. With the Indonesian voice downloaded in its settings, answers are spoken
-  offline on the headunit. For listening, KlikDash uses the Android speech recognizer when one is installed, such
-  as the [Google app](https://play.google.com/store/apps/details?id=com.google.android.googlequicksearchbox); what
-  you say is then processed by Google instead of ElevenLabs.
+- **Android voice and speech recognition (optional).** **Suara jawaban** and **Pengenalan suara** each choose
+  ANDROID or ELEVENLABS. ANDROID uses the headunit's own engines through the standard Android API, so no
+  ElevenLabs account is needed. If the headunit has none, tapping ANDROID opens the app in the Play Store:
+  [Speech Recognition & Synthesis](https://play.google.com/store/apps/details?id=com.google.android.tts) (Speech Services by Google) to speak and the
+  [Google app](https://play.google.com/store/apps/details?id=com.google.android.googlequicksearchbox) to listen. Both are
+  separate, free apps from Google under Google's own terms; KlikDash does not include or redistribute them. With
+  the Indonesian voice downloaded in Speech Recognition & Synthesis, answers are spoken offline; what the Google
+  app recognizes is processed by Google. Firmware that blocks Google Play services updates (such as NWD) may make
+  the Google app ask for one; recognition still works.
 - **Security.** Enabled ADB over WiFi gives full access to the headunit. Only connect the headunit to a
   private network (such as your own phone's hotspot), never to public WiFi.
 - **Prayer-time accuracy** is within ±1 minute of the Kemenag schedule (compared for Jakarta,

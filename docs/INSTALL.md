@@ -126,14 +126,17 @@ Optional. TANYA understands short commands in Indonesian, such as *"putar surat 
 *"navigasi ke masjid terdekat pakai Waze"*, *"buka Zlink"* or *"stop murottalnya"*, and answers out loud.
 
 1. Get an API key from [console.anthropic.com](https://console.anthropic.com) (Claude) or from any
-   OpenAI-compatible provider, and one from [elevenlabs.io](https://elevenlabs.io) for the voice. Give the
-   ElevenLabs key the *Text to Speech*, *Speech to Text* and *Voices* permissions.
+   OpenAI-compatible provider. ElevenLabs ([elevenlabs.io](https://elevenlabs.io)) is optional; its key needs the
+   *Text to Speech*, *Speech to Text* and *Voices* permissions.
 2. Open **⚙ › ASISTEN AI**, tap **+ CLAUDE** (or **+ OPENAI-COMPATIBLE**), paste the key, tap
    **PILIH MODEL** to pick a model (Claude Haiku 5.5 is the fastest), then **SIMPAN** and **UJI**.
    Typing a long key on the headunit is tedious: tap the field, then from a computer run
    `adb shell input text 'YOUR_KEY'`.
-3. Under **SUARA ELEVENLABS**, tap **API KEY** and paste the ElevenLabs key. An Indonesian voice is set for you;
-   **SUARA** picks another one, and **DENGAR** plays a sample.
+3. Voice: under **SUARA JAWABAN** and **PENGENALAN SUARA**, **ANDROID** is free. If the headunit has no Android
+   voice or recognizer yet, tapping **ANDROID** opens Google's app in the Play Store; in Speech Recognition &
+   Synthesis, download the Indonesian voice so answers are spoken offline. **DENGAR** plays a sample. For
+   ElevenLabs instead, tap **API KEY** under **SUARA ELEVENLABS** and paste its key; an Indonesian voice is set
+   for you and **SUARA** picks another one.
 4. Put TANYA on the home screen: long-press a home shortcut, release it in place and pick **Tanya**.
 
 ![TANYA answering a command](img/tanya.png)

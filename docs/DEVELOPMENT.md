@@ -25,7 +25,7 @@ klikdash/
 │   ├── AiClient.java         AI tool-use loop (Claude Messages API / OpenAI-compatible)
 │   ├── AiTools.java          car commands the AI may run (open app, navigate, murattal, volume…)
 │   ├── AiStore.java          AI profiles; API keys encrypted with Android Keystore
-│   ├── AiVoice.java          speech: ElevenLabs or Android TTS, ElevenLabs Scribe fallback
+│   ├── AiVoice.java          speech: Android or ElevenLabs TTS and STT (picks installed Android engines)
 │   ├── Tweaks.java           system commands through local ADB (ksmd, hide Zlink, launcher, appops)
 │   └── Compat.java           Android 7–8 differences (fonts, audio focus, notification channel, services)
 ├── res/                      theme, vector icons, ISRG root certificates for Android 7.0 (network_security.xml)

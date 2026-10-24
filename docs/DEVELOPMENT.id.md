@@ -25,7 +25,7 @@ klikdash/
 │   ├── AiClient.java         loop tool-use AI (Claude Messages API / OpenAI-compatible)
 │   ├── AiTools.java          perintah mobil yang boleh dijalankan AI (buka aplikasi, navigasi, murattal, volume…)
 │   ├── AiStore.java          profil AI; API key dienkripsi dengan Android Keystore
-│   ├── AiVoice.java          suara: ElevenLabs atau TTS Android, cadangan ElevenLabs Scribe
+│   ├── AiVoice.java          suara: TTS & STT Android atau ElevenLabs (memilih mesin Android yang terpasang)
 │   └── Tweaks.java           perintah sistem lewat ADB lokal (ksmd, sembunyikan Zlink, launcher, appops)
 ├── res/                      tema, ikon vektor, sertifikat root ISRG untuk Android 7.0 (network_security.xml)
 ├── assets/
