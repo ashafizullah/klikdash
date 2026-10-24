@@ -10,6 +10,12 @@ import android.graphics.Canvas;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -81,24 +87,87 @@ final class HomeApps {
         for (int i = 0; i < SLOTS; i++) if (DEFAULT_TEXT[i] != 0) defaultText.put(DEFAULTS[i][1], h.getString(DEFAULT_TEXT[i]));
     }
 
+    File slotsFile() {
+        return new File(h.createDeviceProtectedStorageContext().getFilesDir(), "home_slots.tsv");
+    }
+
     void loadSlots() {
+        if (loadSlotsFromFile()) {
+            migrateSlotLabels();
+            return;
+        }
         SharedPreferences prefs = h.prefs;
+        boolean any = false;
         for (int i = 0; i < SLOTS; i++) {
             String s = prefs.getString("s" + i, null);
             if (s == null) {
                 slotCn[i] = DEFAULTS[i][0] != null ? ComponentName.unflattenFromString(DEFAULTS[i][0]) : null;
                 slotLabel[i] = DEFAULTS[i][1];
             } else {
+                any = true;
                 slotCn[i] = s.isEmpty() ? null : ComponentName.unflattenFromString(s); // "" = slot kosong
                 slotLabel[i] = prefs.getString("l" + i, null);
-                // v1.3: ubin pengaturan mobil berganti nama jadi SISTEM (Pengaturan kini milik KlikDash).
-                if ("PENGATURAN".equals(slotLabel[i]) && slotCn[i] != null
-                        && "com.android.car.setting".equals(slotCn[i].getPackageName())) {
-                    slotLabel[i] = "SISTEM";
-                    prefs.edit().putString("l" + i, "SISTEM").apply();
-                }
             }
         }
+        migrateSlotLabels();
+        if (any) persistSlots();
+    }
+
+    /** File TSV di DE: sumber kebenaran ubin (MODE_MULTI_PROCESS di beberapa HU tidak menulis s0… ke XML). */
+    boolean loadSlotsFromFile() {
+        File f = slotsFile();
+        if (!f.isFile()) return false;
+        try (BufferedReader r = new BufferedReader(new FileReader(f))) {
+            for (int i = 0; i < SLOTS; i++) {
+                String line = r.readLine();
+                if (line == null) return false;
+                int tab = line.indexOf('\t');
+                String flat = tab >= 0 ? line.substring(0, tab) : line;
+                String lab = tab >= 0 && tab + 1 < line.length() ? line.substring(tab + 1) : "";
+                slotCn[i] = flat.isEmpty() ? null : ComponentName.unflattenFromString(flat);
+                slotLabel[i] = lab.isEmpty() ? null : lab;
+            }
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    void writeSlotsFile() {
+        File f = slotsFile();
+        File tmp = new File(f.getParentFile(), f.getName() + ".tmp");
+        try (FileOutputStream os = new FileOutputStream(tmp)) {
+            for (int i = 0; i < SLOTS; i++) {
+                String flat = slotCn[i] != null ? slotCn[i].flattenToString() : "";
+                String lab = slotLabel[i] != null ? slotLabel[i] : "";
+                os.write((flat + "\t" + lab + "\n").getBytes(StandardCharsets.UTF_8));
+            }
+            os.getFD().sync();
+        } catch (IOException e) {
+            return;
+        }
+        if (!tmp.renameTo(f)) tmp.delete();
+    }
+
+    void migrateSlotLabels() {
+        for (int i = 0; i < SLOTS; i++) {
+            if ("PENGATURAN".equals(slotLabel[i]) && slotCn[i] != null
+                    && "com.android.car.setting".equals(slotCn[i].getPackageName())) {
+                slotLabel[i] = "SISTEM";
+            }
+        }
+    }
+
+    void persistSlots() {
+        writeSlotsFile();
+        SharedPreferences.Editor e = h.prefs.edit();
+        for (int i = 0; i < SLOTS; i++) putSlot(e, i, slotCn[i], slotLabel[i]);
+        e.commit();
+    }
+
+    static void putSlot(SharedPreferences.Editor e, int i, ComponentName cn, String label) {
+        e.putString("s" + i, cn != null ? cn.flattenToString() : "");
+        if (label != null) e.putString("l" + i, label); else e.remove("l" + i);
     }
 
     /** Label tersimpan untuk ditampilkan: label bawaan diterjemahkan (lihat DEFAULT_TEXT), selain itu apa adanya. */
@@ -111,16 +180,17 @@ final class HomeApps {
     void saveSlot(int i, ComponentName cn, String label) {
         slotCn[i] = cn;
         slotLabel[i] = label;
-        SharedPreferences.Editor e = Prefs.of(h).edit().putString("s" + i, cn != null ? cn.flattenToString() : "");
-        if (label != null) e.putString("l" + i, label); else e.remove("l" + i);
-        e.apply();
+        persistSlots();
     }
 
     void swapSlots(int a, int b) {
-        ComponentName ca = slotCn[a];
-        String la = slotLabel[a];
-        saveSlot(a, slotCn[b], slotLabel[b]);
-        saveSlot(b, ca, la);
+        ComponentName ca = slotCn[a], cb = slotCn[b];
+        String la = slotLabel[a], lb = slotLabel[b];
+        slotCn[a] = cb;
+        slotLabel[a] = lb;
+        slotCn[b] = ca;
+        slotLabel[b] = la;
+        persistSlots();
         h.tiles[a].invalidate();
         h.tiles[b].invalidate();
     }

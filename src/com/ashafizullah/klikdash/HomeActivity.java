@@ -310,7 +310,12 @@ public class HomeActivity extends Activity {
         BeamHub.homeFront = !safe;
         if (android.os.Build.VERSION.SDK_INT < 29) SplitScreen.home(true); // Android 10+: onTopResumedActivityChanged
         if (safe || Theme.stale(this, themeBuilt)) return;
-        reloadPrefs();
+        // Jangan reloadPrefs di setiap resume: salinan prefs lama + MODE_MULTI_PROCESS di modul lain bisa
+        // menimpa ubin. Reload hanya setelah bangun (ACC), buka Pengaturan, atau CE terbuka (wakeRx/unlockRx).
+        if (prefsReloadOnResume) {
+            prefsReloadOnResume = false;
+            reloadPrefs();
+        }
         if (HomeApps.tileCount(prefs) != shown + 1) { recreate(); return; } // jumlah ubin diganti di Pengaturan
         refreshLock(); // PIN bisa diatur atau dihapus di Pengaturan
         keepOrientation();
@@ -515,6 +520,7 @@ public class HomeActivity extends Activity {
 
     void openSettings() {
         userLaunch = true;
+        prefsReloadOnResume = true;
         startActivity(new Intent(this, SettingsActivity.class));
     }
 
@@ -604,6 +610,8 @@ public class HomeActivity extends Activity {
 
     /** true bila aplikasi di depan dibuka lewat KlikDash (ubin/daftar), bukan muncul sendiri. */
     boolean userLaunch;
+    /** Muat ulang ubin/lokasi dari disk di onResume berikutnya (Pengaturan mengubah prefs). */
+    boolean prefsReloadOnResume;
     /** Awal jendela "baru menyala": boot (0) atau saat bangun dari tidur (ACC on). */
     long wakeAt;
 
@@ -713,24 +721,28 @@ public class HomeActivity extends Activity {
         }, "orientation").start();
     }
 
-    /** Prefs di penyimpanan DE (lihat Prefs); pindahkan sekali dari CE (versi lama) begitu CE sudah terbuka. */
+    static final String PREFS_NAME = "klikdash";
+    static final String PREFS_CE_MIGRATED = "prefs_ce_migrated";
+
+    /** Prefs di penyimpanan DE; pindahkan sekali dari CE (versi lama) begitu CE sudah terbuka. */
     SharedPreferences openPrefs() {
         Context de = createDeviceProtectedStorageContext();
-        // Pindah sekali per proses: moveSharedPreferencesFrom membaca isi folder di disk tiap dipanggil.
-        if (!prefsMoved && getSystemService(UserManager.class).isUserUnlocked()) {
-            de.moveSharedPreferencesFrom(this, "klikdash");
-            prefsMoved = true;
+        if (getSystemService(UserManager.class).isUserUnlocked()) {
+            SharedPreferences boot = de.getSharedPreferences(PREFS_CE_MIGRATED, MODE_PRIVATE);
+            if (!boot.getBoolean("done", false)) {
+                de.moveSharedPreferencesFrom(this, PREFS_NAME);
+                boot.edit().putBoolean("done", true).commit();
+            }
         }
-        return Prefs.of(this);
+        return de.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
     }
-
-    private static boolean prefsMoved;
 
     /** Ambil ulang ubin dan lokasi dari disk (lihat openPrefs), juga perubahan dari Pengaturan. */
     void reloadPrefs() {
         prefs = openPrefs();
         apps.loadSlots();
         loc.reload();
+        invalidateTiles();
     }
 
     /** Setelah CE terbuka: aplikasi non-directBoot (mis. Maps, Al-Qur'an) baru terlihat oleh PackageManager. */

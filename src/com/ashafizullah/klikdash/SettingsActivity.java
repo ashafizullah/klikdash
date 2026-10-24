@@ -786,7 +786,8 @@ public class SettingsActivity extends Activity {
                 .setPositiveButton(getString(R.string.settings_tiles_reset_button), (d, w) -> {
                     SharedPreferences.Editor e = prefs.edit();
                     for (int i = 0; i < HomeApps.SLOTS; i++) e.remove("s" + i).remove("l" + i);
-                    e.apply();
+                    e.commit();
+                    new java.io.File(createDeviceProtectedStorageContext().getFilesDir(), "home_slots.tsv").delete();
                     Notice.ok(this, getString(R.string.settings_tiles_reset_done));
                 }));
     }
