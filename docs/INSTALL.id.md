@@ -96,8 +96,9 @@ tidak berfungsi.**
 - **Buka aplikasi:** ketuk pintasannya.
 - **Ganti aplikasi di pintasan:** tekan lama pintasan, lepas di tempat, lalu pilih aplikasinya.
 - **Tukar posisi pintasan:** tekan lama pintasan, geser ke pintasan lain, lalu lepas.
-- **Semua aplikasi:** ketuk pintasan **SEMUA**. Tekan lama sebuah aplikasi di sana untuk membuka infonya
-  (misalnya untuk uninstall).
+- **Semua aplikasi:** ketuk pintasan **SEMUA**. Ketuk **CARI APLIKASI** lalu ketik sebagian namanya untuk
+  menyaring; bila tinggal satu, tombol cari di keyboard langsung membukanya. Tekan lama sebuah aplikasi di sana untuk
+  membuka infonya (misalnya untuk uninstall).
 - **Pintasan lebih besar:** ketuk **⚙**, lalu di **JUMLAH PINTASAN** pilih 9, 6, atau 4 (bawaan 12, termasuk SEMUA).
   Makin sedikit, makin besar jam, kecepatan, tanggal, dan jadwal sholat di kiri, juga pintasan, ikon, dan tulisannya. Pintasan yang tidak tampil tetap tersimpan dan muncul
   lagi bila jumlahnya ditambah.

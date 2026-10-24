@@ -123,6 +123,10 @@ public class HomeActivity extends Activity {
     final String[] slotLabel = new String[SLOTS];
     final Tile[] tiles = new Tile[SLOTS + 1];
     final List<App> apps = new ArrayList<>();
+    /** Aplikasi yang tampil di laci: semua, atau yang cocok dengan pencarian (lihat filterApps). */
+    final List<App> shownApps = new ArrayList<>();
+    android.widget.EditText search;
+    TextView noApps;
     final Map<String, App> appByKey = new HashMap<>();
     final Map<String, App> appByPkg = new HashMap<>();
 
@@ -311,6 +315,9 @@ public class HomeActivity extends Activity {
         root.addView(notch, QuranNotch.params(dp)); // di bawah laci aplikasi, yang menutupinya saat dibuka
         root.addView(drawer, MATCH, MATCH);
         setContentView(root);
+        // Keyboard hanya untuk kolom cari di laci: tidak muncul sendiri, dan laci menyusut di atasnya.
+        getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+                | android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         // Daftar aplikasi sesudah frame pertama: pemuat ikon memegang kunci ResourcesManager yang juga ditunggu main
         // thread saat start (30–55 ms, atrace). Label ubin tampil dulu, ikon menyusul.
         root.getViewTreeObserver().addOnPreDrawListener(new android.view.ViewTreeObserver.OnPreDrawListener() {
@@ -698,8 +705,7 @@ public class HomeActivity extends Activity {
                     if (!appByPkg.containsKey(a.cn.getPackageName())) appByPkg.put(a.cn.getPackageName(), a);
                 }
                 appsReady = true;
-                adapter.notifyDataSetChanged();
-                drawerCount.setText(apps.size() + " APLIKASI");
+                filterApps();
                 for (Tile t : tiles) if (t != null) t.invalidate();
             });
         }, "apps").start();
@@ -1147,11 +1153,48 @@ public class HomeActivity extends Activity {
         head.addView(drawerTitle);
         drawerCount = text("", fMono, 13, AMBER);
         drawerCount.setLetterSpacing(0.2f);
+        // Selebar teks terpanjang, supaya kolom cari tidak bergeser saat hitungannya berubah ("36 APLIKASI" ↔ "4 DARI 36").
+        drawerCount.setMinWidth(Math.round(drawerCount.getPaint().measureText("000 APLIKASI")));
         LinearLayout.LayoutParams cl = new LinearLayout.LayoutParams(WRAP, WRAP);
         cl.leftMargin = px(20);
         head.addView(drawerCount, cl);
         if (narrow) drawerCount.setVisibility(View.GONE);
-        head.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1f));
+
+        // Cari aplikasi: menyaring sambil mengetik. Keyboard hanya muncul bila kolomnya diketuk.
+        search = new android.widget.EditText(this);
+        search.setHint(narrow ? "CARI" : "CARI APLIKASI");
+        search.setSingleLine(true);
+        search.setTypeface(fMonoBold);
+        search.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        search.setLetterSpacing(0.1f);
+        search.setTextColor(TEXT);
+        search.setHintTextColor(DIM);
+        search.setGravity(Gravity.CENTER_VERTICAL);
+        search.setPadding(px(16), 0, px(16), 0);
+        android.graphics.drawable.GradientDrawable sbg = new android.graphics.drawable.GradientDrawable();
+        sbg.setColor(PANEL);
+        sbg.setStroke(px(1), LINE);
+        search.setBackground(sbg);
+        search.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        // Layar mendatar: tanpa layar ketik penuh, supaya hasil saringan tetap terlihat di atas keyboard.
+        search.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH
+                | android.view.inputmethod.EditorInfo.IME_FLAG_NO_EXTRACT_UI
+                | android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN);
+        search.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) { }
+            @Override public void onTextChanged(CharSequence s, int a, int b, int c) { }
+            @Override public void afterTextChanged(android.text.Editable s) { filterApps(); }
+        });
+        // Tombol cari di keyboard: tutup keyboard; tinggal satu hasil = langsung buka/pilih.
+        search.setOnEditorActionListener((v, action, e) -> {
+            hideKeyboard();
+            if (shownApps.size() == 1) onPick(shownApps.get(0));
+            return true;
+        });
+        LinearLayout.LayoutParams sl = new LinearLayout.LayoutParams(0, px(56), 1f);
+        sl.leftMargin = px(24);
+        sl.rightMargin = px(12);
+        head.addView(search, sl);
 
         Button settings = new Button(wDp < 900 ? "⚙" : "⚙  PENGATURAN", false);
         settings.setOnClickListener(v -> openSettings());
@@ -1183,16 +1226,42 @@ public class HomeActivity extends Activity {
         grid.setClipToPadding(false);
         adapter = new AppAdapter();
         grid.setAdapter(adapter);
-        grid.setOnItemClickListener((p, v, pos, id) -> onPick(apps.get(pos)));
+        grid.setOnItemClickListener((p, v, pos, id) -> onPick(shownApps.get(pos)));
         grid.setOnItemLongClickListener((p, v, pos, id) -> {
             v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
             startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                    Uri.fromParts("package", apps.get(pos).cn.getPackageName(), null))
+                    Uri.fromParts("package", shownApps.get(pos).cn.getPackageName(), null))
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             return true;
         });
         d.addView(grid, new LinearLayout.LayoutParams(MATCH, 0, 1f));
+        noApps = text("", fMono, 14, DIM);
+        noApps.setLetterSpacing(0.15f);
+        noApps.setGravity(Gravity.CENTER);
+        d.addView(noApps, new LinearLayout.LayoutParams(MATCH, 0, 1f));
+        grid.setEmptyView(noApps);
+        // Menahan fokus saat laci dibuka/ditutup, supaya kolom cari tidak terfokus (dan keyboard tidak muncul) sendiri.
+        d.setFocusableInTouchMode(true);
         return d;
+    }
+
+    /** Saring laci dengan teks pencarian (nama aplikasi yang tampil), tanpa memuat ulang ikon. */
+    void filterApps() {
+        String q = search != null ? search.getText().toString().trim().toLowerCase(ID) : "";
+        shownApps.clear();
+        for (App a : apps) {
+            if (q.isEmpty() || a.label.toLowerCase(ID).contains(q)) shownApps.add(a);
+        }
+        adapter.notifyDataSetChanged();
+        drawerCount.setText(q.isEmpty() ? apps.size() + " APLIKASI" : shownApps.size() + " DARI " + apps.size());
+        noApps.setText(!appsReady ? "MEMUAT DAFTAR APLIKASI…" : q.isEmpty() ? "TIDAK ADA APLIKASI"
+                : "TIDAK ADA APLIKASI “" + search.getText().toString().trim().toUpperCase(ID) + "”");
+    }
+
+    void hideKeyboard() {
+        android.view.inputmethod.InputMethodManager imm = getSystemService(android.view.inputmethod.InputMethodManager.class);
+        if (imm != null) imm.hideSoftInputFromWindow(search.getWindowToken(), 0);
+        drawer.requestFocus();
     }
 
     void openDrawer(int slot) {
@@ -1200,14 +1269,18 @@ public class HomeActivity extends Activity {
         drawerTitle.setText(slot >= 0
                 ? String.format(Locale.US, "PILIH UNTUK SLOT %02d", slot + 1)
                 : "SEMUA APLIKASI");
-        drawerCount.setText(apps.size() + " APLIKASI");
+        search.setText(""); // juga menyaring ulang
+        filterApps();
         grid.setSelection(0);
         home.setVisibility(View.GONE);
         drawer.setVisibility(View.VISIBLE);
+        drawer.requestFocus();
     }
 
     void closeDrawer() {
         pickSlot = -1;
+        hideKeyboard();
+        search.setText("");
         drawer.setVisibility(View.GONE);
         home.setVisibility(View.VISIBLE);
     }
@@ -1496,8 +1569,8 @@ public class HomeActivity extends Activity {
     }
 
     class AppAdapter extends BaseAdapter {
-        @Override public int getCount() { return apps.size(); }
-        @Override public Object getItem(int i) { return apps.get(i); }
+        @Override public int getCount() { return shownApps.size(); }
+        @Override public Object getItem(int i) { return shownApps.get(i); }
         @Override public long getItemId(int i) { return i; }
 
         @Override public View getView(int i, View v, ViewGroup parent) {
@@ -1506,7 +1579,7 @@ public class HomeActivity extends Activity {
                 float colDp = (wDp - 48 - 12 * (drawerCols - 1)) / drawerCols;
                 c.setLayoutParams(new AbsListView.LayoutParams(MATCH, px(Math.max(110, Math.min(160, colDp * 0.85f)))));
             }
-            c.app = apps.get(i);
+            c.app = shownApps.get(i);
             c.invalidate();
             return c;
         }
