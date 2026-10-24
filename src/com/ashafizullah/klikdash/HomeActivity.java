@@ -253,6 +253,8 @@ public class HomeActivity extends Activity {
         updateTime();
         startLocation();
         Tweaks.applyAsync();
+        // Baru menyala (bukan sekadar dibangun ulang, mis. ganti tema atau pembaruan): sambutan.
+        if (SystemClock.elapsedRealtime() < 5 * 60_000L) root.post(() -> Welcome.maybeShow(this, prefs));
     }
 
     @Override public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
@@ -389,6 +391,7 @@ public class HomeActivity extends Activity {
             reloadPrefs();
             onQuran.run();
             updateTime();
+            Welcome.maybeShow(HomeActivity.this, prefs);
         }
     };
 

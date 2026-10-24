@@ -219,6 +219,20 @@ public class SettingsActivity extends Activity {
         }
         list.addView(row("TEMA", Theme.DESC[cur], themes));
 
+        int wm = Welcome.mode(prefs);
+        list.addView(row("SAMBUTAN",
+                "Tampil di home saat headunit menyala. " + (wm == Welcome.MODE_OFF ? "Sekarang dimatikan."
+                        : wm == Welcome.MODE_CUSTOM ? "Sekarang memakai teks Anda sendiri."
+                        : "Sekarang doa keluar rumah (bawaan)."),
+                key("BAWAAN", wm == Welcome.MODE_DEFAULT, () -> setWelcome(Welcome.MODE_DEFAULT)),
+                key("CUSTOM", wm == Welcome.MODE_CUSTOM, this::editWelcome),
+                key("MATI", wm == Welcome.MODE_OFF, () -> setWelcome(Welcome.MODE_OFF)),
+                key("LIHAT", false, () -> {
+                    Welcome.Content c = Welcome.content(prefs);
+                    if (c == null) Notice.info(this, "Sambutan sedang dimatikan");
+                    else Welcome.show(this, c);
+                })));
+
         list.addView(row("PINTASAN HOME",
                 "Tekan lama pintasan di home untuk mengganti atau memindahkan aplikasinya. Atur ulang mengembalikan susunan "
                         + "bawaan KlikDash.",
@@ -326,6 +340,58 @@ public class SettingsActivity extends Activity {
                 });
             }
         }, "update-download").start();
+    }
+
+    void setWelcome(int mode) {
+        prefs.edit().putInt("welcome", mode).apply();
+        show(TAB_LAUNCHER, true);
+    }
+
+    /** Teks sambutan sendiri: judul, teks Arab, bacaan Latin, arti/pesan; minimal Arab atau pesan. */
+    void editWelcome() {
+        LinearLayout form = column();
+        int pad = px(24);
+        form.setPadding(pad, pad, pad, 0);
+        EditText title = welcomeField(form, "JUDUL", "mis. Doa naik kendaraan", "wTitle", false);
+        EditText arab = welcomeField(form, "TEKS ARAB (OPSIONAL)", "", "wArab", true);
+        arab.setTextDirection(View.TEXT_DIRECTION_RTL);
+        EditText latin = welcomeField(form, "BACAAN LATIN (OPSIONAL)", "", "wLatin", true);
+        EditText text = welcomeField(form, "ARTI ATAU PESAN", "mis. Hati-hati di jalan, jaga jarak aman.", "wText", true);
+        AlertDialog d = showDark(new AlertDialog.Builder(this)
+                .setTitle("Sambutan sendiri")
+                .setView(scroll(form))
+                .setNegativeButton("Batal", null)
+                .setPositiveButton("Simpan", null));
+        // Simpan tidak langsung menutup dialog, supaya isian kosong bisa dilengkapi.
+        d.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String a = arab.getText().toString().trim(), t = text.getText().toString().trim();
+            if (a.isEmpty() && t.isEmpty()) { Notice.info(this, "Isi teks Arab atau pesan"); return; }
+            prefs.edit().putString("wTitle", title.getText().toString().trim()).putString("wArab", a)
+                    .putString("wLatin", latin.getText().toString().trim()).putString("wText", t)
+                    .putInt("welcome", Welcome.MODE_CUSTOM).apply();
+            d.dismiss();
+            show(TAB_LAUNCHER, true);
+            Welcome.show(this, Welcome.content(prefs));
+        });
+    }
+
+    EditText welcomeField(LinearLayout form, String name, String hint, String key, boolean multi) {
+        EditText e = field(hint, prefs.getString(key, ""), false);
+        e.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+                | (multi ? InputType.TYPE_TEXT_FLAG_MULTI_LINE : 0));
+        e.setTypeface(fSerif);
+        if (multi) {
+            e.setSingleLine(false);
+            e.setMinLines(2);
+            e.setMaxLines(4);
+            e.setGravity(Gravity.TOP | Gravity.START);
+        }
+        LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(MATCH, WRAP);
+        ll.topMargin = form.getChildCount() == 0 ? 0 : px(16);
+        ll.bottomMargin = px(6);
+        form.addView(label(name), ll);
+        form.addView(e, new LinearLayout.LayoutParams(MATCH, multi ? WRAP : px(52)));
+        return e;
     }
 
     void resetTiles() {
