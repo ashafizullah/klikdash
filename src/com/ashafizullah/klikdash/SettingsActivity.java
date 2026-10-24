@@ -316,11 +316,12 @@ public class SettingsActivity extends Activity {
                     Notice.ok(this, "KlikDash " + cur + " sudah versi terbaru");
                 } else {
                     updateKey.setLabel("CEK UPDATE");
-                    String notes = rel.notes.length() > 700 ? rel.notes.substring(0, 700) + "…" : rel.notes;
+                    // Catatan rilis utuh; pesan AlertDialog sudah bisa digulir bila panjang.
+                    String notes = Updater.plainNotes(rel.notes);
                     showDark(new AlertDialog.Builder(this)
                             .setTitle("KlikDash " + rel.version + " tersedia")
                             .setMessage("Terpasang: " + cur + " · ukuran " + Math.max(1, rel.size / 1024) + " KB"
-                                    + (notes.isEmpty() ? "" : "\n\n" + notes.replaceAll("[#*`]", "")))
+                                    + (notes.isEmpty() ? "" : "\n\n" + notes))
                             .setNegativeButton("Nanti", null)
                             .setPositiveButton("Unduh & pasang", (d, w) -> downloadUpdate(rel)));
                 }

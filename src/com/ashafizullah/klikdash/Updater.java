@@ -43,6 +43,21 @@ final class Updater {
 
     private Updater() { }
 
+    /**
+     * Catatan rilis (Markdown GitHub) sebagai teks biasa untuk dialog: [teks](url) → teks, "- " → "• ", tanpa
+     * #, **, ` dan garis ---.
+     */
+    static String plainNotes(String md) {
+        String s = md.replace("\r", "")
+                .replaceAll("\\[([^\\]]*)\\]\\([^)]*\\)", "$1")
+                .replaceAll("(?m)^\\s*-{3,}\\s*$", "")
+                .replaceAll("(?m)^#+\\s*", "")
+                .replaceAll("(?m)^\\s*[-*] ", "• ")
+                .replaceAll("[*`]", "")
+                .replaceAll("\n{3,}", "\n\n");
+        return s.trim();
+    }
+
     /** Rilis terbaru, atau null bila tidak ada APK di rilisnya. Jalankan di thread latar. */
     static Release latest() throws Exception {
         Map<String, String> h = new HashMap<>();
