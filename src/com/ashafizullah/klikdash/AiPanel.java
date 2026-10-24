@@ -59,6 +59,24 @@ final class AiPanel {
                     a.key("UBAH", false, () -> edit(p, false))));
         }
 
+        // AKTIF/MATI = TinyFish; tanpa key TinyFish tidak bisa diaktifkan. Selain TinyFish, profil Claude resmi tetap
+        // mencari lewat pencarian Anthropic (lihat AiClient).
+        String tf = AiStore.tinyfishKey(a);
+        boolean hasTf = !tf.isEmpty(), web = hasTf && AiStore.webSearch(a);
+        String anthropic = "profil Claude resmi mencari lewat pencarian Anthropic, ditagih ke akun Claude ($10 per 1.000 "
+                + "pencarian); profil lain tanpa pencarian.";
+        Key webOn = a.key("AKTIF", web, () -> setWebSearch(true));
+        webOn.setEnabled(hasTf);
+        list.addView(a.row("PENCARIAN WEB",
+                "TANYA mencari info terkini (berita, harga, cuaca, jadwal) bila perlu. " + (!hasTf
+                        ? "Isi API key TinyFish (gratis, buat di agent.tinyfish.ai) supaya semua profil mencari lewat "
+                        + "TinyFish. Tanpa TinyFish, " + anthropic
+                        : web ? "Semua profil mencari lewat TinyFish (gratis), key " + mask(tf) + "."
+                        : "TinyFish dimatikan: " + anthropic),
+                webOn,
+                a.key("MATI", !web, () -> setWebSearch(false)),
+                a.key(a.narrow ? "KEY" : "KEY TINYFISH", !hasTf, this::editTinyfishKey)));
+
         String elKey = AiStore.elKey(a), elVoice = AiStore.elVoice(a), elName = AiStore.elVoiceName(a);
         list.addView(a.row("SUARA ELEVENLABS",
                 (elKey.isEmpty() ? "Belum diatur. " : "Key " + mask(elKey) + " · suara "
@@ -70,32 +88,55 @@ final class AiPanel {
                 a.key("SUARA", false, this::pickVoice),
                 a.key("MODEL", false, this::pickElModel)));
 
-        boolean el = AiStore.elTts(a);
-        boolean hasTts = AiVoice.hasAndroidTts(a), hasStt = android.speech.SpeechRecognizer.isRecognitionAvailable(a);
-        list.addView(a.row("SUARA JAWABAN",
-                hasTts ? "ElevenLabs butuh internet dan memakai kuota akun ElevenLabs; bila gagal, otomatis memakai "
-                        + "suara Android."
-                        : "Headunit ini belum punya mesin suara Android, jadi jawaban hanya bisa dibacakan oleh "
-                        + "ElevenLabs. Ketuk ANDROID untuk memasang Speech Recognition & Synthesis dari Google "
-                        + "(gratis, bisa offline) di Play Store.",
-                a.key("ELEVENLABS", el || !hasTts, () -> setTts(true)),
-                a.key("ANDROID", el ? false : hasTts, () -> {
-                    if (hasTts) setTts(false); else openStore("com.google.android.tts");
-                }),
-                a.key("DENGAR", false, this::speakTest)));
+        // Tanpa API key ElevenLabs: tombol ELEVENLABS nonaktif dan Android yang terpilih (sesuai yang dipakai TANYA).
+        // Aplikasi suara Android belum terpasang: tombol ANDROID nonaktif, dan PASANG membuka Play Store.
+        boolean hasEl = !elKey.isEmpty();
+        String ttsEngine = AiVoice.androidEngine(a);
+        android.content.ComponentName sttService = AiVoice.recognizer(a);
+        boolean hasTts = ttsEngine != null, hasStt = android.speech.SpeechRecognizer.isRecognitionAvailable(a);
+        boolean el = hasEl && (AiStore.elTts(a) || !hasTts);
+        Key elTts = a.key("ELEVENLABS", el, () -> setTts(true));
+        elTts.setEnabled(hasEl);
+        Key androidTts = a.key("ANDROID", !el && hasTts, () -> setTts(false));
+        androidTts.setEnabled(hasTts);
+        String ttsDesc = hasTts ? "Suara Android memakai " + appLabel(ttsEngine) + ". "
+                : "Suara Android butuh aplikasi Speech Services by Google (gratis, bisa offline), yang belum terpasang "
+                + "di headunit ini: ketuk PASANG untuk memasangnya dari Play Store. ";
+        ttsDesc += !hasEl ? "Isi API key ElevenLabs di atas untuk bisa memilih suara ElevenLabs."
+                : "ElevenLabs butuh internet dan memakai kuota akun ElevenLabs" + (hasTts ? "; bila gagal, otomatis "
+                + "memakai suara Android." : ".");
+        list.addView(hasTts ? a.row("SUARA JAWABAN", ttsDesc, elTts, androidTts, a.key("DENGAR", false, this::speakTest))
+                : a.row("SUARA JAWABAN", ttsDesc, elTts, androidTts,
+                        a.key("PASANG", true, () -> openStore(GOOGLE_TTS)), a.key("DENGAR", false, this::speakTest)));
 
-        boolean elStt = AiStore.elStt(a);
-        list.addView(a.row("PENGENALAN SUARA",
-                hasStt ? "Android memakai pengenal suara Google, tanpa kuota ElevenLabs; bila gagal, rekaman dikirim ke "
-                        + "ElevenLabs Scribe. ElevenLabs mentranskripsi rekaman ucapan Anda dan memakai kuota akun "
-                        + "ElevenLabs; tanpa API key-nya, Android yang dipakai."
-                        : "Headunit ini belum punya pengenal suara Android, jadi ucapan Anda ditranskripsi oleh "
-                        + "ElevenLabs Scribe (isi API key-nya di atas). Ketuk ANDROID untuk memasang aplikasi Google "
-                        + "(gratis) dari Play Store.",
-                a.key("ELEVENLABS", elStt || !hasStt, () -> setStt(true)),
-                a.key("ANDROID", !elStt && hasStt, () -> {
-                    if (hasStt) setStt(false); else openStore("com.google.android.googlequicksearchbox");
-                })));
+        boolean elStt = hasEl && (AiStore.elStt(a) || !hasStt);
+        Key elSttKey = a.key("ELEVENLABS", elStt, () -> setStt(true));
+        elSttKey.setEnabled(hasEl);
+        Key androidStt = a.key("ANDROID", !elStt && hasStt, () -> setStt(false));
+        androidStt.setEnabled(hasStt);
+        String sttDesc = hasStt ? "Pengenal suara Android memakai "
+                + (sttService != null ? appLabel(sttService.getPackageName()) : "layanan bawaan headunit") + ". "
+                : "Pengenal suara Android butuh aplikasi Google (gratis), yang belum terpasang di headunit ini: ketuk "
+                + "PASANG untuk memasangnya dari Play Store. ";
+        sttDesc += !hasEl ? "Isi API key ElevenLabs di atas untuk bisa memilih ElevenLabs Scribe."
+                : "ElevenLabs Scribe mentranskripsi rekaman ucapan Anda dan memakai kuota akun ElevenLabs"
+                + (hasStt ? "; bila pengenal Android gagal, rekaman dikirim ke ElevenLabs." : ".");
+        list.addView(hasStt ? a.row("PENGENALAN SUARA", sttDesc, elSttKey, androidStt)
+                : a.row("PENGENALAN SUARA", sttDesc, elSttKey, androidStt,
+                        a.key("PASANG", true, () -> openStore(GOOGLE_APP))));
+    }
+
+    /** Aplikasi suara Android dari Google di Play Store: mesin TTS dan pengenal suara (aplikasi Google). */
+    static final String GOOGLE_TTS = "com.google.android.tts", GOOGLE_APP = "com.google.android.googlequicksearchbox";
+
+    /** Nama aplikasi untuk keterangan (mis. "Speech Services by Google"), atau nama paketnya bila tidak terbaca. */
+    String appLabel(String pkg) {
+        try {
+            android.content.pm.PackageManager pm = a.getPackageManager();
+            return String.valueOf(pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)));
+        } catch (Exception e) {
+            return pkg;
+        }
     }
 
     static String mask(String key) {
@@ -260,6 +301,35 @@ final class AiPanel {
                     AiStore.saveProfiles(a, ps);
                     render();
                 }));
+    }
+
+    void setWebSearch(boolean on) {
+        AiStore.setWebSearch(a, on);
+        render();
+    }
+
+    void editTinyfishKey() {
+        LinearLayout form = a.column();
+        int pad = a.px(24);
+        form.setPadding(pad, pad, pad, 0);
+        String cur = AiStore.tinyfishKey(a);
+        EditText key = a.field(cur.isEmpty() ? "Tempel API key TinyFish" : "Kosongkan = tetap " + mask(cur), "", true);
+        a.addField(form, "API KEY", key);
+        AlertDialog.Builder b = new AlertDialog.Builder(a)
+                .setTitle("API key TinyFish")
+                .setView(a.scroll(form))
+                .setNegativeButton("Batal", null)
+                .setPositiveButton("Simpan", (d, w) -> {
+                    String k = key.getText().toString().trim();
+                    if (k.isEmpty()) return;
+                    AiStore.saveTinyfishKey(a, k);
+                    render();
+                });
+        if (!cur.isEmpty()) b.setNeutralButton("Hapus key", (d, w) -> {
+            AiStore.saveTinyfishKey(a, "");
+            render();
+        });
+        SettingsActivity.showDark(b);
     }
 
     void editElevenKey() {

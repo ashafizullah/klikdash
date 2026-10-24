@@ -62,21 +62,34 @@ final class AiTools {
                     "{\"type\":\"object\",\"properties\":{},\"additionalProperties\":false}"},
     };
 
-    static JSONArray claudeTools() throws Exception {
+    /** Pencarian web lewat TinyFish, untuk semua profil bila key-nya diisi (lihat AiClient). */
+    static final String[] WEB_SEARCH = {"web_search",
+            "Cari informasi terkini di web: berita, harga, cuaca, jadwal, skor, info tempat atau acara. Pakai hanya bila "
+                    + "jawabannya butuh info terbaru atau tidak kamu ketahui.",
+            "{\"type\":\"object\",\"properties\":{\"query\":{\"type\":\"string\",\"description\":\"Kata kunci "
+                    + "pencarian, singkat\"}},\"required\":[\"query\"],\"additionalProperties\":false}"};
+
+    static JSONArray claudeTools(boolean webSearch) throws Exception {
         JSONArray a = new JSONArray();
-        for (String[] t : TOOLS) {
-            a.put(new JSONObject().put("name", t[0]).put("description", t[1]).put("input_schema", new JSONObject(t[2])));
-        }
+        for (String[] t : TOOLS) a.put(claudeTool(t));
+        if (webSearch) a.put(claudeTool(WEB_SEARCH));
         return a;
     }
 
-    static JSONArray openaiTools() throws Exception {
+    static JSONObject claudeTool(String[] t) throws Exception {
+        return new JSONObject().put("name", t[0]).put("description", t[1]).put("input_schema", new JSONObject(t[2]));
+    }
+
+    static JSONArray openaiTools(boolean webSearch) throws Exception {
         JSONArray a = new JSONArray();
-        for (String[] t : TOOLS) {
-            a.put(new JSONObject().put("type", "function").put("function", new JSONObject()
-                    .put("name", t[0]).put("description", t[1]).put("parameters", new JSONObject(t[2]))));
-        }
+        for (String[] t : TOOLS) a.put(openaiTool(t));
+        if (webSearch) a.put(openaiTool(WEB_SEARCH));
         return a;
+    }
+
+    static JSONObject openaiTool(String[] t) throws Exception {
+        return new JSONObject().put("type", "function").put("function", new JSONObject()
+                .put("name", t[0]).put("description", t[1]).put("parameters", new JSONObject(t[2])));
     }
 
     // ---------------------------------------------------------------- konteks untuk instruksi sistem
@@ -100,7 +113,7 @@ final class AiTools {
     }
 
     /** Instruksi sistem: singkat, untuk pengemudi, dengan daftar aplikasi dan waktu sekarang. */
-    static String systemPrompt(Activity a) {
+    static String systemPrompt(Activity a, boolean webSearch) {
         StringBuilder names = new StringBuilder();
         for (App x : apps(a)) names.append(names.length() > 0 ? ", " : "").append(x.label);
         String now = new SimpleDateFormat("EEEE d MMMM yyyy, HH:mm", ID).format(new Date());
@@ -109,7 +122,44 @@ final class AiTools {
                 + "markdown, daftar, atau emoji, dan jangan minta pengemudi melihat atau menyentuh layar. Untuk perintah "
                 + "mobil, panggil alat yang sesuai lalu konfirmasi singkat apa yang sudah dilakukan. Kalau permintaan "
                 + "tidak jelas, tanya balik dengan satu pertanyaan pendek. Sekarang " + now + ". Aplikasi terpasang: "
-                + names + ".";
+                + names + "."
+                + (webSearch ? " Untuk pertanyaan yang butuh info terbaru (berita, harga, cuaca, jadwal, skor), cari di "
+                + "web dulu, lalu jawab intinya saja tanpa membacakan alamat situs; sebut nama sumbernya bila perlu." : "");
+    }
+
+    // ---------------------------------------------------------------- pencarian web (TinyFish)
+
+    /** TinyFish Search API (gratis, 30 pencarian/menit): 5 hasil teratas sebagai teks ringkas untuk model. */
+    static String webSearch(Activity a, String query) throws Exception {
+        if (query.trim().isEmpty()) return "Kata kunci kosong.";
+        String key = AiStore.tinyfishKey(a);
+        if (key.isEmpty()) return "Pencarian web belum diatur: isi API key TinyFish di Pengaturan › Asisten AI.";
+        java.net.HttpURLConnection c = (java.net.HttpURLConnection) new java.net.URL("https://api.search.tinyfish.ai?query="
+                + java.net.URLEncoder.encode(query.trim(), "UTF-8")).openConnection();
+        c.setConnectTimeout(8000);
+        c.setReadTimeout(15000);
+        c.setRequestProperty("X-API-Key", key);
+        long t0 = android.os.SystemClock.elapsedRealtime();
+        try {
+            int code = c.getResponseCode();
+            String txt = AiClient.read(code >= 400 ? c.getErrorStream() : c.getInputStream());
+            android.util.Log.i("KlikDashAI", "TinyFish " + code + " " + (android.os.SystemClock.elapsedRealtime() - t0) + " ms");
+            if (code == 401 || code == 403) return "Pencarian gagal: API key TinyFish ditolak.";
+            if (code >= 400) return "Pencarian gagal (HTTP " + code + ").";
+            org.json.JSONArray rs = new JSONObject(txt).optJSONArray("results");
+            if (rs == null || rs.length() == 0) return "Tidak ada hasil untuk \"" + query + "\".";
+            StringBuilder s = new StringBuilder("Hasil pencarian \"" + query + "\":");
+            for (int i = 0; i < Math.min(5, rs.length()); i++) {
+                JSONObject r = rs.getJSONObject(i);
+                s.append("\n").append(i + 1).append(". ").append(r.optString("title"));
+                String site = r.optString("site_name");
+                if (!site.isEmpty()) s.append(" (").append(site).append(")");
+                s.append(": ").append(r.optString("snippet")).append(" ").append(r.optString("url"));
+            }
+            return s.toString();
+        } finally {
+            c.disconnect();
+        }
     }
 
     // ---------------------------------------------------------------- eksekusi
@@ -127,6 +177,7 @@ final class AiTools {
                 case "open_dzikir": return openDzikir(a, in.optString("period", ""));
                 case "restrict_background": return restrict(a, in.optString("app"), in.optBoolean("restrict", true));
                 case "car_status": return status(a);
+                case "web_search": return webSearch(a, in.optString("query"));
                 case "go_home":
                     ui(a, () -> a.startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)));

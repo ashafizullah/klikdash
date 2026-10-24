@@ -138,6 +138,23 @@ final class AiStore {
                 .putString("elModel", model.isEmpty() ? EL_MODEL : model).putBoolean("elTts", tts).apply();
     }
 
+    // ---------------------------------------------------------------- pencarian web
+
+    /**
+     * TinyFish untuk pencarian web TANYA (bawaan aktif, berlaku bila key-nya diisi): semua profil mencari lewat alat
+     * web_search. Mati atau tanpa key: hanya profil Claude resmi yang mencari, lewat web search server Anthropic.
+     */
+    static boolean webSearch(Context c) { return prefs(c).getBoolean("webSearch", true); }
+
+    static void setWebSearch(Context c, boolean on) { prefs(c).edit().putBoolean("webSearch", on).apply(); }
+
+    static String tinyfishKey(Context c) { return decrypt(prefs(c).getString("tfKey", "")); }
+
+    /** Tanpa dekripsi (Keystore lambat), untuk memilih alat saat sesi dibuat. */
+    static boolean hasTinyfishKey(Context c) { return !prefs(c).getString("tfKey", "").isEmpty(); }
+
+    static void saveTinyfishKey(Context c, String key) { prefs(c).edit().putString("tfKey", encrypt(key)).apply(); }
+
     // ---------------------------------------------------------------- enkripsi (Android Keystore, AES-GCM)
 
     private static final String ALIAS = "klikdash-ai";

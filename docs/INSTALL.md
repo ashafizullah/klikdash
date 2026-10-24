@@ -136,12 +136,18 @@ Optional. TANYA understands short commands in Indonesian, such as *"putar surat 
    **PILIH MODEL** to pick a model (Claude Haiku 5.5 is the fastest), then **SIMPAN** and **UJI**.
    Typing a long key on the headunit is tedious: tap the field, then from a computer run
    `adb shell input text 'YOUR_KEY'`.
-3. Voice: under **SUARA JAWABAN** and **PENGENALAN SUARA**, **ANDROID** is free. If the headunit has no Android
-   voice or recognizer yet, tapping **ANDROID** opens Google's app in the Play Store; in Speech Recognition &
-   Synthesis, download the Indonesian voice so answers are spoken offline. **DENGAR** plays a sample. For
-   ElevenLabs instead, tap **API KEY** under **SUARA ELEVENLABS** and paste its key; an Indonesian voice is set
-   for you and **SUARA** picks another one.
-4. Put TANYA on the home screen: long-press a home shortcut, release it in place and pick **Tanya**.
+3. Voice: under **SUARA JAWABAN** and **PENGENALAN SUARA**, **ANDROID** is free; the description names the Android
+   app in use. If that app isn't installed yet, tap **PASANG** to open it in the Play Store (Speech Recognition &
+   Synthesis for the voice, the Google app for recognition); in Speech Recognition & Synthesis, download the
+   Indonesian voice so answers are spoken offline. **DENGAR** plays a sample. For ElevenLabs instead, tap
+   **API KEY** under **SUARA ELEVENLABS** and paste its key; the **ELEVENLABS** buttons only become available after
+   that, an Indonesian voice is set for you, and **SUARA** picks another one.
+4. Web search: TANYA looks up current information (news, prices, weather, schedules) when needed. Official Claude
+   profiles can search right away through Anthropic's web search, billed to the Claude account ($10 per 1,000
+   searches). To have every profile search through TinyFish (free), create an API key at
+   [agent.tinyfish.ai](https://agent.tinyfish.ai), then under **PENCARIAN WEB** tap **KEY TINYFISH**, paste it, and
+   make sure **AKTIF** is selected.
+5. Put TANYA on the home screen: long-press a home shortcut, release it in place and pick **Tanya**.
 
 ![TANYA answering a command](img/tanya.png)
 

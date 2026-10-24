@@ -52,7 +52,8 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
 - **Power saver:** stop apps such as Netflix or Spotify from running in the background.
 - **Voice assistant TANYA (optional):** say *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai Waze"* or
   *"buka Zlink"*. Bring your own Claude or OpenAI-compatible key; it listens and speaks with the headunit's
-  free Android voice or with ElevenLabs.
+  free Android voice or with ElevenLabs, and looks up current information on the web (Claude's web search, or free
+  TinyFish search for any provider).
 - **Settings & updates:** the ⚙ button on the home screen; **CEK UPDATE** installs new versions without a computer.
 
 ## Install

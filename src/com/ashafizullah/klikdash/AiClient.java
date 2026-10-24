@@ -29,15 +29,52 @@ final class AiClient {
     /** Dibuat sekali per sesi: prompt sistem yang berubah di tengah percakapan membuat blok thinking tidak berlaku. */
     String system;
 
+    /**
+     * Pencarian web sesi ini. TinyFish aktif (key diisi, tidak dimatikan di Pengaturan): TinyFish untuk semua profil
+     * (alat web_search yang dijalankan KlikDash). Selain itu: web search server Anthropic untuk profil Claude resmi,
+     * profil lain tanpa pencarian.
+     */
+    static final int NO_SEARCH = 0, ANTHROPIC_SEARCH = 1, TINYFISH_SEARCH = 2;
+    final int search;
+    /** Web search Anthropic ditolak (dimatikan admin organisasi, atau model tidak mendukung): sesi ini tanpa pencarian. */
+    boolean searchRejected;
+
     AiClient(Activity a, AiStore.Profile p) {
         activity = a;
         profile = p;
+        search = searchMode(a, p);
+    }
+
+    static int searchMode(Activity a, AiStore.Profile p) {
+        return AiStore.webSearch(a) && AiStore.hasTinyfishKey(a) ? TINYFISH_SEARCH
+                : p.officialClaude() ? ANTHROPIC_SEARCH : NO_SEARCH;
+    }
+
+    /** Sesi ini masih sesuai pengaturan sekarang (profil, key, model, alamat, pencarian)? Bila tidak: sesi baru. */
+    boolean matches(Activity a, AiStore.Profile p) {
+        return profile.id.equals(p.id) && profile.apiKey.equals(p.apiKey) && profile.model.equals(p.model)
+                && profile.baseUrl.equals(p.baseUrl) && search == searchMode(a, p);
     }
 
     /** Jalankan di thread latar. Mengembalikan teks jawaban untuk dibacakan. */
     String ask(String userText) throws Exception {
-        if (system == null) system = AiTools.systemPrompt(activity);
+        if (system == null) system = AiTools.systemPrompt(activity, search != NO_SEARCH);
         return profile.claude() ? askClaude(userText) : askOpenAi(userText);
+    }
+
+    /**
+     * Web search server Anthropic (versi dasar, dipanggil langsung oleh model; didukung semua model yang punya web
+     * search). Paling banyak 2 pencarian per pertanyaan: cukup untuk pertanyaan pengemudi, biaya $10 per 1.000.
+     * Lokasi perkiraan (kota tersimpan, zona waktu) supaya "cuaca hari ini" atau "berita lokal" relevan.
+     */
+    JSONObject anthropicSearchTool() throws Exception {
+        JSONObject loc = new JSONObject().put("type", "approximate").put("timezone", java.util.TimeZone.getDefault().getID());
+        String city = activity.createDeviceProtectedStorageContext()
+                .getSharedPreferences("klikdash", Activity.MODE_PRIVATE).getString("city", null);
+        if (city != null && !city.isEmpty()) loc.put("city", PrayerAlarm.titleCase(city));
+        if (loc.getString("timezone").matches("Asia/(Jakarta|Pontianak|Makassar|Jayapura)")) loc.put("country", "ID");
+        return new JSONObject().put("type", "web_search_20250305").put("name", "web_search").put("max_uses", 2)
+                .put("user_location", loc);
     }
 
     // ---------------------------------------------------------------- Claude
@@ -47,11 +84,14 @@ final class AiClient {
         String base = trim(profile.baseUrl.isEmpty() ? AiStore.CLAUDE_URL : profile.baseUrl);
         String url = base.endsWith("/v1") ? base + "/messages" : base + "/v1/messages";
         for (int step = 0; step < MAX_STEPS; step++) {
+            JSONArray tools = AiTools.claudeTools(search == TINYFISH_SEARCH);
+            boolean withSearch = search == ANTHROPIC_SEARCH && !searchRejected;
+            if (withSearch) tools.put(anthropicSearchTool());
             JSONObject body = new JSONObject()
                     .put("model", profile.model.isEmpty() ? AiStore.CLAUDE_MODEL : profile.model)
                     .put("max_tokens", 4096)
                     .put("system", system)
-                    .put("tools", AiTools.claudeTools())
+                    .put("tools", tools)
                     .put("messages", messages);
             Map<String, String> headers = new java.util.HashMap<>();
             headers.put("x-api-key", profile.apiKey);
@@ -66,13 +106,26 @@ final class AiClient {
                     headers.put("anthropic-beta", "server-side-fallback-2026-07-01");
                 }
             }
-            JSONObject res = post(url, headers, body);
+            JSONObject res;
+            try {
+                res = post(url, headers, body);
+            } catch (IOException e) {
+                // Web search dimatikan admin organisasi di Console, atau model ini tidak mendukungnya: tetap menjawab.
+                String m = String.valueOf(e.getMessage()).toLowerCase(java.util.Locale.US);
+                if (!withSearch || !m.contains("http 400") || !m.contains("web")) throw e;
+                android.util.Log.w("KlikDashAI", "web search ditolak, lanjut tanpa: " + e.getMessage());
+                searchRejected = true;
+                step--;
+                continue;
+            }
             JSONArray content = res.optJSONArray("content");
             if (content == null) content = new JSONArray();
             // Simpan seluruh content (termasuk blok thinking/fallback) apa adanya untuk giliran berikutnya.
             messages.put(new JSONObject().put("role", "assistant").put("content", content));
             String stop = res.optString("stop_reason");
             if ("refusal".equals(stop)) return "Maaf, permintaan itu tidak bisa saya proses.";
+            // Pencarian panjang dijeda server: kirim ulang pesan asisten yang sudah tersimpan apa adanya untuk lanjut.
+            if ("pause_turn".equals(stop)) continue;
             if (!"tool_use".equals(stop)) return text(content);
 
             JSONArray results = new JSONArray();
@@ -90,9 +143,19 @@ final class AiClient {
         return "Maaf, terlalu banyak langkah. Coba ulangi dengan lebih singkat.";
     }
 
+    /**
+     * Teks jawaban untuk dibacakan. Dengan web search, model sering menulis pengantar ("Saya carikan dulu…") sebelum
+     * mencari: yang dibacakan hanya teks sesudah blok pencarian terakhir.
+     */
     static String text(JSONArray content) {
-        StringBuilder s = new StringBuilder();
+        int from = 0;
         for (int i = 0; i < content.length(); i++) {
+            JSONObject b = content.optJSONObject(i);
+            String t = b != null ? b.optString("type") : "";
+            if ("server_tool_use".equals(t) || "web_search_tool_result".equals(t)) from = i + 1;
+        }
+        StringBuilder s = new StringBuilder();
+        for (int i = from; i < content.length(); i++) {
             JSONObject b = content.optJSONObject(i);
             if (b != null && "text".equals(b.optString("type"))) s.append(b.optString("text"));
         }
@@ -111,7 +174,7 @@ final class AiClient {
             JSONObject body = new JSONObject()
                     .put("model", profile.model)
                     .put("messages", messages)
-                    .put("tools", AiTools.openaiTools())
+                    .put("tools", AiTools.openaiTools(search == TINYFISH_SEARCH))
                     .put("tool_choice", "auto");
             Map<String, String> headers = new java.util.HashMap<>();
             headers.put("Authorization", "Bearer " + profile.apiKey);

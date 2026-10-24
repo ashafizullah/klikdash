@@ -52,7 +52,8 @@ merender animasi 3D (~40% CPU).
 - **Hemat Daya:** larang aplikasi seperti Netflix atau Spotify berjalan di latar.
 - **Asisten suara TANYA (opsional):** ucapkan *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai Waze"*,
   atau *"buka Zlink"*. Pakai key Claude atau OpenAI-compatible sendiri; mendengar dan berbicara dengan suara
-  Android headunit (gratis) atau ElevenLabs.
+  Android headunit (gratis) atau ElevenLabs, dan mencari info terkini di web (pencarian Claude, atau pencarian
+  TinyFish yang gratis untuk penyedia mana pun).
 - **Pengaturan & pembaruan:** tombol ⚙ di home; **CEK UPDATE** memasang versi baru tanpa komputer.
 
 ## Pemasangan

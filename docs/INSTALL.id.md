@@ -131,12 +131,17 @@ Waze"*, *"buka Zlink"*, atau *"stop murottalnya"*, dan menjawab dengan suara.
    **PILIH MODEL** untuk memilih model (Claude Haiku 5.5 paling cepat), lalu **SIMPAN** dan **UJI**.
    Mengetik key panjang di headunit itu repot: ketuk kolomnya, lalu dari komputer jalankan
    `adb shell input text 'KEY_ANDA'`.
-3. Suara: di **SUARA JAWABAN** dan **PENGENALAN SUARA**, **ANDROID** gratis. Bila headunit belum punya suara atau
-   pengenal suara Android, ketuk **ANDROID** untuk membuka aplikasi Google-nya di Play Store; di Speech Recognition
-   & Synthesis, unduh suara bahasa Indonesia agar jawaban dibacakan offline. **DENGAR** untuk mencoba. Untuk
-   ElevenLabs, ketuk **API KEY** di **SUARA ELEVENLABS** lalu tempel key-nya; suara Indonesia langsung terpasang dan
-   **SUARA** untuk memilih suara lain.
-4. Taruh TANYA di home: tekan lama salah satu pintasan, lepas di tempat, lalu pilih **Tanya**.
+3. Suara: di **SUARA JAWABAN** dan **PENGENALAN SUARA**, **ANDROID** gratis; keterangannya menyebut aplikasi Android
+   yang dipakai. Bila aplikasinya belum terpasang, ketuk **PASANG** untuk membukanya di Play Store (Speech
+   Recognition & Synthesis untuk suara, aplikasi Google untuk pengenal suara); di Speech Recognition & Synthesis,
+   unduh suara bahasa Indonesia agar jawaban dibacakan offline. **DENGAR** untuk mencoba. Untuk ElevenLabs, ketuk
+   **API KEY** di **SUARA ELEVENLABS** lalu tempel key-nya; tombol **ELEVENLABS** baru bisa dipilih setelah itu,
+   suara Indonesia langsung terpasang, dan **SUARA** untuk memilih suara lain.
+4. Pencarian web: TANYA mencari info terkini (berita, harga, cuaca, jadwal) bila perlu. Profil Claude resmi
+   langsung bisa mencari lewat pencarian Anthropic, ditagih ke akun Claude ($10 per 1.000 pencarian). Supaya semua
+   profil mencari lewat TinyFish (gratis), buat API key di [agent.tinyfish.ai](https://agent.tinyfish.ai), lalu di
+   **PENCARIAN WEB** ketuk **KEY TINYFISH**, tempel, dan pastikan **AKTIF** terpilih.
+5. Taruh TANYA di home: tekan lama salah satu pintasan, lepas di tempat, lalu pilih **Tanya**.
 
 ![TANYA menjawab perintah](img/tanya.png)
 

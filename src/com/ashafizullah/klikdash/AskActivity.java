@@ -50,6 +50,12 @@ public class AskActivity extends Activity {
     int state = IDLE;
     Mic mic;
     TextView status, heard, answer, who;
+    /** Belum ada profil AI (atau API key-nya kosong): mikrofon dan tombol membuka Pengaturan › Asisten AI. */
+    boolean needsSetup;
+    /** Isi halaman bisa digulir: jawaban panjang tidak terpotong. */
+    android.widget.ScrollView scroll;
+    /** Ukuran huruf jawaban yang pendek; jawaban panjang dikecilkan (lihat showAnswer). */
+    float answerSp;
     Key again;
     boolean alive;
 
@@ -91,6 +97,7 @@ public class AskActivity extends Activity {
         head.addView(text("TANYA", fHeavy, wDp < 700 ? 30 : 40, TEXT));
         who = text("", fMono, 12, DIM);
         who.setLetterSpacing(0.2f);
+        who.setEllipsize(android.text.TextUtils.TruncateAt.END);
         LinearLayout.LayoutParams wl = new LinearLayout.LayoutParams(0, WRAP, 1f);
         wl.leftMargin = px(20);
         head.addView(who, wl);
@@ -127,11 +134,10 @@ public class AskActivity extends Activity {
         LinearLayout.LayoutParams hl = new LinearLayout.LayoutParams(textW, WRAP);
         hl.topMargin = px(12);
         body.addView(heard, hl);
-        answer = text("", fBold, portrait || wDp < 900 ? 24 : 30, TEXT);
+        answerSp = portrait || wDp < 900 ? 24 : 30;
+        answer = text("", fBold, answerSp, TEXT);
         answer.setSingleLine(false);
         answer.setLineSpacing(0, 1.15f);
-        answer.setMaxLines(3);
-        answer.setEllipsize(android.text.TextUtils.TruncateAt.END);
         answer.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams al = new LinearLayout.LayoutParams(textW, WRAP);
         al.topMargin = px(12);
@@ -140,7 +146,14 @@ public class AskActivity extends Activity {
         LinearLayout.LayoutParams gl = new LinearLayout.LayoutParams(WRAP, px(52));
         gl.topMargin = px(16);
         body.addView(again, gl);
-        root.addView(body, new LinearLayout.LayoutParams(MATCH, 0, 1f));
+        body.setPadding(0, px(8), 0, px(16));
+        // Jawaban pendek tetap di tengah layar (fillViewport); yang panjang bisa digulir, tidak terpotong.
+        scroll = new android.widget.ScrollView(this);
+        scroll.setFillViewport(true);
+        scroll.setVerticalScrollBarEnabled(false);
+        scroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        scroll.addView(body, new android.widget.ScrollView.LayoutParams(MATCH, WRAP));
+        root.addView(scroll, new LinearLayout.LayoutParams(MATCH, 0, 1f));
         setContentView(root);
 
         start();
@@ -159,20 +172,18 @@ public class AskActivity extends Activity {
             return;
         }
         profile = AiStore.active(this);
-        if (profile == null || profile.apiKey.isEmpty()) {
+        needsSetup = profile == null || profile.apiKey.isEmpty();
+        if (needsSetup) {
             who.setText("");
             setState(IDLE, "BELUM ADA PROFIL AI");
-            heard.setText("Tambahkan API key Claude atau OpenAI-compatible di Pengaturan › Asisten AI.");
+            heard.setText("TANYA butuh profil AI. Ketuk ATUR AI, lalu tambahkan API key Claude atau OpenAI-compatible.");
             again.setLabel("ATUR AI");
-            again.setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)
-                    .putExtra(SettingsActivity.EXTRA_TAB, SettingsActivity.TAB_AI)));
+            again.setOnClickListener(v -> openAiSettings());
             again.setVisibility(View.VISIBLE);
             return;
         }
-        if (client == null || client.profile != profile && !client.profile.id.equals(profile.id)) {
-            client = new AiClient(this, profile);
-        }
-        who.setText((profile.name + " · " + (profile.model.isEmpty() ? AiStore.CLAUDE_MODEL : profile.model)).toUpperCase(HomeActivity.ID));
+        if (client == null || !client.matches(this, profile)) client = new AiClient(this, profile);
+        who.setText(info());
         again.setLabel("TANYA LAGI");
         again.setOnClickListener(v -> listen());
         // Uji tanpa mikrofon: adb shell am start -n com.ashafizullah.klikdash/.AskActivity --es q "putar surat Yasin"
@@ -198,7 +209,19 @@ public class AskActivity extends Activity {
 
     @Override protected void onRestart() {
         super.onRestart();
-        if (profile == null) start(); // kembali dari Pengaturan
+        if (needsSetup) { start(); return; } // kembali dari Pengaturan
+        // Pengaturan AI mungkin diubah selagi TANYA di latar: perbarui sesi dan baris info, tanpa langsung mendengar.
+        if (state == IDLE && profile != null) {
+            AiStore.Profile p = AiStore.active(this);
+            if (p == null || p.apiKey.isEmpty()) { start(); return; }
+            profile = p;
+            if (!client.matches(this, p)) client = new AiClient(this, p);
+            who.setText(info());
+        }
+    }
+
+    void openAiSettings() {
+        startActivity(new Intent(this, SettingsActivity.class).putExtra(SettingsActivity.EXTRA_TAB, SettingsActivity.TAB_AI));
     }
 
     @Override protected void onNewIntent(Intent i) {
@@ -215,6 +238,7 @@ public class AskActivity extends Activity {
     }
 
     void tapMic() {
+        if (needsSetup) { openAiSettings(); return; }
         if (state == LISTEN) {
             if (androidStt && recognizer != null) recognizer.stopListening();
             else voice.finishListening();
@@ -226,11 +250,36 @@ public class AskActivity extends Activity {
 
     // ---------------------------------------------------------------- dengar
 
+    /**
+     * Baris info di samping judul: model, suara jawaban, pengenal suara, dan pencarian web yang dipakai sesi ini. Tanpa
+     * nama profil: nama buatan pengguna (mis. "Claude X") membingungkan di layar ini.
+     */
+    String info() {
+        String elKey = AiStore.elKey(this);
+        boolean elTts = AiStore.elTts(this) && !elKey.isEmpty() && !AiStore.elVoice(this).isEmpty();
+        boolean elStt = !SpeechRecognizer.isRecognitionAvailable(this) || AiStore.elStt(this) && !elKey.isEmpty();
+        String s = (profile.model.isEmpty() ? AiStore.CLAUDE_MODEL : profile.model)
+                + "  ·  SUARA " + (elTts ? "ELEVENLABS" : "ANDROID")
+                + "  ·  DENGAR " + (elStt ? "ELEVENLABS" : "ANDROID");
+        if (client.search == AiClient.TINYFISH_SEARCH) s += "  ·  CARI TINYFISH";
+        else if (client.search == AiClient.ANTHROPIC_SEARCH) s += "  ·  CARI ANTHROPIC";
+        return s.toUpperCase(HomeActivity.ID);
+    }
+
+    /** Jawaban panjang: huruf lebih kecil, dan halaman digulir supaya status dan awal jawaban terlihat. */
+    void showAnswer(String r) {
+        answer.setTextSize(TypedValue.COMPLEX_UNIT_SP, r.length() > 220 ? answerSp * 0.7f
+                : r.length() > 120 ? answerSp * 0.82f : answerSp);
+        answer.setText(r);
+        scroll.post(() -> scroll.smoothScrollTo(0, Math.max(0, status.getTop() - px(8))));
+    }
+
     void listen() {
         if (profile == null) { start(); return; }
         voice.stop();
         heard.setText("");
         answer.setText("");
+        scroll.scrollTo(0, 0);
         again.setVisibility(View.INVISIBLE);
         // Pilihan di Pengaturan › Asisten AI; ElevenLabs tanpa API key → tetap Android.
         androidStt = SpeechRecognizer.isRecognitionAvailable(this)
@@ -259,7 +308,7 @@ public class AskActivity extends Activity {
                 @Override public void onResults(Bundle r) {
                     String s = first(r);
                     android.util.Log.i("KlikDashAI", "STT Android: " + s.length() + " huruf");
-                    if (s.isEmpty()) idle("TIDAK TERDENGAR", "Ketuk mikrofon lalu ucapkan perintah, misalnya “putar surat Yasin”.");
+                    if (s.isEmpty()) idle("TIDAK TERDENGAR", "Ketuk mikrofon lalu ucapkan perintah, misalnya “navigasi ke SPBU terdekat”.");
                     else if (sttOnly) idle("TERDENGAR", "“" + s + "”");
                     else ask(s);
                 }
@@ -268,7 +317,7 @@ public class AskActivity extends Activity {
                     mic.level(0);
                     android.util.Log.i("KlikDashAI", "STT Android error " + e);
                     if (e == SpeechRecognizer.ERROR_NO_MATCH || e == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
-                        idle("TIDAK TERDENGAR", "Ketuk mikrofon lalu ucapkan perintah, misalnya “putar surat Yasin”.");
+                        idle("TIDAK TERDENGAR", "Ketuk mikrofon lalu ucapkan perintah, misalnya “navigasi ke SPBU terdekat”.");
                     } else if (!AiStore.elKey(AskActivity.this).isEmpty()) {
                         androidStt = false; // pengenal Android bermasalah (mis. tanpa Google): pakai ElevenLabs
                         listenEleven();
@@ -331,7 +380,7 @@ public class AskActivity extends Activity {
             final boolean f = failed;
             runOnUiThread(() -> {
                 if (!alive) return;
-                answer.setText(r);
+                showAnswer(r);
                 setState(SPEAK, f ? "GAGAL" : "MENJAWAB");
                 // Pesan error panjang cukup dibaca; yang diucapkan versi singkat.
                 voice.say(f ? "Maaf, " + r.split(":")[0] + "." : r, () -> {
@@ -416,7 +465,8 @@ public class AskActivity extends Activity {
                 c.drawCircle(cx, cy, r * (0.28f + 0.6f * lvl), fill);
             }
             // Ikon + keterangan sebagai satu kelompok di tengah lingkaran.
-            String hint = state == LISTEN ? "KETUK UNTUK SELESAI" : state == THINK ? "" : "KETUK UNTUK BICARA";
+            String hint = needsSetup ? "KETUK UNTUK MENGATUR" : state == LISTEN ? "KETUK UNTUK SELESAI"
+                    : state == THINK ? "" : "KETUK UNTUK BICARA";
             float s = r * 0.22f;
             float iy = hint.isEmpty() ? cy : cy - r * 0.12f; // pusat ikon
             fill.setColor(state == LISTEN || down ? INK : state == THINK ? DIM : TEXT);
