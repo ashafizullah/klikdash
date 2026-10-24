@@ -35,10 +35,8 @@ final class AiVoice {
     final Handler main = new Handler(Looper.getMainLooper());
     MediaPlayer player;
     android.media.audiofx.LoudnessEnhancer boost;
-    TextToSpeech tts;
-    boolean ttsReady;
-    String pendingSay;
-    Runnable pendingDone;
+    /** Sedang mengucapkan lewat TTS Android (stop() tidak memotong pemanasan TTS bersama). */
+    boolean speaking;
 
     AiVoice(Context c) { ctx = c.getApplicationContext(); }
 
@@ -167,38 +165,101 @@ final class AiVoice {
         }
     }
 
-    void androidSay(String text, Runnable done) {
-        if (tts == null) {
-            pendingSay = text;
-            pendingDone = done;
-            String engine = androidEngine(ctx);
-            tts = new TextToSpeech(ctx, status -> {
-                ttsReady = status == TextToSpeech.SUCCESS;
-                int lang = ttsReady ? tts.setLanguage(new Locale("id", "ID")) : TextToSpeech.LANG_NOT_SUPPORTED;
-                android.util.Log.i("KlikDashAI", "TTS Android " + engine + (ttsReady ? "" : " gagal") + ", id-ID " + lang);
-                String s = pendingSay;
-                Runnable d = pendingDone;
-                pendingSay = null;
-                pendingDone = null;
-                if (!ttsReady) {
-                    tts.shutdown();
-                    tts = null; // coba lagi lain kali (mis. mesin baru dipasang)
-                }
-                if (s != null) speakNow(s, d);
-            }, engine);
-            return;
-        }
-        speakNow(text, done);
+    // ---------------------------------------------------------------- TTS Android bersama
+
+    /**
+     * Satu TTS Android untuk seluruh proses, disiapkan sebelum dibutuhkan. Start dingin Google TTS di headunit makan
+     * ±18 detik sebelum jawaban pertama terdengar (logcat K2401: proses TTS 1,3 dtk, mesin 7,5 dtk, model id-ID
+     * 7,4 dtk, sintesis 1,8 dtk); yang berikutnya cepat. Maka mesin dinyalakan dan model id-ID dimuat lebih awal (lihat
+     * {@link #warm}), dan tidak dimatikan saat TANYA ditutup.
+     */
+    private static TextToSpeech shared;
+    private static final int IDLE = 0, STARTING = 1, READY = 2;
+    private static int sharedState = IDLE;
+    private static final List<Runnable> whenReady = new java.util.ArrayList<>();
+
+    /**
+     * Nyalakan TTS Android dan muat model id-ID tanpa bersuara (sintesis ke file). Dipanggil saat TANYA dibuka, dan
+     * dari home sesudah boot/bangun bila TANYA memakai suara Android ({@link #answersWithAndroid}). Di thread utama.
+     */
+    static void warm(Context c) {
+        if (sharedState != IDLE) return;
+        Context app = c.getApplicationContext();
+        String engine = androidEngine(app);
+        if (engine == null) return;
+        sharedState = STARTING;
+        long t0 = android.os.SystemClock.elapsedRealtime();
+        shared = new TextToSpeech(app, status -> new Handler(Looper.getMainLooper()).post(() -> {
+            boolean ok = status == TextToSpeech.SUCCESS && shared != null;
+            int lang = ok ? shared.setLanguage(new Locale("id", "ID")) : TextToSpeech.LANG_NOT_SUPPORTED;
+            android.util.Log.i("KlikDashAI", "TTS Android " + engine + (ok ? "" : " gagal") + ", id-ID " + lang + ", "
+                    + (android.os.SystemClock.elapsedRealtime() - t0) + " ms");
+            if (ok) {
+                sharedState = READY;
+                // Model id-ID baru dimuat pada sintesis pertama (±7 dtk): lakukan sekarang ke file, tanpa suara.
+                shared.setOnUtteranceProgressListener(null);
+                shared.synthesizeToFile("Siap.", null, new File(app.getCacheDir(), "tts-warm.wav"), "warm");
+            } else {
+                resetShared(); // coba lagi lain kali (mis. mesin baru dipasang)
+            }
+            List<Runnable> rs = new java.util.ArrayList<>(whenReady);
+            whenReady.clear();
+            for (Runnable r : rs) r.run();
+        }), engine);
     }
 
-    void speakNow(String text, Runnable done) {
-        if (!ttsReady || tts == null) { post(done); return; }
-        tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-            @Override public void onStart(String id) { }
-            @Override public void onDone(String id) { post(done); }
-            @Override public void onError(String id) { post(done); }
+    private static void resetShared() {
+        if (shared != null) {
+            try { shared.shutdown(); } catch (Exception ignored) { }
+        }
+        shared = null;
+        sharedState = IDLE;
+    }
+
+    /**
+     * TANYA akan menjawab dengan TTS Android: ada profil AI dan suara ElevenLabs tidak dipakai. Tanpa mendekripsi
+     * kunci (Keystore lambat), jadi murah dipanggil dari home. Prefs AI di penyimpanan CE: false sebelum terbuka.
+     */
+    static boolean answersWithAndroid(Context c) {
+        try {
+            if (!c.getSystemService(android.os.UserManager.class).isUserUnlocked()) return false;
+            android.content.SharedPreferences p = AiStore.prefs(c);
+            if (p.getString("profiles", "[]").length() <= 2) return false;
+            boolean eleven = AiStore.elTts(c) && !p.getString("elKey", "").isEmpty() && !AiStore.elVoice(c).isEmpty();
+            return !eleven && hasAndroidTts(c);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    void androidSay(String text, Runnable done) { androidSay(text, done, true); }
+
+    void androidSay(String text, Runnable done, boolean retry) {
+        if (sharedState == READY) { speakNow(text, done, retry); return; }
+        whenReady.add(() -> {
+            if (sharedState == READY) speakNow(text, done, retry); else post(done);
         });
-        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "ai");
+        warm(ctx);
+        if (sharedState == IDLE) { // tidak ada mesin TTS: semua yang menunggu selesai tanpa suara
+            List<Runnable> rs = new java.util.ArrayList<>(whenReady);
+            whenReady.clear();
+            for (Runnable r : rs) r.run();
+        }
+    }
+
+    void speakNow(String text, Runnable done, boolean retry) {
+        shared.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+            @Override public void onStart(String id) { }
+            @Override public void onDone(String id) { if ("ai".equals(id)) { speaking = false; post(done); } }
+            @Override public void onError(String id) { if ("ai".equals(id)) { speaking = false; post(done); } }
+        });
+        speaking = true;
+        if (shared.speak(text, TextToSpeech.QUEUE_FLUSH, null, "ai") == TextToSpeech.SUCCESS) return;
+        // Proses TTS mati sejak disiapkan (mis. dibunuh saat RAM menipis): sambung ulang sekali.
+        speaking = false;
+        android.util.Log.w("KlikDashAI", "TTS Android terputus, menyambung ulang");
+        resetShared();
+        if (retry) androidSay(text, done, false); else post(done);
     }
 
     void stop() {
@@ -210,14 +271,13 @@ final class AiVoice {
             try { player.release(); } catch (Exception ignored) { }
             player = null;
         }
-        if (tts != null && ttsReady) tts.stop();
+        if (speaking && shared != null) shared.stop();
+        speaking = false;
     }
 
     void release() {
-        stop();
+        stop(); // TTS bersama tetap menyala untuk pertanyaan berikutnya
         unhush();
-        if (tts != null) tts.shutdown();
-        tts = null;
         cancelRecording();
     }
 

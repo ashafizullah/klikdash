@@ -345,6 +345,7 @@ public class HomeActivity extends Activity {
         Tweaks.applyAsync();
         Tweaks.compileAsync(this, prefs);
         PrayerAlarm.allowOverlay(this);
+        home.postDelayed(warmVoice, 20_000); // sesudah boot selesai berebut CPU
         // Baru menyala (bukan sekadar dibangun ulang, mis. ganti tema atau pembaruan): sambutan.
         if (SystemClock.elapsedRealtime() < 5 * 60_000L) root.post(() -> Welcome.maybeShow(this, prefs));
     }
@@ -523,7 +524,17 @@ public class HomeActivity extends Activity {
             refreshTiles();
             updateTime();
             Welcome.maybeShow(HomeActivity.this, prefs);
+            home.removeCallbacks(warmVoice);
+            home.postDelayed(warmVoice, 10_000);
         }
+    };
+
+    /**
+     * TTS Android disiapkan di latar bila TANYA menjawab dengan suara Android: start dingin Google TTS ±18 detik
+     * (lihat AiVoice.warm), jadi pertanyaan pertama setelah headunit menyala langsung dijawab. ±70 MB RAM.
+     */
+    final Runnable warmVoice = () -> {
+        if (AiVoice.answersWithAndroid(this)) AiVoice.warm(this);
     };
 
     @Override protected void onStop() {

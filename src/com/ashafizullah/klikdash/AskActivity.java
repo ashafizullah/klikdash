@@ -72,6 +72,8 @@ public class AskActivity extends Activity {
         fSerif = font("serif.ttf", null);
         voice = new AiVoice(this);
         alive = true;
+        // Nyalakan TTS Android sekarang, selagi pengemudi bicara dan AI berpikir, bukan sesudah jawabannya datang.
+        if (AiVoice.answersWithAndroid(this)) AiVoice.warm(this);
 
         float wDp = getResources().getDisplayMetrics().widthPixels / dp;
         float hDp = getResources().getDisplayMetrics().heightPixels / dp;
