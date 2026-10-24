@@ -99,7 +99,7 @@ tidak berfungsi.**
 - **Semua aplikasi:** ketuk pintasan **SEMUA**. Tekan lama sebuah aplikasi di sana untuk membuka infonya
   (misalnya untuk uninstall).
 - **Pintasan lebih besar:** ketuk **⚙**, lalu di **JUMLAH PINTASAN** pilih 9, 6, atau 4 (bawaan 12, termasuk SEMUA).
-  Makin sedikit, makin besar pintasan, ikon, dan tulisannya. Pintasan yang tidak tampil tetap tersimpan dan muncul
+  Makin sedikit, makin besar jam, kecepatan, tanggal, dan jadwal sholat di kiri, juga pintasan, ikon, dan tulisannya. Pintasan yang tidak tampil tetap tersimpan dan muncul
   lagi bila jumlahnya ditambah.
 - **Suhu CPU** di kiri atas berwarna amber mulai 70 °C dan merah ("PANAS") mulai 85 °C.
 

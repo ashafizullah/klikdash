@@ -44,7 +44,7 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
 ## Features
 
 - **Home:** large clock, speed from GPS, Gregorian and Hijri date, CPU temperature, and up to 11 shortcuts you can
-  rearrange by long-pressing (show 12, 9, 6 or 4 shortcuts: fewer shortcuts are bigger and easier to read).
+  rearrange by long-pressing (show 12, 9, 6 or 4 shortcuts: with fewer shortcuts the clock and the shortcuts are bigger and easier to read).
 - **Prayer times:** offline, Kemenag method, location from GPS, live countdown to the next prayer.
 - **Al-Qur'an:** all 114 surahs with Kemenag text and translation, verse-by-verse recitation by Mishary Rashid
   Alafasy, readable offline.

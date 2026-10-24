@@ -934,15 +934,17 @@ public class HomeActivity extends Activity {
     static final float SPEED_RATIO = 0.43f; // ukuran angka kecepatan terhadap jam
 
     View buildHome() {
-        // Landscape: panel jam di kiri (±34% lebar). Portrait: panel jam di atas, ubin di bawah.
-        float leftDp = portrait ? wDp - 48 : Math.max(260, Math.min(480, wDp * 0.34f));
-        float panelH = portrait ? hDp * 0.42f : hDp;
-        float gridW = portrait ? wDp - 48 : wDp - 48 - leftDp - 57;
         int n = tileCount(prefs);
         shown = n - 1;
-        cols = n == 4 ? 2 : n == 12 && !portrait && gridW >= 600 ? 4 : 3;
-        rows = (n + cols - 1) / cols;
-        boolean shortPanel = panelH < 560; // tidak cukup tinggi untuk penggaris 24 jam
+        // Makin sedikit ubin, makin besar panel jam: 12 ubin = ukuran biasa; dengan 9 dan 6 jam, kecepatan, tanggal, dan
+        // jadwal sholat membesar. Di 6 ubin tinggi layar sudah habis untuk jam, jadi 4 ubin memakai panel jam yang sama
+        // dan lebar sisanya untuk ubin yang lebih besar.
+        int big = n == 12 ? 0 : n == 9 ? 1 : 2;
+        float k = 1 + 0.12f * big; // skala tulisan panel jam selain jam dan kecepatan
+        float panelH = portrait ? hDp * (0.42f + 0.06f * big) : hDp;
+        // Tidak cukup tinggi untuk penggaris 24 jam; dengan 6 atau 4 ubin tempatnya dipakai jam yang lebih besar.
+        boolean shortPanel = panelH < 560 || big == 2;
+
         // Jam sebesar mungkin: jam dan kecepatan 3 digit (ukurannya 0,43 × jam) muat berdampingan di lebar panel, dan
         // sebanding tinggi layar. Lebar diukur dengan digit terlebar (angka font ini tidak sama lebar) pada ukuran sp.
         Paint pm = new Paint();
@@ -951,7 +953,32 @@ public class HomeActivity extends Activity {
         float digit = 0;
         for (char d = '0'; d <= '9'; d++) digit = Math.max(digit, pm.measureText(String.valueOf(d)));
         float per100 = (4 * digit + pm.measureText(":") + 3 * digit * SPEED_RATIO) / dp;
-        float clockSp = Math.max(56, Math.min(150, Math.min((leftDp - 24) / per100 * 100, panelH * 0.21f)));
+        // Jam tidak boleh mendesak isi panel lain keluar layar: tinggi baris jam (tanpa padding font) dibatasi sisa
+        // tinggi panel sesudah baris atas, tanggal, jadwal sholat, dan penggaris.
+        Paint.FontMetrics fmc = pm.getFontMetrics();
+        float clockLine = (fmc.descent - fmc.ascent) / 100 / dp; // tinggi baris jam, dp per sp
+        float spDp = sp / dp, availH = portrait ? panelH - 24 : screenH - 48;
+        float fixed = 48 + 14 * spDp + 42 + 1.3f * (18 + (panelH < 560 ? 28 : 36) + 13) * k * spDp + 14 + 104 * k
+                + (shortPanel ? 0 : 74);
+        float clockFit = (availH - fixed - (big == 0 ? 8 : 24)) / clockLine;
+
+        // Landscape: panel jam di kiri, 34% lebar; dengan ubin lebih sedikit selebar yang dibutuhkan jam (sampai 55%).
+        // Portrait: panel jam di atas, ubin di bawah.
+        float leftDp = portrait ? wDp - 48 : big == 0 ? Math.max(260, Math.min(480, wDp * 0.34f))
+                : Math.max(260, Math.min(wDp * 0.55f,
+                        Math.max(wDp * 0.34f, Math.min(150 + 40 * big, clockFit) * per100 / 100 + 64)));
+        float clockSp = Math.min(150 + 40 * big, (leftDp - 24) / per100 * 100);
+        if (big == 0) clockSp = Math.min(clockSp, panelH * 0.21f);
+        clockSp = Math.max(56, Math.min(clockSp, clockFit));
+
+        float gridW = portrait ? wDp - 48 : wDp - 48 - leftDp - 57;
+        cols = n == 4 ? 2 : n == 12 && !portrait && gridW >= 600 ? 4 : 3;
+        if (n == 6) { // 3×2 atau 2×3: mana yang ubinnya paling mendekati persegi
+            float gridH = portrait ? screenH - panelH - 41 : screenH - 48;
+            double c2 = Math.log((gridW - 12) / 2f / ((gridH - 24) / 3f)), c3 = Math.log((gridW - 24) / 3f / ((gridH - 12) / 2f));
+            cols = Math.abs(c2) < Math.abs(c3) ? 2 : 3;
+        }
+        rows = (n + cols - 1) / cols;
 
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(portrait ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
@@ -1017,7 +1044,7 @@ public class HomeActivity extends Activity {
         // WRAP, bukan bawaan MATCH_PARENT: hanya lebar WRAP yang diukur ulang saat angkanya berubah. Dengan MATCH_PARENT
         // lebarnya tetap selebar "0" atau "--" saat pertama tampil, sehingga angka 2–3 digit terpotong di kanan.
         speedBox.addView(speed, new LinearLayout.LayoutParams(WRAP, WRAP));
-        TextView unit = text("KM/H", fMono, 10, DIM);
+        TextView unit = text("KM/H", fMono, 10 * k, DIM);
         unit.setLetterSpacing(0.25f);
         LinearLayout.LayoutParams ul = new LinearLayout.LayoutParams(WRAP, WRAP);
         ul.topMargin = px(4);
@@ -1033,17 +1060,17 @@ public class HomeActivity extends Activity {
         bl.bottomMargin = px(22);
         left.addView(bar, bl);
 
-        day = text("", fMonoBold, 18, AMBER);
+        day = text("", fMonoBold, 18 * k, AMBER);
         day.setLetterSpacing(0.3f);
         left.addView(day);
 
-        date = text("", fMed, shortPanel ? 28 : 36, TEXT);
+        date = text("", fMed, (panelH < 560 ? 28 : 36) * k, TEXT);
         date.setLetterSpacing(0.03f);
         LinearLayout.LayoutParams dl = new LinearLayout.LayoutParams(WRAP, WRAP);
         dl.topMargin = px(6);
         left.addView(date, dl);
 
-        hijri = text("", fMono, 13, DIM);
+        hijri = text("", fMono, 13 * k, DIM);
         hijri.setLetterSpacing(0.2f);
         hijri.setOnClickListener(v -> openSettings());
         LinearLayout.LayoutParams hl = new LinearLayout.LayoutParams(WRAP, WRAP);
@@ -1051,8 +1078,8 @@ public class HomeActivity extends Activity {
         left.addView(hijri, hl);
 
         left.addView(new View(this), new LinearLayout.LayoutParams(1, 0, 1f));
-        prayerView = new PrayerView();
-        left.addView(prayerView, new LinearLayout.LayoutParams(MATCH, px(104)));
+        prayerView = new PrayerView(k);
+        left.addView(prayerView, new LinearLayout.LayoutParams(MATCH, px(104 * k)));
         gauge = new Gauge();
         LinearLayout.LayoutParams gl = new LinearLayout.LayoutParams(MATCH, px(56));
         gl.topMargin = px(18);
@@ -1566,16 +1593,20 @@ public class HomeActivity extends Activity {
 
         void stopTicking() { removeCallbacks(tick); }
 
-        PrayerView() {
+        /** Skala ukuran: 1 dengan 12 ubin, lebih besar bila ubinnya lebih sedikit (lihat buildHome). */
+        final float k;
+
+        PrayerView(float k) {
             super(HomeActivity.this);
+            this.k = k;
             name.setTypeface(fMono);
-            name.setTextSize(sp(10));
+            name.setTextSize(sp(10 * k));
             name.setLetterSpacing(0.15f);
             time.setTypeface(fBold);
-            time.setTextSize(sp(30));
+            time.setTextSize(sp(30 * k));
             time.setLetterSpacing(0.02f);
             info.setTypeface(fMono);
-            info.setTextSize(sp(11));
+            info.setTextSize(sp(11 * k));
             info.setLetterSpacing(0.12f);
             rule.setColor(LINE);
         }
@@ -1590,16 +1621,16 @@ public class HomeActivity extends Activity {
             c.drawRect(0, 0, w, px(1), rule);
             float col = w / 5f;
             // Panel sempit: kecilkan huruf supaya "MAGHRIB" dan "17:36" tidak bertumpuk dengan kolom sebelah.
-            name.setTextSize(Math.min(sp(10), col / 7.2f));
-            time.setTextSize(Math.min(sp(30), col * 0.4f));
+            name.setTextSize(Math.min(sp(10 * k), col / 7.2f));
+            time.setTextSize(Math.min(sp(30 * k), col * 0.4f));
             for (int i = 0; i < pray.length; i++) {
                 float x = i * col;
                 int color = i == next ? AMBER : pray[i] <= now ? DIM : TEXT;
-                if (i == next) c.drawRect(x, px(1), x + px(28), px(4), paintOf(AMBER));
+                if (i == next) c.drawRect(x, px(1), x + px(28 * k), px(4), paintOf(AMBER));
                 name.setColor(i == next ? AMBER : DIM);
-                c.drawText(PrayerTimes.NAMES[i], x, px(28), name);
+                c.drawText(PrayerTimes.NAMES[i], x, px(28 * k), name);
                 time.setColor(color);
-                c.drawText(prayText[i], x, px(64), time);
+                c.drawText(prayText[i], x, px(64 * k), time);
             }
 
             int target = next >= 0 ? pray[next] : 1440 + prayTomorrow[0];
@@ -1608,7 +1639,7 @@ public class HomeActivity extends Activity {
             String msg = "▸ " + PrayerTimes.NAMES[next >= 0 ? next : 0] + " DALAM " + wait;
             info.setColor(AMBER);
             info.setTextAlign(Paint.Align.LEFT);
-            c.drawText(msg, 0, px(96), info);
+            c.drawText(msg, 0, px(96 * k), info);
 
             String place = (city != null ? city : String.format(Locale.US, "%.2f, %.2f", lat, lon))
                     + (locApprox ? " · PERKIRAAN" : "");
@@ -1616,7 +1647,7 @@ public class HomeActivity extends Activity {
             info.setColor(DIM);
             info.setTextAlign(Paint.Align.RIGHT);
             CharSequence p = TextUtils.ellipsize(place, info, avail, TextUtils.TruncateAt.END);
-            c.drawText(p, 0, p.length(), w, px(96), info);
+            c.drawText(p, 0, p.length(), w, px(96 * k), info);
         }
     }
 

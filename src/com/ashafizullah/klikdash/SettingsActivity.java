@@ -230,8 +230,9 @@ public class SettingsActivity extends Activity {
             counts[i].minWidth = px(56);
         }
         list.addView(row("JUMLAH PINTASAN",
-                "Pintasan di home, termasuk SEMUA. Makin sedikit, makin besar pintasan, ikon, dan tulisannya. Pintasan "
-                        + "yang tidak tampil tetap tersimpan dan muncul lagi bila jumlahnya ditambah.", counts));
+                "Pintasan di home, termasuk SEMUA. Makin sedikit, makin besar jam dan jadwal sholat di kiri, juga pintasan, "
+                        + "ikon, dan tulisannya. Pintasan yang tidak tampil tetap tersimpan dan muncul lagi bila "
+                        + "jumlahnya ditambah.", counts));
 
         int wm = Welcome.mode(prefs);
         list.addView(row("SAMBUTAN",
