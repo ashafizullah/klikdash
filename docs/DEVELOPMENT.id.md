@@ -137,7 +137,7 @@ Skrip ini juga membersihkan teks:
   ```bash
   adb shell am start -n com.ashafizullah.klikdash/.HomeActivity --es lat -6.1754 --es lon 106.8272 --es city "Jakarta"
   ```
-- **`klikdash.keystore`** (alias `kokpit`) wajib dicadangkan di tempat aman, misalnya lampiran password
+- **`klikdash.keystore`** (alias `klikdash`) wajib dicadangkan di tempat aman, misalnya lampiran password
   manager. File ini tidak ikut di repo. Password-nya ada di **macOS Keychain** (servis `klikdash-keystore`):
   `security find-generic-password -a klikdash -s klikdash-keystore -w`. Untuk CI, isi env `KLIKDASH_KS_PASS`.
   APK yang ditandatangani kunci lain tidak bisa meng-update KlikDash; harus uninstall dulu, dan uninstall

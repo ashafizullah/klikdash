@@ -57,7 +57,7 @@ if [ ! -f klikdash.keystore ]; then
     KS_PASS=$(openssl rand -base64 48 | tr -d '/+=\n' | cut -c1-32)
     security add-generic-password -a klikdash -s "$KC_SERVICE" -l "KlikDash APK keystore" -w "$KS_PASS" -U
     keytool -genkeypair -keystore klikdash.keystore -storepass:env KS_PASS -keypass:env KS_PASS \
-        -alias kokpit -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=KlikDash" >/dev/null 2>&1
+        -alias klikdash -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=KlikDash" >/dev/null 2>&1
     echo "Keystore baru dibuat: klikdash.keystore (password di Keychain: $KC_SERVICE). Cadangkan keduanya." >&2
 fi
 if [ -z "$KS_PASS" ]; then

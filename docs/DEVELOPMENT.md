@@ -139,7 +139,7 @@ The script also cleans the text:
   ```bash
   adb shell am start -n com.ashafizullah.klikdash/.HomeActivity --es lat -6.1754 --es lon 106.8272 --es city "Jakarta"
   ```
-- **`klikdash.keystore`** (alias `kokpit`) must be backed up somewhere safe, for example as a password-manager
+- **`klikdash.keystore`** (alias `klikdash`) must be backed up somewhere safe, for example as a password-manager
   attachment. It is not in the repo. Its password is in the **macOS Keychain** (service `klikdash-keystore`):
   `security find-generic-password -a klikdash -s klikdash-keystore -w`. For CI, set the `KLIKDASH_KS_PASS`
   env variable. An APK signed with a different key cannot update KlikDash; you would have to uninstall
