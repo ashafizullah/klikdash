@@ -267,7 +267,7 @@ public class HomeActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         QuranService.listeners.add(onQuran);
-        loadSlots(); // bisa diatur ulang dari Pengaturan
+        reloadPrefs();
         onQuran.run();
         updateTime();
         prayerView.startTicking();
@@ -386,7 +386,12 @@ public class HomeActivity extends Activity {
 
     /** Headunit umumnya tidur saat ACC off, bukan mati; bangun = ACC on. */
     final BroadcastReceiver wakeRx = new BroadcastReceiver() {
-        @Override public void onReceive(Context c, Intent i) { wakeAt = SystemClock.elapsedRealtime(); }
+        @Override public void onReceive(Context c, Intent i) {
+            wakeAt = SystemClock.elapsedRealtime();
+            reloadPrefs();
+            onQuran.run();
+            updateTime();
+        }
     };
 
     @Override protected void onStop() {
@@ -420,11 +425,24 @@ public class HomeActivity extends Activity {
 
     // ---------------------------------------------------------------- data
 
-    /** Prefs di penyimpanan DE; pindahkan sekali dari CE (versi lama) begitu CE sudah terbuka. */
+    /**
+     * Prefs di penyimpanan DE; pindahkan sekali dari CE (versi lama) begitu CE sudah terbuka.
+     * MODE_MULTI_PROCESS: baca ulang dari disk bila filenya berubah. Headunit dengan fast boot memulihkan isi RAM
+     * lama saat ACC on; tanpa ini susunan ubin lama di memori tampil lagi, lalu tertulis menimpa yang tersimpan.
+     */
+    @SuppressWarnings("deprecation")
     SharedPreferences openPrefs() {
         Context de = createDeviceProtectedStorageContext();
         if (getSystemService(UserManager.class).isUserUnlocked()) de.moveSharedPreferencesFrom(this, "klikdash");
-        return de.getSharedPreferences("klikdash", MODE_PRIVATE);
+        return de.getSharedPreferences("klikdash", MODE_MULTI_PROCESS);
+    }
+
+    /** Ambil ulang ubin dan lokasi dari disk (lihat openPrefs), juga perubahan dari Pengaturan. */
+    void reloadPrefs() {
+        prefs = openPrefs();
+        loadSlots();
+        loadLocation();
+        prayDayKey = -1;
     }
 
     /** Setelah CE terbuka: aplikasi non-directBoot (mis. Maps, Al-Qur'an) baru terlihat oleh PackageManager. */
