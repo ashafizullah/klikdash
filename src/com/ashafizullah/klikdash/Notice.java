@@ -102,7 +102,7 @@ final class Notice {
         float dp = c.getResources().getDisplayMetrics().density;
         if (fTag == null) {
             fTag = Compat.font(c.getAssets(), "mono.ttf", "'wdth' 100, 'wght' 700", Typeface.MONOSPACE);
-            fMsg = Compat.font(c.getAssets(), "display.ttf", "'opsz' 36, 'wght' 600", Typeface.DEFAULT);
+            fMsg = Compat.font(c.getAssets(), "display.ttf", "'opsz' 36, 'wght' 700", Typeface.DEFAULT); // 700: ada instans statisnya untuk Android 7–8 (assets/static)
         }
         int color = kind == OK || kind == REMIND ? AMBER : kind == FAIL ? HOT : DIM;
 
