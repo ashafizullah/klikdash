@@ -675,6 +675,8 @@ public class HomeActivity extends Activity {
         if (c.screenWidthDp != screenW || c.screenHeightDp != screenH) recreate();
     }
 
+    static final float SPEED_RATIO = 0.43f; // ukuran angka kecepatan terhadap jam
+
     View buildHome() {
         // Landscape: panel jam di kiri (±34% lebar). Portrait: panel jam di atas, ubin di bawah.
         float leftDp = portrait ? wDp - 48 : Math.max(260, Math.min(480, wDp * 0.34f));
@@ -683,12 +685,15 @@ public class HomeActivity extends Activity {
         cols = portrait || gridW < 600 ? 3 : 4;
         rows = (SLOTS + 1 + cols - 1) / cols;
         boolean shortPanel = panelH < 560; // tidak cukup tinggi untuk penggaris 24 jam
-        // Jam sebesar mungkin: muat di lebar panel (sisakan tempat kecepatan) dan sebanding tinggi layar.
+        // Jam sebesar mungkin: jam dan kecepatan 3 digit (ukurannya 0,43 × jam) muat berdampingan di lebar panel, dan
+        // sebanding tinggi layar. Lebar diukur dengan digit terlebar (angka font ini tidak sama lebar) pada ukuran sp.
         Paint pm = new Paint();
         pm.setTypeface(fHeavy);
-        pm.setTextSize(100 * dp);
-        float per100 = pm.measureText("00:00") / dp;
-        float clockSp = Math.max(56, Math.min(150, Math.min((leftDp - 110) / per100 * 100, panelH * 0.21f)));
+        pm.setTextSize(100 * sp);
+        float digit = 0;
+        for (char d = '0'; d <= '9'; d++) digit = Math.max(digit, pm.measureText(String.valueOf(d)));
+        float per100 = (4 * digit + pm.measureText(":") + 3 * digit * SPEED_RATIO) / dp;
+        float clockSp = Math.max(56, Math.min(150, Math.min((leftDp - 24) / per100 * 100, panelH * 0.21f)));
 
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(portrait ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
@@ -738,8 +743,10 @@ public class HomeActivity extends Activity {
         LinearLayout speedBox = new LinearLayout(this);
         speedBox.setOrientation(LinearLayout.VERTICAL);
         speedBox.setGravity(Gravity.END);
-        speed = text("--", fHeavy, clockSp * 0.43f, TEXT);
-        speedBox.addView(speed);
+        speed = text("--", fHeavy, clockSp * SPEED_RATIO, TEXT);
+        // WRAP, bukan bawaan MATCH_PARENT: hanya lebar WRAP yang diukur ulang saat angkanya berubah. Dengan MATCH_PARENT
+        // lebarnya tetap selebar "0" atau "--" saat pertama tampil, sehingga angka 2–3 digit terpotong di kanan.
+        speedBox.addView(speed, new LinearLayout.LayoutParams(WRAP, WRAP));
         TextView unit = text("KM/H", fMono, 10, DIM);
         unit.setLetterSpacing(0.25f);
         LinearLayout.LayoutParams ul = new LinearLayout.LayoutParams(WRAP, WRAP);
