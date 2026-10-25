@@ -122,6 +122,11 @@ USB debugging aktif, sama seperti tombol tampilan utama.
 
 ## Asisten suara (TANYA AI)
 
+▶️ Lebih suka video? Tonton **[tutorial TANYA AI 6 menit di YouTube](https://youtu.be/v9Bm6FzUKm8)**: mengisi API key Claude atau
+layanan OpenAI-compatible, memakai suara Android yang gratis, sampai memberi perintah suara pertama.
+
+[![Tutorial TANYA AI di YouTube](img/video-tanya-ai.png)](https://youtu.be/v9Bm6FzUKm8)
+
 Opsional. TANYA AI mengerti perintah singkat, misalnya *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai
 Waze"*, *"buka Zlink"*, atau *"stop murottalnya"*, dan menjawab dengan suara.
 

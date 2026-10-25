@@ -54,7 +54,7 @@ merender animasi 3D (~40% CPU).
 - **Asisten suara TANYA AI (opsional):** ucapkan *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai Waze"*,
   atau *"buka Zlink"*. Pakai key Claude atau OpenAI-compatible sendiri; mendengar dan berbicara dengan suara
   Android headunit (gratis) atau ElevenLabs, dan mencari info terkini di web (pencarian Claude, atau pencarian
-  TinyFish yang gratis untuk penyedia mana pun).
+  TinyFish yang gratis untuk penyedia mana pun). ▶️ **[Video cara mengaturnya](https://youtu.be/v9Bm6FzUKm8)** (6 menit, dengan subtitle).
 - **Kunci layar:** PIN 4 angka (**⚙ › Launcher › KUNCI LAYAR**) dan ikon gembok di home, supaya anak-anak tidak
   membuka aplikasi atau mengubah pengaturan. Jam dan jadwal sholat tetap tampil.
 - **Pengaturan & pembaruan:** tombol ⚙ di home; **CEK UPDATE** memasang versi baru tanpa komputer.

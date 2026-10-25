@@ -129,6 +129,11 @@ home-screen button.
 
 ## Voice assistant (TANYA AI)
 
+▶️ Prefer video? Watch the **[6-minute TANYA AI setup tutorial on YouTube](https://youtu.be/v9Bm6FzUKm8)** (Indonesian, with subtitles):
+API key for Claude or an OpenAI-compatible service, the free Android voice, and your first voice command.
+
+[![TANYA AI setup tutorial on YouTube](img/video-tanya-ai.png)](https://youtu.be/v9Bm6FzUKm8)
+
 Optional. TANYA AI understands short commands in Indonesian, such as *"putar surat Yasin"* (play Surah Yasin),
 *"navigasi ke masjid terdekat pakai Waze"*, *"buka Zlink"* or *"stop murottalnya"*, and answers out loud.
 
