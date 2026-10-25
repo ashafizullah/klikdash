@@ -53,10 +53,6 @@
   .front { left: 588px; top: 214px; width: 640px; }
   .tag { position: absolute; font-size: 13px; font-weight: 700; color: #ffd27a;
     background: rgba(40, 32, 14, 0.9); border-radius: 999px; padding: 5px 14px; }
-  /* Screenshot diambil sebelum ganti nama: tutup label lama dengan label build sekarang */
-  .relabel { position: absolute; left: 1.6%; top: 9.4%; width: 22%; height: 3.4%; background: #0b0b0a;
-    font-family: 'Martian Mono', monospace; font-variation-settings: 'wdth' 100, 'wght' 400;
-    color: #8a8478; letter-spacing: 0.25em; white-space: nowrap; display: flex; align-items: center; }
 </style>
 </head>
 <body>
@@ -84,7 +80,7 @@
   <div class="unit front">
     <div class="screen" id="home">
       <img src="screen-home.png" alt="">
-      <div class="relabel" id="relabel">KLIKDASH&nbsp;&nbsp;·&nbsp;&nbsp;K2401</div>    </div>
+    </div>
   </div>
   <span class="tag" id="tagQuran" style="right: 52px; top: 30px;"></span>
   <span class="tag" id="tagHome" style="left: 588px; top: 594px;"></span>
@@ -99,7 +95,7 @@
       sub: 'A ~0% CPU launcher replacing the stock 3D animation, GPS-based prayer times, and an offline Quran with Mishary Alafasy recitation. Open source, no account.',
       chips: [['Light Launcher', 1], ['Prayer Times', 1], ['Offline Quran', 0]],
       note: 'Community project · Not an official NWD product',
-      tagQuran: 'Offline Quran', tagHome: 'Home · prayer times · CPU temperature',
+      tagQuran: 'Offline Quran', tagHome: 'Home · prayer times · GLOSSY glass theme',
     },
     id: {
       pill: 'Komunitas · Gratis',
@@ -108,7 +104,7 @@
       sub: "Launcher ~0% CPU pengganti animasi bawaan, jadwal sholat dari GPS, dan Al-Qur'an offline dengan murattal Mishary Alafasy. Open source, tanpa akun.",
       chips: [['Launcher Ringan', 1], ['Jadwal Sholat', 1], ["Al-Qur'an Offline", 0]],
       note: 'Proyek komunitas · Bukan produk resmi NWD',
-      tagQuran: "Al-Qur'an offline", tagHome: 'Home · jadwal sholat · suhu CPU',
+      tagQuran: "Al-Qur'an offline", tagHome: 'Home · jadwal sholat · tema kaca KILAP',
     },
   };
   const lang = new URLSearchParams(location.search).get('lang') || 'en';
@@ -118,10 +114,6 @@
   document.getElementById('title').innerHTML = t.title;
   document.getElementById('chips').innerHTML = t.chips
     .map(([label, hl]) => `<span class="chip${hl ? ' hl' : ''}">${label}</span>`).join('');
-
-  // Ukuran huruf label pengganti = 12 px di layar 1280 px, diskalakan ke lebar screenshot.
-  const w = document.getElementById('home').clientWidth;
-  document.getElementById('relabel').style.fontSize = (12 * w / 1280) + 'px';
 </script>
 </body>
 </html>
