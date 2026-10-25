@@ -18,7 +18,7 @@
   <img src="https://img.shields.io/badge/tested%20on-NWD%20K2401%20%C2%B7%201280%C3%97720-lightgrey" alt="Tested on NWD K2401, 1280x720">
   <br>
   <img src="https://img.shields.io/badge/idle%20CPU-~0%25-FFB000" alt="Idle CPU around 0%">
-  <img src="https://img.shields.io/badge/offline-100%25-FFB000" alt="Fully offline">
+  <img src="https://img.shields.io/badge/offline-after%20first%20download-FFB000" alt="Works offline after the first download">
   <img src="https://img.shields.io/badge/UI-Indonesian%20%7C%20English-lightgrey" alt="Indonesian or English user interface">
 </p>
 
@@ -164,7 +164,7 @@ behaves: see **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**.
 
 ## Sources & licenses
 
-- **Code:** [MIT](LICENSE).
+- **Code:** [MIT](LICENSE), except `PrayerTimes.java` (see prayer times below).
 - **Fonts:** [SIL Open Font License 1.1](assets/licenses/): Big Shoulders, Martian Mono, Amiri Quran, and
   Literata (via Google Fonts). Literata is instanced and subset; its name and license are unchanged.
 - **Text, transliteration, and translation** (not included): [equran.id](https://equran.id), i.e. the
@@ -173,11 +173,13 @@ behaves: see **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**.
   [alquran.cloud](https://alquran.cloud) (from [Tanzil](https://tanzil.net/trans/)). Rights belong to its owners.
 - **Audio** (not included): [everyayah.com](https://everyayah.com) / versebyversequran.com, Mishary Rashid
   Alafasy 128 kbps. Follow the license on that site.
-- **Prayer times:** the [praytimes.org](http://praytimes.org) algorithm.
+- **Prayer times:** `PrayerTimes.java` is a Java port of [PrayTimes.js](https://praytimes.org) (© PrayTimes.org,
+  Hamid Zarrabi-Zadeh, GNU LGPL v3.0, used with credit and a link as its terms of use ask).
 - **Dhikr** (`assets/dzikir.json`): from [KlikBand](https://github.com/ashafizullah/klikband); order and counts from
   [Almanhaj](https://almanhaj.or.id/11518-dzikir-pagi-dan-petang.html), Latin following Hisnul Muslim, Qur'an
-  verses from [Tanzil](https://tanzil.net) (CC BY 3.0). Rebuild with
+  verses from [Tanzil](https://tanzil.net) (© Tanzil Project, CC BY 3.0 with Tanzil's terms: verbatim copies only,
+  with credit and a link). Rebuild with
   `node tools/build_dzikir.mjs <klikband>/src/common/dhikrmorningevening.js assets/dzikir.json`.
 
-This project is not affiliated with NWD, Zjinnova (Zlink), Apple, Google, Anthropic, OpenAI, ElevenLabs, or
-Kemenag RI.
+This project is not affiliated with NWD, Zjinnova (Zlink), Apple, Google, Anthropic, OpenAI, ElevenLabs, TinyFish,
+or Kemenag RI. Product names are trademarks of their owners.

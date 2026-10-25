@@ -24,7 +24,7 @@
     <string name="settings_home_make">JADIKAN UTAMA</string>
 
     <string name="settings_hijri_title">TANGGAL HIJRIAH</string>
-    <string name="settings_hijri_desc">Hari ini %1$s. Dihitung dengan Umm al-Qura (sama dengan kalender Kemenag). Geser per hari bila hasil rukyat berbeda.</string>
+    <string name="settings_hijri_desc">Hari ini %1$s. Dihitung dengan kalender Umm al-Qura, yang bisa selisih sehari dari kalender Kemenag. Geser per hari bila hasil rukyat berbeda.</string>
 
     <string name="settings_lang_title">BAHASA</string>
     <string name="settings_lang_desc">Bahasa tampilan KlikDash. Asisten AI punya pengaturan bahasa sendiri di tab Asisten AI.</string>
@@ -68,7 +68,7 @@
     <string name="settings_system_open">BUKA</string>
 
     <string name="settings_about_title">TENTANG</string>
-    <string name="settings_about_desc">KlikDash %1$s — launcher ringan untuk headunit Android. Sumber terbuka (MIT) di github.com/ashafizullah/klikdash.</string>
+    <string name="settings_about_desc">KlikDash %1$s — launcher ringan untuk headunit Android. Sumber terbuka (MIT) di github.com/ashafizullah/klikdash. Jadwal sholat: port PrayTimes.js (praytimes.org, LGPL v3). Ayat Al-Qur\'an pada dzikir: Tanzil (tanzil.net).</string>
 
     <string-array name="theme_names">
         <item>AMBER</item>

@@ -3,10 +3,33 @@ package com.ashafizullah.klikdash;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+/*
+ * Bagian perhitungan di file ini (julian, sun, midDay, sunAngleTime, asrTime, fixAngle, fixHour, dsin dkk.) adalah
+ * port Java dari PrayTimes.js (https://praytimes.org), dipangkas untuk metode Kemenag. Blok hak cipta aslinya:
+ *
+ * //--------------------- Copyright Block ----------------------
+ * PrayTimes.js: Prayer Times Calculator (ver 2.5)
+ * Copyright (C) 2007-2017 PrayTimes.org
+ *
+ * Developer: Hamid Zarrabi-Zadeh
+ * License: GNU LGPL v3.0
+ *
+ * TERMS OF USE:
+ *     Permission is granted to use this code, with or
+ *     without modification, in any website or application
+ *     provided that credit is given to the original work
+ *     with a link back to PrayTimes.org.
+ *
+ * This program is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY.
+ *
+ * PLEASE DO NOT REMOVE THIS COPYRIGHT BLOCK.
+ */
+
 /**
  * Hitung jadwal sholat secara lokal (tanpa internet), metode Kemenag RI:
  * Subuh 20°, Isya 18°, Ashar madzhab Syafi'i, ihtiyath +2 menit.
- * Algoritma posisi matahari mengikuti praytimes.org.
+ * Rumus posisi matahari dan waktu sholat: port PrayTimes.js (lihat blok hak cipta di atas).
  */
 final class PrayerTimes {
     static final int IHTIYATH = 2;

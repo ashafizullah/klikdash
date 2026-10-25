@@ -18,7 +18,7 @@
   <img src="https://img.shields.io/badge/diuji%20di-NWD%20K2401%20%C2%B7%201280%C3%97720-lightgrey" alt="Diuji di NWD K2401, 1280x720">
   <br>
   <img src="https://img.shields.io/badge/CPU%20saat%20diam-~0%25-FFB000" alt="CPU saat diam sekitar 0%">
-  <img src="https://img.shields.io/badge/offline-100%25-FFB000" alt="Sepenuhnya offline">
+  <img src="https://img.shields.io/badge/offline-setelah%20unduhan%20pertama-FFB000" alt="Bisa offline setelah unduhan pertama">
   <img src="https://img.shields.io/badge/tampilan-Indonesia%20%7C%20English-lightgrey" alt="Tampilan berbahasa Indonesia atau Inggris">
 </p>
 
@@ -166,7 +166,7 @@ Struktur kode, build tanpa Gradle, audio murattal, membuat teks Al-Qur'an, dan c
 
 ## Sumber & lisensi
 
-- **Kode:** [MIT](LICENSE).
+- **Kode:** [MIT](LICENSE), kecuali `PrayerTimes.java` (lihat jadwal sholat di bawah).
 - **Font:** [SIL Open Font License 1.1](assets/licenses/), yaitu Big Shoulders, Martian Mono, Amiri Quran,
   dan Literata (via Google Fonts). Literata di-instance dan di-subset; nama dan lisensinya tetap.
 - **Teks, transliterasi, dan terjemahan** (tidak disertakan): [equran.id](https://equran.id), yaitu mushaf
@@ -175,11 +175,13 @@ Struktur kode, build tanpa Gradle, audio murattal, membuat teks Al-Qur'an, dan c
   [alquran.cloud](https://alquran.cloud) (dari [Tanzil](https://tanzil.net/trans/)). Haknya ada pada pemiliknya.
 - **Audio** (tidak disertakan): [everyayah.com](https://everyayah.com) / versebyversequran.com, Mishary
   Rashid Alafasy 128 kbps. Ikuti lisensi di situs tersebut.
-- **Jadwal sholat:** algoritma [praytimes.org](http://praytimes.org).
+- **Jadwal sholat:** `PrayerTimes.java` adalah port Java dari [PrayTimes.js](https://praytimes.org) (© PrayTimes.org,
+  Hamid Zarrabi-Zadeh, GNU LGPL v3.0, dipakai dengan kredit dan tautan sesuai ketentuannya).
 - **Dzikir** (`assets/dzikir.json`): dari [KlikBand](https://github.com/ashafizullah/klikband); urutan dan jumlah dari
   [Almanhaj](https://almanhaj.or.id/11518-dzikir-pagi-dan-petang.html), Latin mengikuti Hisnul Muslim, ayat
-  Al-Qur'an dari [Tanzil](https://tanzil.net) (CC BY 3.0). Bangun ulang dengan
+  Al-Qur'an dari [Tanzil](https://tanzil.net) (© Tanzil Project, CC BY 3.0 dengan ketentuan Tanzil: hanya salinan apa
+  adanya, dengan kredit dan tautan). Bangun ulang dengan
   `node tools/build_dzikir.mjs <klikband>/src/common/dhikrmorningevening.js assets/dzikir.json`.
 
-Proyek ini tidak berafiliasi dengan NWD, Zjinnova (Zlink), Apple, Google, Anthropic, OpenAI, ElevenLabs, maupun
-Kemenag RI.
+Proyek ini tidak berafiliasi dengan NWD, Zjinnova (Zlink), Apple, Google, Anthropic, OpenAI, ElevenLabs, TinyFish,
+maupun Kemenag RI. Nama produk adalah merek dagang pemiliknya.

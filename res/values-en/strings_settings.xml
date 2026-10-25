@@ -23,7 +23,7 @@
     <string name="settings_home_make">MAKE DEFAULT</string>
 
     <string name="settings_hijri_title">HIJRI DATE</string>
-    <string name="settings_hijri_desc">Today is %1$s. Calculated with Umm al-Qura (matches the Kemenag calendar). Shift it by a day if the moon sighting differs.</string>
+    <string name="settings_hijri_desc">Today is %1$s. Calculated with the Umm al-Qura calendar, which can be a day off from the Kemenag calendar. Shift it by a day if the moon sighting differs.</string>
 
     <string name="settings_lang_title">LANGUAGE</string>
     <string name="settings_lang_desc">KlikDash display language. The AI assistant has its own language setting in the AI Assistant tab.</string>
@@ -67,7 +67,7 @@
     <string name="settings_system_open">OPEN</string>
 
     <string name="settings_about_title">ABOUT</string>
-    <string name="settings_about_desc">KlikDash %1$s — a lightweight launcher for Android headunits. Open source (MIT) at github.com/ashafizullah/klikdash.</string>
+    <string name="settings_about_desc">KlikDash %1$s — a lightweight launcher for Android headunits. Open source (MIT) at github.com/ashafizullah/klikdash. Prayer times: a port of PrayTimes.js (praytimes.org, LGPL v3). Qur\'an verses in the dhikr: Tanzil (tanzil.net).</string>
 
     <string-array name="theme_names">
         <item>AMBER</item>
