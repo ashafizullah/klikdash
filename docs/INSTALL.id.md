@@ -9,6 +9,8 @@ saat pertama kali memasang.
 
 ▶️ Lebih suka video? Tonton **[tutorial pemasangan 5 menit di YouTube](https://youtu.be/sSRKIyC3Ato)**.
 
+📺 Semua video KlikDash (pemasangan, TANYA AI, pencarian web TinyFish, update) ada di **[playlist YouTube](https://www.youtube.com/playlist?list=PLEAZ252hW8a4)**.
+
 ## Yang dibutuhkan
 
 - Headunit Android **7 atau lebih baru**, idealnya dengan layar **1280×720** (dikembangkan dan diuji di NWD K2401)

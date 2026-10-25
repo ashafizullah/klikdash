@@ -12,6 +12,8 @@ phone's hotspot) during the first setup.
 
 ▶️ Prefer video? Watch the **[5-minute install tutorial on YouTube](https://youtu.be/sSRKIyC3Ato)** (Indonesian, with subtitles).
 
+📺 All KlikDash videos (install, TANYA AI, TinyFish web search, updates) are in the **[YouTube playlist](https://www.youtube.com/playlist?list=PLEAZ252hW8a4)**.
+
 ## What you need
 
 - An Android **7 or newer** headunit, ideally with a **1280×720** screen (developed and tested on the NWD K2401)
