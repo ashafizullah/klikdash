@@ -283,6 +283,17 @@ public class SettingsActivity extends Activity {
                     } catch (Exception ignored) { }
                 })));
 
+        // KlikBeam (BETA): cara menyambung, kode pairing, dan alamat; penerimanya BeamActivity.
+        String beamAddr = BeamActivity.addressText();
+        list.addView(row(getString(R.string.settings_beam_title), getString(R.string.settings_beam_desc,
+                        BeamActivity.codeText(this), beamAddr != null ? beamAddr : getString(R.string.beam_no_network)),
+                key(getString(R.string.settings_beam_new_code), false, () -> {
+                    BeamActivity.newCode(this);
+                    rebuildKeepScroll();
+                }),
+                key(getString(R.string.settings_beam_open), false,
+                        () -> startActivity(new Intent(this, BeamActivity.class)))));
+
         String ver = Updater.installedVersion(this);
         long checked = prefs.getLong("updateChecked", 0);
         updateKey = key(getString(R.string.update_check), false, this::checkUpdate);

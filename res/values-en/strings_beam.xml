@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_beam">Beam</string>
-    <string name="beam_hint">Open KlikBeam on your iPhone, pick this headunit, then enter the code below.</string>
-    <string name="beam_code_label">PAIRING CODE</string>
-    <string name="beam_address_label">ADDRESS</string>
     <string name="beam_no_network">No WiFi yet. Connect the headunit to your iPhone\'s hotspot.</string>
     <string name="beam_waiting">WAITING FOR IPHONE</string>
     <string name="beam_connected">CONNECTED · WAITING FOR VIDEO</string>
@@ -11,4 +8,10 @@
     <string name="beam_ended">BROADCAST STOPPED</string>
     <string name="beam_error">SERVER FAILED: %1$s</string>
     <string name="beam_decoder_error">Video decoder failed: %1$s</string>
+    <string name="beam_beta">BETA · NOT USABLE YET</string>
+    <string name="beam_receiver_hint">Still in beta: the KlikBeam iPhone app is not available yet. Pairing code %1$s; how to connect is in Settings › Launcher › KLIKBEAM.</string>
+    <string name="settings_beam_title">KLIKBEAM · BETA</string>
+    <string name="settings_beam_desc">Mirror your iPhone screen to the headunit over WiFi. Still in beta and not usable yet: waiting for the KlikBeam iPhone app to be released.\n\nHow to connect: join the headunit to your iPhone\'s hotspot, tap OPEN RECEIVER, then in KlikBeam pick this headunit and enter pairing code %1$s. If the headunit does not show up, type the address: %2$s.</string>
+    <string name="settings_beam_new_code">NEW CODE</string>
+    <string name="settings_beam_open">OPEN RECEIVER</string>
 </resources>

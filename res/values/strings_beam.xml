@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Ubin BEAM: mirror layar iPhone (BeamActivity). -->
+<!-- KlikBeam (BETA): penerima mirror layar iPhone (BeamActivity) dan barisnya di Pengaturan. -->
 <resources>
     <string name="app_beam">Beam</string>
-    <string name="beam_hint">Buka KlikBeam di iPhone, pilih headunit ini, lalu masukkan kode di bawah.</string>
-    <string name="beam_code_label">KODE PAIRING</string>
-    <string name="beam_address_label">ALAMAT</string>
     <string name="beam_no_network">Belum tersambung ke WiFi. Sambungkan headunit ke hotspot iPhone.</string>
     <string name="beam_waiting">MENUNGGU IPHONE</string>
     <string name="beam_connected">TERSAMBUNG · MENUNGGU GAMBAR</string>
@@ -12,4 +9,10 @@
     <string name="beam_ended">SIARAN BERHENTI</string>
     <string name="beam_error">SERVER GAGAL: %1$s</string>
     <string name="beam_decoder_error">Decoder video gagal: %1$s</string>
+    <string name="beam_beta">BETA · BELUM BISA DIPAKAI</string>
+    <string name="beam_receiver_hint">Masih beta: aplikasi KlikBeam untuk iPhone belum tersedia. Kode pairing %1$s; cara menyambung ada di Pengaturan › Launcher › KLIKBEAM.</string>
+    <string name="settings_beam_title">KLIKBEAM · BETA</string>
+    <string name="settings_beam_desc">Mirror layar iPhone ke headunit lewat WiFi. Masih beta dan belum bisa dipakai: menunggu aplikasi KlikBeam untuk iPhone dirilis.\n\nCara menyambung: sambungkan headunit ke hotspot iPhone, ketuk BUKA PENERIMA, lalu di aplikasi KlikBeam pilih headunit ini dan masukkan kode pairing %1$s. Bila headunit tidak muncul, ketik alamat: %2$s.</string>
+    <string name="settings_beam_new_code">GANTI KODE</string>
+    <string name="settings_beam_open">BUKA PENERIMA</string>
 </resources>

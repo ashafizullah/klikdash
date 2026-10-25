@@ -88,19 +88,16 @@
             </intent-filter>
         </activity>
 
-        <!-- Ubin BEAM: mirror layar iPhone (aplikasi iOS KlikBeam) lewat WiFi -->
+        <!-- KlikBeam (BETA): mirror layar iPhone lewat WiFi. Dibuka dari Pengaturan › Launcher › KLIKBEAM, tidak
+             tampil di daftar aplikasi selama aplikasi iOS-nya belum tersedia. -->
         <activity
             android:name=".BeamActivity"
             android:label="@string/app_beam"
             android:icon="@drawable/ic_beam"
             android:taskAffinity="com.ashafizullah.klikdash.beam"
             android:launchMode="singleTask"
-            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden|navigation|uiMode|density|locale|layoutDirection|fontScale">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:excludeFromRecents="true"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden|navigation|uiMode|density|locale|layoutDirection|fontScale" />
 
         <receiver
             android:name=".PrayerAlarm"

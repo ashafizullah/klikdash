@@ -30,37 +30,27 @@ import java.util.List;
 import static com.ashafizullah.klikdash.HomeActivity.AMBER;
 import static com.ashafizullah.klikdash.HomeActivity.BG;
 import static com.ashafizullah.klikdash.HomeActivity.DIM;
-import static com.ashafizullah.klikdash.HomeActivity.FAINT;
 import static com.ashafizullah.klikdash.HomeActivity.HOT;
 import static com.ashafizullah.klikdash.HomeActivity.MATCH;
 import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 
 /**
- * Ubin BEAM: mirror layar iPhone lewat WiFi (pengirimnya aplikasi iOS KlikBeam). Video di tengah dengan letterbox
- * sesuai rasio CONFIG; selama belum ada gambar tampil panel berisi status, IP headunit, dan kode pairing 6 digit
- * (tekan lama kode untuk menggantinya). Server hanya hidup selama layar ini terlihat (onStart–onStop), jadi tidak
- * memakan daya di latar. Kode disimpan di prefs "beam".
+ * Penerima KlikBeam (BETA): mirror layar iPhone lewat WiFi, pengirimnya aplikasi iOS KlikBeam yang belum dirilis.
+ * Dibuka dari Pengaturan › Launcher › KLIKBEAM, yang juga menampilkan cara menyambung, kode pairing 6 digit, dan IP
+ * headunit. Video di tengah dengan letterbox sesuai rasio CONFIG; selama belum ada gambar tampil panel status.
+ * Server hanya hidup selama layar ini terlihat (onStart–onStop), jadi tidak memakan daya di latar. Kode disimpan di
+ * prefs "beam".
  */
 public final class BeamActivity extends Activity implements BeamServer.Listener, BeamDecoder.Listener {
     private final Handler ui = new Handler(Looper.getMainLooper());
-    private SharedPreferences prefs;
     private BeamDecoder decoder;
     private BeamServer server;
     private FrameLayout root;
     private SurfaceView video;
     private View panel;
-    private TextView state, code, address;
+    private TextView state;
     private boolean streaming;
     int themeBuilt;
-
-    private final Runnable refreshAddress = new Runnable() {
-        @Override public void run() {
-            List<String> ips = addresses();
-            address.setText(ips.isEmpty() ? getString(R.string.beam_no_network)
-                    : join(ips, ":" + BeamServer.PORT + "   ") + ":" + BeamServer.PORT);
-            ui.postDelayed(this, 3000); // WiFi bisa baru tersambung belakangan
-        }
-    };
 
     @Override protected void attachBaseContext(Context base) { super.attachBaseContext(Lang.wrap(base)); }
 
@@ -69,7 +59,6 @@ public final class BeamActivity extends Activity implements BeamServer.Listener,
         themeBuilt = Theme.apply(this);
         super.onCreate(b);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        prefs = getSharedPreferences("beam", MODE_PRIVATE);
         decoder = new BeamDecoder(this);
 
         root = new FrameLayout(this);
@@ -84,15 +73,13 @@ public final class BeamActivity extends Activity implements BeamServer.Listener,
         panel = buildPanel();
         root.addView(panel, new FrameLayout.LayoutParams(MATCH, MATCH));
         setContentView(root);
-        showCode();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        server = new BeamServer(this, pairingCode(), decoder, this);
+        server = new BeamServer(this, pairingCode(this), decoder, this);
         server.start();
-        ui.post(refreshAddress);
     }
 
     @Override
@@ -103,7 +90,6 @@ public final class BeamActivity extends Activity implements BeamServer.Listener,
 
     @Override
     protected void onStop() {
-        ui.removeCallbacks(refreshAddress);
         server.stop();
         server = null;
         showPanel(R.string.beam_waiting, null);
@@ -165,31 +151,18 @@ public final class BeamActivity extends Activity implements BeamServer.Listener,
         p.setPadding(pad, pad, pad, pad);
 
         p.addView(text("KLIKBEAM", heavy, 44, AMBER));
+        TextView beta = text(getString(R.string.beam_beta), monoBold, 12, HOT);
+        beta.setLetterSpacing(.2f);
+        p.addView(beta);
         state = text("", mono, 13, DIM);
         state.setLetterSpacing(.12f);
-        state.setPadding(0, dp(4), 0, dp(24));
+        state.setPadding(0, dp(18), 0, dp(24));
         p.addView(state);
 
-        TextView hint = text(getString(R.string.beam_hint), null, 17, TEXT);
-        hint.setGravity(Gravity.CENTER);
+        // Cara menyambung, kode, dan alamat ada di Pengaturan › Launcher › KLIKBEAM.
+        TextView hint = text(getString(R.string.beam_receiver_hint, codeText(this)), null, 17, TEXT);
         hint.setMaxWidth(dp(560));
         p.addView(hint);
-
-        p.addView(label(R.string.beam_code_label, mono));
-        code = text("", monoBold, 64, TEXT);
-        code.setLetterSpacing(.08f);
-        code.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override public boolean onLongClick(View v) {
-                newCode();
-                return true;
-            }
-        });
-        p.addView(code);
-
-        p.addView(label(R.string.beam_address_label, mono));
-        address = text("", mono, 15, DIM);
-        address.setGravity(Gravity.CENTER);
-        p.addView(address);
         return p;
     }
 
@@ -228,19 +201,13 @@ public final class BeamActivity extends Activity implements BeamServer.Listener,
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
     }
 
-    private TextView label(int res, Typeface mono) {
-        TextView t = text(getString(res), mono, 12, FAINT);
-        t.setLetterSpacing(.2f);
-        t.setPadding(0, dp(28), 0, dp(2));
-        return t;
-    }
-
     private TextView text(String s, Typeface tf, int sp, int color) {
         TextView t = new TextView(this);
         t.setText(s);
         if (tf != null) t.setTypeface(tf);
         t.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
         t.setTextColor(color);
+        t.setGravity(Gravity.CENTER); // lebar penuh di panel; teks di tengah
         return t;
     }
 
@@ -250,26 +217,29 @@ public final class BeamActivity extends Activity implements BeamServer.Listener,
 
     // ---- Kode pairing & alamat ----
 
-    private int pairingCode() {
-        int c = prefs.getInt("code", 0);
-        if (c < 100000) {
-            c = 100000 + new SecureRandom().nextInt(900000);
-            prefs.edit().putInt("code", c).apply();
+    static int pairingCode(Context c) {
+        SharedPreferences p = c.getSharedPreferences("beam", MODE_PRIVATE);
+        int code = p.getInt("code", 0);
+        if (code < 100000) {
+            code = 100000 + new SecureRandom().nextInt(900000);
+            p.edit().putInt("code", code).apply();
         }
-        return c;
+        return code;
     }
 
-    private void newCode() {
-        prefs.edit().remove("code").apply();
-        server.stop();
-        server = new BeamServer(this, pairingCode(), decoder, this);
-        server.start();
-        showCode();
+    /** Kode baru; dipakai server berikutnya (saat penerima dibuka lagi). */
+    static void newCode(Context c) { c.getSharedPreferences("beam", MODE_PRIVATE).edit().remove("code").apply(); }
+
+    /** "123 456" */
+    static String codeText(Context c) {
+        String s = String.valueOf(pairingCode(c));
+        return s.substring(0, 3) + " " + s.substring(3);
     }
 
-    private void showCode() {
-        String c = String.valueOf(pairingCode());
-        code.setText(c.substring(0, 3) + " " + c.substring(3));
+    /** Alamat untuk diketik di iPhone bila headunit tidak ditemukan otomatis, atau null tanpa jaringan. */
+    static String addressText() {
+        List<String> ips = addresses();
+        return ips.isEmpty() ? null : join(ips, ":" + BeamServer.PORT + "   ") + ":" + BeamServer.PORT;
     }
 
     /** IPv4 di semua antarmuka aktif (wlan0, ap0 bila headunit jadi hotspot), tanpa loopback. */
