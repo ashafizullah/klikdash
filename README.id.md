@@ -185,3 +185,8 @@ Struktur kode, build tanpa Gradle, audio murattal, membuat teks Al-Qur'an, dan c
 
 Proyek ini tidak berafiliasi dengan NWD, Zjinnova (Zlink), Apple, Google, Anthropic, OpenAI, ElevenLabs, TinyFish,
 maupun Kemenag RI. Nama produk adalah merek dagang pemiliknya.
+
+<p>
+  <a href="https://github.com/ashafizullah"><img src="https://github.com/ashafizullah.png?size=64" width="32" height="32" alt="" align="left" style="border-radius:50%"></a>
+  &nbsp;Dibuat oleh <a href="https://github.com/ashafizullah"><b>Adam Suchi Hafizullah</b></a>
+</p>

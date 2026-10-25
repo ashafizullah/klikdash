@@ -183,3 +183,8 @@ behaves: see **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**.
 
 This project is not affiliated with NWD, Zjinnova (Zlink), Apple, Google, Anthropic, OpenAI, ElevenLabs, TinyFish,
 or Kemenag RI. Product names are trademarks of their owners.
+
+<p>
+  <a href="https://github.com/ashafizullah"><img src="https://github.com/ashafizullah.png?size=64" width="32" height="32" alt="" align="left" style="border-radius:50%"></a>
+  &nbsp;Built by <a href="https://github.com/ashafizullah"><b>Adam Suchi Hafizullah</b></a>
+</p>
