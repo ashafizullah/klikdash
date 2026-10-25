@@ -197,7 +197,7 @@ public final class BeamActivity extends Activity implements BeamHub.Listener {
         LinearLayout p = new LinearLayout(this);
         p.setOrientation(LinearLayout.VERTICAL);
         p.setGravity(Gravity.CENTER);
-        p.setBackgroundColor(BG);
+        Theme.fill(p);
         int pad = dp(32);
         p.setPadding(pad, pad, pad, pad);
 

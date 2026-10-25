@@ -91,7 +91,7 @@ public class AskActivity extends Activity {
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(BG);
+        Theme.fill(root);
         root.setFitsSystemWindows(true);
         root.setPadding(px(24), px(24), px(24), px(24));
 

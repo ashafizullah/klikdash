@@ -112,7 +112,7 @@ public class SettingsActivity extends Activity {
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(BG);
+        Theme.fill(root);
         root.setFitsSystemWindows(true);
         root.setPadding(px(24), px(24), px(24), 0);
 
@@ -557,6 +557,7 @@ public class SettingsActivity extends Activity {
         GradientDrawable bg = new GradientDrawable();
         bg.setColor(BG);
         bg.setStroke(px(1), LINE);
+        bg.setCornerRadius(Theme.corner(dp));
         e.setBackground(bg);
         return e;
     }
@@ -607,6 +608,7 @@ public class SettingsActivity extends Activity {
         GradientDrawable bg = new GradientDrawable();
         bg.setColor(PANEL);
         bg.setStroke(Math.round(density), LINE);
+        bg.setCornerRadius(Theme.corner(density));
         d.getWindow().setBackgroundDrawable(bg);
         d.show();
         Notice.track(d);

@@ -2,9 +2,18 @@ package com.ashafizullah.klikdash;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.LinearGradient;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.RectF;
+import android.graphics.Shader;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.view.View;
 import android.view.Window;
@@ -16,7 +25,7 @@ import android.view.Window;
  */
 final class Theme {
     /** Jumlah tema; nama dan penjelasannya di resource (theme_names, theme_desc). */
-    static final int COUNT = 3;
+    static final int COUNT = 4;
 
     //                        BG          PANEL       LINE        TEXT        DIM         FAINT       AKSEN       INK
     //                        HOT         SOFT        ACTIVE      WARN
@@ -28,9 +37,13 @@ final class Theme {
             // Terang: aksen amber tua dan INK putih, supaya teks di atas aksen dan aksen di atas krem tetap kontras.
             {0xFFF3EEE3, 0xFFFBF8F1, 0xFFDCD4C3, 0xFF1A1712, 0xFF6E6656, 0xFFB5AC9A, 0xFF9A5B00, 0xFFFFFFFF,
                     0xFFC8371B, 0xFF3A342A, 0xFFF4E4C4, 0xFF9A5B00},
+            // Kilap: kaca bening di atas latar hitam bergradasi halus (lihat backdrop dan panel); PANEL tetap pekat untuk
+            // dialog dan notifikasi yang melayang di atas aplikasi lain. Aksen biru es dengan INK hitam.
+            {0xFF07080B, 0xFF16181D, 0x38FFFFFF, 0xFFF2F4F8, 0xFF9CA4B3, 0xFF5C6372, 0xFF7FE3FF, 0xFF06080B,
+                    0xFFFF6B5A, 0xFFD9DEE7, 0x1FFFFFFF, 0xFFFFC14D},
     };
     /** Pengali R, G, B ikon aplikasi yang dibuat monokrom di home (warna asli muncul saat ditekan). */
-    private static final float[][] ICON_TINT = {{1f, .94f, .82f}, {.84f, 1f, .9f}, {.6f, .55f, .46f}}; // terang: lebih gelap, supaya ikon putih tetap terlihat
+    private static final float[][] ICON_TINT = {{1f, .94f, .82f}, {.84f, 1f, .9f}, {.6f, .55f, .46f}, null}; // terang: lebih gelap, supaya ikon putih tetap terlihat; kilap: warna asli
 
     static int current = -1;
     /** Naik setiap tema berganti; aktivitas menyimpan nilai saat dibangun untuk {@link #stale}. */
@@ -39,6 +52,9 @@ final class Theme {
     private Theme() { }
 
     static boolean light() { return current == 2; }
+
+    /** Tema kilap: panel kaca bersudut bulat di atas latar gradasi, bukan kotak datar. */
+    static boolean gloss() { return current == 3; }
 
     static int saved(Context c) {
         int t = prefs(c).getInt("theme", 0);
@@ -58,7 +74,7 @@ final class Theme {
         set(saved(a));
         a.setTheme(light() ? R.style.KlikDash_Light : R.style.KlikDash);
         Window w = a.getWindow();
-        w.setBackgroundDrawable(new ColorDrawable(HomeActivity.BG));
+        w.setBackgroundDrawable(gloss() ? backdrop() : new ColorDrawable(HomeActivity.BG));
         w.setStatusBarColor(HomeActivity.BG);
         w.setNavigationBarColor(HomeActivity.BG);
         int f = w.getDecorView().getSystemUiVisibility() & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
@@ -78,9 +94,10 @@ final class Theme {
         return true;
     }
 
-    /** Ikon aplikasi monokrom dalam warna tema. */
+    /** Ikon aplikasi monokrom dalam warna tema; null = warna asli (tema kilap). */
     static ColorMatrixColorFilter iconFilter() {
         float[] t = ICON_TINT[Math.max(0, current)];
+        if (t == null) return null;
         ColorMatrix cm = new ColorMatrix();
         cm.setSaturation(0f);
         cm.postConcat(new ColorMatrix(new float[]{
@@ -89,6 +106,111 @@ final class Theme {
                 0, 0, t[2], 0, 0,
                 0, 0, 0, 1f, 0}));
         return new ColorMatrixColorFilter(cm);
+    }
+
+    // ---------------------------------------------------------------- panel
+
+    private static final float DP = Resources.getSystem().getDisplayMetrics().density;
+    /** Gradasi latar tema kilap, dari kiri atas (= BG, menyatu dengan status bar) ke kanan bawah: hitam, tidak silau. */
+    private static final int[] BACKDROP = {0xFF07080B, 0xFF14171D, 0xFF06070A};
+    // Hanya dipakai di thread UI saat menggambar.
+    private static final RectF BOX = new RectF();
+    private static final Path CLIP = new Path();
+    private static final Paint SHEEN = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+    static Drawable backdrop() {
+        return new GradientDrawable(GradientDrawable.Orientation.TL_BR, BACKDROP);
+    }
+
+    /** Latar layar penuh (root, laci aplikasi): BG, atau gradasi di tema kilap. */
+    static void fill(View v) {
+        if (gloss()) v.setBackground(backdrop());
+        else v.setBackgroundColor(HomeActivity.BG);
+    }
+
+    /** Sudut bulat GradientDrawable (kartu, dialog, kolom isian): 0 di tema datar. */
+    static float corner(float dp) { return gloss() ? 14 * dp : 0; }
+
+    private static float radius(int w, int h) { return Math.min(14 * DP, Math.min(w, h) / 4f); }
+
+    /**
+     * Latar tombol/ubin seukuran view. Tema datar: kotak {@code color}, bergaris LINE bila {@code outline}. Tema kilap:
+     * kotak bulat dengan pantulan putih di separuh atas; panel biasa (PANEL/BG) jadi kaca bening yang menampakkan
+     * latar di belakangnya, warna lain (aksen, ditekan) jadi tombol pekat yang mengilap. {@code fill} dan
+     * {@code stroke} milik view (stroke bergaya STROKE); shader dan warna garisnya dikembalikan setelahnya.
+     */
+    static void panel(Canvas c, Paint fill, Paint stroke, int w, int h, int color, boolean outline) {
+        if (!gloss()) {
+            fill.setColor(color);
+            c.drawRect(0, 0, w, h, fill);
+            if (outline) {
+                float s = stroke.getStrokeWidth() / 2f;
+                c.drawRect(s, s, w - s, h - s, stroke);
+            }
+            return;
+        }
+        boolean glass = color == HomeActivity.PANEL || color == HomeActivity.BG;
+        float r = radius(w, h);
+        BOX.set(0, 0, w, h);
+        fill.setAntiAlias(true);
+        fill.setShader(glass
+                ? new LinearGradient(0, 0, w * .35f, h, 0x26FFFFFF, 0x0AFFFFFF, Shader.TileMode.CLAMP)
+                : new LinearGradient(0, 0, 0, h, mix(color, 0xFFFFFFFF, .3f), mix(color, 0xFF000000, .1f),
+                        Shader.TileMode.CLAMP));
+        c.drawRoundRect(BOX, r, r, fill);
+        fill.setShader(null);
+        SHEEN.setShader(new LinearGradient(0, 0, 0, h / 2f, glass ? 0x24FFFFFF : 0x73FFFFFF, 0x00FFFFFF,
+                Shader.TileMode.CLAMP));
+        c.save();
+        c.clipRect(0, 0, w, h / 2f);
+        c.drawRoundRect(BOX, r, r, SHEEN);
+        c.restore();
+        int was = stroke.getColor();
+        float s = stroke.getStrokeWidth() / 2f;
+        stroke.setColor(glass ? 0x40FFFFFF : mix(color, 0xFFFFFFFF, .45f));
+        BOX.set(s, s, w - s, h - s);
+        c.drawRoundRect(BOX, r - s, r - s, stroke);
+        stroke.setColor(was);
+    }
+
+    /** Bingkai tebal (ubin tujuan saat diseret), mengikuti bentuk {@link #panel}. */
+    static void ring(Canvas c, Paint fill, int w, int h, int color, int t) {
+        fill.setColor(color);
+        if (!gloss()) {
+            c.drawRect(0, 0, w, t, fill);
+            c.drawRect(0, h - t, w, h, fill);
+            c.drawRect(0, 0, t, h, fill);
+            c.drawRect(w - t, 0, w, h, fill);
+            return;
+        }
+        Paint.Style was = fill.getStyle();
+        float r = radius(w, h);
+        fill.setAntiAlias(true);
+        fill.setStyle(Paint.Style.STROKE);
+        fill.setStrokeWidth(t);
+        BOX.set(t / 2f, t / 2f, w - t / 2f, h - t / 2f);
+        c.drawRoundRect(BOX, r - t / 2f, r - t / 2f, fill);
+        fill.setStyle(was);
+    }
+
+    /** Potong gambar berikutnya ke bentuk {@link #panel} (mis. pita progres); pasangkan dengan c.restore(). */
+    static void clip(Canvas c, int w, int h) {
+        c.save();
+        if (!gloss()) return;
+        float r = radius(w, h);
+        CLIP.rewind();
+        CLIP.addRoundRect(0, 0, w, h, r, r, Path.Direction.CW);
+        c.clipPath(CLIP);
+    }
+
+    /** Campur dua warna ARGB; f = 0 → a, f = 1 → b. */
+    static int mix(int a, int b, float f) {
+        int r = 0;
+        for (int sh = 0; sh < 32; sh += 8) {
+            int x = a >>> sh & 0xFF, y = b >>> sh & 0xFF;
+            r |= Math.round(x + (y - x) * f) << sh;
+        }
+        return r;
     }
 
     private static void set(int t) {

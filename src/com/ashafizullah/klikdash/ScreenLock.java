@@ -142,6 +142,7 @@ final class ScreenLock {
             GradientDrawable bg = new GradientDrawable();
             bg.setColor(PANEL);
             bg.setStroke(Math.round(dp), LINE);
+            bg.setCornerRadius(Theme.corner(dp));
             card.setBackground(bg);
             int pad = px(28);
             card.setPadding(pad, px(22), pad, px(22));

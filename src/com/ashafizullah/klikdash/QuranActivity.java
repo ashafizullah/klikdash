@@ -85,7 +85,7 @@ public class QuranActivity extends Activity {
         fSerif = font("serif.ttf", null);
 
         FrameLayout root = new FrameLayout(this);
-        root.setBackgroundColor(BG);
+        Theme.fill(root);
         root.setFitsSystemWindows(true);
         root.addView(buildUi(), MATCH, MATCH);
         root.addView(buildOverlay(), MATCH, MATCH);
@@ -104,7 +104,7 @@ public class QuranActivity extends Activity {
         overlay = new LinearLayout(this);
         overlay.setOrientation(LinearLayout.VERTICAL);
         overlay.setGravity(Gravity.CENTER);
-        overlay.setBackgroundColor(BG);
+        Theme.fill(overlay);
         overlay.setClickable(true);
         loading = text("", fMonoBold, 14, AMBER);
         loading.setLetterSpacing(0.3f);
@@ -934,13 +934,8 @@ public class QuranActivity extends Activity {
         @Override protected void onDraw(Canvas c) {
             int w = getWidth(), h = getHeight();
             boolean lit = down || on;
-            fill.setColor(down ? TEXT : on ? AMBER : PANEL);
-            c.drawRect(0, 0, w, h, fill);
-            if (!lit) {
-                stroke.setColor(LINE);
-                float s = stroke.getStrokeWidth() / 2f;
-                c.drawRect(s, s, w - s, h - s, stroke);
-            }
+            stroke.setColor(LINE);
+            Theme.panel(c, fill, stroke, w, h, down ? TEXT : on ? AMBER : PANEL, !lit);
             p.setColor(lit ? INK : DIM);
             Paint.FontMetrics fm = p.getFontMetrics();
             c.drawText(label, w / 2f, h / 2f - (fm.ascent + fm.descent) / 2f, p);
@@ -977,12 +972,7 @@ public class QuranActivity extends Activity {
         @Override protected void onDraw(Canvas c) {
             int w = getWidth(), h = getHeight();
             boolean main = kind == PLAY;
-            fill.setColor(down ? TEXT : main ? AMBER : BG);
-            c.drawRect(0, 0, w, h, fill);
-            if (!down && !main) {
-                float s = stroke.getStrokeWidth() / 2f;
-                c.drawRect(s, s, w - s, h - s, stroke);
-            }
+            Theme.panel(c, fill, stroke, w, h, down ? TEXT : main ? AMBER : BG, !down && !main);
             ink.setColor(down || main ? INK : TEXT);
             float cx = w / 2f, cy = h / 2f, r = px(main ? 13 : 10);
             path.rewind();

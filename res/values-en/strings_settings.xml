@@ -73,11 +73,13 @@
         <item>AMBER</item>
         <item>EMERALD</item>
         <item>DAY</item>
+        <item>GLOSSY</item>
     </string-array>
     <string-array name="theme_desc">
         <item>Warm black with an amber accent, the KlikDash default.</item>
         <item>Greenish black with an emerald green accent.</item>
         <item>Light cream background with dark text, easier to read in bright sunlight.</item>
+        <item>Clear glossy glass panels on black, with an ice-blue accent and full-color app icons.</item>
     </string-array>
 
     <string name="update_title_row">UPDATES</string>

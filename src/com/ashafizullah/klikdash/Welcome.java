@@ -102,6 +102,7 @@ final class Welcome {
         GradientDrawable bg = new GradientDrawable();
         bg.setColor(PANEL);
         bg.setStroke(Math.round(dp), LINE);
+        bg.setCornerRadius(Theme.corner(dp));
         card.setBackground(bg);
         int pad = Math.round(32 * dp);
         card.setPadding(pad, Math.round(28 * dp), pad, Math.round(24 * dp));

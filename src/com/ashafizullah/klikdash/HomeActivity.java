@@ -1250,7 +1250,7 @@ public class HomeActivity extends Activity {
     LinearLayout buildDrawer() {
         LinearLayout d = new LinearLayout(this);
         d.setOrientation(LinearLayout.VERTICAL);
-        d.setBackgroundColor(BG);
+        Theme.fill(d);
         int pad = px(24);
         d.setPadding(pad, pad, pad, 0);
 
@@ -1285,6 +1285,7 @@ public class HomeActivity extends Activity {
         android.graphics.drawable.GradientDrawable sbg = new android.graphics.drawable.GradientDrawable();
         sbg.setColor(PANEL);
         sbg.setStroke(px(1), LINE);
+        sbg.setCornerRadius(Theme.corner(dp));
         search.setBackground(sbg);
         search.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         // Layar mendatar: tanpa layar ketik penuh, supaya hasil saringan tetap terlihat di atas keyboard.
@@ -1467,13 +1468,7 @@ public class HomeActivity extends Activity {
         }
 
         void drawFrame(Canvas c) {
-            int w = getWidth(), h = getHeight();
-            fill.setColor(down ? AMBER : PANEL);
-            c.drawRect(0, 0, w, h, fill);
-            if (!down) {
-                float s = stroke.getStrokeWidth() / 2f;
-                c.drawRect(s, s, w - s, h - s, stroke);
-            }
+            Theme.panel(c, fill, stroke, getWidth(), getHeight(), down ? AMBER : PANEL, !down);
         }
     }
 
@@ -1549,14 +1544,7 @@ public class HomeActivity extends Activity {
                 fill.setColor(0xD9000000 | BG & 0xFFFFFF);
                 c.drawRect(0, 0, w, h, fill);
             }
-            if (target) {
-                fill.setColor(AMBER);
-                int t = px(3);
-                c.drawRect(0, 0, w, t, fill);
-                c.drawRect(0, h - t, w, h, fill);
-                c.drawRect(0, 0, t, h, fill);
-                c.drawRect(w - t, 0, w, h, fill);
-            }
+            if (target) Theme.ring(c, fill, w, h, AMBER, px(3));
         }
 
         @Override protected void onDraw(Canvas c) {
@@ -1646,12 +1634,8 @@ public class HomeActivity extends Activity {
         }
 
         @Override protected void onDraw(Canvas c) {
-            if (accent) {
-                fill.setColor(down ? TEXT : AMBER);
-                c.drawRect(0, 0, getWidth(), getHeight(), fill);
-            } else {
-                drawFrame(c);
-            }
+            if (accent) Theme.panel(c, fill, stroke, getWidth(), getHeight(), down ? TEXT : AMBER, false);
+            else drawFrame(c);
             p.setColor(down || accent ? INK : TEXT);
             Paint.FontMetrics fm = p.getFontMetrics();
             c.drawText(caption, getWidth() / 2f, getHeight() / 2f - (fm.ascent + fm.descent) / 2f, p);

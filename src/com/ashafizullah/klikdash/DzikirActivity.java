@@ -262,7 +262,7 @@ public class DzikirActivity extends Activity {
         measureScreen();
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(portrait ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
-        row.setBackgroundColor(BG);
+        Theme.fill(row);
         row.setFitsSystemWindows(true);
 
         // Kiri: judul, pilihan pagi/petang, daftar bacaan
@@ -436,12 +436,7 @@ public class DzikirActivity extends Activity {
         @Override protected void onDraw(Canvas c) {
             int w = getWidth(), h = getHeight();
             boolean lit = down || on;
-            fill.setColor(down ? TEXT : on ? AMBER : BG);
-            c.drawRect(0, 0, w, h, fill);
-            if (!lit) {
-                float s = stroke.getStrokeWidth() / 2f;
-                c.drawRect(s, s, w - s, h - s, stroke);
-            }
+            Theme.panel(c, fill, stroke, w, h, down ? TEXT : on ? AMBER : BG, !lit);
             p.setColor(lit ? INK : TEXT);
             Paint.FontMetrics fm = p.getFontMetrics();
             c.drawText(label, w / 2f, h / 2f - (fm.ascent + fm.descent) / 2f, p);
@@ -451,13 +446,16 @@ public class DzikirActivity extends Activity {
     /** Tombol hitung besar: "2 / 3" dan petunjuk, dengan pita progres di bawah; terang saat ditekan. */
     class Counter extends View {
         boolean down;
-        final Paint fill = new Paint(), big = new Paint(Paint.ANTI_ALIAS_FLAG), small = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final Paint fill = new Paint(), stroke = new Paint(Paint.ANTI_ALIAS_FLAG), big = new Paint(Paint.ANTI_ALIAS_FLAG),
+                small = new Paint(Paint.ANTI_ALIAS_FLAG);
         final String sDone = getString(R.string.dzikir_done), sFinished = getString(R.string.dzikir_hint_finished),
                 sFull = getString(R.string.dzikir_hint_full), sCount = getString(R.string.dzikir_hint_count),
                 sShortFull = getString(R.string.dzikir_short_full), sShortCount = getString(R.string.dzikir_short_count);
 
         Counter() {
             super(DzikirActivity.this);
+            stroke.setStyle(Paint.Style.STROKE);
+            stroke.setStrokeWidth(px(1));
             big.setTypeface(fHeavy);
             big.setTextSize(sp(34));
             big.setTextAlign(Paint.Align.CENTER);
@@ -479,11 +477,12 @@ public class DzikirActivity extends Activity {
             int w = getWidth(), h = getHeight();
             Item it = items.get(cur);
             boolean finished = allDone(), full = done(cur);
-            fill.setColor(down ? TEXT : AMBER);
-            c.drawRect(0, 0, w, h, fill);
+            Theme.panel(c, fill, stroke, w, h, down ? TEXT : AMBER, false);
             // Progres bacaan ini sebagai pita gelap di bawah tombol.
             fill.setColor(0x33000000);
+            Theme.clip(c, w, h);
             c.drawRect(0, h - px(6), w * Math.min(1f, counts[cur] / (float) it.count), h, fill);
+            c.restore();
             big.setColor(INK);
             small.setColor(INK);
             String n = finished ? sDone : Math.min(counts[cur], it.count) + " / " + it.count;

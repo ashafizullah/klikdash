@@ -58,12 +58,7 @@ final class Key extends View {
 
     @Override protected void onDraw(Canvas c) {
         int w = getWidth(), h = getHeight();
-        fill.setColor(down ? TEXT : on ? AMBER : PANEL);
-        c.drawRect(0, 0, w, h, fill);
-        if (!down && !on) {
-            float s = stroke.getStrokeWidth() / 2f;
-            c.drawRect(s, s, w - s, h - s, stroke);
-        }
+        Theme.panel(c, fill, stroke, w, h, down ? TEXT : on ? AMBER : PANEL, !down && !on);
         p.setColor(down || on ? INK : TEXT);
         p.setAlpha(isEnabled() ? 255 : 110);
         Paint.FontMetrics fm = p.getFontMetrics();

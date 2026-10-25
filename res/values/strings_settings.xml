@@ -74,11 +74,13 @@
         <item>AMBER</item>
         <item>ZAMRUD</item>
         <item>SIANG</item>
+        <item>KILAP</item>
     </string-array>
     <string-array name="theme_desc">
         <item>Hitam hangat dengan aksen amber, bawaan KlikDash.</item>
         <item>Hitam kehijauan dengan aksen hijau zamrud.</item>
         <item>Latar krem terang dengan teks gelap, lebih terbaca di bawah terik matahari.</item>
+        <item>Panel kaca bening yang mengilap di atas latar hitam, aksen biru es, dan ikon aplikasi berwarna asli.</item>
     </string-array>
 
     <string name="update_title_row">PEMBARUAN</string>
