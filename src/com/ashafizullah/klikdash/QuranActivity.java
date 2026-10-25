@@ -393,7 +393,8 @@ public class QuranActivity extends Activity {
         ayahList = list();
         ayahAdapter = new AyahAdapter();
         ayahList.setAdapter(ayahAdapter);
-        ayahList.setOnItemClickListener((p, v, pos, id) -> QuranService.play(this, surah, ayahAt(pos)));
+        // Baris basmalah: mulai dari basmalah; baris ayat 1: langsung ayat 1 (juga saat basmalah sedang diputar).
+        ayahList.setOnItemClickListener((p, v, pos, id) -> QuranService.play(this, surah, ayahAt(pos), pos < offset()));
         right.addView(ayahList, new LinearLayout.LayoutParams(MATCH, 0, 1f));
 
         right.addView(buildPlayer(), new LinearLayout.LayoutParams(MATCH, px(92)));

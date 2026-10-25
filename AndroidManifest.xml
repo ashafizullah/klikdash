@@ -90,7 +90,7 @@
             </intent-filter>
         </activity>
 
-        <!-- KlikBeam (BETA): mirror layar iPhone lewat WiFi. Dibuka dari Pengaturan › Launcher › KLIKBEAM, tidak
+        <!-- KlikBeam (BETA): mirror layar iPhone lewat WiFi. Dibuka dari Pengaturan › KLIKBEAM, tidak
              tampil di daftar aplikasi selama aplikasi iOS-nya belum tersedia. -->
         <activity
             android:name=".BeamActivity"

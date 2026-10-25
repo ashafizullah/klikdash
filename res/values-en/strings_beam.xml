@@ -10,7 +10,7 @@
     <string name="beam_error">SERVER FAILED: %1$s</string>
     <string name="beam_decoder_error">Video decoder failed: %1$s</string>
     <string name="beam_beta">BETA</string>
-    <string name="beam_receiver_hint">Open KlikBeam on your Android phone, pick this headunit, then enter pairing code %1$s. How to connect is in Settings › Launcher › KLIKBEAM.</string>
+    <string name="beam_receiver_hint">Open KlikBeam on your Android phone, pick this headunit, then enter pairing code %1$s. How to connect is in Settings › KLIKBEAM.</string>
     <string name="settings_beam_title">KLIKBEAM · BETA</string>
     <string name="settings_beam_desc">Mirror your phone screen to the headunit over WiFi. Install the KlikBeam app on your phone: Android from the Play Store (closed test, join via groups.google.com/g/klikbeam-testers); iPhone coming soon.\n\nHow to connect: join the headunit to your phone\'s hotspot, tap OPEN RECEIVER, then in KlikBeam pick this headunit and enter pairing code %1$s. If the headunit does not show up, type the address: %2$s.\n\nNote: mirroring works the phone hard (screen recording, video encoding, WiFi), so it can get hot and drain the battery quickly, especially in a car parked in the sun. Keep it charging, place it where the AC reaches it, and stop the broadcast if the phone feels hot.</string>
     <string name="settings_beam_new_code">NEW CODE</string>

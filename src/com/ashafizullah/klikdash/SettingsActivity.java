@@ -34,15 +34,15 @@ import static com.ashafizullah.klikdash.HomeActivity.PANEL;
 import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 
 /**
- * Pengaturan KlikDash dalam tab: Launcher (tampilan utama, Hijriah, ubin), Hemat Daya, dan Asisten AI.
+ * Pengaturan KlikDash dalam tab: Launcher (tampilan utama, Hijriah, ubin), Hemat Daya, Asisten AI, dan KlikBeam.
  * Tab di kiri pada layar mendatar, di atas pada layar tegak.
  */
 public class SettingsActivity extends Activity {
 
     static final int MATCH = ViewGroup.LayoutParams.MATCH_PARENT, WRAP = ViewGroup.LayoutParams.WRAP_CONTENT;
     static final String EXTRA_TAB = "tab";
-    static final int TAB_LAUNCHER = 0, TAB_POWER = 1, TAB_AI = 2;
-    static final int TAB_COUNT = 3;
+    static final int TAB_LAUNCHER = 0, TAB_POWER = 1, TAB_AI = 2, TAB_BEAM = 3;
+    static final int TAB_COUNT = 4;
 
     float dp, sp, wDp, hDp, railDp;
     boolean portrait, narrow;
@@ -171,6 +171,8 @@ public class SettingsActivity extends Activity {
         } else if (tab == TAB_AI) {
             ai = new AiPanel(this);
             v = ai.view;
+        } else if (tab == TAB_BEAM) {
+            v = beamPanel();
         } else {
             v = launcherPanel();
         }
@@ -283,17 +285,6 @@ public class SettingsActivity extends Activity {
                         startActivity(new Intent(Settings.ACTION_SETTINGS));
                     } catch (Exception ignored) { }
                 })));
-
-        // KlikBeam (BETA): cara menyambung, kode pairing, dan alamat; penerimanya BeamActivity.
-        String beamAddr = BeamActivity.addressText();
-        list.addView(row(getString(R.string.settings_beam_title), getString(R.string.settings_beam_desc,
-                        BeamActivity.codeText(this), beamAddr != null ? beamAddr : getString(R.string.beam_no_network)),
-                key(getString(R.string.settings_beam_new_code), false, () -> {
-                    BeamActivity.newCode(this);
-                    rebuildKeepScroll();
-                }),
-                key(getString(R.string.settings_beam_open), false,
-                        () -> startActivity(new Intent(this, BeamActivity.class)))));
 
         String ver = Updater.installedVersion(this);
         long checked = prefs.getLong("updateChecked", 0);
@@ -599,6 +590,23 @@ public class SettingsActivity extends Activity {
     void pinRemoved() {
         rebuildKeepScroll();
         Notice.ok(this, getString(R.string.settings_lock_removed));
+    }
+
+    // ---------------------------------------------------------------- tab KlikBeam
+
+    /** KlikBeam (BETA): cara menyambung, kode pairing, dan alamat; penerimanya BeamActivity. */
+    View beamPanel() {
+        LinearLayout list = column();
+        String beamAddr = BeamActivity.addressText();
+        list.addView(row(getString(R.string.settings_beam_title), getString(R.string.settings_beam_desc,
+                        BeamActivity.codeText(this), beamAddr != null ? beamAddr : getString(R.string.beam_no_network)),
+                key(getString(R.string.settings_beam_new_code), false, () -> {
+                    BeamActivity.newCode(this);
+                    show(TAB_BEAM, true);
+                }),
+                key(getString(R.string.settings_beam_open), false,
+                        () -> startActivity(new Intent(this, BeamActivity.class)))));
+        return scroll(list);
     }
 
     /** Bangun ulang tab Launcher tanpa melompat ke atas (baris kunci layar ada di bawah). */

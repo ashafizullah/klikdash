@@ -6,11 +6,13 @@
         <item>LAUNCHER</item>
         <item>POWER SAVER</item>
         <item>AI ASSISTANT</item>
+        <item>KLIKBEAM</item>
     </string-array>
     <string-array name="settings_tab_captions">
         <item>DISPLAY &amp; SHORTCUTS</item>
         <item>BACKGROUND APPS</item>
         <item>PROFILES &amp; VOICE</item>
+        <item>PHONE MIRROR · BETA</item>
     </string-array>
 
     <string name="settings_on">ON</string>

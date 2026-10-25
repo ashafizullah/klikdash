@@ -94,9 +94,12 @@ public class QuranService extends Service
         Compat.startForegroundService(c, new Intent(c, QuranService.class).setAction(action));
     }
 
-    static void play(Context c, int s, int a) {
+    static void play(Context c, int s, int a) { play(c, s, a, true); }
+
+    /** {@code withBismillah} false: ayat 1 langsung, tanpa basmalah (ayat 1 diketuk di daftar ayat). */
+    static void play(Context c, int s, int a, boolean withBismillah) {
         Compat.startForegroundService(c, new Intent(c, QuranService.class).setAction(ACTION_PLAY)
-                .putExtra("s", s).putExtra("a", a));
+                .putExtra("s", s).putExtra("a", a).putExtra("b", withBismillah));
     }
 
     static void loadState(Context c) {
@@ -212,7 +215,7 @@ public class QuranService extends Service
             android.util.Log.i("KlikDashQuran", "DBG reset oleh " + a);
         }
         if (ACTION_PLAY.equals(a)) {
-            start(i.getIntExtra("s", surah), i.getIntExtra("a", 1), true);
+            start(i.getIntExtra("s", surah), i.getIntExtra("a", 1), i.getBooleanExtra("b", true));
         } else if (ACTION_TOGGLE.equals(a)) {
             if (playing || resumeOnGain) userPause(); else resume();
         } else if (ACTION_PAUSE.equals(a)) {
