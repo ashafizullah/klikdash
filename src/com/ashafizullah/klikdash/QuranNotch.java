@@ -33,7 +33,7 @@ final class QuranNotch extends LinearLayout {
         setGravity(Gravity.CENTER_VERTICAL);
         float r = 18 * dp;
         GradientDrawable bg = new GradientDrawable();
-        bg.setColor(HomeActivity.AMBER); // aksen + teks INK: kontras di semua tema, dan terlihat di atas latar home
+        Theme.tint(bg, HomeActivity.AMBER); // aksen + teks INK: kontras di semua tema, dan terlihat di atas latar home
         bg.setCornerRadii(new float[]{0, 0, 0, 0, r, r, r, r});
         setBackground(bg);
         setPadding(Math.round(22 * dp), 0, Math.round(8 * dp), 0);

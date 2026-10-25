@@ -173,6 +173,32 @@ final class Theme {
         stroke.setColor(was);
     }
 
+    /** Latar kartu kaca seukuran view (panel jam di home), digambar seperti {@link #panel} dengan PANEL. */
+    static Drawable card() {
+        return new Drawable() {
+            final Paint fill = new Paint(), stroke = new Paint(Paint.ANTI_ALIAS_FLAG);
+            { stroke.setStyle(Paint.Style.STROKE); stroke.setStrokeWidth(Math.round(DP)); }
+
+            @Override public void draw(Canvas c) {
+                android.graphics.Rect b = getBounds();
+                c.save();
+                c.translate(b.left, b.top);
+                panel(c, fill, stroke, b.width(), b.height(), HomeActivity.PANEL, true);
+                c.restore();
+            }
+
+            @Override public void setAlpha(int a) { }
+            @Override public void setColorFilter(android.graphics.ColorFilter f) { }
+            @Override public int getOpacity() { return android.graphics.PixelFormat.TRANSLUCENT; }
+        };
+    }
+
+    /** Isi GradientDrawable berwarna pekat (notch, strip): di tema kilap bergradasi mengilap dari atas. */
+    static void tint(GradientDrawable g, int color) {
+        if (gloss()) g.setColors(new int[]{mix(color, 0xFFFFFFFF, .3f), mix(color, 0xFF000000, .1f)});
+        else g.setColor(color);
+    }
+
     /** Bingkai tebal (ubin tujuan saat diseret), mengikuti bentuk {@link #panel}. */
     static void ring(Canvas c, Paint fill, int w, int h, int color, int t) {
         fill.setColor(color);

@@ -671,10 +671,13 @@ public class SettingsActivity extends Activity {
     class Tab extends View {
         final String name, caption;
         boolean down;
-        final Paint bar = new Paint(), n = new Paint(Paint.ANTI_ALIAS_FLAG), cp = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final Paint bar = new Paint(), n = new Paint(Paint.ANTI_ALIAS_FLAG), cp = new Paint(Paint.ANTI_ALIAS_FLAG),
+                fill = new Paint(), stroke = new Paint(Paint.ANTI_ALIAS_FLAG);
 
         Tab(String name, String caption, Runnable click) {
             super(SettingsActivity.this);
+            stroke.setStyle(Paint.Style.STROKE);
+            stroke.setStrokeWidth(px(1));
             this.name = name;
             this.caption = caption;
             setContentDescription(name);
@@ -702,7 +705,9 @@ public class SettingsActivity extends Activity {
         @Override protected void onDraw(Canvas c) {
             int w = getWidth(), h = getHeight();
             boolean sel = isSelected();
-            if (down) {
+            if (Theme.gloss() && (sel || down)) {
+                Theme.panel(c, fill, stroke, w, h, PANEL, true); // tab terpilih: kartu kaca
+            } else if (down) {
                 bar.setColor(PANEL);
                 c.drawRect(0, 0, w, h, bar);
             }

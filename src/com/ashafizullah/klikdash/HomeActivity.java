@@ -592,10 +592,22 @@ public class HomeActivity extends Activity {
     }
 
     /** Di thread latar: isDefault menjalankan getprop (proses baru), terlalu lambat untuk onResume di headunit. */
+    /** Hasil terakhir {@link HomeSwitch#isDefault} di proses ini; null = belum dicek. */
+    static volatile Boolean knownDefault;
+    /** buildHome menyisakan tempat untuk tombol JADIKAN TAMPILAN UTAMA. */
+    boolean reservedDefault;
+
     void refreshDefaultHome() {
         new Thread(() -> {
             boolean def = HomeSwitch.isDefault(this);
-            runOnUiThread(() -> makeDefault.setVisibility(def ? View.GONE : View.VISIBLE));
+            knownDefault = def;
+            runOnUiThread(() -> {
+                if (isFinishing()) return;
+                // Tombolnya muncul padahal tempatnya belum disisakan: bangun ulang, supaya jadwal sholat dan penggaris
+                // 24 jam tidak terdesak keluar layar. Sebaliknya (tombol hilang) cukup disembunyikan.
+                if (!def && !reservedDefault) { recreate(); return; }
+                makeDefault.setVisibility(def ? View.GONE : View.VISIBLE);
+            });
         }, "home-default").start();
     }
 
@@ -1145,21 +1157,25 @@ public class HomeActivity extends Activity {
         // tinggi panel sesudah baris atas, tanggal, jadwal sholat, dan penggaris.
         Paint.FontMetrics fmc = pm.getFontMetrics();
         float clockLine = (fmc.descent - fmc.ascent) / 100 / dp; // tinggi baris jam, dp per sp
-        float spDp = sp / dp, availH = portrait ? panelH - 24 : screenH - 48;
+        // Tema kilap: panel jam jadi kartu kaca dengan jarak dalam `inset` di tiap sisi; jarak ke ubin menyempit.
+        int inset = Theme.gloss() ? 16 : 0, sep = Theme.gloss() ? 13 : 57;
+        float spDp = sp / dp, availH = (portrait ? panelH - 24 : screenH - 48) - 2 * inset;
+        // Tombol JADIKAN TAMPILAN UTAMA (48 + jarak 14) ikut dihitung bila tampil; lihat refreshDefaultHome.
+        reservedDefault = knownDefault != null && !knownDefault;
         float fixed = 48 + 14 * spDp + 42 + 1.3f * (18 + (panelH < 560 ? 28 : 36) + 13) * k * spDp + 14 + 104 * k
-                + (shortPanel ? 0 : 74);
+                + (shortPanel ? 0 : 74) + (reservedDefault ? 62 : 0);
         float clockFit = (availH - fixed - 8) / clockLine;
 
         // Landscape: panel jam di kiri, 34% lebar; dengan ubin lebih sedikit selebar yang dibutuhkan jam (sampai 55%).
         // Portrait: panel jam di atas, ubin di bawah.
         float leftDp = portrait ? wDp - 48 : big == 0 ? Math.max(260, Math.min(480, wDp * 0.34f))
                 : Math.max(260, Math.min(wDp * 0.55f,
-                        Math.max(wDp * 0.34f, Math.min(150 + 40 * big, clockFit) * per100 / 100 + 64)));
-        float clockSp = Math.min(150 + 40 * big, (leftDp - 24) / per100 * 100);
+                        Math.max(wDp * 0.34f, Math.min(150 + 40 * big, clockFit) * per100 / 100 + 64 + 2 * inset)));
+        float clockSp = Math.min(150 + 40 * big, (leftDp - 24 - 2 * inset) / per100 * 100);
         if (big == 0) clockSp = Math.min(clockSp, panelH * 0.21f);
         clockSp = Math.max(56, Math.min(clockSp, clockFit));
 
-        float gridW = portrait ? wDp - 48 : wDp - 48 - leftDp - 57;
+        float gridW = portrait ? wDp - 48 : wDp - 48 - leftDp - sep;
         cols = n == 4 ? 2 : n == 12 && !portrait && gridW >= 600 ? 4 : 3;
         if (n == 6) { // 3×2 atau 2×3: mana yang ubinnya paling mendekati persegi
             float gridH = portrait ? screenH - panelH - 41 : screenH - 48;
@@ -1172,10 +1188,14 @@ public class HomeActivity extends Activity {
         row.setOrientation(portrait ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
         int pad = px(24);
         row.setPadding(pad, pad, pad, pad);
-        row.setBackground(new CropMarks());
+        if (!Theme.gloss()) row.setBackground(new CropMarks());
 
         LinearLayout left = new LinearLayout(this);
         left.setOrientation(LinearLayout.VERTICAL);
+        if (inset > 0) {
+            left.setBackground(Theme.card());
+            left.setPadding(px(inset), px(inset), px(inset), px(inset));
+        }
 
         LinearLayout top = new LinearLayout(this);
         top.setOrientation(LinearLayout.HORIZONTAL);
@@ -1285,8 +1305,10 @@ public class HomeActivity extends Activity {
         div.setBackgroundColor(LINE);
         LinearLayout.LayoutParams vl = portrait ? new LinearLayout.LayoutParams(MATCH, px(1))
                 : new LinearLayout.LayoutParams(px(1), MATCH);
-        if (portrait) { vl.topMargin = px(20); vl.bottomMargin = px(20); }
-        else { vl.leftMargin = px(28); vl.rightMargin = px(28); }
+        int half = (sep - 1) / 2; // garis 1dp di tengah jarak panel jam dan ubin
+        if (portrait) { vl.topMargin = px(Theme.gloss() ? 6 : 20); vl.bottomMargin = vl.topMargin; }
+        else { vl.leftMargin = px(half); vl.rightMargin = px(sep - 1 - half); }
+        if (Theme.gloss()) div.setVisibility(View.INVISIBLE); // tepi kartu kaca sudah memisahkan
         row.addView(div, vl);
 
         LinearLayout g = new LinearLayout(this);

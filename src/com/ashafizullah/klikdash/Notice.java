@@ -110,11 +110,17 @@ final class Notice {
         GradientDrawable bg = new GradientDrawable();
         bg.setColor(PANEL);
         bg.setStroke(Math.round(dp), LINE);
+        float r = Theme.corner(dp);
+        bg.setCornerRadius(r);
         box.setBackground(bg);
         box.setPadding(Math.round(dp), Math.round(dp), Math.round(dp), Math.round(dp));
 
         View strip = new View(c);
-        strip.setBackgroundColor(color);
+        GradientDrawable sb = new GradientDrawable(); // sudut kiri mengikuti kotaknya (tema kilap)
+        sb.setColor(color);
+        float sr = Math.max(0, r - dp);
+        sb.setCornerRadii(new float[]{sr, sr, 0, 0, 0, 0, sr, sr});
+        strip.setBackground(sb);
         box.addView(strip, new LinearLayout.LayoutParams(Math.round(4 * dp), ViewGroup.LayoutParams.MATCH_PARENT));
 
         LinearLayout col = new LinearLayout(c);
