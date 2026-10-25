@@ -48,8 +48,8 @@ import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 
 /**
  * Dzikir pagi & petang dengan penghitung berpanduan. Data dari assets/dzikir.json, dibangun dari KlikBand
- * (tools/build_dzikir.mjs): urutan & jumlah dari Almanhaj, Latin mengikuti Hisnul Muslim, ayat dari Tanzil. Judul, arti,
- * dan catatan punya versi English (title_en, meaning_en, note_en) untuk antarmuka English.
+ * (tools/build_dzikir.mjs): urutan & jumlah dari Almanhaj, Latin mengikuti Hisnul Muslim, ayat dari Tanzil Quran Text
+ * (Simple Plain, Version 1.1). Judul, arti, dan catatan punya versi English (title_en, meaning_en, note_en) untuk antarmuka English.
  */
 public class DzikirActivity extends Activity {
 

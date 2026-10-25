@@ -184,8 +184,8 @@ KlikDash gratis. Kalau bermanfaat, **[traktir saya token AI di Trakteer](https:/
   *Astronomical Algorithms* karya Meeus.
 - **Dzikir** (`assets/dzikir.json`): dari [KlikBand](https://github.com/ashafizullah/klikband); urutan dan jumlah dari
   [Almanhaj](https://almanhaj.or.id/11518-dzikir-pagi-dan-petang.html), Latin mengikuti Hisnul Muslim, ayat
-  Al-Qur'an dari [Tanzil](https://tanzil.net) (© Tanzil Project, CC BY 3.0 dengan ketentuan Tanzil: hanya salinan apa
-  adanya, dengan kredit dan tautan). Bangun ulang dengan
+  Al-Qur'an dari [Tanzil](https://tanzil.net): Tanzil Quran Text (Simple Plain, Version 1.1), © Tanzil Project,
+  CC BY 3.0 dengan ketentuan Tanzil (hanya salinan apa adanya, dengan kredit dan tautan). Bangun ulang dengan
   `node tools/build_dzikir.mjs <klikband>/src/common/dhikrmorningevening.js assets/dzikir.json`.
 
 Proyek ini tidak berafiliasi dengan NWD, Zjinnova (Zlink), Apple, Google, Anthropic, OpenAI, ElevenLabs, TinyFish,

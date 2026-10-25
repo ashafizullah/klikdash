@@ -25,7 +25,7 @@ const pick = (period) => morningEveningDhikr(period).map((d) => {
   }
 })
 const data = {
-  source: 'KlikBand (github.com/ashafizullah/klikband): urutan & jumlah dari almanhaj.or.id/11518-dzikir-pagi-dan-petang.html, Latin mengikuti Hisnul Muslim, teks Al-Qur\'an Tanzil (CC BY 3.0, tanzil.net)',
+  source: 'KlikBand (github.com/ashafizullah/klikband): urutan & jumlah dari almanhaj.or.id/11518-dzikir-pagi-dan-petang.html, Latin mengikuti Hisnul Muslim, teks Al-Qur\'an Tanzil Quran Text (Simple Plain, Version 1.1) (CC BY 3.0, tanzil.net)',
   pagi: pick('morning'),
   petang: pick('evening'),
 }
