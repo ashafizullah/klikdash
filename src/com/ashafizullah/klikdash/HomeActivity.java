@@ -773,6 +773,7 @@ public class HomeActivity extends Activity {
         if (QuranActivity.class.getName().equals(activity)) return R.string.app_quran;
         if (DzikirActivity.class.getName().equals(activity)) return R.string.app_dzikir;
         if (AskActivity.class.getName().equals(activity)) return R.string.app_ask;
+        if (BeamActivity.class.getName().equals(activity)) return R.string.app_beam;
         if (SettingsActivity.class.getName().equals(activity)) return R.string.app_settings;
         return 0;
     }

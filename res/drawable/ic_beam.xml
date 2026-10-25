@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- iPhone amber dengan gelombang pancaran krem: ubin BEAM (mirror layar iPhone). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path android:fillColor="#FFFFB000"
+        android:pathData="M10,6h14a4,4 0 0 1 4,4v28a4,4 0 0 1 -4,4h-14a4,4 0 0 1 -4,-4v-28a4,4 0 0 1 4,-4zM10,11v24h14v-24z" />
+    <path android:strokeColor="#FFECE6D8" android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M33,18a8,8 0 0 1 0,12M38,13a15,15 0 0 1 0,22" />
+</vector>

@@ -4,7 +4,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <!-- adbd lokal (127.0.0.1:5555, lihat Tweaks.java), unduhan Al-Qur'an, dan asisten AI -->
+    <!-- adbd lokal (127.0.0.1:5555, lihat Tweaks.java), unduhan Al-Qur'an, asisten AI, dan server BEAM -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <!-- Ubin TANYA: perintah suara untuk asisten AI -->
@@ -82,6 +82,20 @@
             android:launchMode="singleTask"
             android:excludeFromRecents="true"
             android:screenOrientation="unspecified">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Ubin BEAM: mirror layar iPhone (aplikasi iOS KlikBeam) lewat WiFi -->
+        <activity
+            android:name=".BeamActivity"
+            android:label="@string/app_beam"
+            android:icon="@drawable/ic_beam"
+            android:taskAffinity="com.ashafizullah.klikdash.beam"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden|navigation|uiMode|density|locale|layoutDirection|fontScale">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

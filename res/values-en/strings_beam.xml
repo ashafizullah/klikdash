@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_beam">Beam</string>
+    <string name="beam_hint">Open KlikBeam on your iPhone, pick this headunit, then enter the code below.</string>
+    <string name="beam_code_label">PAIRING CODE</string>
+    <string name="beam_address_label">ADDRESS</string>
+    <string name="beam_no_network">No WiFi yet. Connect the headunit to your iPhone\'s hotspot.</string>
+    <string name="beam_waiting">WAITING FOR IPHONE</string>
+    <string name="beam_connected">CONNECTED · WAITING FOR VIDEO</string>
+    <string name="beam_rejected">WRONG CODE FROM %1$s</string>
+    <string name="beam_ended">BROADCAST STOPPED</string>
+    <string name="beam_error">SERVER FAILED: %1$s</string>
+    <string name="beam_decoder_error">Video decoder failed: %1$s</string>
+</resources>

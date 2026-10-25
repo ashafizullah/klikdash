@@ -26,6 +26,9 @@ klikdash/
 │   ├── AiTools.java          perintah mobil yang boleh dijalankan AI (buka aplikasi, navigasi, murattal, volume…)
 │   ├── AiStore.java          profil AI; API key dienkripsi dengan Android Keystore
 │   ├── AiVoice.java          suara: TTS & STT Android atau ElevenLabs (memilih mesin Android yang terpasang)
+│   ├── BeamActivity.java     ubin BEAM: penerima mirror layar iPhone (pengirimnya aplikasi iOS KlikBeam)
+│   ├── BeamServer.java       server TCP KlikBeam v1 + pendaftaran Bonjour/NSD
+│   ├── BeamDecoder.java      decoder H.264 hardware (MediaCodec) yang menggambar ke Surface
 │   └── Tweaks.java           perintah sistem lewat ADB lokal (ksmd, sembunyikan Zlink, launcher, appops)
 ├── res/                      tema, ikon vektor, sertifikat root ISRG untuk Android 7.0 (network_security.xml)
 ├── assets/

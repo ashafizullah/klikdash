@@ -26,6 +26,9 @@ klikdash/
 │   ├── AiTools.java          car commands the AI may run (open app, navigate, murattal, volume…)
 │   ├── AiStore.java          AI profiles; API keys encrypted with Android Keystore
 │   ├── AiVoice.java          speech: Android or ElevenLabs TTS and STT (picks installed Android engines)
+│   ├── BeamActivity.java     BEAM tile: iPhone screen mirror receiver (sender is the KlikBeam iOS app)
+│   ├── BeamServer.java       KlikBeam v1 TCP server + Bonjour/NSD registration
+│   ├── BeamDecoder.java      hardware H.264 decoder (MediaCodec) rendering to a Surface
 │   ├── Tweaks.java           system commands through local ADB (ksmd, hide Zlink, launcher, appops)
 │   └── Compat.java           Android 7–8 differences (fonts, audio focus, notification channel, services)
 ├── res/                      theme, vector icons, ISRG root certificates for Android 7.0 (network_security.xml)

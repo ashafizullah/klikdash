@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ubin BEAM: mirror layar iPhone (BeamActivity). -->
+<resources>
+    <string name="app_beam">Beam</string>
+    <string name="beam_hint">Buka KlikBeam di iPhone, pilih headunit ini, lalu masukkan kode di bawah.</string>
+    <string name="beam_code_label">KODE PAIRING</string>
+    <string name="beam_address_label">ALAMAT</string>
+    <string name="beam_no_network">Belum tersambung ke WiFi. Sambungkan headunit ke hotspot iPhone.</string>
+    <string name="beam_waiting">MENUNGGU IPHONE</string>
+    <string name="beam_connected">TERSAMBUNG · MENUNGGU GAMBAR</string>
+    <string name="beam_rejected">KODE SALAH DARI %1$s</string>
+    <string name="beam_ended">SIARAN BERHENTI</string>
+    <string name="beam_error">SERVER GAGAL: %1$s</string>
+    <string name="beam_decoder_error">Decoder video gagal: %1$s</string>
+</resources>
