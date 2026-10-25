@@ -373,10 +373,11 @@ public class HomeActivity extends Activity {
         PrayerAlarm.allowOverlay(this);
         home.postDelayed(warmVoice, 20_000); // sesudah boot selesai berebut CPU
         // Baru menyala (bukan sekadar dibangun ulang, mis. ganti tema atau pembaruan): sambutan.
-        if (SystemClock.elapsedRealtime() < 5 * 60_000L) {
-            root.post(() -> Welcome.maybeShow(this, prefs));
-            scheduleAutoUpdate();
+        if (SystemClock.elapsedRealtime() < 5 * 60_000L || welcomeAgain) {
+            root.post(() -> { if (!rebuilding) Welcome.maybeShow(this, prefs); }); // home ini sudah diganti: biar yang baru
         }
+        welcomeAgain = false;
+        if (SystemClock.elapsedRealtime() < 5 * 60_000L) scheduleAutoUpdate();
     }
 
     @Override public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
@@ -596,6 +597,10 @@ public class HomeActivity extends Activity {
     static volatile Boolean knownDefault;
     /** buildHome menyisakan tempat untuk tombol JADIKAN TAMPILAN UTAMA. */
     boolean reservedDefault;
+    /** Sambutan sedang tampil saat home dibangun ulang (lihat refreshDefaultHome): tampilkan lagi di home baru. */
+    static boolean welcomeAgain;
+    /** recreate() sudah diminta: sambutan yang dijadwalkan home ini dilewati, home yang baru menampilkannya. */
+    boolean rebuilding;
 
     void refreshDefaultHome() {
         new Thread(() -> {
@@ -605,7 +610,15 @@ public class HomeActivity extends Activity {
                 if (isFinishing()) return;
                 // Tombolnya muncul padahal tempatnya belum disisakan: bangun ulang, supaya jadwal sholat dan penggaris
                 // 24 jam tidak terdesak keluar layar. Sebaliknya (tombol hilang) cukup disembunyikan.
-                if (!def && !reservedDefault) { recreate(); return; }
+                if (!def && !reservedDefault) {
+                    rebuilding = true;
+                    if (getWindow().getDecorView().findViewWithTag(Welcome.class) != null) {
+                        Welcome.again();
+                        welcomeAgain = true;
+                    }
+                    recreate();
+                    return;
+                }
                 makeDefault.setVisibility(def ? View.GONE : View.VISIBLE);
             });
         }, "home-default").start();
@@ -644,8 +657,11 @@ public class HomeActivity extends Activity {
 
     /** Paling sering sekali per 6 jam (termasuk CEK UPDATE manual): ACC on-off berkali-kali cukup satu cek. */
     static final long AUTO_UPDATE_EVERY = 6 * 3600_000L;
-    /** Rilis baru yang belum ditawarkan: menunggu home tampil, tidak terkunci, dan mobil diam. */
-    Updater.Release pendingUpdate;
+    /**
+     * Rilis baru yang belum ditawarkan: menunggu home tampil, tidak terkunci, dan mobil diam. Statis, supaya tetap
+     * ada bila home dibangun ulang (ganti tema, tombol tampilan utama) sebelum sempat ditawarkan.
+     */
+    static volatile Updater.Release pendingUpdate;
     int autoTries;
     boolean resumed;
 
@@ -653,7 +669,8 @@ public class HomeActivity extends Activity {
     void scheduleAutoUpdate() {
         home.removeCallbacks(autoUpdate);
         if (!prefs.getBoolean("autoUpdate", false)) return;
-        if (System.currentTimeMillis() - prefs.getLong("updateChecked", 0) < AUTO_UPDATE_EVERY) return;
+        long since = System.currentTimeMillis() - prefs.getLong("updateChecked", 0);
+        if (since >= 0 && since < AUTO_UPDATE_EVERY) return; // negatif: jam headunit mundur (belum sinkron), cek saja
         autoTries = 0;
         home.postDelayed(autoUpdate, 20_000); // WiFi/hotspot HP biasanya baru tersambung beberapa detik setelah menyala
     }
@@ -686,6 +703,10 @@ public class HomeActivity extends Activity {
         @Override public void run() {
             home.removeCallbacks(this);
             Updater.Release r = pendingUpdate;
+            if (r != null && r.version.equals(prefs.getString("updateSkipped", null))) { // dijawab Nanti di home lain
+                pendingUpdate = null;
+                return;
+            }
             if (r == null || !resumed || isFinishing()) return; // onResume mencoba lagi
             boolean moving = lastKmh > 0 && SystemClock.elapsedRealtime() - lastKmhAt < 10_000;
             boolean welcome = getWindow().getDecorView().findViewWithTag(Welcome.class) != null;
@@ -728,6 +749,8 @@ public class HomeActivity extends Activity {
     }
 
     @Override protected void onDestroy() {
+        home.removeCallbacks(autoUpdate); // home yang baru (recreate) menjadwalkan sendiri
+        home.removeCallbacks(offerUpdate);
         if (lm != null) lm.removeUpdates(locRx);
         unregisterReceiver(timeRx);
         unregisterReceiver(pkgRx);
@@ -1178,7 +1201,7 @@ public class HomeActivity extends Activity {
         float gridW = portrait ? wDp - 48 : wDp - 48 - leftDp - sep;
         cols = n == 4 ? 2 : n == 12 && !portrait && gridW >= 600 ? 4 : 3;
         if (n == 6) { // 3×2 atau 2×3: mana yang ubinnya paling mendekati persegi
-            float gridH = portrait ? screenH - panelH - 41 : screenH - 48;
+            float gridH = portrait ? screenH - panelH - (Theme.gloss() ? 13 : 41) : screenH - 48;
             double c2 = Math.log((gridW - 12) / 2f / ((gridH - 24) / 3f)), c3 = Math.log((gridW - 24) / 3f / ((gridH - 12) / 2f));
             cols = Math.abs(c2) < Math.abs(c3) ? 2 : 3;
         }

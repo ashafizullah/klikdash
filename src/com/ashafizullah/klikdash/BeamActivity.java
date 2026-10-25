@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.ashafizullah.klikdash.HomeActivity.AMBER;
-import static com.ashafizullah.klikdash.HomeActivity.BG;
 import static com.ashafizullah.klikdash.HomeActivity.DIM;
 import static com.ashafizullah.klikdash.HomeActivity.HOT;
 import static com.ashafizullah.klikdash.HomeActivity.INK;
@@ -224,7 +223,7 @@ public final class BeamActivity extends Activity implements BeamHub.Listener {
         t.setPadding(dp(16), dp(8), dp(16), dp(8));
         GradientDrawable bg = new GradientDrawable();
         bg.setColor(0xCC000000);
-        bg.setCornerRadius(dp(4));
+        bg.setCornerRadius(Theme.corner(getResources().getDisplayMetrics().density, dp(4)));
         t.setBackground(bg);
         t.setVisibility(View.GONE);
         return t;
@@ -248,8 +247,9 @@ public final class BeamActivity extends Activity implements BeamHub.Listener {
         t.setLetterSpacing(.12f);
         t.setPadding(dp(18), dp(12), dp(18), dp(12));
         GradientDrawable bg = new GradientDrawable();
-        bg.setColor(primary ? AMBER : 0xCC000000);
-        bg.setCornerRadius(dp(4));
+        if (primary) Theme.tint(bg, AMBER);
+        else bg.setColor(0xCC000000);
+        bg.setCornerRadius(Theme.corner(getResources().getDisplayMetrics().density, dp(4)));
         if (!primary) bg.setStroke(dp(1), 0x66FFFFFF);
         t.setBackground(bg);
         t.setOnClickListener(l);

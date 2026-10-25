@@ -28,7 +28,6 @@ import static com.ashafizullah.klikdash.HomeActivity.ACTIVE;
 import static com.ashafizullah.klikdash.HomeActivity.AMBER;
 import static com.ashafizullah.klikdash.HomeActivity.BG;
 import static com.ashafizullah.klikdash.HomeActivity.DIM;
-import static com.ashafizullah.klikdash.HomeActivity.FAINT;
 import static com.ashafizullah.klikdash.HomeActivity.INK;
 import static com.ashafizullah.klikdash.HomeActivity.LINE;
 import static com.ashafizullah.klikdash.HomeActivity.PANEL;
@@ -55,10 +54,10 @@ public class QuranActivity extends Activity {
     SurahAdapter surahAdapter;
     AyahAdapter ayahAdapter;
     TextView hNo, hTitle, hMeta, hArab, npTitle, npSub, loading;
-    Chip cLatin, cIndo, cMode, cDl;
+    Key cLatin, cIndo, cMode, cDl;
     /** Jumlah file audio tersimpan per surah (indeks 1..114), diperbarui tiap status pemutar berubah. */
     int[] have = new int[QuranData.SURAH_COUNT + 1];
-    Key kPrev, kPlay, kNext;
+    PlayKey kPrev, kPlay, kNext;
 
     final Runnable onService = this::refreshPlayer;
 
@@ -97,7 +96,7 @@ public class QuranActivity extends Activity {
     // Layar pembuka: memuat teks, atau menawarkan unduh sekali bila APK tidak membawa teks.
     LinearLayout overlay;
     TextView loadSub;
-    Chip loadBtn, loadSkip;
+    Key loadBtn, loadSkip;
     Runnable loadAction = this::downloadText;
 
     View buildOverlay() {
@@ -119,12 +118,12 @@ public class QuranActivity extends Activity {
         overlay.addView(loadSub, sl);
         LinearLayout btns = new LinearLayout(this);
         btns.setOrientation(LinearLayout.HORIZONTAL);
-        loadBtn = new Chip(getString(R.string.quran_download_text), () -> loadAction.run());
+        loadBtn = chip(getString(R.string.quran_download_text), () -> loadAction.run());
         loadBtn.setOn(true);
-        loadBtn.setMinimumWidth(px(220));
+        loadBtn.minWidth = px(220);
         btns.addView(loadBtn, new LinearLayout.LayoutParams(WRAP, px(56)));
         // Hanya untuk tawaran terjemahan English: mushaf tetap bisa dibaca tanpanya.
-        loadSkip = new Chip(getString(R.string.quran_not_now), this::skipEn);
+        loadSkip = chip(getString(R.string.quran_not_now), this::skipEn);
         loadSkip.setVisibility(View.GONE);
         LinearLayout.LayoutParams kl = new LinearLayout.LayoutParams(WRAP, px(56));
         kl.leftMargin = px(12);
@@ -363,13 +362,13 @@ public class QuranActivity extends Activity {
         al.rightMargin = px(20);
         hdr.addView(hArab, al);
         if (narrow) hArab.setVisibility(View.GONE); // nama Arab tetap ada di daftar surah
-        cDl = new Chip(getString(R.string.quran_chip_download), () -> {
+        cDl = chip(getString(R.string.quran_chip_download), () -> {
             if (have[surah] < QuranData.count(surah)) QuranService.download(this, surah);
         });
         LinearLayout.LayoutParams dl = new LinearLayout.LayoutParams(WRAP, px(48));
         dl.rightMargin = px(10);
         hdr.addView(cDl, dl);
-        cLatin = new Chip(getString(R.string.quran_chip_latin), () -> {
+        cLatin = chip(getString(R.string.quran_chip_latin), () -> {
             showLatin = !showLatin;
             prefs.edit().putBoolean("latin", showLatin).apply();
             cLatin.setOn(showLatin);
@@ -377,7 +376,7 @@ public class QuranActivity extends Activity {
         });
         cLatin.setOn(showLatin);
         hdr.addView(cLatin, new LinearLayout.LayoutParams(WRAP, px(48)));
-        cIndo = new Chip(getString(R.string.quran_chip_translation), () -> {
+        cIndo = chip(getString(R.string.quran_chip_translation), () -> {
             if (!hasTranslation()) { askDownloadEn(); return; }
             showIndo = !showIndo;
             prefs.edit().putBoolean("indo", showIndo).apply();
@@ -419,7 +418,7 @@ public class QuranActivity extends Activity {
         bar.setPadding(px(28), px(12), px(16), px(12));
 
         // Mode di kiri, jauh dari ⏭: sambil menyetir, ketukan ⏭ dulu sering meleset ke sini dan mengubah mode.
-        cMode = new Chip("", this::showModeDialog);
+        cMode = chip("", this::showModeDialog);
         LinearLayout.LayoutParams ml = new LinearLayout.LayoutParams(WRAP, px(64));
         ml.rightMargin = px(24);
         bar.addView(cMode, ml);
@@ -434,9 +433,9 @@ public class QuranActivity extends Activity {
         np.addView(npSub);
         bar.addView(np, new LinearLayout.LayoutParams(0, WRAP, 1f));
 
-        kPrev = new Key(Key.PREV, () -> QuranService.send(this, QuranService.ACTION_PREV));
-        kPlay = new Key(Key.PLAY, this::togglePlay);
-        kNext = new Key(Key.NEXT, () -> QuranService.send(this, QuranService.ACTION_NEXT));
+        kPrev = new PlayKey(PlayKey.PREV, () -> QuranService.send(this, QuranService.ACTION_PREV));
+        kPlay = new PlayKey(PlayKey.PLAY, this::togglePlay);
+        kNext = new PlayKey(PlayKey.NEXT, () -> QuranService.send(this, QuranService.ACTION_NEXT));
         int kw = narrow ? 60 : 76;
         bar.addView(kPrev, new LinearLayout.LayoutParams(px(kw), px(64)));
         LinearLayout.LayoutParams pl = new LinearLayout.LayoutParams(px(narrow ? 84 : 104), px(64));
@@ -573,34 +572,34 @@ public class QuranActivity extends Activity {
             String[] names = {getString(R.string.quran_mode_continue), getString(R.string.quran_mode_repeat_ayah),
                     getString(R.string.quran_mode_repeat_surah)};
             int[] modes = {QuranService.MODE_CONTINUE, QuranService.MODE_REPEAT_AYAH, QuranService.MODE_REPEAT_SURAH};
-            Chip[] mc = new Chip[3];
+            Key[] mc = new Key[3];
             for (int i = 0; i < 3; i++) {
                 final int v = modes[i];
-                mc[i] = new Chip(names[i], () -> { QuranService.setMode(this, v, r, st); fill[0].run(); });
+                mc[i] = chip(names[i], () -> { QuranService.setMode(this, v, r, st); fill[0].run(); });
                 mc[i].setOn(m == v);
             }
             box.addView(chipRow(mc));
             if (m != QuranService.MODE_CONTINUE) {
                 box.addView(caption(getString(R.string.quran_times)));
-                Chip[] tc = new Chip[TIMES.length];
+                Key[] tc = new Key[TIMES.length];
                 for (int i = 0; i < TIMES.length; i++) {
                     final int v = TIMES[i];
-                    tc[i] = new Chip(v == 0 ? getString(R.string.quran_forever) : v + "×", () -> { QuranService.setMode(this, m, v, st); fill[0].run(); });
+                    tc[i] = chip(v == 0 ? getString(R.string.quran_forever) : v + "×", () -> { QuranService.setMode(this, m, v, st); fill[0].run(); });
                     tc[i].setOn(r == v);
                 }
                 box.addView(chipRow(tc));
             }
             box.addView(caption(getString(R.string.quran_stop_after)));
             int here = QuranService.active ? QuranService.surah : surah;
-            Chip none = new Chip(getString(R.string.quran_stop_never), () -> { QuranService.setMode(this, m, r, 0); fill[0].run(); });
+            Key none = chip(getString(R.string.quran_stop_never), () -> { QuranService.setMode(this, m, r, 0); fill[0].run(); });
             none.setOn(st == 0);
-            Chip thisOne = new Chip(getString(R.string.quran_this_surah), () -> { QuranService.setMode(this, m, r, here); fill[0].run(); });
+            Key thisOne = chip(getString(R.string.quran_this_surah), () -> { QuranService.setMode(this, m, r, here); fill[0].run(); });
             thisOne.setOn(st != 0 && st == here);
-            Chip pick = new Chip(st != 0 && st != here
+            Key pick = chip(st != 0 && st != here
                     ? getString(R.string.quran_until, QuranService.surahName(st).toUpperCase(Lang.locale()))
                     : getString(R.string.quran_pick_surah), () -> pickStopSurah(fill[0]));
             pick.setOn(st != 0 && st != here);
-            box.addView(chipRow(new Chip[]{none, thisOne, pick}));
+            box.addView(chipRow(new Key[]{none, thisOne, pick}));
             box.addView(hint(modeHint()));
         };
         fill[0].run();
@@ -658,7 +657,12 @@ public class QuranActivity extends Activity {
         return t;
     }
 
-    LinearLayout chipRow(Chip[] chips) {
+    /** Tombol pilihan kecil: menyala = aksen, mati = panel bergaris dengan teks redup. */
+    Key chip(String label, Runnable click) {
+        return new Key(this, fMonoBold, label, false, click).textSp(11).off(PANEL, DIM);
+    }
+
+    LinearLayout chipRow(Key[] chips) {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         for (int i = 0; i < chips.length; i++) {
@@ -890,67 +894,15 @@ public class QuranActivity extends Activity {
         }
     }
 
-    /** Tombol teks yang bisa menyala (amber) atau mati. */
-    class Chip extends View {
-        String label;
-        boolean on, down;
-        final Paint fill = new Paint(), stroke = new Paint(Paint.ANTI_ALIAS_FLAG), p = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-        Chip(String label, Runnable click) {
-            super(QuranActivity.this);
-            this.label = label;
-            setContentDescription(label); // pembaca layar & pengujian otomatis
-            stroke.setStyle(Paint.Style.STROKE);
-            stroke.setStrokeWidth(px(1));
-            p.setTypeface(fMonoBold);
-            p.setTextSize(sp(11));
-            p.setLetterSpacing(0.2f);
-            p.setTextAlign(Paint.Align.CENTER);
-            setClickable(true);
-            setOnClickListener(v -> click.run());
-        }
-
-        void setOn(boolean v) { on = v; invalidate(); }
-
-        void setLabel(String s) {
-            label = s;
-            setContentDescription(s);
-            requestLayout();
-            invalidate();
-        }
-
-        /** Lebar mengikuti teks bila tidak ditentukan pasti (WRAP), supaya muat di layar sempit. */
-        @Override protected void onMeasure(int wSpec, int hSpec) {
-            if (MeasureSpec.getMode(wSpec) == MeasureSpec.EXACTLY) { super.onMeasure(wSpec, hSpec); return; }
-            setMeasuredDimension(resolveSize(Math.max(getMinimumWidth(), Math.round(p.measureText(label)) + px(36)), wSpec),
-                    resolveSize(px(48), hSpec));
-        }
-
-        @Override protected void drawableStateChanged() {
-            super.drawableStateChanged();
-            if (isPressed() != down) { down = isPressed(); invalidate(); }
-        }
-
-        @Override protected void onDraw(Canvas c) {
-            int w = getWidth(), h = getHeight();
-            boolean lit = down || on;
-            stroke.setColor(LINE);
-            Theme.panel(c, fill, stroke, w, h, down ? TEXT : on ? AMBER : PANEL, !lit);
-            p.setColor(lit ? INK : DIM);
-            Paint.FontMetrics fm = p.getFontMetrics();
-            c.drawText(label, w / 2f, h / 2f - (fm.ascent + fm.descent) / 2f, p);
-        }
-    }
-
     /** Tombol pemutar dengan ikon yang digambar (tanpa font ikon). */
-    class Key extends View {
+    class PlayKey extends View {
         static final int PREV = 0, PLAY = 1, NEXT = 2;
         final int kind;
         boolean playing, down;
         final Paint fill = new Paint(), ink = new Paint(Paint.ANTI_ALIAS_FLAG), stroke = new Paint(Paint.ANTI_ALIAS_FLAG);
         final Path path = new Path();
 
-        Key(int kind, Runnable click) {
+        PlayKey(int kind, Runnable click) {
             super(QuranActivity.this);
             this.kind = kind;
             stroke.setStyle(Paint.Style.STROKE);

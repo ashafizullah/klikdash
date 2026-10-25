@@ -105,7 +105,7 @@ final class BeamFloat implements BeamHub.Listener {
         label.setPadding(dp(10), dp(6), dp(10), dp(6));
         GradientDrawable chip = new GradientDrawable(); // terbaca di atas gambar terakhir
         chip.setColor(0xCC000000);
-        chip.setCornerRadius(dp(4));
+        chip.setCornerRadius(Theme.corner(c.getResources().getDisplayMetrics().density, dp(4)));
         label.setBackground(chip);
         box.addView(label, new FrameLayout.LayoutParams(WRAP, WRAP, Gravity.CENTER));
 
@@ -231,8 +231,9 @@ final class BeamFloat implements BeamHub.Listener {
         t.setLetterSpacing(.1f);
         t.setTextColor(res == R.string.beam_fullscreen ? INK : TEXT);
         GradientDrawable bg = new GradientDrawable();
-        bg.setColor(res == R.string.beam_fullscreen ? AMBER : 0x33FFFFFF);
-        bg.setCornerRadius(dp(3));
+        if (res == R.string.beam_fullscreen) Theme.tint(bg, AMBER);
+        else bg.setColor(0x33FFFFFF);
+        bg.setCornerRadius(Theme.corner(c.getResources().getDisplayMetrics().density, dp(3)));
         t.setBackground(bg);
         t.setPadding(dp(14), dp(12), dp(14), dp(12));
         t.setOnClickListener(l);

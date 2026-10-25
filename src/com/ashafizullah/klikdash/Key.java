@@ -12,11 +12,16 @@ import static com.ashafizullah.klikdash.HomeActivity.LINE;
 import static com.ashafizullah.klikdash.HomeActivity.PANEL;
 import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 
-/** Tombol teks bergaya KlikDash; amber bila {@code on}. Dipakai Pengaturan dan TANYA. */
+/**
+ * Tombol teks bergaya KlikDash; aksen bila {@code on}. Dipakai Pengaturan, TANYA, Al-Qur'an, dan Dzikir; warna saat
+ * mati dan ukuran huruf bisa diatur ({@link #off}, {@link #textSp}).
+ */
 final class Key extends View {
     String label;
     boolean on, down;
     int minWidth;
+    /** Latar dan teks saat tidak menyala dan tidak ditekan. */
+    int offFill = PANEL, offText = TEXT;
     final float dp;
     final Paint fill = new Paint(), stroke = new Paint(Paint.ANTI_ALIAS_FLAG), p = new Paint(Paint.ANTI_ALIAS_FLAG);
 
@@ -35,6 +40,23 @@ final class Key extends View {
         p.setTextAlign(Paint.Align.CENTER);
         setClickable(true);
         if (click != null) setOnClickListener(v -> click.run());
+    }
+
+    Key off(int fill, int text) {
+        offFill = fill;
+        offText = text;
+        invalidate();
+        return this;
+    }
+
+    Key textSp(float size) {
+        p.setTextSize(size * getResources().getDisplayMetrics().scaledDensity);
+        requestLayout();
+        return this;
+    }
+
+    void setOn(boolean v) {
+        if (v != on) { on = v; invalidate(); }
     }
 
     void setLabel(String s) {
@@ -58,8 +80,8 @@ final class Key extends View {
 
     @Override protected void onDraw(Canvas c) {
         int w = getWidth(), h = getHeight();
-        Theme.panel(c, fill, stroke, w, h, down ? TEXT : on ? AMBER : PANEL, !down && !on);
-        p.setColor(down || on ? INK : TEXT);
+        Theme.panel(c, fill, stroke, w, h, down ? TEXT : on ? AMBER : offFill, !down && !on);
+        p.setColor(down || on ? INK : offText);
         p.setAlpha(isEnabled() ? 255 : 110);
         Paint.FontMetrics fm = p.getFontMetrics();
         c.drawText(label, w / 2f, h / 2f - (fm.ascent + fm.descent) / 2f, p);

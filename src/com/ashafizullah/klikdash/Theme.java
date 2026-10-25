@@ -129,7 +129,10 @@ final class Theme {
     }
 
     /** Sudut bulat GradientDrawable (kartu, dialog, kolom isian): 0 di tema datar. */
-    static float corner(float dp) { return gloss() ? 14 * dp : 0; }
+    static float corner(float dp) { return corner(dp, 0); }
+
+    /** Seperti di atas, dengan sudut {@code flat} (px) di tema datar. */
+    static float corner(float dp, float flat) { return gloss() ? 14 * dp : flat; }
 
     private static float radius(int w, int h) { return Math.min(14 * DP, Math.min(w, h) / 4f); }
 
@@ -153,6 +156,7 @@ final class Theme {
         float r = radius(w, h);
         BOX.set(0, 0, w, h);
         fill.setAntiAlias(true);
+        fill.setColor(0xFF000000); // alfa paint ikut mengalikan shader: sisa warna transparan (pita, redup) jangan terbawa
         fill.setShader(glass
                 ? new LinearGradient(0, 0, w * .35f, h, 0x26FFFFFF, 0x0AFFFFFF, Shader.TileMode.CLAMP)
                 : new LinearGradient(0, 0, 0, h, mix(color, 0xFFFFFFFF, .3f), mix(color, 0xFF000000, .1f),

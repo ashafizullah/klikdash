@@ -79,6 +79,9 @@ final class Welcome {
         show(a, c);
     }
 
+    /** Home dibangun ulang saat sambutan tampil: izinkan {@link #maybeShow} menampilkannya lagi di home yang baru. */
+    static void again() { lastShown = 0; }
+
     static void show(Activity a, Content c) {
         ViewGroup root = a.findViewById(android.R.id.content);
         View old = root.findViewWithTag(Welcome.class);

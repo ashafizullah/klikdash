@@ -76,7 +76,7 @@ public class DzikirActivity extends Activity {
     ItemAdapter adapter;
     TextView step, arab, latin, meaning, note, title;
     ScrollView scroll;
-    Chip cPagi, cPetang;
+    Key cPagi, cPetang;
     Counter counter;
 
     int themeBuilt;
@@ -275,8 +275,8 @@ public class DzikirActivity extends Activity {
         head.addView(title);
         LinearLayout chips = new LinearLayout(this);
         chips.setOrientation(LinearLayout.HORIZONTAL);
-        cPagi = new Chip(getString(R.string.dzikir_pagi), () -> open(PAGI));
-        cPetang = new Chip(getString(R.string.dzikir_petang), () -> open(PETANG));
+        cPagi = chip(getString(R.string.dzikir_pagi), () -> open(PAGI));
+        cPetang = chip(getString(R.string.dzikir_petang), () -> open(PETANG));
         LinearLayout.LayoutParams c1 = new LinearLayout.LayoutParams(0, px(44), 1f);
         c1.topMargin = px(12);
         chips.addView(cPagi, c1);
@@ -338,14 +338,14 @@ public class DzikirActivity extends Activity {
         bar.setGravity(Gravity.CENTER_VERTICAL);
         bar.setBackgroundColor(PANEL);
         bar.setPadding(px(20), px(12), px(20), px(12));
-        bar.addView(new Chip(narrow ? "‹" : getString(R.string.dzikir_prev), () -> show(cur - 1)),
+        bar.addView(chip(narrow ? "‹" : getString(R.string.dzikir_prev), () -> show(cur - 1)),
                 new LinearLayout.LayoutParams(narrow ? px(72) : WRAP, px(72)));
         counter = new Counter();
         LinearLayout.LayoutParams kl = new LinearLayout.LayoutParams(0, px(72), 1f);
         kl.leftMargin = px(12);
         kl.rightMargin = px(12);
         bar.addView(counter, kl);
-        bar.addView(new Chip(narrow ? "›" : getString(R.string.dzikir_next), () -> show(cur + 1)),
+        bar.addView(chip(narrow ? "›" : getString(R.string.dzikir_next), () -> show(cur + 1)),
                 new LinearLayout.LayoutParams(narrow ? px(72) : WRAP, px(72)));
         right.addView(bar, new LinearLayout.LayoutParams(MATCH, px(96)));
         row.addView(right, portrait ? new LinearLayout.LayoutParams(MATCH, 0, 1f) : new LinearLayout.LayoutParams(0, MATCH, 1f));
@@ -399,48 +399,9 @@ public class DzikirActivity extends Activity {
 
     // ---------------------------------------------------------------- views
 
-    class Chip extends View {
-        final String label;
-        boolean on, down;
-        final Paint fill = new Paint(), stroke = new Paint(Paint.ANTI_ALIAS_FLAG), p = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-        Chip(String label, Runnable click) {
-            super(DzikirActivity.this);
-            this.label = label;
-            setContentDescription(label); // pembaca layar & pengujian otomatis
-            stroke.setStyle(Paint.Style.STROKE);
-            stroke.setStrokeWidth(px(1));
-            stroke.setColor(LINE);
-            p.setTypeface(fMonoBold);
-            p.setTextSize(sp(12));
-            p.setLetterSpacing(0.2f);
-            p.setTextAlign(Paint.Align.CENTER);
-            setClickable(true);
-            setOnClickListener(v -> click.run());
-        }
-
-        void setOn(boolean v) { on = v; invalidate(); }
-
-        /** Lebar mengikuti teks bila tidak ditentukan pasti (WRAP), supaya muat di layar sempit. */
-        @Override protected void onMeasure(int wSpec, int hSpec) {
-            if (MeasureSpec.getMode(wSpec) == MeasureSpec.EXACTLY) { super.onMeasure(wSpec, hSpec); return; }
-            setMeasuredDimension(resolveSize(Math.round(p.measureText(label)) + px(36), wSpec),
-                    resolveSize(px(48), hSpec));
-        }
-
-        @Override protected void drawableStateChanged() {
-            super.drawableStateChanged();
-            if (isPressed() != down) { down = isPressed(); invalidate(); }
-        }
-
-        @Override protected void onDraw(Canvas c) {
-            int w = getWidth(), h = getHeight();
-            boolean lit = down || on;
-            Theme.panel(c, fill, stroke, w, h, down ? TEXT : on ? AMBER : BG, !lit);
-            p.setColor(lit ? INK : TEXT);
-            Paint.FontMetrics fm = p.getFontMetrics();
-            c.drawText(label, w / 2f, h / 2f - (fm.ascent + fm.descent) / 2f, p);
-        }
+    /** Tombol pilihan: menyala = aksen, mati = latar bergaris. */
+    Key chip(String label, Runnable click) {
+        return new Key(this, fMonoBold, label, false, click).textSp(12).off(BG, TEXT);
     }
 
     /** Tombol hitung besar: "2 / 3" dan petunjuk, dengan pita progres di bawah; terang saat ditekan. */
