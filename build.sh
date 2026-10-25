@@ -7,8 +7,8 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-VERSION_NAME=${VERSION_NAME:-1.6.0}
-VERSION_CODE=${VERSION_CODE:-18}
+VERSION_NAME=${VERSION_NAME:-1.6.1}
+VERSION_CODE=${VERSION_CODE:-19}
 
 SDK=${ANDROID_HOME:-$HOME/Library/Android/sdk}
 BT=$SDK/build-tools/36.0.0
