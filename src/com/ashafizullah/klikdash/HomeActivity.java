@@ -262,12 +262,16 @@ public class HomeActivity extends Activity {
     final BroadcastReceiver timeRx = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) {
             updateTime();
+            if (Intent.ACTION_TIME_CHANGED.equals(i.getAction())) PrayerAlarm.clockSet(c);
             if (!Intent.ACTION_TIME_TICK.equals(i.getAction())) PrayerAlarm.schedule(c); // jam/zona waktu diubah
         }
     };
 
     final LocationListener locRx = new LocationListener() {
-        @Override public void onLocationChanged(Location l) { onLocation(l); }
+        @Override public void onLocationChanged(Location l) {
+            PrayerAlarm.checkClock(HomeActivity.this, l);
+            onLocation(l);
+        }
         @Override public void onStatusChanged(String p, int s, Bundle b) { }
         @Override public void onProviderEnabled(String p) { }
         @Override public void onProviderDisabled(String p) { }
@@ -475,6 +479,7 @@ public class HomeActivity extends Activity {
 
     final LocationListener speedRx = new LocationListener() {
         @Override public void onLocationChanged(Location l) {
+            PrayerAlarm.checkClock(HomeActivity.this, l);
             if (!l.hasSpeed() || l.getTime() == speedFixTime) return;
             speedFixTime = l.getTime();
             speedAt = SystemClock.elapsedRealtime();

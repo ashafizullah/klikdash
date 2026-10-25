@@ -8,6 +8,7 @@ import android.graphics.PixelFormat;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,7 +94,7 @@ final class Notice {
             return; // jendela induk baru saja ditutup
         }
         current = new WeakReference<>(p);
-        box.postDelayed(() -> dismiss(p), duration(kind, msg));
+        hideAfter(box, duration(kind, msg), () -> dismiss(p));
         box.announceForAccessibility(msg);
     }
 
@@ -188,8 +189,24 @@ final class Notice {
         } catch (RuntimeException e) {
             return false;
         }
-        box.postDelayed(remove, duration(kind, msg));
+        hideAfter(box, duration(kind, msg), remove);
         return true;
+    }
+
+    /**
+     * Jalankan {@code hide} setelah {@code ms} menurut elapsedRealtime. postDelayed saja memakai uptime yang berhenti
+     * selama headunit tidur, sehingga notifikasi bisa masih tampil berjam-jam kemudian saat headunit bangun; dicek
+     * tiap detik, jadi notifikasi basi hilang paling lambat sedetik setelah bangun.
+     */
+    private static void hideAfter(View v, long ms, Runnable hide) {
+        long end = SystemClock.elapsedRealtime() + ms;
+        v.postDelayed(new Runnable() {
+            @Override public void run() {
+                long left = end - SystemClock.elapsedRealtime();
+                if (left <= 0) hide.run();
+                else v.postDelayed(this, Math.min(left, 1000));
+            }
+        }, Math.min(ms, 1000));
     }
 
     /** Jendela teratas milik {@code a}: dialog terbuka yang terakhir di-{@link #track}, atau jendela aktivitasnya. */
