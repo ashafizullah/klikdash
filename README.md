@@ -51,38 +51,43 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
   Alafasy, readable offline.
 - **Dhikr:** morning and evening readings with a guided counter.
 - **Power saver:** stop apps such as Netflix or Spotify from running in the background.
-- **Voice assistant TANYA AI (optional):** say *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai Waze"* or
-  *"buka Zlink"*. Bring your own Claude or OpenAI-compatible key; it listens and speaks with the headunit's
-  free Android voice or with ElevenLabs, and looks up current information on the web (Claude's web search, or free
-  TinyFish search for any provider). ▶️ **[Setup video](https://youtu.be/v9Bm6FzUKm8)** (6 minutes, Indonesian with subtitles).
-- **Screen lock:** a 4-digit PIN (**⚙ › Launcher › SCREEN LOCK**) and a padlock on the home screen, so children
-  cannot open apps or change settings. The clock and prayer times stay visible.
+- **Voice assistant TANYA AI / ASK AI (optional):** say *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai
+  Waze"* or *"buka Zlink"*. Bring your own Claude or OpenAI-compatible key; it listens and speaks with the
+  headunit's free Android voice or with ElevenLabs, and looks up current information on the web (Claude's web
+  search, or free TinyFish search for any provider). ▶️ **[Setup video](https://youtu.be/v9Bm6FzUKm8)** (6 minutes,
+  Indonesian with subtitles).
+- **Screen lock:** a 4-digit PIN (**⚙ › Launcher › KUNCI LAYAR / SCREEN LOCK**) and a padlock on the home screen,
+  so children cannot open apps or change settings. The clock and prayer times stay visible.
 - **Settings & updates:** the ⚙ button on the home screen; four themes (AMBER, EMERALD, DAY, and GLOSSY with glass
-  panels); **CEK UPDATE** installs new versions without a computer, and the optional automatic check (off by
-  default) offers them by itself when the headunit turns on.
+  panels); **CEK UPDATE / CHECK UPDATE** installs new versions without a computer, and the optional automatic check
+  (off by default) offers them by itself when the headunit turns on.
 
 ## Install
 
 ▶️ **[Video tutorial on YouTube](https://youtu.be/sSRKIyC3Ato)** (5 minutes, Indonesian with subtitles) ·
 👉 **[Step-by-step guide](docs/INSTALL.md)** with screenshots and FAQ ·
-📺 **[All video tutorials](https://www.youtube.com/playlist?list=PLEAZ252hW8a4)**: install, TANYA AI, TinyFish web search, updates
+📺 **[All video tutorials](https://www.youtube.com/playlist?list=PLEAZ252hW8a4)**: install, TANYA AI / ASK AI, TinyFish web search, updates
 
 [![KlikDash install tutorial on YouTube](docs/img/video.png)](https://youtu.be/sSRKIyC3Ato)
 
 1. Download `klikdash-<version>.apk` from [Releases](https://github.com/ashafizullah/klikdash/releases/latest) and
    copy it to a USB stick.
 2. On the headunit, open the APK in the file manager and tap **INSTALL**, then **OPEN**.
-3. Tap the yellow **JADIKAN TAMPILAN UTAMA** button (on NWD firmware this needs USB debugging on).
-4. With internet on, open **Al-Qur'an** once and tap **UNDUH TEKS**.
+3. Tap the yellow **JADIKAN TAMPILAN UTAMA / SET AS HOME SCREEN** button (on NWD firmware
+   this needs USB debugging on).
+4. With internet on, open **Al-Qur'an** once and tap **UNDUH TEKS / DOWNLOAD**.
 5. Go through the [test-before-you-drive checklist](#disclaimer) with the car parked.
 
-Updating: **⚙ › Launcher › CEK UPDATE** (from 1.3.0), or install the new APK over the old one. Settings and audio
-are kept.
+Updating: **⚙ › Launcher › CEK UPDATE / CHECK UPDATE** (from 1.3.0), or install the new APK over the old one.
+Settings and audio are kept.
 
 ## Supported devices
 
 KlikDash needs **Android 7.0 or newer** and is designed for a **1280×720 landscape** screen. The
-headunit-specific parts (default launcher, sleep/wake, Zlink, ksmd) target NWD firmware.
+headunit-specific parts (default launcher, sleep/wake, Zlink, ksmd) target NWD firmware. They run through the
+headunit's own ADB, so USB debugging must be on; headunits that ask "Allow USB debugging?" are supported, and on
+Android 11 and later ADB usually has to be opened once from a computer (`adb tcpip 5555`, see
+[docs/INSTALL.md](docs/INSTALL.md)).
 
 | Device | Screen | Android | Status |
 |---|---|---|---|
@@ -105,30 +110,32 @@ replaces the home screen, and the optional power saver only stops apps you pick 
 
 | Change | When | How to undo it |
 |---|---|---|
-| Default launcher `persist.nwd.launcher.default=com.ashafizullah.klikdash` (NWD) and HOME preference | When you tap **JADIKAN TAMPILAN UTAMA** | **Settings › Launcher › LAUNCHER BAWAAN**, or `adb shell setprop persist.nwd.launcher.default com.android.launcher` |
+| Default launcher `persist.nwd.launcher.default=com.ashafizullah.klikdash` (NWD) and HOME preference | When you tap **JADIKAN TAMPILAN UTAMA / SET AS HOME SCREEN** | **Settings › Launcher › LAUNCHER BAWAAN / STOCK LAUNCHER**, or `adb shell setprop persist.nwd.launcher.default com.android.launcher` |
 | ksmd turned off | Every boot, while KlikDash is the home screen (needs ADB on) | Switch back to the stock launcher or uninstall KlikDash, then reboot |
 | Zlink sent back to home when it opens by itself | First 3 minutes after boot or wake-up | Same as above |
-| Apps blocked from running in the background (`appops RUN_ANY_IN_BACKGROUND/RUN_IN_BACKGROUND ignore`) | Only for apps you switch on in **HEMAT DAYA**, or ask TANYA AI to | Tap the app again, or **KEMBALIKAN SEMUA** |
-| KlikDash updated with `pm install` | Only when you tap **Unduh & pasang** in Settings | Install an older APK with `adb install -r -d` |
+| Apps blocked from running in the background (`appops RUN_ANY_IN_BACKGROUND/RUN_IN_BACKGROUND ignore`) | Only for apps you switch on in **HEMAT DAYA / POWER SAVER**, or ask TANYA AI / ASK AI to | Tap the app again, or **KEMBALIKAN SEMUA / RESTORE ALL** |
+| KlikDash's ADB key allowed (headunits that ask "Allow USB debugging?") | Once, when you tick **Always allow** the first time KlikDash needs ADB | **Settings › Developer options › Revoke USB debugging authorizations** (this also removes computers you allowed) |
+| KlikDash updated with `pm install` | Only when you tap **Unduh & pasang / Download & install** in Settings | Install an older APK with `adb install -r -d` |
 
 The old NWD launcher is **not removed**. Its process stays because it also handles car info from the CAN bus.
 
 ## Notes
 
 - **Voice assistant privacy and cost.** What you say is transcribed by the recognizer chosen under
-  **Pengenalan suara**: Android (the Google app, processed by Google) or ElevenLabs Scribe. The text, with
-  the list of installed app names, the current time and, when a command needs it, the location, goes to the AI
-  provider of the active profile. Usage is billed to your own accounts. Nothing goes through a KlikDash server.
-  The AI can be wrong: check what it did, and do not rely on it for anything safety-critical.
-- **Android voice and speech recognition (optional).** **Suara jawaban** and **Pengenalan suara** each choose
-  ANDROID or ELEVENLABS. ANDROID uses the headunit's own engines through the standard Android API, so no
-  ElevenLabs account is needed. If the headunit has none, tapping ANDROID opens the app in the Play Store:
-  [Speech Recognition & Synthesis](https://play.google.com/store/apps/details?id=com.google.android.tts) (Speech Services by Google) to speak and the
-  [Google app](https://play.google.com/store/apps/details?id=com.google.android.googlequicksearchbox) to listen. Both are
-  separate, free apps from Google under Google's own terms; KlikDash does not include or redistribute them. With
-  the Indonesian voice downloaded in Speech Recognition & Synthesis, answers are spoken offline; what the Google
-  app recognizes is processed by Google. Firmware that blocks Google Play services updates (such as NWD) may make
-  the Google app ask for one; recognition still works.
+  **PENGENALAN SUARA / SPEECH RECOGNITION**: Android (the Google app, processed by Google) or ElevenLabs Scribe.
+  The text, with the list of installed app names, the current time and, when a command needs it, the location,
+  goes to the AI provider of the active profile. Usage is billed to your own accounts. Nothing goes through a
+  KlikDash server. The AI can be wrong: check what it did, and do not rely on it for anything safety-critical.
+- **Android voice and speech recognition (optional).** **SUARA JAWABAN / ANSWER VOICE** and **PENGENALAN SUARA /
+  SPEECH RECOGNITION** each choose ANDROID or ELEVENLABS. ANDROID uses the headunit's own engines through the
+  standard Android API, so no ElevenLabs account is needed. If the headunit has none, tapping ANDROID opens the app
+  in the Play Store:
+  [Speech Recognition & Synthesis](https://play.google.com/store/apps/details?id=com.google.android.tts) (Speech
+  Services by Google) to speak and the [Google app](https://play.google.com/store/apps/details?id=com.google.android.googlequicksearchbox)
+  to listen. Both are separate, free apps from Google under Google's own terms; KlikDash does not include or
+  redistribute them. With the Indonesian voice downloaded in Speech Recognition & Synthesis, answers are spoken
+  offline; what the Google app recognizes is processed by Google. Firmware that blocks Google Play services updates
+  (such as NWD) may make the Google app ask for one; recognition still works.
 - **Security.** Enabled ADB over WiFi gives full access to the headunit. Only connect the headunit to a
   private network (such as your own phone's hotspot), never to public WiFi.
 - **Prayer-time accuracy** is within ±1 minute of the Kemenag schedule (compared for Jakarta,
@@ -152,8 +159,8 @@ The old NWD launcher is **not removed**. Its process stays because it also handl
 
 - Changing the default launcher and system settings is not supported by the headunit maker and may affect
   your warranty. Every change can be undone (see [Changes made on the headunit](#changes-made-on-the-headunit)).
-- **Do not operate the screen while driving.** Use the steering-wheel buttons, or stop safely first. TANYA AI
-  still needs a tap to start listening; keep it to short commands and keep your eyes on the road.
+- **Do not operate the screen while driving.** Use the steering-wheel buttons, or stop safely first. TANYA AI /
+  ASK AI still needs a tap to start listening; keep it to short commands and keep your eyes on the road.
 - Prayer times are calculated and may differ by a minute or so from official schedules; follow your local
   mosque or authority.
 - The Quran text and translation are not included; check the text you build against an official mushaf.

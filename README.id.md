@@ -82,7 +82,10 @@ audio tetap ada.
 ## Perangkat yang didukung
 
 KlikDash butuh **Android 7.0 atau lebih baru** dan dirancang untuk layar **1280×720 landscape**.
-Bagian yang khusus headunit (launcher default, tidur/bangun, Zlink, ksmd) ditujukan untuk firmware NWD.
+Bagian yang khusus headunit (launcher default, tidur/bangun, Zlink, ksmd) ditujukan untuk firmware NWD. Bagian ini
+berjalan lewat ADB headunit itu sendiri, jadi USB debugging harus aktif; headunit yang bertanya "Allow USB
+debugging?" didukung, dan di Android 11 ke atas ADB biasanya perlu dibuka sekali dari komputer (`adb tcpip 5555`,
+lihat [docs/INSTALL.id.md](docs/INSTALL.id.md)).
 
 | Perangkat | Layar | Android | Status |
 |---|---|---|---|
@@ -110,6 +113,7 @@ di latar.
 | ksmd dimatikan | Setiap boot, selama KlikDash jadi tampilan home (butuh ADB aktif) | Kembali ke launcher bawaan atau uninstall KlikDash, lalu reboot |
 | Zlink dikembalikan ke home bila terbuka sendiri | 3 menit pertama setelah boot atau bangun dari tidur | Sama seperti di atas |
 | Aplikasi dilarang jalan di latar (`appops RUN_ANY_IN_BACKGROUND/RUN_IN_BACKGROUND ignore`) | Hanya untuk aplikasi yang Anda nyalakan di **HEMAT DAYA**, atau atas permintaan ke TANYA AI | Ketuk aplikasinya lagi, atau **KEMBALIKAN SEMUA** |
+| Kunci ADB KlikDash diizinkan (headunit yang bertanya "Allow USB debugging?") | Sekali, saat Anda mencentang **Always allow** pertama kali KlikDash butuh ADB | **Pengaturan › Opsi pengembang › Cabut otorisasi debug USB** (komputer yang pernah diizinkan juga ikut dicabut) |
 | KlikDash diperbarui dengan `pm install` | Hanya saat Anda mengetuk **Unduh & pasang** di Pengaturan | Pasang APK lama dengan `adb install -r -d` |
 
 Launcher NWD lama **tidak dihapus**. Prosesnya tetap ada karena juga menangani info mobil dari CAN.
