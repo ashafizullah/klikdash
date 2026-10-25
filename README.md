@@ -57,7 +57,9 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
   TinyFish search for any provider). ▶️ **[Setup video](https://youtu.be/v9Bm6FzUKm8)** (6 minutes, Indonesian with subtitles).
 - **Screen lock:** a 4-digit PIN (**⚙ › Launcher › SCREEN LOCK**) and a padlock on the home screen, so children
   cannot open apps or change settings. The clock and prayer times stay visible.
-- **Settings & updates:** the ⚙ button on the home screen; **CEK UPDATE** installs new versions without a computer.
+- **Settings & updates:** the ⚙ button on the home screen; four themes (AMBER, EMERALD, DAY, and GLOSSY with glass
+  panels); **CEK UPDATE** installs new versions without a computer, and the optional automatic check (off by
+  default) offers them by itself when the headunit turns on.
 
 ## Install
 
