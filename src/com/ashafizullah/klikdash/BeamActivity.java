@@ -38,8 +38,8 @@ import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 import static com.ashafizullah.klikdash.HomeActivity.WRAP;
 
 /**
- * Penerima KlikBeam (BETA) layar penuh: mirror layar iPhone lewat WiFi, pengirimnya aplikasi iOS KlikBeam yang belum
- * dirilis. Dibuka dari Pengaturan › Launcher › KLIKBEAM, yang juga menampilkan cara menyambung, kode pairing 6 digit,
+ * Penerima KlikBeam (BETA) layar penuh: mirror layar HP lewat WiFi, pengirimnya aplikasi KlikBeam (Android di Play Store
+ * uji tertutup; iOS belum rilis). Dibuka dari Pengaturan › Launcher › KLIKBEAM, yang juga menampilkan cara menyambung, kode pairing 6 digit,
  * dan IP headunit. Video di tengah dengan letterbox sesuai rasio CONFIG; selama belum ada gambar tampil panel status.
  *
  * Server dan decoder ada di {@link BeamHub}, jadi siaran tidak putus saat berpindah ke jendela melayang
@@ -320,7 +320,7 @@ public final class BeamActivity extends Activity implements BeamHub.Listener {
         return s.substring(0, 3) + " " + s.substring(3);
     }
 
-    /** Alamat untuk diketik di iPhone bila headunit tidak ditemukan otomatis, atau null tanpa jaringan. */
+    /** Alamat untuk diketik di HP bila headunit tidak ditemukan otomatis, atau null tanpa jaringan. */
     static String addressText() {
         List<String> ips = addresses();
         return ips.isEmpty() ? null : join(ips, ":" + BeamServer.PORT + "   ") + ":" + BeamServer.PORT;

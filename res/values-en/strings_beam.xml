@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_beam">Beam</string>
-    <string name="beam_no_network">No WiFi yet. Connect the headunit to your iPhone\'s hotspot.</string>
-    <string name="beam_waiting">WAITING FOR IPHONE</string>
+    <string name="beam_no_network">No WiFi yet. Connect the headunit to your phone\'s hotspot.</string>
+    <string name="beam_waiting">WAITING FOR PHONE</string>
     <string name="beam_connected">CONNECTED · WAITING FOR VIDEO</string>
     <string name="beam_rejected">WRONG CODE FROM %1$s</string>
     <string name="beam_reconnecting">RECONNECTING…</string>
     <string name="beam_ended">BROADCAST STOPPED</string>
     <string name="beam_error">SERVER FAILED: %1$s</string>
     <string name="beam_decoder_error">Video decoder failed: %1$s</string>
-    <string name="beam_beta">BETA · NOT USABLE YET</string>
-    <string name="beam_receiver_hint">Still in beta: the KlikBeam iPhone app is not available yet. Pairing code %1$s; how to connect is in Settings › Launcher › KLIKBEAM.</string>
+    <string name="beam_beta">BETA</string>
+    <string name="beam_receiver_hint">Open KlikBeam on your Android phone, pick this headunit, then enter pairing code %1$s. How to connect is in Settings › Launcher › KLIKBEAM.</string>
     <string name="settings_beam_title">KLIKBEAM · BETA</string>
-    <string name="settings_beam_desc">Mirror your iPhone screen to the headunit over WiFi. Still in beta and not usable yet: waiting for the KlikBeam iPhone app to be released.\n\nHow to connect: join the headunit to your iPhone\'s hotspot, tap OPEN RECEIVER, then in KlikBeam pick this headunit and enter pairing code %1$s. If the headunit does not show up, type the address: %2$s.\n\nNote: mirroring works the iPhone hard (screen recording, video encoding, WiFi), so it can get hot and drain the battery quickly, especially in a car parked in the sun. Keep it charging, place it where the AC reaches it, and stop the broadcast if the iPhone feels hot.</string>
+    <string name="settings_beam_desc">Mirror your phone screen to the headunit over WiFi. Install the KlikBeam app on your phone: Android from the Play Store (closed test, join via groups.google.com/g/klikbeam-testers); iPhone coming soon.\n\nHow to connect: join the headunit to your phone\'s hotspot, tap OPEN RECEIVER, then in KlikBeam pick this headunit and enter pairing code %1$s. If the headunit does not show up, type the address: %2$s.\n\nNote: mirroring works the phone hard (screen recording, video encoding, WiFi), so it can get hot and drain the battery quickly, especially in a car parked in the sun. Keep it charging, place it where the AC reaches it, and stop the broadcast if the phone feels hot.</string>
     <string name="settings_beam_new_code">NEW CODE</string>
     <string name="settings_beam_open">OPEN RECEIVER</string>
     <string name="beam_minimize">MINIMIZE</string>
@@ -21,5 +21,5 @@
     <string name="beam_size">SIZE</string>
     <string name="beam_no_overlay">Floating mode needs permission to show over other apps. Turn on USB debugging (Android Settings › Developer options), then try again.</string>
     <string name="beam_channel">KlikBeam</string>
-    <string name="beam_notification">iPhone mirror is on. Tap for full screen.</string>
+    <string name="beam_notification">Phone mirror is on. Tap for full screen.</string>
 </resources>

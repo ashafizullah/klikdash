@@ -18,9 +18,9 @@ import java.net.SocketTimeoutException;
 
 /**
  * Server TCP protokol KlikBeam v1 (docs/PROTOCOL.md di repo KlikBeam, yang juga berisi aplikasi pengirim iOS):
- * menerima koneksi dari iPhone, memeriksa kode pairing, lalu meneruskan CONFIG dan FRAME ke {@link BeamDecoder}.
+ * menerima koneksi dari HP, memeriksa kode pairing, lalu meneruskan CONFIG dan FRAME ke {@link BeamDecoder}.
  * Satu pengirim sekaligus; koneksi baru yang lolos handshake menggantikan yang lama. Juga mendaftarkan layanan
- * Bonjour/NSD supaya iPhone menemukan headunit.
+ * Bonjour/NSD supaya HP menemukan headunit.
  */
 final class BeamServer {
     interface Listener {
@@ -196,7 +196,7 @@ final class BeamServer {
             nsd = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
             nsd.registerService(info, NsdManager.PROTOCOL_DNS_SD, nsdListener);
         } catch (RuntimeException e) {
-            // Tanpa Bonjour iPhone tetap bisa memakai IP yang tampil di layar.
+            // Tanpa Bonjour HP tetap bisa memakai IP yang tampil di layar.
             Log.w(TAG, "NSD", e);
             nsd = null;
         }

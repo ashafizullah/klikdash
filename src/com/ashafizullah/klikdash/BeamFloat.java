@@ -33,7 +33,7 @@ import static com.ashafizullah.klikdash.HomeActivity.WRAP;
 
 /**
  * Jendela melayang KlikBeam di atas aplikasi lain (izin "tampil di atas aplikasi lain", seperti {@link Notice}):
- * video iPhone dalam kotak kecil yang bisa digeser ke mana saja. Ketuk sekali untuk tombol (LAYAR PENUH, UKURAN,
+ * video HP dalam kotak kecil yang bisa digeser ke mana saja. Ketuk sekali untuk tombol (LAYAR PENUH, UKURAN,
  * TUTUP), ketuk dua kali untuk layar penuh. Sentuhan di luar kotak tetap ke aplikasi di belakangnya. Posisi dan
  * ukuran disimpan di prefs "beam" (floatX, floatY, floatSize).
  */

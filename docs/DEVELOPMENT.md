@@ -26,7 +26,7 @@ klikdash/
 │   ├── AiTools.java          car commands the AI may run (open app, navigate, murattal, volume…)
 │   ├── AiStore.java          AI profiles; API keys encrypted with Android Keystore
 │   ├── AiVoice.java          speech: Android or ElevenLabs TTS and STT (picks installed Android engines)
-│   ├── BeamActivity.java     KlikBeam (beta) receiver, opened from Settings › Launcher › KLIKBEAM (iOS app not released yet)
+│   ├── BeamActivity.java     KlikBeam (beta) receiver, opened from Settings › Launcher › KLIKBEAM (Android sender in Play Store closed testing; iOS app not released yet)
 │   ├── BeamServer.java       KlikBeam v1 TCP server + Bonjour/NSD registration
 │   ├── BeamDecoder.java      hardware H.264 decoder (MediaCodec) rendering to a Surface
 │   ├── BeamHub.java          KlikBeam core: server, decoder and state shared by full screen and floating window

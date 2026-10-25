@@ -26,7 +26,7 @@ klikdash/
 │   ├── AiTools.java          perintah mobil yang boleh dijalankan AI (buka aplikasi, navigasi, murattal, volume…)
 │   ├── AiStore.java          profil AI; API key dienkripsi dengan Android Keystore
 │   ├── AiVoice.java          suara: TTS & STT Android atau ElevenLabs (memilih mesin Android yang terpasang)
-│   ├── BeamActivity.java     penerima KlikBeam (beta), dibuka dari Pengaturan › Launcher › KLIKBEAM (aplikasi iOS belum rilis)
+│   ├── BeamActivity.java     penerima KlikBeam (beta), dibuka dari Pengaturan › Launcher › KLIKBEAM (pengirim Android di uji tertutup Play Store; aplikasi iOS belum rilis)
 │   ├── BeamServer.java       server TCP KlikBeam v1 + pendaftaran Bonjour/NSD
 │   ├── BeamDecoder.java      decoder H.264 hardware (MediaCodec) yang menggambar ke Surface
 │   ├── BeamHub.java          inti KlikBeam: server, decoder, dan status untuk layar penuh dan jendela melayang
