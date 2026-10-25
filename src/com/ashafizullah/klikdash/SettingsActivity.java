@@ -200,7 +200,7 @@ public class SettingsActivity extends Activity {
             shift[i].minWidth = px(56);
         }
         list.addView(row(getString(R.string.settings_hijri_title), getString(R.string.settings_hijri_desc,
-                titleCase(HomeActivity.hijriText(System.currentTimeMillis(), off))), shift));
+                titleCase(Hijri.text(System.currentTimeMillis(), off))), shift));
 
         Key[] langs = new Key[Lang.CODES.length];
         for (int i = 0; i < langs.length; i++) {
@@ -227,10 +227,10 @@ public class SettingsActivity extends Activity {
         list.addView(row(getString(R.string.settings_theme_title),
                 getResources().getStringArray(R.array.theme_desc)[cur], themes));
 
-        int tc = HomeActivity.tileCount(prefs);
-        Key[] counts = new Key[HomeActivity.TILE_COUNTS.length];
+        int tc = HomeApps.tileCount(prefs);
+        Key[] counts = new Key[HomeApps.TILE_COUNTS.length];
         for (int i = 0; i < counts.length; i++) {
-            final int n = HomeActivity.TILE_COUNTS[i];
+            final int n = HomeApps.TILE_COUNTS[i];
             counts[i] = key(String.valueOf(n), n == tc, () -> {
                 prefs.edit().putInt("tiles", n).apply();
                 show(TAB_LAUNCHER, true); // home dibangun ulang saat tampil lagi
@@ -484,7 +484,7 @@ public class SettingsActivity extends Activity {
                 .setNegativeButton(getString(R.string.common_cancel), null)
                 .setPositiveButton(getString(R.string.settings_tiles_reset_button), (d, w) -> {
                     SharedPreferences.Editor e = prefs.edit();
-                    for (int i = 0; i < HomeActivity.SLOTS; i++) e.remove("s" + i).remove("l" + i);
+                    for (int i = 0; i < HomeApps.SLOTS; i++) e.remove("s" + i).remove("l" + i);
                     e.apply();
                     Notice.ok(this, getString(R.string.settings_tiles_reset_done));
                 }));

@@ -9,32 +9,16 @@ klikdash/
 ├── AndroidManifest.xml
 ├── build.sh                  build + install on the headunit
 ├── klikdash.keystore         APK signing key (do not lose it, see Notes)
-├── src/com/ashafizullah/klikdash/
-│   ├── HomeActivity.java     launcher: tiles, clock, prayer times, temperature, drag & drop
-│   ├── PrayerTimes.java      prayer-time calculation (Kemenag RI parameters)
-│   ├── Clock.java            system clock check; sets it from GPS time when the headunit boots with a wrong clock
-│   ├── QuranActivity.java    mushaf view + player
-│   ├── QuranService.java     background recitation player
-│   ├── QuranData.java        loader for assets/quran.txt
-│   ├── DzikirActivity.java   morning & evening dhikr with a guided counter
-│   ├── SettingsActivity.java settings with tabs: launcher, power saver, AI assistant
-│   ├── AiPanel.java          AI assistant tab: profiles, model, ElevenLabs voice & model pickers
-│   ├── Updater.java          update check from GitHub Releases, signature check, install
-│   ├── HomeSwitch.java       make KlikDash the home screen / back to the stock launcher
-│   ├── PowerPanel.java       power saver tab: block apps from running in the background
-│   ├── AskActivity.java      TANYA AI tile: voice assistant for car commands
-│   ├── AiClient.java         AI tool-use loop (Claude Messages API / OpenAI-compatible)
-│   ├── AiTools.java          car commands the AI may run (open app, navigate, murattal, volume…)
-│   ├── AiStore.java          AI profiles; API keys encrypted with Android Keystore
-│   ├── AiVoice.java          speech: Android or ElevenLabs TTS and STT (picks installed Android engines)
-│   ├── BeamActivity.java     KlikBeam (beta) receiver, opened from Settings › Launcher › KLIKBEAM (Android sender in Play Store closed testing; iOS app not released yet)
-│   ├── BeamServer.java       KlikBeam v1 TCP server + Bonjour/NSD registration
-│   ├── BeamDecoder.java      hardware H.264 decoder (MediaCodec) rendering to a Surface
-│   ├── BeamHub.java          KlikBeam core: server, decoder and state shared by full screen and floating window
-│   ├── BeamFloat.java        KlikBeam floating window over other apps (drag, size, close)
-│   ├── BeamService.java      foreground service + notification while KlikBeam runs
-│   ├── Tweaks.java           system commands through local ADB (ksmd, hide Zlink, launcher, appops)
-│   └── Compat.java           Android 7–8 differences (fonts, audio focus, notification channel, services)
+├── src/com/ashafizullah/klikdash/   grouped by feature; each class starts with a comment explaining it
+│   ├── Home*.java, Hijri, Welcome, ScreenLock   launcher: tiles, drawer, clock panel, Hijri date, welcome card, PIN lock
+│   ├── Prayer*.java, Clock      prayer times (Kemenag RI parameters), prayer alerts, clock set from GPS
+│   ├── Quran*.java              mushaf, background recitation player, home notch
+│   ├── DzikirActivity           morning & evening dhikr with a guided counter
+│   ├── SettingsActivity, PowerPanel   settings: launcher, power saver
+│   ├── Ask*, Ai*.java           TANYA AI: voice, car commands, profiles & encrypted API keys, settings tab
+│   ├── Beam*.java               KlikBeam (beta): phone screen mirroring over WiFi
+│   ├── Theme, Lang, Key, Notice   theme palette, interface language, buttons, notices
+│   └── Updater, UpdatedReceiver, HomeSwitch, Tweaks, Compat   updates, home screen switch, local ADB, Android 7–8
 ├── res/                      theme, vector icons, ISRG root certificates for Android 7.0 (network_security.xml)
 ├── assets/
 │   ├── dzikir.json           morning & evening dhikr, built from KlikBand (tools/build_dzikir.mjs)

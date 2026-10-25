@@ -382,9 +382,9 @@ final class AiTools {
         s.append(". ").append(x.getString(R.string.as_res_hijri, c.get(android.icu.util.Calendar.DAY_OF_MONTH),
                 x.getResources().getStringArray(R.array.hijri_months)[c.get(android.icu.util.Calendar.MONTH)].toLowerCase(loc),
                 c.get(android.icu.util.Calendar.YEAR)));
-        if (SystemClock.elapsedRealtime() - HomeActivity.lastKmhAt < 10_000)
-            s.append(". ").append(x.getString(R.string.as_res_speed, HomeActivity.lastKmh));
-        String t = HomeActivity.readLine(HomeActivity.findCpuZone());
+        if (SystemClock.elapsedRealtime() - HomeLocation.lastKmhAt < 10_000)
+            s.append(". ").append(x.getString(R.string.as_res_speed, HomeLocation.lastKmh));
+        String t = HomeStatus.readLine(HomeStatus.findCpuZone());
         if (t != null) {
             try {
                 int v = Integer.parseInt(t);
