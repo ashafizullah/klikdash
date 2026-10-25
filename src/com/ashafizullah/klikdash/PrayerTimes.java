@@ -9,7 +9,6 @@ import java.util.TimeZone;
  * Algoritma posisi matahari mengikuti praytimes.org.
  */
 final class PrayerTimes {
-    static final String[] NAMES = {"SUBUH", "DZUHUR", "ASHAR", "MAGHRIB", "ISYA"};
     static final int IHTIYATH = 2;
 
     private PrayerTimes() { }

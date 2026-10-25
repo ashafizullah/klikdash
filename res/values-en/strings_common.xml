@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_quran">Quran</string>
+    <string name="app_dzikir">Dhikr</string>
+    <string name="app_ask">Ask</string>
+    <string name="app_settings">KlikDash Settings</string>
+
+    <string name="channel_prayer">Prayer time reminders</string>
+    <string name="channel_quran">Recitation</string>
+
+    <string name="lang_id">INDONESIA</string>
+    <string name="lang_en">ENGLISH</string>
+
+    <string name="common_cancel">Cancel</string>
+    <string name="common_save">Save</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_close">Close</string>
+
+    <string-array name="prayer_names">
+        <item>FAJR</item>
+        <item>DHUHR</item>
+        <item>ASR</item>
+        <item>MAGHRIB</item>
+        <item>ISHA</item>
+    </string-array>
+    <string-array name="hijri_months">
+        <item>MUHARRAM</item>
+        <item>SAFAR</item>
+        <item>RABI\' AL-AWWAL</item>
+        <item>RABI\' AL-THANI</item>
+        <item>JUMADA AL-ULA</item>
+        <item>JUMADA AL-AKHIRAH</item>
+        <item>RAJAB</item>
+        <item>SHA\'BAN</item>
+        <item>RAMADAN</item>
+        <item>SHAWWAL</item>
+        <item>DHU AL-QA\'DAH</item>
+        <item>DHU AL-HIJJAH</item>
+    </string-array>
+    <string-array name="day_names">
+        <item>SUNDAY</item>
+        <item>MONDAY</item>
+        <item>TUESDAY</item>
+        <item>WEDNESDAY</item>
+        <item>THURSDAY</item>
+        <item>FRIDAY</item>
+        <item>SATURDAY</item>
+    </string-array>
+    <string-array name="month_names">
+        <item>JANUARY</item>
+        <item>FEBRUARY</item>
+        <item>MARCH</item>
+        <item>APRIL</item>
+        <item>MAY</item>
+        <item>JUNE</item>
+        <item>JULY</item>
+        <item>AUGUST</item>
+        <item>SEPTEMBER</item>
+        <item>OCTOBER</item>
+        <item>NOVEMBER</item>
+        <item>DECEMBER</item>
+    </string-array>
+</resources>

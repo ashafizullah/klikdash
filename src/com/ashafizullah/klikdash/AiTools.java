@@ -307,13 +307,13 @@ final class AiTools {
         StringBuilder s = new StringBuilder("Jadwal di " + city(a) + ": ");
         int next = -1;
         for (int i = 0; i < t.length; i++) {
-            s.append(PrayerTimes.NAMES[i].toLowerCase(ID)).append(String.format(Locale.US, " %02d:%02d", t[i] / 60, t[i] % 60))
+            s.append(Lang.prayers[i].toLowerCase(ID)).append(String.format(Locale.US, " %02d:%02d", t[i] / 60, t[i] % 60))
                     .append(i < t.length - 1 ? ", " : ". ");
             if (next < 0 && t[i] > min) next = i;
         }
         if (next >= 0) {
             int left = t[next] - min;
-            s.append("Berikutnya ").append(PrayerTimes.NAMES[next].toLowerCase(ID)).append(" dalam ")
+            s.append("Berikutnya ").append(Lang.prayers[next].toLowerCase(ID)).append(" dalam ")
                     .append(left / 60 > 0 ? left / 60 + " jam " : "").append(left % 60).append(" menit.");
         } else {
             s.append("Berikutnya subuh besok.");
@@ -346,7 +346,7 @@ final class AiTools {
         c.setCalculationType(android.icu.util.IslamicCalendar.CalculationType.ISLAMIC_UMALQURA);
         c.setTimeInMillis(now.getTime());
         s.append(". Hijriah ").append(c.get(android.icu.util.Calendar.DAY_OF_MONTH)).append(' ')
-                .append(HomeActivity.HIJRI_MONTHS[c.get(android.icu.util.Calendar.MONTH)].toLowerCase(ID)).append(' ')
+                .append(Lang.hijriMonths[c.get(android.icu.util.Calendar.MONTH)].toLowerCase(ID)).append(' ')
                 .append(c.get(android.icu.util.Calendar.YEAR)).append(" H");
         if (SystemClock.elapsedRealtime() - HomeActivity.lastKmhAt < 10_000) s.append(". Kecepatan ").append(HomeActivity.lastKmh).append(" km/jam");
         String t = HomeActivity.readLine(HomeActivity.findCpuZone());

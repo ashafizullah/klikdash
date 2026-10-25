@@ -130,14 +130,6 @@ public class HomeActivity extends Activity {
     final Map<String, App> appByKey = new HashMap<>();
     final Map<String, App> appByPkg = new HashMap<>();
 
-    /**
-     * Nama hari dan bulan ditulis sendiri, bukan SimpleDateFormat dengan locale id: data ICU Indonesia dimuat saat
-     * proses start dan menunda home 60–145 ms di headunit (atrace). Sama dengan keluaran locale id ("Jumat").
-     */
-    static final String[] HARI = {"MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"};
-    static final String[] BULAN = {"JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS",
-            "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"};
-
     static String two(int n) { return n < 10 ? "0" + n : String.valueOf(n); }
 
     // Lokasi & jadwal sholat. Tanpa GPS, dipakai kota perkiraan dari zona waktu.
@@ -278,6 +270,8 @@ public class HomeActivity extends Activity {
 
     int themeBuilt;
 
+    @Override protected void attachBaseContext(Context base) { super.attachBaseContext(Lang.wrap(base)); }
+
     @Override protected void onCreate(Bundle b) {
         themeBuilt = Theme.apply(this);
         super.onCreate(b);
@@ -399,8 +393,6 @@ public class HomeActivity extends Activity {
 
     // ---------------------------------------------------------------- tanggal Hijriah
 
-    static final String[] HIJRI_MONTHS = {"MUHARRAM", "SAFAR", "RABIUL AWAL", "RABIUL AKHIR", "JUMADIL AWAL",
-            "JUMADIL AKHIR", "RAJAB", "SYA'BAN", "RAMADHAN", "SYAWAL", "DZULQA'DAH", "DZULHIJJAH"};
 
     /**
      * Umm al-Qura (ICU bawaan Android), cocok dengan kalender Kemenag untuk Oktober 2026. Koreksi ±2 hari diatur
@@ -426,7 +418,7 @@ public class HomeActivity extends Activity {
         android.icu.util.IslamicCalendar c = new android.icu.util.IslamicCalendar();
         c.setCalculationType(android.icu.util.IslamicCalendar.CalculationType.ISLAMIC_UMALQURA);
         c.setTimeInMillis(now + offsetDays * 86_400_000L);
-        return c.get(android.icu.util.Calendar.DAY_OF_MONTH) + " " + HIJRI_MONTHS[c.get(android.icu.util.Calendar.MONTH)]
+        return c.get(android.icu.util.Calendar.DAY_OF_MONTH) + " " + Lang.hijriMonths[c.get(android.icu.util.Calendar.MONTH)]
                 + " " + c.get(android.icu.util.Calendar.YEAR) + " H";
     }
 
@@ -920,8 +912,8 @@ public class HomeActivity extends Activity {
         computePrayer(now);
         if (prayerView != null) prayerView.invalidate();
         show(clock, two(now.get(Calendar.HOUR_OF_DAY)) + ":" + two(now.get(Calendar.MINUTE)));
-        show(day, HARI[now.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY]);
-        show(date, now.get(Calendar.DAY_OF_MONTH) + " " + BULAN[now.get(Calendar.MONTH)] + " " + now.get(Calendar.YEAR));
+        show(day, Lang.days[now.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY]);
+        show(date, now.get(Calendar.DAY_OF_MONTH) + " " + Lang.months[now.get(Calendar.MONTH)] + " " + now.get(Calendar.YEAR));
         show(hijri, hijriText(now.getTimeInMillis()));
         gauge.invalidate();
         int dz = dzikirPagi() ? 1 : 0; // ubin Dzikir berganti PAGI → PETANG saat Ashar, walau home terus tampil
@@ -1711,7 +1703,7 @@ public class HomeActivity extends Activity {
                 int color = i == next ? AMBER : pray[i] <= now ? DIM : TEXT;
                 if (i == next) c.drawRect(x, px(1), x + px(28 * k), px(4), paintOf(AMBER));
                 name.setColor(i == next ? AMBER : DIM);
-                c.drawText(PrayerTimes.NAMES[i], x, px(28 * k), name);
+                c.drawText(Lang.prayers[i], x, px(28 * k), name);
                 time.setColor(color);
                 c.drawText(prayText[i], x, px(64 * k), time);
             }
@@ -1719,7 +1711,7 @@ public class HomeActivity extends Activity {
             int target = next >= 0 ? pray[next] : 1440 + prayTomorrow[0];
             int left = (target - now) * 60 - cal.get(Calendar.SECOND); // detik tersisa
             String wait = String.format(Locale.US, "%02d:%02d:%02d", left / 3600, left / 60 % 60, left % 60);
-            String msg = "▸ " + PrayerTimes.NAMES[next >= 0 ? next : 0] + " DALAM " + wait;
+            String msg = "▸ " + Lang.prayers[next >= 0 ? next : 0] + " DALAM " + wait;
             info.setColor(AMBER);
             info.setTextAlign(Paint.Align.LEFT);
             c.drawText(msg, 0, px(96 * k), info);

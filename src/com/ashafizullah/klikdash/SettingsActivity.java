@@ -61,6 +61,8 @@ public class SettingsActivity extends Activity {
     PowerPanel power;
     AiPanel ai;
 
+    @Override protected void attachBaseContext(Context base) { super.attachBaseContext(Lang.wrap(base)); }
+
     @Override protected void onCreate(Bundle b) {
         Theme.apply(this);
         super.onCreate(b);

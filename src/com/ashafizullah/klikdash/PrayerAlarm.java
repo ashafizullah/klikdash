@@ -67,9 +67,9 @@ public class PrayerAlarm extends BroadcastReceiver {
         schedule(c);
     }
 
-    /** Tampilkan pengingat untuk waktu sholat {@code i} (indeks {@link PrayerTimes#NAMES}) pada {@code at}. */
+    /** Tampilkan pengingat untuk waktu sholat {@code i} (indeks {@link Lang#prayers}) pada {@code at}. */
     static void notify(Context c, int i, long at) {
-        String name = titleCase(PrayerTimes.NAMES[i]);
+        String name = titleCase(Lang.prayers[i]);
         Calendar t = Calendar.getInstance();
         t.setTimeInMillis(at);
         String time = String.format(Locale.US, "%02d:%02d", t.get(Calendar.HOUR_OF_DAY), t.get(Calendar.MINUTE));

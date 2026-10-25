@@ -1,6 +1,7 @@
 package com.ashafizullah.klikdash;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -61,6 +62,8 @@ public class QuranActivity extends Activity {
     final Runnable onService = this::refreshPlayer;
 
     int themeBuilt;
+
+    @Override protected void attachBaseContext(Context base) { super.attachBaseContext(Lang.wrap(base)); }
 
     @Override protected void onCreate(Bundle b) {
         themeBuilt = Theme.apply(this);

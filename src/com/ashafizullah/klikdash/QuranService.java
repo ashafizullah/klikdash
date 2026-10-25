@@ -46,6 +46,7 @@ public class QuranService extends Service
     /** LANJUT: terus ke surah berikutnya; SURAH/AYAT: ulangi. */
     static final int MODE_CONTINUE = 0, MODE_REPEAT_SURAH = 1, MODE_REPEAT_AYAH = 2;
     static final String RECITER = "Mishary Rashid Alafasy";
+    static final String CHANNEL = "quran";
     /** Audio per ayat; APK tidak membawanya, diunduh saat diputar lalu disimpan untuk offline. */
     static final String AUDIO_URL = "https://everyayah.com/data/Alafasy_128kbps/%03d%03d.mp3";
 
@@ -149,6 +150,8 @@ public class QuranService extends Service
             .setUsage(AudioAttributes.USAGE_MEDIA)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
             .build();
+
+    @Override protected void attachBaseContext(Context base) { super.attachBaseContext(Lang.wrap(base)); }
 
     @Override public void onCreate() {
         super.onCreate();
@@ -479,7 +482,7 @@ public class QuranService extends Service
     Notification notification() {
         PendingIntent open = PendingIntent.getActivity(this, 0,
                 new Intent(this, QuranActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
-        return Compat.notification(this, "quran", "Murattal")
+        return Compat.notification(this, CHANNEL, getString(R.string.channel_quran))
                 .setSmallIcon(R.drawable.ic_quran)
                 .setContentTitle(title())
                 .setContentText(status())

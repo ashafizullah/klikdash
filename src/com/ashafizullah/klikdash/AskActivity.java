@@ -2,6 +2,7 @@ package com.ashafizullah.klikdash;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Canvas;
@@ -65,6 +66,8 @@ public class AskActivity extends Activity {
         super.onResume();
         Theme.stale(this, themeBuilt);
     }
+
+    @Override protected void attachBaseContext(Context base) { super.attachBaseContext(Lang.wrap(base)); }
 
     @Override protected void onCreate(Bundle b) {
         themeBuilt = Theme.apply(this);

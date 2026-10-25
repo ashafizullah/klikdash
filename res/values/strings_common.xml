@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Teks bersama. Bahasa Indonesia adalah bawaan (res/values); terjemahan English di res/values-en. -->
+<resources>
+    <string name="app_quran">Al-Qur\'an</string>
+    <string name="app_dzikir">Dzikir</string>
+    <string name="app_ask">Tanya</string>
+    <string name="app_settings">Pengaturan KlikDash</string>
+
+    <string name="channel_prayer">Pengingat waktu sholat</string>
+    <string name="channel_quran">Murattal</string>
+
+    <string name="lang_id">INDONESIA</string>
+    <string name="lang_en">ENGLISH</string>
+
+    <string name="common_cancel">Batal</string>
+    <string name="common_save">Simpan</string>
+    <string name="common_delete">Hapus</string>
+    <string name="common_close">Tutup</string>
+
+    <string-array name="prayer_names">
+        <item>SUBUH</item>
+        <item>DZUHUR</item>
+        <item>ASHAR</item>
+        <item>MAGHRIB</item>
+        <item>ISYA</item>
+    </string-array>
+    <string-array name="hijri_months">
+        <item>MUHARRAM</item>
+        <item>SAFAR</item>
+        <item>RABIUL AWAL</item>
+        <item>RABIUL AKHIR</item>
+        <item>JUMADIL AWAL</item>
+        <item>JUMADIL AKHIR</item>
+        <item>RAJAB</item>
+        <item>SYA\'BAN</item>
+        <item>RAMADHAN</item>
+        <item>SYAWAL</item>
+        <item>DZULQA\'DAH</item>
+        <item>DZULHIJJAH</item>
+    </string-array>
+    <string-array name="day_names">
+        <item>MINGGU</item>
+        <item>SENIN</item>
+        <item>SELASA</item>
+        <item>RABU</item>
+        <item>KAMIS</item>
+        <item>JUMAT</item>
+        <item>SABTU</item>
+    </string-array>
+    <string-array name="month_names">
+        <item>JANUARI</item>
+        <item>FEBRUARI</item>
+        <item>MARET</item>
+        <item>APRIL</item>
+        <item>MEI</item>
+        <item>JUNI</item>
+        <item>JULI</item>
+        <item>AGUSTUS</item>
+        <item>SEPTEMBER</item>
+        <item>OKTOBER</item>
+        <item>NOVEMBER</item>
+        <item>DESEMBER</item>
+    </string-array>
+</resources>

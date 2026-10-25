@@ -41,7 +41,7 @@
 
         <activity
             android:name=".QuranActivity"
-            android:label="Al-Qur'an"
+            android:label="@string/app_quran"
             android:icon="@drawable/ic_quran"
             android:taskAffinity="com.ashafizullah.klikdash.quran"
             android:launchMode="singleTask"
@@ -54,7 +54,7 @@
 
         <activity
             android:name=".DzikirActivity"
-            android:label="Dzikir"
+            android:label="@string/app_dzikir"
             android:icon="@drawable/ic_dzikir"
             android:taskAffinity="com.ashafizullah.klikdash.dzikir"
             android:launchMode="singleTask"
@@ -67,7 +67,7 @@
 
         <activity
             android:name=".SettingsActivity"
-            android:label="Pengaturan KlikDash"
+            android:label="@string/app_settings"
             android:taskAffinity="com.ashafizullah.klikdash.settings"
             android:launchMode="singleTask"
             android:excludeFromRecents="true"
@@ -76,7 +76,7 @@
 
         <activity
             android:name=".AskActivity"
-            android:label="Tanya"
+            android:label="@string/app_ask"
             android:icon="@drawable/ic_ask"
             android:taskAffinity="com.ashafizullah.klikdash.ask"
             android:launchMode="singleTask"
