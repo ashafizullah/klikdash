@@ -162,6 +162,10 @@ The old NWD launcher is **not removed**. Its process stays because it also handl
 Code structure, building without Gradle, the recitation audio, building the Quran text, and how the NWD firmware
 behaves: see **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**.
 
+## Support
+
+KlikDash is free. If it saves you time, **[buy me an AI token on Trakteer](https://trakteer.id/adamshafizullah/tip)** ☕🤖.
+
 ## Sources & licenses
 
 - **Code:** [MIT](LICENSE), except `PrayerTimes.java` (see prayer times below).

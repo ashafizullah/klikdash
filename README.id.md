@@ -164,6 +164,10 @@ Launcher NWD lama **tidak dihapus**. Prosesnya tetap ada karena juga menangani i
 Struktur kode, build tanpa Gradle, audio murattal, membuat teks Al-Qur'an, dan cara kerja firmware NWD: lihat
 **[docs/DEVELOPMENT.id.md](docs/DEVELOPMENT.id.md)**.
 
+## Dukungan
+
+KlikDash gratis. Kalau bermanfaat, **[traktir saya token AI di Trakteer](https://trakteer.id/adamshafizullah/tip)** ☕🤖.
+
 ## Sumber & lisensi
 
 - **Kode:** [MIT](LICENSE), kecuali `PrayerTimes.java` (lihat jadwal sholat di bawah).
