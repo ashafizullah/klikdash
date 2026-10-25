@@ -3,7 +3,7 @@
     <!-- Settings › AI Assistant -->
     <string name="ai_profiles_title">AI PROFILES</string>
     <string name="ai_profiles_empty">No profile yet. Add a Claude API key (console.anthropic.com) or an OpenAI-compatible service such as OpenAI, OpenRouter, Groq, or a local server.</string>
-    <string name="ai_profiles_desc">Tap USE to choose the profile the ASK shortcut uses. API keys are stored encrypted on this headunit and only sent to their profile\'s address.</string>
+    <string name="ai_profiles_desc">Tap USE to choose the profile the ASK AI shortcut uses. API keys are stored encrypted on this headunit and only sent to their profile\'s address.</string>
     <string name="ai_model_unset">no model set</string>
     <string name="ai_test">TEST</string>
     <string name="ai_testing">TESTING…</string>
@@ -15,14 +15,14 @@
     <string name="ai_connected">Connected</string>
 
     <string name="ai_web_title">WEB SEARCH</string>
-    <string name="ai_web_intro">ASK looks up current information (news, prices, weather, schedules) when needed.</string>
+    <string name="ai_web_intro">ASK AI looks up current information (news, prices, weather, schedules) when needed.</string>
     <string name="ai_web_anthropic">official Claude profiles search with Anthropic web search, billed to the Claude account ($10 per 1,000 searches); other profiles don\'t search.</string>
     <string name="ai_web_no_key">Enter a TinyFish API key (free, create one at agent.tinyfish.ai) so every profile searches with TinyFish. Without TinyFish, %1$s</string>
     <string name="ai_web_on">Every profile searches with TinyFish (free), key %1$s.</string>
     <string name="ai_web_off">TinyFish is off: %1$s</string>
 
     <string name="ai_lang_title">ASSISTANT LANGUAGE</string>
-    <string name="ai_lang_desc">The language ASK listens and speaks in, separate from the display language.</string>
+    <string name="ai_lang_desc">The language ASK AI listens and speaks in, separate from the display language.</string>
     <string name="ai_lang_voice_hint">%1$s has an Indonesian accent: pick another voice under ELEVENLABS VOICE.</string>
 
     <string name="ai_el_title">ELEVENLABS VOICE</string>
@@ -106,12 +106,12 @@
     <string name="ai_err_transcribe">Transcription failed</string>
 
     <!-- ASK screen -->
-    <string name="ask_title">ASK</string>
+    <string name="ask_title">ASK AI</string>
     <string name="ask_close">"CLOSE  ✕"</string>
     <string name="ask_again">ASK AGAIN</string>
     <string name="ask_setup">SET UP AI</string>
     <string name="ask_no_profile">NO AI PROFILE YET</string>
-    <string name="ask_no_profile_hint">ASK needs an AI profile. Tap SET UP AI, then add a Claude or OpenAI-compatible API key.</string>
+    <string name="ask_no_profile_hint">ASK AI needs an AI profile. Tap SET UP AI, then add a Claude or OpenAI-compatible API key.</string>
     <string name="ask_mic_denied">MICROPHONE PERMISSION DENIED</string>
     <string name="ask_info_voice">VOICE</string>
     <string name="ask_info_listen">HEARING</string>

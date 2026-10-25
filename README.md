@@ -51,7 +51,7 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
   Alafasy, readable offline.
 - **Dhikr:** morning and evening readings with a guided counter.
 - **Power saver:** stop apps such as Netflix or Spotify from running in the background.
-- **Voice assistant TANYA (optional):** say *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai Waze"* or
+- **Voice assistant TANYA AI (optional):** say *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai Waze"* or
   *"buka Zlink"*. Bring your own Claude or OpenAI-compatible key; it listens and speaks with the headunit's
   free Android voice or with ElevenLabs, and looks up current information on the web (Claude's web search, or free
   TinyFish search for any provider).
@@ -105,7 +105,7 @@ replaces the home screen, and the optional power saver only stops apps you pick 
 | Default launcher `persist.nwd.launcher.default=com.ashafizullah.klikdash` (NWD) and HOME preference | When you tap **JADIKAN TAMPILAN UTAMA** | **Settings › Launcher › LAUNCHER BAWAAN**, or `adb shell setprop persist.nwd.launcher.default com.android.launcher` |
 | ksmd turned off | Every boot, while KlikDash is the home screen (needs ADB on) | Switch back to the stock launcher or uninstall KlikDash, then reboot |
 | Zlink sent back to home when it opens by itself | First 3 minutes after boot or wake-up | Same as above |
-| Apps blocked from running in the background (`appops RUN_ANY_IN_BACKGROUND/RUN_IN_BACKGROUND ignore`) | Only for apps you switch on in **HEMAT DAYA**, or ask TANYA to | Tap the app again, or **KEMBALIKAN SEMUA** |
+| Apps blocked from running in the background (`appops RUN_ANY_IN_BACKGROUND/RUN_IN_BACKGROUND ignore`) | Only for apps you switch on in **HEMAT DAYA**, or ask TANYA AI to | Tap the app again, or **KEMBALIKAN SEMUA** |
 | KlikDash updated with `pm install` | Only when you tap **Unduh & pasang** in Settings | Install an older APK with `adb install -r -d` |
 
 The old NWD launcher is **not removed**. Its process stays because it also handles car info from the CAN bus.
@@ -149,7 +149,7 @@ The old NWD launcher is **not removed**. Its process stays because it also handl
 
 - Changing the default launcher and system settings is not supported by the headunit maker and may affect
   your warranty. Every change can be undone (see [Changes made on the headunit](#changes-made-on-the-headunit)).
-- **Do not operate the screen while driving.** Use the steering-wheel buttons, or stop safely first. TANYA
+- **Do not operate the screen while driving.** Use the steering-wheel buttons, or stop safely first. TANYA AI
   still needs a tap to start listening; keep it to short commands and keep your eyes on the road.
 - Prayer times are calculated and may differ by a minute or so from official schedules; follow your local
   mosque or authority.

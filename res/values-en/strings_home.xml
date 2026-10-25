@@ -5,7 +5,7 @@
     <string name="home_tile_quran">QURAN</string>
     <string name="home_tile_camera">360 CAMERA</string>
     <string name="home_tile_system">SYSTEM</string>
-    <string name="home_tile_ask">ASK</string>
+    <string name="home_tile_ask">ASK AI</string>
 
     <string name="home_tile_all">ALL</string>
     <string name="home_tile_apps">"APPS  →"</string>

@@ -3,7 +3,7 @@
 <resources>
     <string name="app_quran">Al-Qur\'an</string>
     <string name="app_dzikir">Dzikir</string>
-    <string name="app_ask">Tanya</string>
+    <string name="app_ask">Tanya AI</string>
     <string name="app_settings">Pengaturan KlikDash</string>
 
     <string name="channel_prayer">Pengingat waktu sholat</string>

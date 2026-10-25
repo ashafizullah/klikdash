@@ -127,9 +127,9 @@ again to allow it, or **KEMBALIKAN SEMUA** ("restore all") to undo everything. S
 are deliberately left out so navigation and CarPlay keep working. This needs USB debugging on, like the
 home-screen button.
 
-## Voice assistant (TANYA)
+## Voice assistant (TANYA AI)
 
-Optional. TANYA understands short commands in Indonesian, such as *"putar surat Yasin"* (play Surah Yasin),
+Optional. TANYA AI understands short commands in Indonesian, such as *"putar surat Yasin"* (play Surah Yasin),
 *"navigasi ke masjid terdekat pakai Waze"*, *"buka Zlink"* or *"stop murottalnya"*, and answers out loud.
 
 1. Get an API key from [console.anthropic.com](https://console.anthropic.com) (Claude) or from any
@@ -145,14 +145,14 @@ Optional. TANYA understands short commands in Indonesian, such as *"putar surat 
    Indonesian voice so answers are spoken offline. **DENGAR** plays a sample. For ElevenLabs instead, tap
    **API KEY** under **SUARA ELEVENLABS** and paste its key; the **ELEVENLABS** buttons only become available after
    that, an Indonesian voice is set for you, and **SUARA** picks another one.
-4. Web search: TANYA looks up current information (news, prices, weather, schedules) when needed. Official Claude
+4. Web search: TANYA AI looks up current information (news, prices, weather, schedules) when needed. Official Claude
    profiles can search right away through Anthropic's web search, billed to the Claude account ($10 per 1,000
    searches). To have every profile search through TinyFish (free), create an API key at
    [agent.tinyfish.ai](https://agent.tinyfish.ai), then under **PENCARIAN WEB** tap **KEY TINYFISH**, paste it, and
    make sure **AKTIF** is selected.
-5. Put TANYA on the home screen: long-press a home shortcut, release it in place and pick **Tanya**.
+5. Put TANYA AI on the home screen: long-press a home shortcut, release it in place and pick **Tanya AI**.
 
-![TANYA answering a command](img/tanya.png)
+![TANYA AI answering a command](img/tanya.png)
 
 Keys are stored encrypted on the headunit and are only sent to the provider you set. Usage is billed to your own
 accounts.

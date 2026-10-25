@@ -120,9 +120,9 @@ belakang. Ketuk lagi untuk mengizinkan, atau **KEMBALIKAN SEMUA** untuk mengemba
 sistem, Maps, Waze, dan Zlink sengaja tidak ditampilkan supaya navigasi dan CarPlay tetap jalan. Fitur ini butuh
 USB debugging aktif, sama seperti tombol tampilan utama.
 
-## Asisten suara (TANYA)
+## Asisten suara (TANYA AI)
 
-Opsional. TANYA mengerti perintah singkat, misalnya *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai
+Opsional. TANYA AI mengerti perintah singkat, misalnya *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai
 Waze"*, *"buka Zlink"*, atau *"stop murottalnya"*, dan menjawab dengan suara.
 
 1. Siapkan API key dari [console.anthropic.com](https://console.anthropic.com) (Claude) atau penyedia
@@ -138,13 +138,13 @@ Waze"*, *"buka Zlink"*, atau *"stop murottalnya"*, dan menjawab dengan suara.
    unduh suara bahasa Indonesia agar jawaban dibacakan offline. **DENGAR** untuk mencoba. Untuk ElevenLabs, ketuk
    **API KEY** di **SUARA ELEVENLABS** lalu tempel key-nya; tombol **ELEVENLABS** baru bisa dipilih setelah itu,
    suara Indonesia langsung terpasang, dan **SUARA** untuk memilih suara lain.
-4. Pencarian web: TANYA mencari info terkini (berita, harga, cuaca, jadwal) bila perlu. Profil Claude resmi
+4. Pencarian web: TANYA AI mencari info terkini (berita, harga, cuaca, jadwal) bila perlu. Profil Claude resmi
    langsung bisa mencari lewat pencarian Anthropic, ditagih ke akun Claude ($10 per 1.000 pencarian). Supaya semua
    profil mencari lewat TinyFish (gratis), buat API key di [agent.tinyfish.ai](https://agent.tinyfish.ai), lalu di
    **PENCARIAN WEB** ketuk **KEY TINYFISH**, tempel, dan pastikan **AKTIF** terpilih.
-5. Taruh TANYA di home: tekan lama salah satu pintasan, lepas di tempat, lalu pilih **Tanya**.
+5. Taruh TANYA AI di home: tekan lama salah satu pintasan, lepas di tempat, lalu pilih **Tanya AI**.
 
-![TANYA menjawab perintah](img/tanya.png)
+![TANYA AI menjawab perintah](img/tanya.png)
 
 Key disimpan terenkripsi di headunit dan hanya dikirim ke penyedia yang Anda atur. Pemakaian ditagihkan ke akun
 Anda sendiri.

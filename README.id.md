@@ -51,7 +51,7 @@ merender animasi 3D (~40% CPU).
   dibaca offline.
 - **Dzikir:** dzikir pagi dan petang dengan penghitung terpandu.
 - **Hemat Daya:** larang aplikasi seperti Netflix atau Spotify berjalan di latar.
-- **Asisten suara TANYA (opsional):** ucapkan *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai Waze"*,
+- **Asisten suara TANYA AI (opsional):** ucapkan *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai Waze"*,
   atau *"buka Zlink"*. Pakai key Claude atau OpenAI-compatible sendiri; mendengar dan berbicara dengan suara
   Android headunit (gratis) atau ElevenLabs, dan mencari info terkini di web (pencarian Claude, atau pencarian
   TinyFish yang gratis untuk penyedia mana pun).
@@ -106,7 +106,7 @@ di latar.
 | Launcher default `persist.nwd.launcher.default=com.ashafizullah.klikdash` (NWD) dan preferensi HOME | Saat Anda mengetuk **JADIKAN TAMPILAN UTAMA** | **Pengaturan › Launcher › LAUNCHER BAWAAN**, atau `adb shell setprop persist.nwd.launcher.default com.android.launcher` |
 | ksmd dimatikan | Setiap boot, selama KlikDash jadi tampilan home (butuh ADB aktif) | Kembali ke launcher bawaan atau uninstall KlikDash, lalu reboot |
 | Zlink dikembalikan ke home bila terbuka sendiri | 3 menit pertama setelah boot atau bangun dari tidur | Sama seperti di atas |
-| Aplikasi dilarang jalan di latar (`appops RUN_ANY_IN_BACKGROUND/RUN_IN_BACKGROUND ignore`) | Hanya untuk aplikasi yang Anda nyalakan di **HEMAT DAYA**, atau atas permintaan ke TANYA | Ketuk aplikasinya lagi, atau **KEMBALIKAN SEMUA** |
+| Aplikasi dilarang jalan di latar (`appops RUN_ANY_IN_BACKGROUND/RUN_IN_BACKGROUND ignore`) | Hanya untuk aplikasi yang Anda nyalakan di **HEMAT DAYA**, atau atas permintaan ke TANYA AI | Ketuk aplikasinya lagi, atau **KEMBALIKAN SEMUA** |
 | KlikDash diperbarui dengan `pm install` | Hanya saat Anda mengetuk **Unduh & pasang** di Pengaturan | Pasang APK lama dengan `adb install -r -d` |
 
 Launcher NWD lama **tidak dihapus**. Prosesnya tetap ada karena juga menangani info mobil dari CAN.
@@ -151,7 +151,7 @@ Launcher NWD lama **tidak dihapus**. Prosesnya tetap ada karena juga menangani i
 
 - Mengganti launcher default dan pengaturan sistem tidak didukung produsen headunit dan bisa berpengaruh
   pada garansi. Semua perubahan bisa dikembalikan (lihat [Perubahan pada headunit](#perubahan-pada-headunit)).
-- **Jangan mengoperasikan layar sambil menyetir.** Pakai tombol setir, atau berhenti dengan aman dulu. TANYA
+- **Jangan mengoperasikan layar sambil menyetir.** Pakai tombol setir, atau berhenti dengan aman dulu. TANYA AI
   tetap perlu diketuk untuk mulai mendengar; cukup perintah singkat dan tetap fokus ke jalan.
 - Jadwal sholat adalah hasil hitungan dan bisa selisih sekitar satu menit dari jadwal resmi; ikuti masjid
   atau otoritas setempat.

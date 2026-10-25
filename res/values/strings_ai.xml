@@ -4,7 +4,7 @@
     <!-- Pengaturan › Asisten AI -->
     <string name="ai_profiles_title">PROFIL AI</string>
     <string name="ai_profiles_empty">Belum ada profil. Tambahkan API key Claude (console.anthropic.com) atau layanan OpenAI-compatible seperti OpenAI, OpenRouter, Groq, atau server lokal.</string>
-    <string name="ai_profiles_desc">Ketuk PAKAI untuk memilih profil yang dipakai pintasan TANYA. API key disimpan terenkripsi di headunit ini dan hanya dikirim ke alamat profilnya.</string>
+    <string name="ai_profiles_desc">Ketuk PAKAI untuk memilih profil yang dipakai pintasan TANYA AI. API key disimpan terenkripsi di headunit ini dan hanya dikirim ke alamat profilnya.</string>
     <string name="ai_model_unset">model belum diisi</string>
     <string name="ai_test">UJI</string>
     <string name="ai_testing">MENGUJI…</string>
@@ -16,14 +16,14 @@
     <string name="ai_connected">Tersambung</string>
 
     <string name="ai_web_title">PENCARIAN WEB</string>
-    <string name="ai_web_intro">TANYA mencari info terkini (berita, harga, cuaca, jadwal) bila perlu.</string>
+    <string name="ai_web_intro">TANYA AI mencari info terkini (berita, harga, cuaca, jadwal) bila perlu.</string>
     <string name="ai_web_anthropic">profil Claude resmi mencari lewat pencarian Anthropic, ditagih ke akun Claude ($10 per 1.000 pencarian); profil lain tanpa pencarian.</string>
     <string name="ai_web_no_key">Isi API key TinyFish (gratis, buat di agent.tinyfish.ai) supaya semua profil mencari lewat TinyFish. Tanpa TinyFish, %1$s</string>
     <string name="ai_web_on">Semua profil mencari lewat TinyFish (gratis), key %1$s.</string>
     <string name="ai_web_off">TinyFish dimatikan: %1$s</string>
 
     <string name="ai_lang_title">BAHASA ASISTEN</string>
-    <string name="ai_lang_desc">Bahasa yang didengar dan diucapkan TANYA, terpisah dari bahasa tampilan.</string>
+    <string name="ai_lang_desc">Bahasa yang didengar dan diucapkan TANYA AI, terpisah dari bahasa tampilan.</string>
     <string name="ai_lang_voice_hint">Suara %1$s berlogat Indonesia: pilih suara lain di SUARA ELEVENLABS.</string>
 
     <string name="ai_el_title">SUARA ELEVENLABS</string>
@@ -109,12 +109,12 @@
     <string name="ai_err_transcribe">Transkripsi gagal</string>
 
     <!-- Layar TANYA -->
-    <string name="ask_title">TANYA</string>
+    <string name="ask_title">TANYA AI</string>
     <string name="ask_close">"TUTUP  ✕"</string>
     <string name="ask_again">TANYA LAGI</string>
     <string name="ask_setup">ATUR AI</string>
     <string name="ask_no_profile">BELUM ADA PROFIL AI</string>
-    <string name="ask_no_profile_hint">TANYA butuh profil AI. Ketuk ATUR AI, lalu tambahkan API key Claude atau OpenAI-compatible.</string>
+    <string name="ask_no_profile_hint">TANYA AI butuh profil AI. Ketuk ATUR AI, lalu tambahkan API key Claude atau OpenAI-compatible.</string>
     <string name="ask_mic_denied">IZIN MIKROFON DITOLAK</string>
     <string name="ask_info_voice">SUARA</string>
     <string name="ask_info_listen">DENGAR</string>

@@ -2,7 +2,7 @@
 <resources>
     <string name="app_quran">Quran</string>
     <string name="app_dzikir">Dhikr</string>
-    <string name="app_ask">Ask</string>
+    <string name="app_ask">Ask AI</string>
     <string name="app_settings">KlikDash Settings</string>
 
     <string name="channel_prayer">Prayer time reminders</string>
