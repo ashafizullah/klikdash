@@ -7,8 +7,8 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-VERSION_NAME=${VERSION_NAME:-1.7.2}
-VERSION_CODE=${VERSION_CODE:-30}
+VERSION_NAME=${VERSION_NAME:-1.7.3}
+VERSION_CODE=${VERSION_CODE:-31}
 
 SDK=${ANDROID_HOME:-$HOME/Library/Android/sdk}
 BT=$SDK/build-tools/36.0.0
@@ -17,7 +17,10 @@ DEVICE=${DEVICE:-192.168.1.17:5555}
 MODE=${1:-}
 
 rm -rf build
-mkdir -p build/classes build/dex build/gen
+mkdir -p build/classes build/dex build/gen/com/ashafizullah/klikdash
+# Saat build: batas bawah jam yang masuk akal untuk Clock (jam headunit tanpa baterai jam mulai dari tanggal build firmware).
+printf 'package com.ashafizullah.klikdash;\n\nfinal class Built {\n    static final long TIME = %s000L;\n\n    private Built() { }\n}\n' \
+    "$(date +%s)" > build/gen/com/ashafizullah/klikdash/Built.java
 
 "$BT/aapt2" compile --dir res -o build/res.zip
 # Teks Al-Qur'an dan terjemahan English tidak pernah ikut APK rilis (aplikasi mengunduhnya sendiri dari equran.id
@@ -87,6 +90,7 @@ if [ "$MODE" = "install" ]; then
     adb -s "$DEVICE" shell cmd package compile -m speed -f com.ashafizullah.klikdash || true
     adb -s "$DEVICE" shell pm grant com.ashafizullah.klikdash android.permission.ACCESS_FINE_LOCATION
     adb -s "$DEVICE" shell pm grant com.ashafizullah.klikdash android.permission.ACCESS_COARSE_LOCATION
+    adb -s "$DEVICE" shell pm grant com.ashafizullah.klikdash android.permission.ACCESS_BACKGROUND_LOCATION || true # Android 10+
     adb -s "$DEVICE" shell cmd package set-home-activity com.ashafizullah.klikdash/.HomeActivity
     adb -s "$DEVICE" shell am start -a android.intent.action.MAIN -c android.intent.category.HOME
 fi

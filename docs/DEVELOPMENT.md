@@ -12,6 +12,7 @@ klikdash/
 ├── src/com/ashafizullah/klikdash/
 │   ├── HomeActivity.java     launcher: tiles, clock, prayer times, temperature, drag & drop
 │   ├── PrayerTimes.java      prayer-time calculation (Kemenag RI parameters)
+│   ├── Clock.java            system clock check; sets it from GPS time when the headunit boots with a wrong clock
 │   ├── QuranActivity.java    mushaf view + player
 │   ├── QuranService.java     background recitation player
 │   ├── QuranData.java        loader for assets/quran.txt

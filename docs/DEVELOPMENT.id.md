@@ -12,6 +12,7 @@ klikdash/
 ├── src/com/ashafizullah/klikdash/
 │   ├── HomeActivity.java     launcher: pintasan, jam, sholat, suhu, drag & drop
 │   ├── PrayerTimes.java      perhitungan jadwal sholat (parameter Kemenag RI)
+│   ├── Clock.java            cek jam sistem; dipasang dari waktu GPS bila headunit menyala dengan jam salah
 │   ├── QuranActivity.java    tampilan mushaf + pemutar
 │   ├── QuranService.java     pemutar murattal di latar
 │   ├── QuranData.java        pemuat assets/quran.txt

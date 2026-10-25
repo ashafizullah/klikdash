@@ -9,9 +9,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Location;
-import android.location.LocationManager;
-import android.provider.Settings;
 
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
@@ -24,19 +21,12 @@ import java.util.TimeZone;
  * alarm menjadwalkan waktu berikutnya; home memanggil {@link #schedule} saat dibuka, saat lokasi atau jam berubah.
  * Home tampil: notifikasi KlikDash ({@link Notice}); aplikasi lain di depan: Notice melayang (izin tampil di atas
  * aplikasi lain, diberikan lewat ADB lokal oleh {@link #allowOverlay}); tanpa izin itu: notifikasi sistem.
- *
- * Headunit tanpa baterai jam menyala dengan jam saat terakhir mati, lalu baru dibetulkan GPS/NTP. Selama itu jadwal
- * yang sudah lewat terlihat "akan datang" (mis. Dzuhur muncul pukul 15.00), jadi pengingat ditahan sampai jam
- * terbukti benar pada boot ini ({@link #clockOk}).
+ * Pengingat ditahan selama jam sistem belum terbukti benar ({@link Clock#ok}): jam salah membuat waktu yang sudah
+ * lewat terlihat "akan datang" (mis. Dzuhur muncul pukul 15.00).
  */
 public class PrayerAlarm extends BroadcastReceiver {
     static final String CHANNEL = "sholat";
     static final long LATE_MS = 10 * 60_000L;
-    /** Selisih terbesar jam sistem dengan waktu fix GPS yang masih dianggap jam benar. */
-    static final long CLOCK_SKEW_MS = 2 * 60_000L;
-
-    /** Jam terbukti benar pada boot ini (cache {@link #clockOk} untuk proses ini). */
-    private static volatile boolean clockOk;
 
     /** Home yang sedang tampil (di antara onResume dan onPause), untuk notifikasi KlikDash. */
     static WeakReference<Activity> home = new WeakReference<>(null);
@@ -79,37 +69,13 @@ public class PrayerAlarm extends BroadcastReceiver {
     @Override public void onReceive(Context c, Intent i) {
         long at = i.getLongExtra("at", 0), now = System.currentTimeMillis();
         if (enabled(prefs(c)) && Math.abs(now - at) <= LATE_MS) {
-            if (!clockOk(c)) { // jam belum terbukti benar: coba lagi semenit lagi, selama belum lewat LATE_MS
+            if (!Clock.ok(c)) { // jam belum terbukti benar: coba lagi semenit lagi, selama belum lewat LATE_MS
                 arm(c, i.getIntExtra("i", 0), at, now + 60_000);
                 return;
             }
             notify(c, i.getIntExtra("i", 0), at);
         }
         schedule(c);
-    }
-
-    /** Jam sudah benar pada boot ini: pernah diatur (NTP/NITZ/GPS/pengguna, ACTION_TIME_CHANGED) atau cocok dengan GPS. */
-    static boolean clockOk(Context c) {
-        if (clockOk) return true;
-        int boot = bootCount(c);
-        return clockOk = boot >= 0 && prefs(c).getInt("clockOkBoot", -1) == boot;
-    }
-
-    /** Jam baru diatur (ACTION_TIME_CHANGED). */
-    static void clockSet(Context c) {
-        clockOk = true;
-        prefs(c).edit().putInt("clockOkBoot", bootCount(c)).apply();
-    }
-
-    /** Fix GPS membawa waktu satelit: bila jam sistem cocok, jam dianggap benar. Fix dari network/passive dilewati. */
-    static void checkClock(Context c, Location l) {
-        if (clockOk || !LocationManager.GPS_PROVIDER.equals(l.getProvider())) return;
-        if (Math.abs(l.getTime() - System.currentTimeMillis()) <= CLOCK_SKEW_MS) clockSet(c);
-    }
-
-    /** Nomor boot (-1 bila firmware tidak mencatatnya): tanda "jam benar" tersimpan hanya berlaku untuk boot yang sama. */
-    private static int bootCount(Context c) {
-        return Settings.Global.getInt(c.getContentResolver(), Settings.Global.BOOT_COUNT, -1);
     }
 
     /** Tampilkan pengingat untuk waktu sholat {@code i} (indeks {@link Lang#prayers}) pada {@code at}. */

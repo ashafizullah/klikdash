@@ -262,14 +262,28 @@ public class HomeActivity extends Activity {
     final BroadcastReceiver timeRx = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) {
             updateTime();
-            if (Intent.ACTION_TIME_CHANGED.equals(i.getAction())) PrayerAlarm.clockSet(c);
+            if (Intent.ACTION_TIME_CHANGED.equals(i.getAction())) {
+                Clock.set(c);
+                watchClock(); // mis. diatur ke tanggal yang jelas salah
+            }
             if (!Intent.ACTION_TIME_TICK.equals(i.getAction())) PrayerAlarm.schedule(c); // jam/zona waktu diubah
         }
     };
 
+    /** Tiap fix GPS sampai jam terbukti benar ({@link Clock}), juga saat aplikasi lain di depan; lalu berhenti. */
+    final LocationListener clockRx = new LocationListener() {
+        @Override public void onLocationChanged(Location l) {
+            Clock.gps(HomeActivity.this, l);
+            if (Clock.ok(HomeActivity.this) && lm != null) lm.removeUpdates(this);
+        }
+        @Override public void onStatusChanged(String p, int s, Bundle b) { }
+        @Override public void onProviderEnabled(String p) { }
+        @Override public void onProviderDisabled(String p) { }
+    };
+
     final LocationListener locRx = new LocationListener() {
         @Override public void onLocationChanged(Location l) {
-            PrayerAlarm.checkClock(HomeActivity.this, l);
+            Clock.gps(HomeActivity.this, l);
             onLocation(l);
         }
         @Override public void onStatusChanged(String p, int s, Bundle b) { }
@@ -375,6 +389,7 @@ public class HomeActivity extends Activity {
         Tweaks.applyAsync();
         Tweaks.compileAsync(this, prefs);
         PrayerAlarm.allowOverlay(this);
+        Clock.allowBackgroundGps(this);
         home.postDelayed(warmVoice, 20_000); // sesudah boot selesai berebut CPU
         // Baru menyala (bukan sekadar dibangun ulang, mis. ganti tema atau pembaruan): sambutan.
         if (SystemClock.elapsedRealtime() < 5 * 60_000L || welcomeAgain) {
@@ -479,7 +494,7 @@ public class HomeActivity extends Activity {
 
     final LocationListener speedRx = new LocationListener() {
         @Override public void onLocationChanged(Location l) {
-            PrayerAlarm.checkClock(HomeActivity.this, l);
+            Clock.gps(HomeActivity.this, l);
             if (!l.hasSpeed() || l.getTime() == speedFixTime) return;
             speedFixTime = l.getTime();
             speedAt = SystemClock.elapsedRealtime();
@@ -756,7 +771,10 @@ public class HomeActivity extends Activity {
     @Override protected void onDestroy() {
         home.removeCallbacks(autoUpdate); // home yang baru (recreate) menjadwalkan sendiri
         home.removeCallbacks(offerUpdate);
-        if (lm != null) lm.removeUpdates(locRx);
+        if (lm != null) {
+            lm.removeUpdates(locRx);
+            lm.removeUpdates(clockRx);
+        }
         unregisterReceiver(timeRx);
         unregisterReceiver(pkgRx);
         unregisterReceiver(wakeRx);
@@ -1079,6 +1097,15 @@ public class HomeActivity extends Activity {
         // GPS headunit sudah selalu aktif (dipakai layanan NWD); passive cukup menumpang, tanpa beban tambahan.
         try {
             lm.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 60_000, 1000, locRx);
+        } catch (Exception ignored) { }
+        watchClock();
+    }
+
+    /** Selama jam belum terbukti benar: periksa (dan betulkan) jam tiap fix GPS lewat {@link #clockRx}. */
+    void watchClock() {
+        if (lm == null || Clock.ok(this)) return;
+        try {
+            lm.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 1000, 0, clockRx); // terdaftar lagi: diganti
         } catch (Exception ignored) { }
     }
 

@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Android 10+: fix GPS saat aplikasi lain di depan, untuk membetulkan jam (Clock); diberikan lewat ADB lokal. -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <!-- adbd lokal (127.0.0.1:5555, lihat Tweaks.java), unduhan Al-Qur'an, asisten AI, dan server BEAM -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
