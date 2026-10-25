@@ -373,7 +373,10 @@ public class HomeActivity extends Activity {
         PrayerAlarm.allowOverlay(this);
         home.postDelayed(warmVoice, 20_000); // sesudah boot selesai berebut CPU
         // Baru menyala (bukan sekadar dibangun ulang, mis. ganti tema atau pembaruan): sambutan.
-        if (SystemClock.elapsedRealtime() < 5 * 60_000L) root.post(() -> Welcome.maybeShow(this, prefs));
+        if (SystemClock.elapsedRealtime() < 5 * 60_000L) {
+            root.post(() -> Welcome.maybeShow(this, prefs));
+            scheduleAutoUpdate();
+        }
     }
 
     @Override public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
@@ -415,6 +418,8 @@ public class HomeActivity extends Activity {
         tempTick.run();
         refreshDefaultHome();
         startSpeed();
+        resumed = true;
+        if (pendingUpdate != null) home.post(offerUpdate);
     }
 
     // ---------------------------------------------------------------- tanggal Hijriah
@@ -595,6 +600,7 @@ public class HomeActivity extends Activity {
     }
 
     @Override protected void onPause() {
+        resumed = false;
         stopSpeed();
         prayerView.stopTicking();
         temp.removeCallbacks(tempTick);
@@ -618,6 +624,66 @@ public class HomeActivity extends Activity {
             Welcome.maybeShow(HomeActivity.this, prefs);
             home.removeCallbacks(warmVoice);
             home.postDelayed(warmVoice, 10_000);
+            scheduleAutoUpdate();
+        }
+    };
+
+    // ---------------------------------------------------------------- cek update otomatis
+
+    /** Paling sering sekali per 6 jam (termasuk CEK UPDATE manual): ACC on-off berkali-kali cukup satu cek. */
+    static final long AUTO_UPDATE_EVERY = 6 * 3600_000L;
+    /** Rilis baru yang belum ditawarkan: menunggu home tampil, tidak terkunci, dan mobil diam. */
+    Updater.Release pendingUpdate;
+    int autoTries;
+    boolean resumed;
+
+    /** Saat headunit menyala (boot atau ACC on), bila ⚙ › CEK UPDATE OTOMATIS dinyalakan (bawaan mati). */
+    void scheduleAutoUpdate() {
+        home.removeCallbacks(autoUpdate);
+        if (!prefs.getBoolean("autoUpdate", false)) return;
+        if (System.currentTimeMillis() - prefs.getLong("updateChecked", 0) < AUTO_UPDATE_EVERY) return;
+        autoTries = 0;
+        home.postDelayed(autoUpdate, 20_000); // WiFi/hotspot HP biasanya baru tersambung beberapa detik setelah menyala
+    }
+
+    /** Satu cek ke GitHub; tanpa internet dicoba lagi tiap 30 detik, sampai ±5 menit setelah menyala. */
+    final Runnable autoUpdate = new Runnable() {
+        @Override public void run() {
+            Runnable retry = this;
+            new Thread(() -> {
+                Updater.Release r;
+                try {
+                    r = Updater.latest();
+                } catch (Exception e) {
+                    if (++autoTries < 10) home.postDelayed(retry, 30_000);
+                    return;
+                }
+                runOnUiThread(() -> {
+                    prefs.edit().putLong("updateChecked", System.currentTimeMillis()).apply();
+                    if (r == null || Updater.compare(r.version, Updater.installedVersion(HomeActivity.this)) <= 0) return;
+                    if (r.version.equals(prefs.getString("updateSkipped", null))) return; // sudah dijawab Nanti
+                    pendingUpdate = r;
+                    offerUpdate.run();
+                });
+            }, "update-auto").start();
+        }
+    };
+
+    /** Dialog yang sama dengan CEK UPDATE, hanya saat mobil diam; Nanti = versi ini tidak ditawarkan lagi. */
+    final Runnable offerUpdate = new Runnable() {
+        @Override public void run() {
+            home.removeCallbacks(this);
+            Updater.Release r = pendingUpdate;
+            if (r == null || !resumed || isFinishing()) return; // onResume mencoba lagi
+            boolean moving = lastKmh > 0 && SystemClock.elapsedRealtime() - lastKmhAt < 10_000;
+            boolean welcome = getWindow().getDecorView().findViewWithTag(Welcome.class) != null;
+            if (moving || locked || welcome) {
+                home.postDelayed(this, 15_000);
+                return;
+            }
+            pendingUpdate = null;
+            SettingsActivity.offerUpdate(HomeActivity.this, r,
+                    () -> prefs.edit().putString("updateSkipped", r.version).apply());
         }
     };
 

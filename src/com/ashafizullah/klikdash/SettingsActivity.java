@@ -301,6 +301,10 @@ public class SettingsActivity extends Activity {
         list.addView(row(getString(R.string.update_title_row), getString(R.string.update_desc, ver, checked == 0
                         ? getString(R.string.update_never_checked) : getString(R.string.update_last_checked, ago(this, checked))),
                 updateKey));
+        boolean au = prefs.getBoolean("autoUpdate", false);
+        list.addView(row(getString(R.string.update_auto_title), getString(R.string.update_auto_desc),
+                key(getString(R.string.settings_on), au, () -> setAutoUpdate(true)),
+                key(getString(R.string.settings_off), !au, () -> setAutoUpdate(false))));
 
         list.addView(row(getString(R.string.settings_about_title), getString(R.string.settings_about_desc, ver)));
         return scroll(list);
@@ -364,40 +368,53 @@ public class SettingsActivity extends Activity {
                     Notice.ok(this, getString(R.string.update_latest, cur));
                 } else {
                     updateKey.setLabel(getString(R.string.update_check));
-                    // Catatan rilis utuh; pesan AlertDialog sudah bisa digulir bila panjang.
-                    String notes = Updater.plainNotes(rel.notes);
-                    showDark(new AlertDialog.Builder(this)
-                            .setTitle(getString(R.string.update_available, rel.version))
-                            .setMessage(getString(R.string.update_installed_size, cur, (int) Math.max(1, rel.size / 1024))
-                                    + (notes.isEmpty() ? "" : "\n\n" + notes))
-                            .setNegativeButton(getString(R.string.update_later), null)
-                            .setPositiveButton(getString(R.string.update_download_install), (d, w) -> downloadUpdate(rel)));
+                    offerUpdate(this, rel, null);
                 }
             });
         }, "update-check").start();
     }
 
-    void downloadUpdate(Updater.Release rel) {
-        AlertDialog prog = showDark(new AlertDialog.Builder(this).setTitle(getString(R.string.update_downloading, rel.version))
+    /**
+     * Dialog "KlikDash x tersedia" dengan catatan rilis; dipakai CEK UPDATE dan cek otomatis di home.
+     * {@code later}: dijalankan bila pengguna memilih Nanti (boleh null).
+     */
+    static void offerUpdate(Activity a, Updater.Release rel, Runnable later) {
+        // Catatan rilis utuh; pesan AlertDialog sudah bisa digulir bila panjang.
+        String notes = Updater.plainNotes(rel.notes);
+        showDark(new AlertDialog.Builder(a)
+                .setTitle(a.getString(R.string.update_available, rel.version))
+                .setMessage(a.getString(R.string.update_installed_size, Updater.installedVersion(a),
+                        (int) Math.max(1, rel.size / 1024)) + (notes.isEmpty() ? "" : "\n\n" + notes))
+                .setNegativeButton(a.getString(R.string.update_later), (d, w) -> { if (later != null) later.run(); })
+                .setPositiveButton(a.getString(R.string.update_download_install), (d, w) -> downloadUpdate(a, rel)));
+    }
+
+    static void downloadUpdate(Activity a, Updater.Release rel) {
+        AlertDialog prog = showDark(new AlertDialog.Builder(a).setTitle(a.getString(R.string.update_downloading, rel.version))
                 .setMessage("0%").setCancelable(false));
         new Thread(() -> {
             try {
-                java.io.File apk = Updater.download(this, rel, pct -> runOnUiThread(() -> prog.setMessage(pct + "%")));
-                runOnUiThread(() -> {
-                    prog.setMessage(getString(R.string.update_installing));
-                    Updater.install(this, apk, () -> runOnUiThread(() -> {
+                java.io.File apk = Updater.download(a, rel, pct -> a.runOnUiThread(() -> prog.setMessage(pct + "%")));
+                a.runOnUiThread(() -> {
+                    prog.setMessage(a.getString(R.string.update_installing));
+                    Updater.install(a, apk, () -> a.runOnUiThread(() -> {
                         prog.dismiss();
-                        Notice.info(this, getString(R.string.update_allow_install));
+                        Notice.info(a, a.getString(R.string.update_allow_install));
                     }));
                 });
             } catch (Exception e) {
-                runOnUiThread(() -> {
+                a.runOnUiThread(() -> {
                     prog.dismiss();
-                    Notice.show(this, Notice.FAIL, getString(R.string.update_title),
-                            e.getMessage() != null ? e.getMessage() : getString(R.string.update_try_later));
+                    Notice.show(a, Notice.FAIL, a.getString(R.string.update_title),
+                            e.getMessage() != null ? e.getMessage() : a.getString(R.string.update_try_later));
                 });
             }
         }, "update-download").start();
+    }
+
+    void setAutoUpdate(boolean on) {
+        prefs.edit().putBoolean("autoUpdate", on).apply();
+        show(TAB_LAUNCHER, true);
     }
 
     void setPrayerAlert(boolean on) {
