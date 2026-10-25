@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.MotionEvent;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
@@ -31,26 +33,37 @@ import static com.ashafizullah.klikdash.HomeActivity.AMBER;
 import static com.ashafizullah.klikdash.HomeActivity.BG;
 import static com.ashafizullah.klikdash.HomeActivity.DIM;
 import static com.ashafizullah.klikdash.HomeActivity.HOT;
+import static com.ashafizullah.klikdash.HomeActivity.INK;
 import static com.ashafizullah.klikdash.HomeActivity.MATCH;
 import static com.ashafizullah.klikdash.HomeActivity.TEXT;
+import static com.ashafizullah.klikdash.HomeActivity.WRAP;
 
 /**
- * Penerima KlikBeam (BETA): mirror layar iPhone lewat WiFi, pengirimnya aplikasi iOS KlikBeam yang belum dirilis.
- * Dibuka dari Pengaturan › Launcher › KLIKBEAM, yang juga menampilkan cara menyambung, kode pairing 6 digit, dan IP
- * headunit. Video di tengah dengan letterbox sesuai rasio CONFIG; selama belum ada gambar tampil panel status.
- * Server hanya hidup selama layar ini terlihat (onStart–onStop), jadi tidak memakan daya di latar. Kode disimpan di
- * prefs "beam".
+ * Penerima KlikBeam (BETA) layar penuh: mirror layar iPhone lewat WiFi, pengirimnya aplikasi iOS KlikBeam yang belum
+ * dirilis. Dibuka dari Pengaturan › Launcher › KLIKBEAM, yang juga menampilkan cara menyambung, kode pairing 6 digit,
+ * dan IP headunit. Video di tengah dengan letterbox sesuai rasio CONFIG; selama belum ada gambar tampil panel status.
+ *
+ * Server dan decoder ada di {@link BeamHub}, jadi siaran tidak putus saat berpindah ke jendela melayang
+ * ({@link BeamFloat}): ketuk video lalu KECILKAN, tekan Kembali, atau pindah ke aplikasi lain selagi ada gambar.
+ * Tanpa gambar, keluar dari layar ini mematikan server seperti sebelumnya (tidak memakan daya di latar).
+ * Kode disimpan di prefs "beam".
  */
-public final class BeamActivity extends Activity implements BeamServer.Listener, BeamDecoder.Listener {
+public final class BeamActivity extends Activity implements BeamHub.Listener {
+    private static final long CONTROLS_MS = 3500;
+    /** Jeda sebelum layar ini ditutup setelah jendela melayang dibuat, supaya decoder sempat pindah Surface. */
+    private static final long HANDOFF_MS = 400;
+
     private final Handler ui = new Handler(Looper.getMainLooper());
-    private BeamDecoder decoder;
-    private BeamServer server;
     private FrameLayout root;
     private SurfaceView video;
     private View panel;
-    private TextView state;
-    private boolean streaming;
+    private LinearLayout controls;
+    private TextView state, badge;
+    /** KECILKAN sedang berjalan: onStop tidak perlu mematikan atau membuat jendela melayang lagi. */
+    private boolean minimizing;
     int themeBuilt;
+
+    private final Runnable hideControls = () -> controls.setVisibility(View.GONE);
 
     @Override protected void attachBaseContext(Context base) { super.attachBaseContext(Lang.wrap(base)); }
 
@@ -59,27 +72,47 @@ public final class BeamActivity extends Activity implements BeamServer.Listener,
         themeBuilt = Theme.apply(this);
         super.onCreate(b);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        decoder = new BeamDecoder(this);
 
         root = new FrameLayout(this);
         root.setBackgroundColor(0xFF000000);
         video = new SurfaceView(this);
         video.getHolder().addCallback(new SurfaceHolder.Callback() {
-            @Override public void surfaceCreated(SurfaceHolder h) { decoder.setSurface(h.getSurface()); }
+            @Override public void surfaceCreated(SurfaceHolder h) {
+                BeamHub.attach(h.getSurface());
+                BeamHub.hideFloat(); // gambar sudah di layar penuh; jendela melayang tidak diperlukan
+            }
             @Override public void surfaceChanged(SurfaceHolder h, int f, int w, int hh) { }
-            @Override public void surfaceDestroyed(SurfaceHolder h) { decoder.setSurface(null); }
+            @Override public void surfaceDestroyed(SurfaceHolder h) { BeamHub.detach(h.getSurface()); }
         });
         root.addView(video, new FrameLayout.LayoutParams(MATCH, MATCH, Gravity.CENTER));
+        // Ukuran layar berubah setelah mode imersif aktif (bilah sistem disembunyikan): sesuaikan video lagi.
+        root.addOnLayoutChangeListener((v, l, t, r, btm, ol, ot, or, ob) -> {
+            if ((r - l != or - ol || btm - t != ob - ot) && BeamHub.streaming) fit(BeamHub.videoW, BeamHub.videoH);
+        });
+        root.setOnTouchListener((v, e) -> {
+            if (e.getActionMasked() == MotionEvent.ACTION_UP && BeamHub.streaming) toggleControls();
+            return true;
+        });
         panel = buildPanel();
         root.addView(panel, new FrameLayout.LayoutParams(MATCH, MATCH));
+        badge = buildBadge();
+        FrameLayout.LayoutParams blp = new FrameLayout.LayoutParams(WRAP, WRAP, Gravity.TOP | Gravity.CENTER_HORIZONTAL);
+        blp.topMargin = dp(24);
+        root.addView(badge, blp);
+        controls = buildControls();
+        FrameLayout.LayoutParams clp = new FrameLayout.LayoutParams(WRAP, WRAP, Gravity.TOP | Gravity.END);
+        clp.setMargins(0, dp(20), dp(20), 0);
+        root.addView(controls, clp);
         setContentView(root);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        server = new BeamServer(this, pairingCode(this), decoder, this);
-        server.start();
+        minimizing = false;
+        BeamHub.start(this);
+        BeamHub.addListener(this);
+        onBeamChanged();
     }
 
     @Override
@@ -90,10 +123,22 @@ public final class BeamActivity extends Activity implements BeamServer.Listener,
 
     @Override
     protected void onStop() {
-        server.stop();
-        server = null;
-        showPanel(R.string.beam_waiting, null);
+        BeamHub.removeListener(this);
+        ui.removeCallbacks(hideControls);
+        controls.setVisibility(View.GONE);
+        // Pindah ke aplikasi lain selagi ada gambar: lanjut melayang. Tanpa gambar (atau tanpa izin): matikan.
+        if (!minimizing && !isChangingConfigurations() && !(BeamHub.streaming && BeamHub.showFloat())) BeamHub.stop();
         super.onStop();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (BeamHub.streaming) {
+            minimize();
+        } else {
+            BeamHub.stop();
+            finish();
+        }
     }
 
     @Override
@@ -102,38 +147,44 @@ public final class BeamActivity extends Activity implements BeamServer.Listener,
         if (focus) immersive();
     }
 
-    // ---- BeamServer.Listener / BeamDecoder.Listener (dipanggil dari thread jaringan) ----
-
-    @Override public void onWaiting() { post(R.string.beam_waiting, null); }
-
-    @Override public void onConnected(String from) { post(R.string.beam_connected, null); }
-
-    @Override public void onRejected(String from) {
-        if (!streaming) post(R.string.beam_rejected, from);
+    @Override
+    public void onBeamChanged() {
+        if (!BeamHub.running()) { // dihentikan dari notifikasi atau jendela melayang
+            if (!isFinishing()) finish();
+            return;
+        }
+        badge.setVisibility(BeamHub.reconnecting ? View.VISIBLE : View.GONE);
+        if (BeamHub.streaming) {
+            fit(BeamHub.videoW, BeamHub.videoH);
+            panel.setVisibility(View.GONE);
+        } else {
+            int res = BeamHub.stateRes;
+            state.setText(BeamHub.stateArg == null ? getString(res) : getString(res, BeamHub.stateArg));
+            state.setTextColor(res == R.string.beam_rejected || res == R.string.beam_error ? HOT : DIM);
+            panel.setVisibility(View.VISIBLE);
+            controls.setVisibility(View.GONE);
+        }
     }
 
-    @Override public void onEnded() { post(R.string.beam_ended, null); }
-
-    @Override public void onServerError(String message) { post(R.string.beam_error, message); }
-
-    @Override
-    public void onConfig(final int width, final int height) {
-        ui.post(new Runnable() {
-            @Override public void run() {
-                fit(width, height);
-                streaming = true;
-                panel.setVisibility(View.GONE);
-            }
-        });
+    /** Ke jendela melayang; layar ini ditutup sesudah decoder pindah ke Surface jendela itu. */
+    private void minimize() {
+        if (!BeamHub.showFloat()) {
+            Toast.makeText(this, R.string.beam_no_overlay, Toast.LENGTH_LONG).show();
+            return;
+        }
+        minimizing = true;
+        controls.setVisibility(View.GONE);
+        ui.postDelayed(this::finish, HANDOFF_MS);
     }
 
-    @Override
-    public void onDecoderError(final String message) {
-        ui.post(new Runnable() {
-            @Override public void run() {
-                Toast.makeText(BeamActivity.this, getString(R.string.beam_decoder_error, message), Toast.LENGTH_LONG).show();
-            }
-        });
+    private void toggleControls() {
+        ui.removeCallbacks(hideControls);
+        if (controls.getVisibility() == View.VISIBLE) {
+            controls.setVisibility(View.GONE);
+        } else {
+            controls.setVisibility(View.VISIBLE);
+            ui.postDelayed(hideControls, CONTROLS_MS);
+        }
     }
 
     // ---- Tampilan ----
@@ -166,23 +217,56 @@ public final class BeamActivity extends Activity implements BeamServer.Listener,
         return p;
     }
 
-    private void post(final int stateRes, final String arg) {
-        ui.post(new Runnable() {
-            @Override public void run() { showPanel(stateRes, arg); }
-        });
+    private TextView buildBadge() {
+        Typeface monoBold = Compat.font(getAssets(), "mono.ttf", "'wdth' 100, 'wght' 700", Typeface.MONOSPACE);
+        TextView t = text(getString(R.string.beam_reconnecting), monoBold, 13, AMBER);
+        t.setLetterSpacing(.15f);
+        t.setPadding(dp(16), dp(8), dp(16), dp(8));
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(0xCC000000);
+        bg.setCornerRadius(dp(4));
+        t.setBackground(bg);
+        t.setVisibility(View.GONE);
+        return t;
     }
 
-    private void showPanel(int stateRes, String arg) {
-        streaming = false;
-        state.setText(arg == null ? getString(stateRes) : getString(stateRes, arg));
-        state.setTextColor(stateRes == R.string.beam_rejected || stateRes == R.string.beam_error ? HOT : DIM);
-        panel.setVisibility(View.VISIBLE);
+    /** KECILKAN (ke jendela melayang) dan TUTUP; muncul saat video diketuk. */
+    private LinearLayout buildControls() {
+        Typeface monoBold = Compat.font(getAssets(), "mono.ttf", "'wdth' 100, 'wght' 700", Typeface.MONOSPACE);
+        LinearLayout row = new LinearLayout(this);
+        row.addView(controlButton(R.string.beam_minimize, monoBold, true, v -> minimize()));
+        row.addView(controlButton(R.string.beam_close, monoBold, false, v -> {
+            BeamHub.stop();
+            finish();
+        }));
+        row.setVisibility(View.GONE);
+        return row;
+    }
+
+    private TextView controlButton(int res, Typeface tf, boolean primary, View.OnClickListener l) {
+        TextView t = text(getString(res), tf, 14, primary ? INK : TEXT);
+        t.setLetterSpacing(.12f);
+        t.setPadding(dp(18), dp(12), dp(18), dp(12));
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(primary ? AMBER : 0xCC000000);
+        bg.setCornerRadius(dp(4));
+        if (!primary) bg.setStroke(dp(1), 0x66FFFFFF);
+        t.setBackground(bg);
+        t.setOnClickListener(l);
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(WRAP, WRAP);
+        p.setMarginStart(dp(10));
+        t.setLayoutParams(p);
+        return t;
     }
 
     /** SurfaceView sebesar mungkin dengan rasio video, di tengah layar. */
     private void fit(int w, int h) {
         int rw = root.getWidth(), rh = root.getHeight();
-        if (rw == 0 || rh == 0 || w == 0 || h == 0) return;
+        if (rw == 0 || rh == 0) {
+            root.post(() -> fit(w, h)); // belum diukur (baru dibuka dari jendela melayang)
+            return;
+        }
+        if (w == 0 || h == 0) return;
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) video.getLayoutParams();
         if ((long) w * rh > (long) h * rw) {
             lp.width = rw;

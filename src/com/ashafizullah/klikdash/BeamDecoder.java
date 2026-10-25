@@ -39,10 +39,31 @@ final class BeamDecoder {
         this.listener = listener;
     }
 
-    synchronized void setSurface(Surface s) {
+    /**
+     * Gambar ke Surface ini (layar penuh atau jendela melayang). Codec yang sedang jalan dipindah dengan
+     * setOutputSurface tanpa dibuat ulang, jadi tidak perlu menunggu keyframe; bila decoder headunit menolak, codec
+     * dibuat ulang.
+     */
+    synchronized void attach(Surface s) {
+        if (s == surface) return;
         surface = s;
+        if (codec != null) {
+            try {
+                codec.setOutputSurface(s);
+                return;
+            } catch (RuntimeException e) {
+                Log.w(TAG, "setOutputSurface gagal, codec dibuat ulang", e);
+                release();
+            }
+        }
+        if (sps != null) start();
+    }
+
+    /** Surface ini hilang. Diabaikan bila decoder sudah pindah ke Surface lain (lihat {@link #attach}). */
+    synchronized void detach(Surface s) {
+        if (s != surface) return;
+        surface = null;
         release();
-        if (s != null && sps != null) start();
     }
 
     synchronized void configure(int w, int h, byte[] sps, byte[] pps) {

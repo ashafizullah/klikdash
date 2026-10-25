@@ -29,6 +29,9 @@ klikdash/
 │   ├── BeamActivity.java     penerima KlikBeam (beta), dibuka dari Pengaturan › Launcher › KLIKBEAM (aplikasi iOS belum rilis)
 │   ├── BeamServer.java       server TCP KlikBeam v1 + pendaftaran Bonjour/NSD
 │   ├── BeamDecoder.java      decoder H.264 hardware (MediaCodec) yang menggambar ke Surface
+│   ├── BeamHub.java          inti KlikBeam: server, decoder, dan status untuk layar penuh dan jendela melayang
+│   ├── BeamFloat.java        jendela melayang KlikBeam di atas aplikasi lain (geser, ukuran, tutup)
+│   ├── BeamService.java      layanan foreground + notifikasi selama KlikBeam jalan
 │   └── Tweaks.java           perintah sistem lewat ADB lokal (ksmd, sembunyikan Zlink, launcher, appops)
 ├── res/                      tema, ikon vektor, sertifikat root ISRG untuk Android 7.0 (network_security.xml)
 ├── assets/

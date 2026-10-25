@@ -29,6 +29,9 @@ klikdash/
 │   ├── BeamActivity.java     KlikBeam (beta) receiver, opened from Settings › Launcher › KLIKBEAM (iOS app not released yet)
 │   ├── BeamServer.java       KlikBeam v1 TCP server + Bonjour/NSD registration
 │   ├── BeamDecoder.java      hardware H.264 decoder (MediaCodec) rendering to a Surface
+│   ├── BeamHub.java          KlikBeam core: server, decoder and state shared by full screen and floating window
+│   ├── BeamFloat.java        KlikBeam floating window over other apps (drag, size, close)
+│   ├── BeamService.java      foreground service + notification while KlikBeam runs
 │   ├── Tweaks.java           system commands through local ADB (ksmd, hide Zlink, launcher, appops)
 │   └── Compat.java           Android 7–8 differences (fonts, audio focus, notification channel, services)
 ├── res/                      theme, vector icons, ISRG root certificates for Android 7.0 (network_security.xml)
