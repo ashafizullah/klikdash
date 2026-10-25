@@ -55,6 +55,8 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
   *"buka Zlink"*. Bring your own Claude or OpenAI-compatible key; it listens and speaks with the headunit's
   free Android voice or with ElevenLabs, and looks up current information on the web (Claude's web search, or free
   TinyFish search for any provider).
+- **Screen lock:** a 4-digit PIN (**⚙ › Launcher › SCREEN LOCK**) and a padlock on the home screen, so children
+  cannot open apps or change settings. The clock and prayer times stay visible.
 - **Settings & updates:** the ⚙ button on the home screen; **CEK UPDATE** installs new versions without a computer.
 
 ## Install

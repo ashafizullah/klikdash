@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kunci layar (ScreenLock): pad PIN, ikon gembok di home, baris di Pengaturan. -->
+<resources>
+    <string name="lock_enter">MASUKKAN PIN</string>
+    <string name="lock_new">PIN BARU</string>
+    <string name="lock_confirm">ULANGI PIN</string>
+    <string name="lock_wrong">PIN SALAH</string>
+    <string name="lock_too_many">TERLALU BANYAK SALAH</string>
+    <string name="lock_wait">COBA LAGI DALAM %1$d DETIK</string>
+    <string name="lock_mismatch">PIN TIDAK SAMA</string>
+    <string name="lock_reset_title">LUPA PIN</string>
+    <string name="lock_reset_hint">KETIK KODE %1$s UNTUK MENGHAPUS PIN</string>
+    <string name="lock_reset_wrong">KODE SALAH</string>
+    <string name="lock_lock">Kunci home</string>
+    <string name="lock_unlock">Buka kunci home</string>
+    <string name="lock_locked">Terkunci. Ketuk gembok untuk membuka.</string>
+    <string name="lock_unlocked">Kunci dibuka</string>
+    <string name="lock_reset_done">PIN dihapus dan home tidak terkunci lagi</string>
+
+    <string name="settings_lock_title">KUNCI LAYAR</string>
+    <string name="settings_lock_desc_off">Kunci home dengan PIN 4 angka supaya anak-anak tidak membuka aplikasi atau mengubah pengaturan. Jam dan jadwal sholat tetap tampil. Setelah PIN diatur, ikon gembok muncul di samping ⚙.</string>
+    <string name="settings_lock_desc_on">PIN aktif. Ketuk gembok di home untuk mengunci; untuk membuka, ketuk lagi dan masukkan PIN. Lupa PIN: tahan ⌫ 10 detik di layar PIN.</string>
+    <string name="settings_lock_set">ATUR PIN</string>
+    <string name="settings_lock_change">UBAH PIN</string>
+    <string name="settings_lock_remove">HAPUS PIN</string>
+    <string name="settings_lock_saved">PIN disimpan. Ketuk gembok di home untuk mengunci.</string>
+    <string name="settings_lock_removed">PIN dihapus</string>
+</resources>

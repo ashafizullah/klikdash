@@ -35,6 +35,8 @@ import android.util.TypedValue;
 import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -361,6 +363,7 @@ public class HomeActivity extends Activity {
             registerReceiver(unlockRx, new IntentFilter(Intent.ACTION_USER_UNLOCKED));
         }
 
+        refreshLock();
         applyLocationExtras(getIntent());
         updateTime();
         startLocation();
@@ -394,6 +397,7 @@ public class HomeActivity extends Activity {
         if (Theme.stale(this, themeBuilt)) return;
         reloadPrefs();
         if (tileCount(prefs) != shown + 1) { recreate(); return; } // jumlah ubin diganti di Pengaturan
+        refreshLock(); // PIN bisa diatur atau dihapus di Pengaturan
         keepOrientation();
         QuranService.listeners.add(onQuran);
         PrayerAlarm.home = new java.lang.ref.WeakReference<>(this);
@@ -509,6 +513,72 @@ public class HomeActivity extends Activity {
 
     /** Firmware NWD memilih launcher lewat property ini dan mengabaikan pilihan home Android. */
     Button makeDefault;
+
+    // ---------------------------------------------------------------- kunci layar (ScreenLock)
+
+    ScreenLock.Icon lockIcon;
+    TextView gear;
+    boolean locked;
+    /** Gestur yang dimulai di luar gembok saat terkunci: seluruhnya diabaikan sampai jari diangkat. */
+    boolean swallow;
+    long lockHintAt;
+
+    void refreshLock() {
+        locked = ScreenLock.locked(prefs);
+        lockIcon.setVisibility(ScreenLock.hasPin(prefs) ? View.VISIBLE : View.GONE);
+        lockIcon.set(locked);
+        gear.setVisibility(locked ? View.INVISIBLE : View.VISIBLE);
+    }
+
+    void toggleLock() {
+        if (!locked) {
+            ScreenLock.setLocked(prefs, true);
+            if (drawer.getVisibility() == View.VISIBLE) closeDrawer();
+            refreshLock();
+            Notice.info(this, getString(R.string.lock_locked));
+            return;
+        }
+        ScreenLock.verify(this, prefs, () -> {
+            ScreenLock.setLocked(prefs, false);
+            refreshLock();
+            Notice.ok(this, getString(R.string.lock_unlocked));
+        }, () -> {
+            refreshLock();
+            Notice.ok(this, getString(R.string.lock_reset_done));
+        });
+    }
+
+    /** Terkunci: hanya gembok (dan sambutan, yang menutup sendiri) yang menerima sentuhan. */
+    @Override public boolean dispatchTouchEvent(MotionEvent e) {
+        if (!locked) return super.dispatchTouchEvent(e);
+        if (e.getActionMasked() == MotionEvent.ACTION_DOWN) {
+            int[] at = new int[2];
+            lockIcon.getLocationOnScreen(at);
+            boolean onLock = e.getRawX() >= at[0] && e.getRawX() < at[0] + lockIcon.getWidth()
+                    && e.getRawY() >= at[1] && e.getRawY() < at[1] + lockIcon.getHeight();
+            boolean welcome = findViewById(android.R.id.content).findViewWithTag(Welcome.class) != null;
+            swallow = !onLock && !welcome;
+            if (swallow && SystemClock.uptimeMillis() - lockHintAt > 4000) {
+                lockHintAt = SystemClock.uptimeMillis();
+                Notice.info(this, getString(R.string.lock_locked));
+            }
+        }
+        if (swallow) return true;
+        return super.dispatchTouchEvent(e);
+    }
+
+    /** Tombol arah/OK (remote, keyboard) juga diabaikan saat terkunci; tombol media tetap jalan. */
+    @Override public boolean dispatchKeyEvent(KeyEvent e) {
+        if (locked) {
+            switch (e.getKeyCode()) {
+                case KeyEvent.KEYCODE_DPAD_UP: case KeyEvent.KEYCODE_DPAD_DOWN: case KeyEvent.KEYCODE_DPAD_LEFT:
+                case KeyEvent.KEYCODE_DPAD_RIGHT: case KeyEvent.KEYCODE_DPAD_CENTER: case KeyEvent.KEYCODE_ENTER:
+                case KeyEvent.KEYCODE_TAB: case KeyEvent.KEYCODE_SEARCH: case KeyEvent.KEYCODE_MENU:
+                    return true;
+            }
+        }
+        return super.dispatchKeyEvent(e);
+    }
 
     void openSettings() {
         userLaunch = true;
@@ -1048,7 +1118,11 @@ public class HomeActivity extends Activity {
         tag.setLetterSpacing(0.25f);
         top.addView(tag, new LinearLayout.LayoutParams(0, WRAP, 1f));
         // Pengaturan KlikDash (tampilan, Hemat Daya, asisten AI). Kotak sentuh 48dp walau ikonnya kecil.
-        TextView gear = text("⚙", fMonoBold, 18, DIM);
+        // Kunci layar (PIN di Pengaturan): gembok muncul hanya bila PIN sudah diatur, lihat refreshLock.
+        lockIcon = new ScreenLock.Icon(this);
+        lockIcon.setOnClickListener(v -> toggleLock());
+        top.addView(lockIcon, new LinearLayout.LayoutParams(px(48), px(48)));
+        gear = text("⚙", fMonoBold, 18, DIM);
         gear.setGravity(Gravity.CENTER);
         gear.setContentDescription(getString(R.string.app_settings));
         gear.setOnClickListener(v -> openSettings());

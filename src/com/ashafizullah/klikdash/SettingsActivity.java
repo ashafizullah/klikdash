@@ -259,6 +259,20 @@ public class SettingsActivity extends Activity {
                 key(getString(R.string.settings_off), !pa, () -> setPrayerAlert(false)),
                 key(getString(R.string.settings_prayer_test), false, () -> PrayerAlarm.notify(this, 3, System.currentTimeMillis()))));
 
+        // Kunci layar: PIN 4 angka, gembok di home (ScreenLock). Ubah/hapus minta PIN lama.
+        if (ScreenLock.hasPin(prefs)) {
+            list.addView(row(getString(R.string.settings_lock_title), getString(R.string.settings_lock_desc_on),
+                    key(getString(R.string.settings_lock_change), false, () -> ScreenLock.verify(this, prefs,
+                            this::newPin, this::pinRemoved)),
+                    key(getString(R.string.settings_lock_remove), false, () -> ScreenLock.verify(this, prefs, () -> {
+                        ScreenLock.clear(prefs);
+                        pinRemoved();
+                    }, this::pinRemoved))));
+        } else {
+            list.addView(row(getString(R.string.settings_lock_title), getString(R.string.settings_lock_desc_off),
+                    key(getString(R.string.settings_lock_set), false, this::newPin)));
+        }
+
         list.addView(row(getString(R.string.settings_tiles_reset_title), getString(R.string.settings_tiles_reset_desc),
                 key(getString(R.string.settings_tiles_reset), false, this::resetTiles)));
 
@@ -542,6 +556,28 @@ public class SettingsActivity extends Activity {
         ll.bottomMargin = px(6);
         form.addView(label(name), ll);
         form.addView(e, new LinearLayout.LayoutParams(MATCH, px(52)));
+    }
+
+    void newPin() {
+        ScreenLock.create(this, pin -> {
+            ScreenLock.setPin(prefs, pin);
+            rebuildKeepScroll();
+            Notice.ok(this, getString(R.string.settings_lock_saved));
+        });
+    }
+
+    void pinRemoved() {
+        rebuildKeepScroll();
+        Notice.ok(this, getString(R.string.settings_lock_removed));
+    }
+
+    /** Bangun ulang tab Launcher tanpa melompat ke atas (baris kunci layar ada di bawah). */
+    void rebuildKeepScroll() {
+        View old = content.getChildAt(0);
+        int y = old instanceof ScrollView ? old.getScrollY() : 0;
+        show(TAB_LAUNCHER, true);
+        View now = content.getChildAt(0);
+        if (now instanceof ScrollView) now.post(() -> now.scrollTo(0, y));
     }
 
     /** Dialog bergaya KlikDash: panel gelap bergaris tipis, tombol amber. Panggil sebagai ganti show(). */

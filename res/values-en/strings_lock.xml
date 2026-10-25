@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lock_enter">ENTER PIN</string>
+    <string name="lock_new">NEW PIN</string>
+    <string name="lock_confirm">REPEAT PIN</string>
+    <string name="lock_wrong">WRONG PIN</string>
+    <string name="lock_too_many">TOO MANY TRIES</string>
+    <string name="lock_wait">TRY AGAIN IN %1$d SECONDS</string>
+    <string name="lock_mismatch">PINS DO NOT MATCH</string>
+    <string name="lock_reset_title">FORGOT PIN</string>
+    <string name="lock_reset_hint">TYPE CODE %1$s TO REMOVE THE PIN</string>
+    <string name="lock_reset_wrong">WRONG CODE</string>
+    <string name="lock_lock">Lock home screen</string>
+    <string name="lock_unlock">Unlock home screen</string>
+    <string name="lock_locked">Locked. Tap the padlock to unlock.</string>
+    <string name="lock_unlocked">Unlocked</string>
+    <string name="lock_reset_done">PIN removed and the home screen is unlocked</string>
+
+    <string name="settings_lock_title">SCREEN LOCK</string>
+    <string name="settings_lock_desc_off">Lock the home screen with a 4-digit PIN so children cannot open apps or change settings. The clock and prayer times stay visible. Once a PIN is set, a padlock appears next to ⚙.</string>
+    <string name="settings_lock_desc_on">PIN is on. Tap the padlock on the home screen to lock; to unlock, tap it again and enter the PIN. Forgot the PIN: hold ⌫ for 10 seconds on the PIN screen.</string>
+    <string name="settings_lock_set">SET PIN</string>
+    <string name="settings_lock_change">CHANGE PIN</string>
+    <string name="settings_lock_remove">REMOVE PIN</string>
+    <string name="settings_lock_saved">PIN saved. Tap the padlock on the home screen to lock.</string>
+    <string name="settings_lock_removed">PIN removed</string>
+</resources>
