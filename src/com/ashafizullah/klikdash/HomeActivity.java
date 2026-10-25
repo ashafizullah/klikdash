@@ -367,6 +367,7 @@ public class HomeActivity extends Activity {
         applyLocationExtras(getIntent());
         updateTime();
         startLocation();
+        Tweaks.init(this);
         Tweaks.applyAsync();
         Tweaks.compileAsync(this, prefs);
         PrayerAlarm.allowOverlay(this);

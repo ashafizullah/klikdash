@@ -51,6 +51,9 @@ Nyalakan dulu:
 2. Buka **Pengaturan › Opsi pengembang**, lalu nyalakan **USB debugging**.
 3. Kembali ke KlikDash dan ketuk lagi tombol kuningnya.
 
+**Muncul pertanyaan "Allow USB debugging?"** setelah mengetuk tombol kuning? Itu headunit menanyakan izin
+KlikDash memakai ADB-nya. Centang **Always allow**, lalu ketuk **OK**. Pertanyaan ini hanya muncul sekali.
+
 ## 4. Izinkan lokasi
 
 Saat diminta, ketuk **Izinkan**. Lokasi dipakai untuk menghitung jadwal sholat sesuai kota Anda. Sebelum GPS

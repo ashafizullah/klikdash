@@ -45,7 +45,10 @@
     <string name="home_no_apps_for">TIDAK ADA APLIKASI “%1$s”</string>
 
     <string name="home_default_ok">KlikDash sekarang tampilan utama</string>
-    <string name="home_need_adb">Belum berhasil. Aktifkan USB debugging di Opsi pengembang, lalu coba lagi.</string>
+    <string name="home_need_adb">Belum berhasil: ADB headunit tidak bisa dihubungi. Aktifkan USB debugging di Opsi pengembang, lalu coba lagi.</string>
+    <string name="home_adb_allow">Muncul pertanyaan \"Allow USB debugging?\": centang \"Always allow\", lalu ketuk OK.</string>
+    <string name="home_adb_denied">Belum diizinkan. Ketuk tombolnya lagi, centang \"Always allow\" pada pertanyaan \"Allow USB debugging?\", lalu ketuk OK.</string>
+    <string name="home_setprop_failed">Belum berhasil: headunit ini menolak mengganti tampilan utama lewat ADB.</string>
     <string name="home_restore_message">Kembali ke launcher bawaan? KlikDash tetap terpasang dan bisa dijadikan tampilan utama lagi dari tombol di home-nya.</string>
     <string name="home_restore_confirm">Kembali</string>
 

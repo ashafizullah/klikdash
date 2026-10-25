@@ -12,7 +12,8 @@ import android.provider.Settings;
 
 /**
  * Menjadikan KlikDash tampilan utama, atau kembali ke launcher bawaan. Firmware NWD mengabaikan pilihan
- * "Aplikasi home" Android dan memakai property {@link #NWD_PROP}, yang diatur lewat ADB perangkat sendiri.
+ * "Aplikasi home" Android dan memakai property {@link #NWD_PROP}, yang diatur lewat ADB perangkat sendiri
+ * (bila adbd meminta autentikasi, Android sekali menanyakan izin untuk kunci KlikDash).
  */
 final class HomeSwitch {
     static final String NWD_PROP = "persist.nwd.launcher.default";
@@ -54,12 +55,20 @@ final class HomeSwitch {
         }
         String cur = getprop(NWD_PROP), me = a.getPackageName();
         if (!cur.isEmpty() && !cur.equals(me)) prefs.edit().putString("nwdPrev", cur).apply();
-        Tweaks.shellAsync("setprop " + NWD_PROP + " " + me + "; cmd package set-home-activity " + me + "/.HomeActivity",
-                ok -> a.runOnUiThread(() -> {
+        Tweaks.askAsync("setprop " + NWD_PROP + " " + me + "; cmd package set-home-activity " + me + "/.HomeActivity",
+                () -> Notice.info(a, a.getString(R.string.home_adb_allow)),
+                r -> a.runOnUiThread(() -> {
                     if (done != null) done.run();
                     if (isDefault(a)) Notice.ok(a, a.getString(R.string.home_default_ok));
-                    else Notice.fail(a, a.getString(R.string.home_need_adb));
+                    else Notice.fail(a, a.getString(failure(r)));
                 }));
+    }
+
+    /** Pesan bila ADB gagal: tidak bisa dihubungi, kunci KlikDash belum diizinkan, atau perintahnya ditolak firmware. */
+    static int failure(int adbResult) {
+        if (adbResult == Tweaks.NOT_ALLOWED) return R.string.home_adb_denied;
+        if (adbResult == Tweaks.NO_ADB) return R.string.home_need_adb;
+        return R.string.home_setprop_failed;
     }
 
     static void restore(Activity a, SharedPreferences prefs) {
@@ -73,11 +82,12 @@ final class HomeSwitch {
                 .setPositiveButton(R.string.home_restore_confirm, (dlg, w) -> {
                     String prev = prefs.getString("nwdPrev", "com.android.launcher");
                     ComponentName stock = stockHome(a, prev);
-                    Tweaks.shellAsync("setprop " + NWD_PROP + " " + prev
+                    Tweaks.askAsync("setprop " + NWD_PROP + " " + prev
                                     + (stock != null ? "; cmd package set-home-activity " + stock.flattenToShortString() : "")
                                     + "; input keyevent KEYCODE_HOME",
-                            ok -> {
-                                if (!ok) Notice.fail(a, a.getString(R.string.home_need_adb));
+                            () -> Notice.info(a, a.getString(R.string.home_adb_allow)),
+                            r -> {
+                                if (r != Tweaks.DONE) Notice.fail(a, a.getString(failure(r)));
                             });
                 })
                 .show();

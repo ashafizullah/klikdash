@@ -70,6 +70,7 @@ public class SettingsActivity extends Activity {
         fSerif = font("serif.ttf", null);
         // Sama dengan HomeActivity: pengaturan launcher di penyimpanan DE (bisa dibaca saat direct boot).
         prefs = createDeviceProtectedStorageContext().getSharedPreferences("klikdash", MODE_PRIVATE);
+        Tweaks.init(this);
         build(b != null ? b.getInt(EXTRA_TAB, 0) : getIntent().getIntExtra(EXTRA_TAB, TAB_LAUNCHER));
     }
 

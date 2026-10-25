@@ -12,6 +12,7 @@ public class UpdatedReceiver extends BroadcastReceiver {
     @Override public void onReceive(Context c, Intent i) {
         if (!Intent.ACTION_MY_PACKAGE_REPLACED.equals(i.getAction())) return;
         PendingResult pr = goAsync();
+        Tweaks.init(c);
         Tweaks.shellAsync("am start -n " + c.getPackageName() + "/.HomeActivity", ok -> pr.finish());
     }
 }

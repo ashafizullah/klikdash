@@ -55,6 +55,9 @@ developer options are off. Turn them on:
 2. Open **Settings › Developer options** and turn on **USB debugging**.
 3. Go back to KlikDash and tap the yellow button again.
 
+**Asked "Allow USB debugging?"** after tapping the yellow button? That is the headunit asking whether KlikDash
+may use its ADB. Tick **Always allow** and tap **OK**. It is asked only once.
+
 ## 4. Allow location
 
 Tap **Allow** when asked. Location is used to calculate prayer times for your city. Until the GPS gets a
