@@ -11,7 +11,7 @@ klikdash/
 ├── klikdash.keystore         APK signing key (do not lose it, see Notes)
 ├── src/com/ashafizullah/klikdash/
 │   ├── HomeActivity.java     launcher: tiles, clock, prayer times, temperature, drag & drop
-│   ├── PrayerTimes.java      prayer-time calculation (Java port of PrayTimes.js, LGPL v3)
+│   ├── PrayerTimes.java      prayer-time calculation (Kemenag RI parameters)
 │   ├── QuranActivity.java    mushaf view + player
 │   ├── QuranService.java     background recitation player
 │   ├── QuranData.java        loader for assets/quran.txt

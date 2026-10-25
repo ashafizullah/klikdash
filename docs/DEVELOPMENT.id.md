@@ -11,7 +11,7 @@ klikdash/
 ├── klikdash.keystore         kunci tanda tangan APK (jangan hilang, lihat Catatan)
 ├── src/com/ashafizullah/klikdash/
 │   ├── HomeActivity.java     launcher: pintasan, jam, sholat, suhu, drag & drop
-│   ├── PrayerTimes.java      perhitungan jadwal sholat (port Java PrayTimes.js, LGPL v3)
+│   ├── PrayerTimes.java      perhitungan jadwal sholat (parameter Kemenag RI)
 │   ├── QuranActivity.java    tampilan mushaf + pemutar
 │   ├── QuranService.java     pemutar murattal di latar
 │   ├── QuranData.java        pemuat assets/quran.txt

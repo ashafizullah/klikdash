@@ -68,7 +68,7 @@
     <string name="settings_system_open">BUKA</string>
 
     <string name="settings_about_title">TENTANG</string>
-    <string name="settings_about_desc">KlikDash %1$s — launcher ringan untuk headunit Android. Sumber terbuka (MIT) di github.com/ashafizullah/klikdash. Jadwal sholat: port PrayTimes.js (praytimes.org, LGPL v3). Ayat Al-Qur\'an pada dzikir: Tanzil (tanzil.net).</string>
+    <string name="settings_about_desc">KlikDash %1$s — launcher ringan untuk headunit Android. Sumber terbuka (MIT) di github.com/ashafizullah/klikdash. Ayat Al-Qur\'an pada dzikir: Tanzil (tanzil.net).</string>
 
     <string-array name="theme_names">
         <item>AMBER</item>

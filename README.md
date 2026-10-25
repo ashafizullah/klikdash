@@ -168,7 +168,7 @@ KlikDash is free. If it saves you time, **[buy me an AI token on Trakteer](https
 
 ## Sources & licenses
 
-- **Code:** [MIT](LICENSE), except `PrayerTimes.java` (see prayer times below).
+- **Code:** [MIT](LICENSE).
 - **Fonts:** [SIL Open Font License 1.1](assets/licenses/): Big Shoulders, Martian Mono, Amiri Quran, and
   Literata (via Google Fonts). Literata is instanced and subset; its name and license are unchanged.
 - **Text, transliteration, and translation** (not included): [equran.id](https://equran.id), i.e. the
@@ -177,8 +177,9 @@ KlikDash is free. If it saves you time, **[buy me an AI token on Trakteer](https
   [alquran.cloud](https://alquran.cloud) (from [Tanzil](https://tanzil.net/trans/)). Rights belong to its owners.
 - **Audio** (not included): [everyayah.com](https://everyayah.com) / versebyversequran.com, Mishary Rashid
   Alafasy 128 kbps. Follow the license on that site.
-- **Prayer times:** `PrayerTimes.java` is a Java port of [PrayTimes.js](https://praytimes.org) (© PrayTimes.org,
-  Hamid Zarrabi-Zadeh, GNU LGPL v3.0, used with credit and a link as its terms of use ask).
+- **Prayer times:** calculated on the device with the Kemenag RI parameters (Subuh 20°, Isya 18°, Shafi'i Asr,
+  +2 minutes ihtiyath), using the U.S. Naval Observatory's approximate solar coordinates and the Julian day from
+  Meeus' *Astronomical Algorithms*.
 - **Dhikr** (`assets/dzikir.json`): from [KlikBand](https://github.com/ashafizullah/klikband); order and counts from
   [Almanhaj](https://almanhaj.or.id/11518-dzikir-pagi-dan-petang.html), Latin following Hisnul Muslim, Qur'an
   verses from [Tanzil](https://tanzil.net) (© Tanzil Project, CC BY 3.0 with Tanzil's terms: verbatim copies only,

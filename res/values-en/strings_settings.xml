@@ -67,7 +67,7 @@
     <string name="settings_system_open">OPEN</string>
 
     <string name="settings_about_title">ABOUT</string>
-    <string name="settings_about_desc">KlikDash %1$s — a lightweight launcher for Android headunits. Open source (MIT) at github.com/ashafizullah/klikdash. Prayer times: a port of PrayTimes.js (praytimes.org, LGPL v3). Qur\'an verses in the dhikr: Tanzil (tanzil.net).</string>
+    <string name="settings_about_desc">KlikDash %1$s — a lightweight launcher for Android headunits. Open source (MIT) at github.com/ashafizullah/klikdash. Qur\'an verses in the dhikr: Tanzil (tanzil.net).</string>
 
     <string-array name="theme_names">
         <item>AMBER</item>

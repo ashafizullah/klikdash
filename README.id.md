@@ -170,7 +170,7 @@ KlikDash gratis. Kalau bermanfaat, **[traktir saya token AI di Trakteer](https:/
 
 ## Sumber & lisensi
 
-- **Kode:** [MIT](LICENSE), kecuali `PrayerTimes.java` (lihat jadwal sholat di bawah).
+- **Kode:** [MIT](LICENSE).
 - **Font:** [SIL Open Font License 1.1](assets/licenses/), yaitu Big Shoulders, Martian Mono, Amiri Quran,
   dan Literata (via Google Fonts). Literata di-instance dan di-subset; nama dan lisensinya tetap.
 - **Teks, transliterasi, dan terjemahan** (tidak disertakan): [equran.id](https://equran.id), yaitu mushaf
@@ -179,8 +179,9 @@ KlikDash gratis. Kalau bermanfaat, **[traktir saya token AI di Trakteer](https:/
   [alquran.cloud](https://alquran.cloud) (dari [Tanzil](https://tanzil.net/trans/)). Haknya ada pada pemiliknya.
 - **Audio** (tidak disertakan): [everyayah.com](https://everyayah.com) / versebyversequran.com, Mishary
   Rashid Alafasy 128 kbps. Ikuti lisensi di situs tersebut.
-- **Jadwal sholat:** `PrayerTimes.java` adalah port Java dari [PrayTimes.js](https://praytimes.org) (© PrayTimes.org,
-  Hamid Zarrabi-Zadeh, GNU LGPL v3.0, dipakai dengan kredit dan tautan sesuai ketentuannya).
+- **Jadwal sholat:** dihitung di perangkat dengan parameter Kemenag RI (Subuh 20°, Isya 18°, Ashar Syafi'i,
+  ihtiyath +2 menit), memakai rumus posisi matahari perkiraan dari U.S. Naval Observatory dan hari Julian dari
+  *Astronomical Algorithms* karya Meeus.
 - **Dzikir** (`assets/dzikir.json`): dari [KlikBand](https://github.com/ashafizullah/klikband); urutan dan jumlah dari
   [Almanhaj](https://almanhaj.or.id/11518-dzikir-pagi-dan-petang.html), Latin mengikuti Hisnul Muslim, ayat
   Al-Qur'an dari [Tanzil](https://tanzil.net) (© Tanzil Project, CC BY 3.0 dengan ketentuan Tanzil: hanya salinan apa
