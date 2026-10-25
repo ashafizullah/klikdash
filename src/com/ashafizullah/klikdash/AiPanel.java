@@ -14,7 +14,8 @@ import static com.ashafizullah.klikdash.SettingsActivity.WRAP;
 
 /**
  * Tab Asisten AI: profil penyedia (Claude atau OpenAI-compatible, bisa lebih dari satu, satu aktif) dan suara
- * ElevenLabs. API key hanya disimpan terenkripsi (lihat {@link AiStore}) dan ditampilkan tersamar.
+ * ElevenLabs. API key hanya disimpan terenkripsi (lihat {@link AiStore}) dan ditampilkan tersamar. Teks tab ini
+ * mengikuti bahasa antarmuka; BAHASA ASISTEN memilih bahasa yang didengar dan diucapkan TANYA.
  */
 final class AiPanel {
     final SettingsActivity a;
@@ -34,11 +35,8 @@ final class AiPanel {
         List<AiStore.Profile> ps = AiStore.profiles(a);
         AiStore.Profile act = AiStore.active(a);
 
-        list.addView(a.row("PROFIL AI",
-                ps.isEmpty() ? "Belum ada profil. Tambahkan API key Claude (console.anthropic.com) atau layanan "
-                        + "OpenAI-compatible seperti OpenAI, OpenRouter, Groq, atau server lokal."
-                        : "Ketuk PAKAI untuk memilih profil yang dipakai pintasan TANYA. API key disimpan terenkripsi di "
-                        + "headunit ini dan hanya dikirim ke alamat profilnya.",
+        list.addView(a.row(a.getString(R.string.ai_profiles_title),
+                a.getString(ps.isEmpty() ? R.string.ai_profiles_empty : R.string.ai_profiles_desc),
                 a.key("+ CLAUDE", ps.isEmpty(), () -> edit(AiStore.newProfile(AiStore.CLAUDE), true)),
                 a.key(a.narrow ? "+ OPENAI" : "+ OPENAI-COMPATIBLE", false,
                         () -> edit(AiStore.newProfile(AiStore.OPENAI), true))));
@@ -46,46 +44,51 @@ final class AiPanel {
         for (AiStore.Profile p : ps) {
             boolean on = act != null && act.id.equals(p.id);
             String host = Uri.parse(p.baseUrl).getHost();
-            String desc = (p.claude() ? "Claude" : "OpenAI-compatible") + " · " + (p.model.isEmpty() ? "model belum diisi" : p.model)
+            String desc = (p.claude() ? "Claude" : "OpenAI-compatible") + " · "
+                    + (p.model.isEmpty() ? a.getString(R.string.ai_model_unset) : p.model)
                     + " · " + (host != null ? host : p.baseUrl) + " · key " + mask(p.apiKey);
-            Key test = a.key("UJI", false, null);
+            Key test = a.key(a.getString(R.string.ai_test), false, null);
             test.setOnClickListener(v -> test(p, test));
-            list.addView(a.row(p.name.toUpperCase(SettingsActivity.ID), desc,
-                    a.key(on ? "AKTIF" : "PAKAI", on, () -> {
+            list.addView(a.row(p.name.toUpperCase(Lang.locale()), desc,
+                    a.key(a.getString(on ? R.string.ai_active : R.string.ai_use), on, () -> {
                         AiStore.setActive(a, p.id);
                         render();
                     }),
                     test,
-                    a.key("UBAH", false, () -> edit(p, false))));
+                    a.key(a.getString(R.string.ai_edit), false, () -> edit(p, false))));
         }
 
         // AKTIF/MATI = TinyFish; tanpa key TinyFish tidak bisa diaktifkan. Selain TinyFish, profil Claude resmi tetap
         // mencari lewat pencarian Anthropic (lihat AiClient).
         String tf = AiStore.tinyfishKey(a);
         boolean hasTf = !tf.isEmpty(), web = hasTf && AiStore.webSearch(a);
-        String anthropic = "profil Claude resmi mencari lewat pencarian Anthropic, ditagih ke akun Claude ($10 per 1.000 "
-                + "pencarian); profil lain tanpa pencarian.";
-        Key webOn = a.key("AKTIF", web, () -> setWebSearch(true));
+        String anthropic = a.getString(R.string.ai_web_anthropic);
+        Key webOn = a.key(a.getString(R.string.ai_active), web, () -> setWebSearch(true));
         webOn.setEnabled(hasTf);
-        list.addView(a.row("PENCARIAN WEB",
-                "TANYA mencari info terkini (berita, harga, cuaca, jadwal) bila perlu. " + (!hasTf
-                        ? "Isi API key TinyFish (gratis, buat di agent.tinyfish.ai) supaya semua profil mencari lewat "
-                        + "TinyFish. Tanpa TinyFish, " + anthropic
-                        : web ? "Semua profil mencari lewat TinyFish (gratis), key " + mask(tf) + "."
-                        : "TinyFish dimatikan: " + anthropic),
+        list.addView(a.row(a.getString(R.string.ai_web_title),
+                a.getString(R.string.ai_web_intro) + " " + (!hasTf ? a.getString(R.string.ai_web_no_key, anthropic)
+                        : web ? a.getString(R.string.ai_web_on, mask(tf)) : a.getString(R.string.ai_web_off, anthropic)),
                 webOn,
-                a.key("MATI", !web, () -> setWebSearch(false)),
+                a.key(a.getString(R.string.ai_off), !web, () -> setWebSearch(false)),
                 a.key(a.narrow ? "KEY" : "KEY TINYFISH", !hasTf, this::editTinyfishKey)));
 
         String elKey = AiStore.elKey(a), elVoice = AiStore.elVoice(a), elName = AiStore.elVoiceName(a);
-        list.addView(a.row("SUARA ELEVENLABS",
-                (elKey.isEmpty() ? "Belum diatur. " : "Key " + mask(elKey) + " · suara "
-                        + (elVoice.isEmpty() ? "belum dipilih" : elName.isEmpty() ? elVoice : elName) + " · "
-                        + AiStore.elModelName(AiStore.elModel(a)) + ". ")
-                        + "Dipakai untuk suara jawaban dan untuk mendengar perintah bila headunit tidak punya pengenal "
-                        + "suara Android.",
+
+        // Bahasa TANYA, terpisah dari bahasa tampilan. Suara bawaan "Putra" berlogat Indonesia: beri tahu di English.
+        boolean en = AiStore.en(a);
+        String langDesc = a.getString(R.string.ai_lang_desc);
+        if (en && AiStore.EL_VOICE_NAME.equals(elName)) langDesc += " " + a.getString(R.string.ai_lang_voice_hint, elName);
+        list.addView(a.row(a.getString(R.string.ai_lang_title), langDesc,
+                a.key(a.getString(R.string.lang_id), !en, () -> setLang(Lang.ID)),
+                a.key(a.getString(R.string.lang_en), en, () -> setLang(Lang.EN))));
+
+        list.addView(a.row(a.getString(R.string.ai_el_title),
+                (elKey.isEmpty() ? a.getString(R.string.ai_el_unset) : a.getString(R.string.ai_el_state, mask(elKey),
+                        elVoice.isEmpty() ? a.getString(R.string.ai_voice_unpicked) : elName.isEmpty() ? elVoice : elName,
+                        AiStore.elModelName(AiStore.elModel(a))))
+                        + " " + a.getString(R.string.ai_el_desc),
                 a.key("API KEY", elKey.isEmpty(), this::editElevenKey),
-                a.key("SUARA", false, this::pickVoice),
+                a.key(a.getString(R.string.ai_voice), false, this::pickVoice),
                 a.key("MODEL", false, this::pickElModel)));
 
         // Tanpa API key ElevenLabs: tombol ELEVENLABS nonaktif dan Android yang terpilih (sesuai yang dipakai TANYA).
@@ -99,31 +102,28 @@ final class AiPanel {
         elTts.setEnabled(hasEl);
         Key androidTts = a.key("ANDROID", !el && hasTts, () -> setTts(false));
         androidTts.setEnabled(hasTts);
-        String ttsDesc = hasTts ? "Suara Android memakai " + appLabel(ttsEngine) + ". "
-                : "Suara Android butuh aplikasi Speech Services by Google (gratis, bisa offline), yang belum terpasang "
-                + "di headunit ini: ketuk PASANG untuk memasangnya dari Play Store. ";
-        ttsDesc += !hasEl ? "Isi API key ElevenLabs di atas untuk bisa memilih suara ElevenLabs."
-                : "ElevenLabs butuh internet dan memakai kuota akun ElevenLabs" + (hasTts ? "; bila gagal, otomatis "
-                + "memakai suara Android." : ".");
-        list.addView(hasTts ? a.row("SUARA JAWABAN", ttsDesc, elTts, androidTts, a.key("DENGAR", false, this::speakTest))
-                : a.row("SUARA JAWABAN", ttsDesc, elTts, androidTts,
-                        a.key("PASANG", true, () -> openStore(GOOGLE_TTS)), a.key("DENGAR", false, this::speakTest)));
+        String ttsDesc = (hasTts ? a.getString(R.string.ai_tts_android, appLabel(ttsEngine))
+                : a.getString(R.string.ai_tts_missing)) + " "
+                + a.getString(!hasEl ? R.string.ai_tts_need_el : hasTts ? R.string.ai_tts_el : R.string.ai_tts_el_only);
+        String ttsTitle = a.getString(R.string.ai_tts_title), listen = a.getString(R.string.ai_listen);
+        list.addView(hasTts ? a.row(ttsTitle, ttsDesc, elTts, androidTts, a.key(listen, false, this::speakTest))
+                : a.row(ttsTitle, ttsDesc, elTts, androidTts,
+                        a.key(a.getString(R.string.ai_install), true, () -> openStore(GOOGLE_TTS)),
+                        a.key(listen, false, this::speakTest)));
 
         boolean elStt = hasEl && (AiStore.elStt(a) || !hasStt);
         Key elSttKey = a.key("ELEVENLABS", elStt, () -> setStt(true));
         elSttKey.setEnabled(hasEl);
         Key androidStt = a.key("ANDROID", !elStt && hasStt, () -> setStt(false));
         androidStt.setEnabled(hasStt);
-        String sttDesc = hasStt ? "Pengenal suara Android memakai "
-                + (sttService != null ? appLabel(sttService.getPackageName()) : "layanan bawaan headunit") + ". "
-                : "Pengenal suara Android butuh aplikasi Google (gratis), yang belum terpasang di headunit ini: ketuk "
-                + "PASANG untuk memasangnya dari Play Store. ";
-        sttDesc += !hasEl ? "Isi API key ElevenLabs di atas untuk bisa memilih ElevenLabs Scribe."
-                : "ElevenLabs Scribe mentranskripsi rekaman ucapan Anda dan memakai kuota akun ElevenLabs"
-                + (hasStt ? "; bila pengenal Android gagal, rekaman dikirim ke ElevenLabs." : ".");
-        list.addView(hasStt ? a.row("PENGENALAN SUARA", sttDesc, elSttKey, androidStt)
-                : a.row("PENGENALAN SUARA", sttDesc, elSttKey, androidStt,
-                        a.key("PASANG", true, () -> openStore(GOOGLE_APP))));
+        String sttDesc = (hasStt ? a.getString(R.string.ai_stt_android, sttService != null
+                ? appLabel(sttService.getPackageName()) : a.getString(R.string.ai_stt_builtin))
+                : a.getString(R.string.ai_stt_missing)) + " "
+                + a.getString(!hasEl ? R.string.ai_stt_need_el : hasStt ? R.string.ai_stt_el : R.string.ai_stt_el_only);
+        String sttTitle = a.getString(R.string.ai_stt_title);
+        list.addView(hasStt ? a.row(sttTitle, sttDesc, elSttKey, androidStt)
+                : a.row(sttTitle, sttDesc, elSttKey, androidStt,
+                        a.key(a.getString(R.string.ai_install), true, () -> openStore(GOOGLE_APP))));
     }
 
     /** Aplikasi suara Android dari Google di Play Store: mesin TTS dan pengenal suara (aplikasi Google). */
@@ -139,8 +139,8 @@ final class AiPanel {
         }
     }
 
-    static String mask(String key) {
-        if (key == null || key.isEmpty()) return "kosong";
+    String mask(String key) {
+        if (key == null || key.isEmpty()) return a.getString(R.string.ai_empty);
         return "••••" + (key.length() > 8 ? key.substring(key.length() - 4) : "");
     }
 
@@ -170,34 +170,40 @@ final class AiPanel {
         render();
     }
 
+    void setLang(String lang) {
+        AiStore.setLang(a, lang);
+        render();
+    }
+
     void speakTest() {
         if (AiStore.elKey(a).isEmpty() && !AiVoice.hasAndroidTts(a)) {
-            Notice.info(a, "Isi API key & voice ID ElevenLabs dulu");
+            Notice.info(a, a.getString(R.string.ai_need_el_first));
             return;
         }
         if (voice == null) voice = new AiVoice(a);
-        voice.say("Halo, saya asisten KlikDash. Mau ke mana kita hari ini?", null);
+        voice.say(AiStore.inLang(a).getString(R.string.as_test_say), null);
     }
 
     void test(AiStore.Profile p, Key k) {
-        if (p.apiKey.isEmpty()) { Notice.info(a, "API key belum diisi"); return; }
-        k.setLabel("MENGUJI…");
+        if (p.apiKey.isEmpty()) { Notice.info(a, a.getString(R.string.ai_key_missing)); return; }
+        k.setLabel(a.getString(R.string.ai_testing));
         k.setEnabled(false);
         new Thread(() -> {
             String msg;
             int kind;
             try {
-                String r = new AiClient(a, p).ask("Tes koneksi. Jawab satu kalimat singkat bahwa kamu siap, tanpa memakai alat.");
-                msg = r.isEmpty() ? "Tersambung" : r;
+                AiClient c = new AiClient(a, p);
+                String r = c.ask(c.inLang.getString(R.string.as_test_prompt));
+                msg = r.isEmpty() ? a.getString(R.string.ai_connected) : r;
                 kind = Notice.OK;
             } catch (Exception e) {
-                msg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+                msg = e instanceof AiClient.AiError || e.getMessage() == null ? AiClient.describe(a, e) : e.getMessage();
                 kind = Notice.FAIL;
             }
             final String m = msg;
             final int kd = kind;
             a.runOnUiThread(() -> {
-                k.setLabel("UJI");
+                k.setLabel(a.getString(R.string.ai_test));
                 k.setEnabled(true);
                 Notice.show(a, kd, p.name, m);
             });
@@ -208,14 +214,15 @@ final class AiPanel {
         LinearLayout form = a.column();
         int pad = a.px(24);
         form.setPadding(pad, pad, pad, 0);
-        EditText name = a.field("Nama profil", p.name, false);
+        EditText name = a.field(a.getString(R.string.ai_field_name_hint), p.name, false);
         EditText url = a.field(p.claude() ? AiStore.CLAUDE_URL : AiStore.OPENAI_URL, p.baseUrl, false);
-        EditText model = a.field(p.claude() ? AiStore.CLAUDE_MODEL : "mis. gpt-5.1 atau openai/gpt-5.1", p.model, false);
-        EditText key = a.field(isNew || p.apiKey.isEmpty() ? "Tempel API key" : "Kosongkan = tetap " + mask(p.apiKey), "", true);
-        a.addField(form, "NAMA", name);
+        EditText model = a.field(p.claude() ? AiStore.CLAUDE_MODEL : a.getString(R.string.ai_field_model_hint), p.model, false);
+        EditText key = a.field(isNew || p.apiKey.isEmpty() ? a.getString(R.string.ai_field_key_hint)
+                : a.getString(R.string.ai_field_keep, mask(p.apiKey)), "", true);
+        a.addField(form, a.getString(R.string.ai_label_name), name);
         a.addField(form, "BASE URL", url);
         a.addField(form, "MODEL", model);
-        Key pick = a.key("PILIH MODEL", false, null);
+        Key pick = a.key(a.getString(R.string.ai_pick_model), false, null);
         pick.setOnClickListener(v -> pickModel(p, url, key, model));
         LinearLayout.LayoutParams pl = new LinearLayout.LayoutParams(WRAP, a.px(48));
         pl.topMargin = a.px(8);
@@ -224,20 +231,20 @@ final class AiPanel {
         ScrollView s = a.scroll(form);
 
         AlertDialog.Builder b = new AlertDialog.Builder(a)
-                .setTitle(isNew ? (p.claude() ? "Profil Claude baru" : "Profil OpenAI-compatible baru") : "Ubah profil")
+                .setTitle(isNew ? (p.claude() ? R.string.ai_new_claude : R.string.ai_new_openai) : R.string.ai_edit_profile)
                 .setView(s)
-                .setNegativeButton("Batal", null)
-                .setPositiveButton("Simpan", null);
-        if (!isNew) b.setNeutralButton("Hapus", (d, w) -> confirmDelete(p));
+                .setNegativeButton(R.string.common_cancel, null)
+                .setPositiveButton(R.string.common_save, null);
+        if (!isNew) b.setNeutralButton(R.string.common_delete, (d, w) -> confirmDelete(p));
         AlertDialog d = SettingsActivity.showDark(b);
         // Tombol Simpan tidak langsung menutup dialog, supaya isian yang salah bisa diperbaiki.
         d.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String n = name.getText().toString().trim(), u = AiClient.trim(url.getText().toString());
             String m = model.getText().toString().trim(), k = key.getText().toString().trim();
             if (u.isEmpty()) u = p.claude() ? AiStore.CLAUDE_URL : AiStore.OPENAI_URL;
-            if (!u.startsWith("https://") && !u.startsWith("http://")) { Notice.info(a, "Base URL harus diawali https://"); return; }
-            if (m.isEmpty() && !p.claude()) { Notice.info(a, "Isi nama model"); return; }
-            if (k.isEmpty() && p.apiKey.isEmpty()) { Notice.info(a, "Isi API key"); return; }
+            if (!u.startsWith("https://") && !u.startsWith("http://")) { Notice.info(a, a.getString(R.string.ai_url_https)); return; }
+            if (m.isEmpty() && !p.claude()) { Notice.info(a, a.getString(R.string.ai_need_model)); return; }
+            if (k.isEmpty() && p.apiKey.isEmpty()) { Notice.info(a, a.getString(R.string.ai_need_key)); return; }
             p.name = n.isEmpty() ? (p.claude() ? "Claude" : "OpenAI-compatible") : n;
             p.baseUrl = u;
             p.model = m;
@@ -255,7 +262,7 @@ final class AiPanel {
         String u = AiClient.trim(url.getText().toString());
         if (u.isEmpty()) u = p.claude() ? AiStore.CLAUDE_URL : AiStore.OPENAI_URL;
         final String key = k, base = u;
-        if (key.isEmpty() && !p.claude()) { Notice.info(a, "Isi API key dulu"); return; }
+        if (key.isEmpty() && !p.claude()) { Notice.info(a, a.getString(R.string.ai_need_key_first)); return; }
         new Thread(() -> {
             List<String> ids;
             try {
@@ -266,16 +273,16 @@ final class AiPanel {
             if (ids.isEmpty() && p.claude()) ids = java.util.Arrays.asList(AiStore.CLAUDE_MODELS);
             final List<String> list = ids;
             a.runOnUiThread(() -> {
-                if (list.isEmpty()) { Notice.info(a, "Daftar model tidak tersedia; ketik nama model"); return; }
+                if (list.isEmpty()) { Notice.info(a, a.getString(R.string.ai_no_models)); return; }
                 String[] items = list.toArray(new String[0]);
                 int sel = list.indexOf(model.getText().toString().trim());
                 SettingsActivity.showDark(new AlertDialog.Builder(a)
-                        .setTitle("Pilih model")
+                        .setTitle(R.string.ai_choose_model)
                         .setSingleChoiceItems(items, sel, (d, w) -> {
                             model.setText(items[w]);
                             d.dismiss();
                         })
-                        .setNegativeButton("Tutup", null));
+                        .setNegativeButton(R.string.common_close, null));
             });
         }, "ai-models").start();
     }
@@ -293,9 +300,9 @@ final class AiPanel {
 
     void confirmDelete(AiStore.Profile p) {
         SettingsActivity.showDark(new AlertDialog.Builder(a)
-                .setMessage("Hapus profil " + p.name + " beserta API key-nya dari headunit ini?")
-                .setNegativeButton("Batal", null)
-                .setPositiveButton("Hapus", (d, w) -> {
+                .setMessage(a.getString(R.string.ai_delete_confirm, p.name))
+                .setNegativeButton(R.string.common_cancel, null)
+                .setPositiveButton(R.string.common_delete, (d, w) -> {
                     List<AiStore.Profile> ps = AiStore.profiles(a);
                     for (int i = ps.size() - 1; i >= 0; i--) if (ps.get(i).id.equals(p.id)) ps.remove(i);
                     AiStore.saveProfiles(a, ps);
@@ -313,19 +320,19 @@ final class AiPanel {
         int pad = a.px(24);
         form.setPadding(pad, pad, pad, 0);
         String cur = AiStore.tinyfishKey(a);
-        EditText key = a.field(cur.isEmpty() ? "Tempel API key TinyFish" : "Kosongkan = tetap " + mask(cur), "", true);
+        EditText key = a.field(cur.isEmpty() ? a.getString(R.string.ai_tf_hint) : a.getString(R.string.ai_field_keep, mask(cur)), "", true);
         a.addField(form, "API KEY", key);
         AlertDialog.Builder b = new AlertDialog.Builder(a)
-                .setTitle("API key TinyFish")
+                .setTitle(R.string.ai_tf_title)
                 .setView(a.scroll(form))
-                .setNegativeButton("Batal", null)
-                .setPositiveButton("Simpan", (d, w) -> {
+                .setNegativeButton(R.string.common_cancel, null)
+                .setPositiveButton(R.string.common_save, (d, w) -> {
                     String k = key.getText().toString().trim();
                     if (k.isEmpty()) return;
                     AiStore.saveTinyfishKey(a, k);
                     render();
                 });
-        if (!cur.isEmpty()) b.setNeutralButton("Hapus key", (d, w) -> {
+        if (!cur.isEmpty()) b.setNeutralButton(R.string.ai_delete_key, (d, w) -> {
             AiStore.saveTinyfishKey(a, "");
             render();
         });
@@ -337,24 +344,25 @@ final class AiPanel {
         int pad = a.px(24);
         form.setPadding(pad, pad, pad, 0);
         String cur = AiStore.elKey(a);
-        EditText key = a.field(cur.isEmpty() ? "Tempel API key ElevenLabs" : "Kosongkan = tetap " + mask(cur), "", true);
+        EditText key = a.field(cur.isEmpty() ? a.getString(R.string.ai_el_hint) : a.getString(R.string.ai_field_keep, mask(cur)), "", true);
         a.addField(form, "API KEY", key);
         AlertDialog.Builder b = new AlertDialog.Builder(a)
-                .setTitle("API key ElevenLabs")
+                .setTitle(R.string.ai_el_key_title)
                 .setView(a.scroll(form))
-                .setNegativeButton("Batal", null)
-                .setPositiveButton("Simpan", (d, w) -> {
+                .setNegativeButton(R.string.common_cancel, null)
+                .setPositiveButton(R.string.common_save, (d, w) -> {
                     String k = key.getText().toString().trim();
                     if (k.isEmpty()) return;
                     AiStore.saveElKey(a, k);
-                    // Belum memilih suara: pakai suara Indonesia bawaan, supaya langsung bisa bicara.
-                    if (AiStore.elVoice(a).isEmpty()) {
+                    // Belum memilih suara: pakai suara Indonesia bawaan (asisten berbahasa Indonesia), supaya langsung
+                    // bisa bicara. Asisten English: pengguna memilih sendiri di SUARA.
+                    if (AiStore.elVoice(a).isEmpty() && !AiStore.en(a)) {
                         AiStore.saveElVoice(a, AiStore.EL_VOICE, AiStore.EL_VOICE_NAME);
                         addShared(k, AiStore.EL_VOICE_OWNER, AiStore.EL_VOICE, AiStore.EL_VOICE_NAME, null);
                     }
                     render();
                 });
-        if (!cur.isEmpty()) b.setNeutralButton("Hapus key", (d, w) -> {
+        if (!cur.isEmpty()) b.setNeutralButton(R.string.ai_delete_key, (d, w) -> {
             AiStore.saveElKey(a, "");
             render();
         });
@@ -363,20 +371,20 @@ final class AiPanel {
 
     void pickElModel() {
         String cur = AiStore.elModel(a);
-        String[] names = new String[AiStore.EL_MODELS.length];
+        String[] names = new String[AiStore.EL_MODELS.length], desc = a.getResources().getStringArray(R.array.ai_el_model_desc);
         int sel = 0;
         for (int i = 0; i < names.length; i++) {
-            names[i] = AiStore.EL_MODELS[i][1];
+            names[i] = AiStore.EL_MODELS[i][1] + " — " + desc[i];
             if (AiStore.EL_MODELS[i][0].equals(cur)) sel = i;
         }
         SettingsActivity.showDark(new AlertDialog.Builder(a)
-                .setTitle("Model suara ElevenLabs")
+                .setTitle(R.string.ai_el_model_title)
                 .setSingleChoiceItems(names, sel, (d, w) -> {
                     AiStore.saveElModel(a, AiStore.EL_MODELS[w][0]);
                     d.dismiss();
                     render();
                 })
-                .setNegativeButton("Tutup", null));
+                .setNegativeButton(R.string.common_close, null));
     }
 
     /** Satu pilihan suara: dari Voice Library (perlu ditambahkan ke akun) atau yang sudah ada di akun. */
@@ -384,18 +392,20 @@ final class AiPanel {
         String id, owner, name, info;
     }
 
-    /** Suara berbahasa Indonesia terpopuler dari Voice Library, lalu suara yang sudah ada di akun. */
+    /** Suara terpopuler dalam bahasa asisten dari Voice Library, lalu suara yang sudah ada di akun. */
     void pickVoice() {
         String key = AiStore.elKey(a);
-        if (key.isEmpty()) { Notice.info(a, "Isi API key ElevenLabs dulu"); return; }
-        AlertDialog wait = SettingsActivity.showDark(new AlertDialog.Builder(a).setMessage("Mengambil daftar suara…"));
+        if (key.isEmpty()) { Notice.info(a, a.getString(R.string.ai_el_need_key)); return; }
+        String lang = AiStore.lang(a);
+        String langName = a.getString(Lang.EN.equals(lang) ? R.string.ai_voice_lang_en : R.string.ai_voice_lang_id);
+        AlertDialog wait = SettingsActivity.showDark(new AlertDialog.Builder(a).setMessage(R.string.ai_loading_voices));
         new Thread(() -> {
             List<Voice> vs = new java.util.ArrayList<>();
             String err = null;
             java.util.Map<String, String> h = new java.util.HashMap<>();
             h.put("xi-api-key", key);
             try {
-                org.json.JSONArray lib = AiClient.get(AiVoice.EL_API + "/shared-voices?language=id&page_size=30"
+                org.json.JSONArray lib = AiClient.get(AiVoice.EL_API + "/shared-voices?language=" + lang + "&page_size=30"
                         + "&sort=usage_character_count_1y", h).optJSONArray("voices");
                 for (int i = 0; lib != null && i < lib.length(); i++) {
                     org.json.JSONObject o = lib.getJSONObject(i);
@@ -404,11 +414,11 @@ final class AiPanel {
                     v.id = o.optString("voice_id");
                     v.owner = o.optString("public_owner_id");
                     v.name = o.optString("name");
-                    v.info = "Indonesia · " + gender(o.optString("gender")) + " · " + o.optString("use_case").replace('_', ' ');
+                    v.info = langName + " · " + gender(o.optString("gender")) + " · " + o.optString("use_case").replace('_', ' ');
                     vs.add(v);
                 }
             } catch (Exception e) {
-                err = e.getMessage();
+                err = AiClient.describe(a, e);
             }
             try {
                 org.json.JSONArray mine = AiClient.get(AiVoice.EL_API.replace("/v1", "/v2") + "/voices?page_size=100", h)
@@ -419,23 +429,24 @@ final class AiPanel {
                     v.id = o.optString("voice_id");
                     v.name = o.optString("name");
                     org.json.JSONObject l = o.optJSONObject("labels");
-                    v.info = "Di akun · " + (l != null ? gender(l.optString("gender")) + " · " + l.optString("accent") : o.optString("category"));
+                    v.info = a.getString(R.string.ai_voice_mine) + " · " + (l != null ? gender(l.optString("gender")) + " · " + l.optString("accent") : o.optString("category"));
                     vs.add(v);
                 }
             } catch (Exception e) {
-                if (err == null) err = e.getMessage();
+                if (err == null) err = AiClient.describe(a, e);
             }
             final String e = err;
             a.runOnUiThread(() -> {
                 wait.dismiss();
-                if (vs.isEmpty()) { Notice.fail(a, "Daftar suara tidak bisa diambil" + (e != null ? ": " + e : "")); return; }
+                if (vs.isEmpty()) { Notice.fail(a, a.getString(R.string.ai_voices_failed) + (e != null ? ": " + e : "")); return; }
                 showVoices(key, vs);
             });
         }, "el-voices").start();
     }
 
-    static String gender(String g) {
-        return "male".equals(g) ? "pria" : "female".equals(g) ? "wanita" : g.isEmpty() ? "-" : g;
+    String gender(String g) {
+        return "male".equals(g) ? a.getString(R.string.ai_male) : "female".equals(g) ? a.getString(R.string.ai_female)
+                : g.isEmpty() ? "-" : g;
     }
 
     void showVoices(String key, List<Voice> vs) {
@@ -445,11 +456,11 @@ final class AiPanel {
         for (int i = 0; i < vs.size(); i++) {
             Voice v = vs.get(i);
             boolean rec = AiStore.EL_VOICE.equals(v.id) && v.owner != null;
-            items[i] = (rec ? "★ " : "") + v.name + "\n" + v.info + (rec ? " · disarankan" : "");
+            items[i] = (rec ? "★ " : "") + v.name + "\n" + v.info + (rec ? " · " + a.getString(R.string.ai_recommended) : "");
             if (sel < 0 && v.id.equals(cur)) sel = i;
         }
         SettingsActivity.showDark(new AlertDialog.Builder(a)
-                .setTitle("Pilih suara")
+                .setTitle(R.string.ai_choose_voice)
                 .setSingleChoiceItems(items, sel, (d, w) -> {
                     d.dismiss();
                     Voice v = vs.get(w);
@@ -457,7 +468,7 @@ final class AiPanel {
                     if (v.owner != null) addShared(key, v.owner, v.id, nm, this::speakTest);
                     else { AiStore.saveElVoice(a, v.id, nm); render(); speakTest(); }
                 })
-                .setNegativeButton("Tutup", null));
+                .setNegativeButton(R.string.common_close, null));
     }
 
     /** Suara Voice Library harus ditambahkan ke akun dulu; id hasilnya yang dipakai untuk TTS. */

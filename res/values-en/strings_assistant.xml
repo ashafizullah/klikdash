@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="as_system">You are the KlikDash voice assistant on a car headunit. The driver is driving and hears your answers through the speakers, so answer in English, very briefly (two sentences at most), without markdown, lists or emoji, and never ask the driver to look at or touch the screen. For car commands, call the matching tool, then briefly confirm what was done. If a request is unclear, ask back with one short question. It is now %1$s. Installed apps: %2$s.</string>
+    <string name="as_system_web">For questions that need current information (news, prices, weather, schedules, scores), search the web first, then give only the gist without reading out site addresses; name the source when useful.</string>
+    <string name="as_now_pattern">EEEE d MMMM yyyy, HH:mm</string>
+    <string name="as_status_pattern">EEEE d MMMM yyyy, \'at\' HH:mm</string>
+
+    <string name="as_tool_open_app">Open an app installed on the headunit. Use the exact name from the app list in the system instructions.</string>
+    <string name="as_tool_navigate">Start navigation to a destination (place name or address), for example \'nearest mosque\' or \'Kendal town square\'.</string>
+    <string name="as_tool_play_quran">Play Quran recitation (Mishary Alafasy). The surah may be a number (1-114) or its Latin name, for example \'Yasin\'. When unsure of the Latin name, send the surah number.</string>
+    <string name="as_tool_media_control">Control the audio that is playing (recitation, music, radio).</string>
+    <string name="as_tool_set_volume">Set the media volume. Give level 0-100, or change up/down.</string>
+    <string name="as_tool_prayer_times">Today\'s prayer times at the car\'s location, and the next prayer.</string>
+    <string name="as_tool_open_dzikir">Open the morning (pagi) or evening (petang) dhikr.</string>
+    <string name="as_tool_restrict_background">Forbid (restrict=true) or allow (false) an app to run in the background, to save power.</string>
+    <string name="as_tool_car_status">Headunit status: time, Gregorian &amp; Hijri date, speed, CPU temperature, and location.</string>
+    <string name="as_tool_go_home">Go back to the KlikDash home screen.</string>
+    <string name="as_tool_web_search">Search the web for current information: news, prices, weather, schedules, scores, places or events. Use only when the answer needs recent information or you don\'t know it.</string>
+    <string name="as_param_app">App name</string>
+    <string name="as_param_period">Leave empty to follow the current time</string>
+    <string name="as_param_query">Short search keywords</string>
+
+    <string name="as_res_home">Back to home.</string>
+    <string name="as_res_unknown_tool">Unknown tool: %1$s</string>
+    <string name="as_res_failed">Failed: %1$s</string>
+    <string name="as_res_app_not_found">App \'%1$s\' not found.</string>
+    <string name="as_res_opening">Opening %1$s.</string>
+    <string name="as_res_no_nav">No navigation app.</string>
+    <string name="as_res_navigating">Navigation to %1$s started.</string>
+    <string name="as_res_surah_not_found">Surah \'%1$s\' not found; ask for the surah number.</string>
+    <string name="as_res_playing">Playing %1$s from verse %2$d.</string>
+    <string name="as_res_dzikir_pagi">Opening the morning dhikr.</string>
+    <string name="as_res_dzikir_petang">Opening the evening dhikr.</string>
+    <string name="as_res_protected">%1$s is protected so navigation/CarPlay keeps working.</string>
+    <string name="as_res_restricted">%1$s may no longer run in the background.</string>
+    <string name="as_res_allowed">%1$s may run in the background again.</string>
+    <string name="as_res_gps">GPS location</string>
+    <string name="as_res_schedule">Schedule in %1$s:</string>
+    <string name="as_res_next">Next is %1$s in %2$s.</string>
+    <string name="as_res_next_tomorrow">Next is %1$s tomorrow.</string>
+    <plurals name="as_hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+    <plurals name="as_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <string name="as_res_hijri">Hijri %1$d %2$s %3$d AH</string>
+    <string name="as_res_speed">Speed %1$d km/h</string>
+    <string name="as_res_cpu">CPU temperature %1$d°C</string>
+    <string name="as_res_location">Location %1$s.</string>
+    <string name="as_search_empty">Empty search keywords.</string>
+    <string name="as_search_unset">Web search is not set up: enter a TinyFish API key in Settings › AI Assistant.</string>
+    <string name="as_search_key">Search failed: TinyFish API key rejected.</string>
+    <string name="as_search_http">Search failed (HTTP %1$d).</string>
+    <string name="as_search_none">No results for \"%1$s\".</string>
+    <string name="as_search_results">Search results for \"%1$s\":</string>
+
+    <string name="as_done">Done.</string>
+    <string name="as_sorry">Sorry, %1$s.</string>
+    <string name="as_refusal">Sorry, I can\'t help with that request.</string>
+    <string name="as_too_many_steps">Sorry, that took too many steps. Please try again more briefly.</string>
+    <string name="as_test_say">Hi, I\'m the KlikDash assistant. Where are we heading today?</string>
+    <string name="as_test_prompt">Connection test. Reply with one short sentence saying you are ready, without using any tools.</string>
+    <string name="as_warm">Ready.</string>
+    <string name="as_example">navigate to the nearest gas station</string>
+</resources>

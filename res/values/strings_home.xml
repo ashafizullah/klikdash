@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home, laci aplikasi, sambutan, notifikasi singkat, pengingat sholat. Teks dengan spasi ganda/di tepi diberi tanda kutip
+     supaya aapt tidak merapatkannya. -->
+<resources>
+    <!-- Label bawaan ubin (lihat HomeActivity.DEFAULT_TEXT) -->
+    <string name="home_tile_phone">TELEPON</string>
+    <string name="home_tile_dzikir">DZIKIR</string>
+    <string name="home_tile_quran">AL-QUR\'AN</string>
+    <string name="home_tile_camera">KAMERA 360</string>
+    <string name="home_tile_system">SISTEM</string>
+    <string name="home_tile_ask">TANYA</string>
+
+    <string name="home_tile_all">SEMUA</string>
+    <string name="home_tile_apps">"APLIKASI  →"</string>
+    <string name="home_tile_morning">PAGI</string>
+    <string name="home_tile_evening">PETANG</string>
+    <string name="home_tile_assistant">ASISTEN AI</string>
+    <string name="home_tile_empty">KOSONG</string>
+    <string name="home_tile_tap_to_fill">KETUK UNTUK ISI</string>
+
+    <string name="home_ram">RAM %1$d%%</string>
+    <string name="home_cpu">CPU %1$d°C</string>
+    <string name="home_cpu_hot">CPU %1$d°C · PANAS</string>
+    <string name="home_disk">PENYIMPANAN</string>
+    <string name="home_disk_short">DISK</string>
+    <string name="home_date">%1$d %2$s %3$d</string>
+    <string name="home_speed_unit">KM/H</string>
+    <string name="home_make_default">JADIKAN TAMPILAN UTAMA</string>
+    <string name="home_prayer_next_in">▸ %1$s DALAM %2$s</string>
+    <string name="home_location_approx">" · PERKIRAAN"</string>
+    <string name="home_cannot_open">Tidak bisa membuka aplikasi</string>
+
+    <string name="home_all_apps">SEMUA APLIKASI</string>
+    <string name="home_pick_for_slot">PILIH UNTUK SLOT %1$02d</string>
+    <plurals name="home_app_count">
+        <item quantity="other">%1$d APLIKASI</item>
+    </plurals>
+    <string name="home_app_filtered">%1$d DARI %2$d</string>
+    <string name="home_search">CARI APLIKASI</string>
+    <string name="home_search_short">CARI</string>
+    <string name="home_settings_button">"⚙  PENGATURAN"</string>
+    <string name="home_close_button">"TUTUP  ✕"</string>
+    <string name="home_apps_loading">MEMUAT DAFTAR APLIKASI…</string>
+    <string name="home_no_apps">TIDAK ADA APLIKASI</string>
+    <string name="home_no_apps_for">TIDAK ADA APLIKASI “%1$s”</string>
+
+    <string name="home_default_ok">KlikDash sekarang tampilan utama</string>
+    <string name="home_need_adb">Belum berhasil. Aktifkan USB debugging di Opsi pengembang, lalu coba lagi.</string>
+    <string name="home_restore_message">Kembali ke launcher bawaan? KlikDash tetap terpasang dan bisa dijadikan tampilan utama lagi dari tombol di home-nya.</string>
+    <string name="home_restore_confirm">Kembali</string>
+
+    <string name="home_notch_surah">SURAH %1$d</string>
+    <string name="home_notch_paused">JEDA</string>
+    <string name="home_notch_playing">MURATTAL</string>
+    <string name="home_notch_basmalah">"%1$s  ·  BASMALAH"</string>
+
+    <string name="welcome_head">SELAMAT JALAN</string>
+    <string name="welcome_head_title">"%1$s  ·  %2$s"</string>
+    <plurals name="welcome_closing_in">
+        <item quantity="other">"TERTUTUP DALAM %1$d DETIK  ·  KETUK UNTUK MENUTUP"</item>
+    </plurals>
+    <string name="welcome_default_title">Doa keluar rumah</string>
+    <string name="welcome_default_text">Dengan nama Allah, aku bertawakal kepada-Nya; tidak ada daya dan kekuatan kecuali dengan-Nya.</string>
+
+    <string name="notice_ok">BERHASIL</string>
+    <string name="notice_fail">GAGAL</string>
+    <string name="notice_remind">PENGINGAT</string>
+    <string name="notice_info">INFO</string>
+
+    <string name="prayer_alert_title">Waktu sholat</string>
+    <string name="prayer_alert_message">Masuk waktu %1$s · %2$s</string>
+    <string name="prayer_alert_notification">Waktu %1$s</string>
+</resources>

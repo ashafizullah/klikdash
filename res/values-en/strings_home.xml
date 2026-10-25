@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_tile_phone">PHONE</string>
+    <string name="home_tile_dzikir">DHIKR</string>
+    <string name="home_tile_quran">QURAN</string>
+    <string name="home_tile_camera">360 CAMERA</string>
+    <string name="home_tile_system">SYSTEM</string>
+    <string name="home_tile_ask">ASK</string>
+
+    <string name="home_tile_all">ALL</string>
+    <string name="home_tile_apps">"APPS  →"</string>
+    <string name="home_tile_morning">MORNING</string>
+    <string name="home_tile_evening">EVENING</string>
+    <string name="home_tile_assistant">AI ASSISTANT</string>
+    <string name="home_tile_empty">EMPTY</string>
+    <string name="home_tile_tap_to_fill">TAP TO FILL</string>
+
+    <string name="home_ram">RAM %1$d%%</string>
+    <string name="home_cpu">CPU %1$d°C</string>
+    <string name="home_cpu_hot">CPU %1$d°C · HOT</string>
+    <string name="home_disk">STORAGE</string>
+    <string name="home_disk_short">DISK</string>
+    <string name="home_date">%1$d %2$s %3$d</string>
+    <string name="home_speed_unit">KM/H</string>
+    <string name="home_make_default">SET AS HOME SCREEN</string>
+    <string name="home_prayer_next_in">▸ %1$s IN %2$s</string>
+    <string name="home_location_approx">" · APPROX."</string>
+    <string name="home_cannot_open">Couldn\'t open the app</string>
+
+    <string name="home_all_apps">ALL APPS</string>
+    <string name="home_pick_for_slot">PICK FOR SLOT %1$02d</string>
+    <plurals name="home_app_count">
+        <item quantity="one">%1$d APP</item>
+        <item quantity="other">%1$d APPS</item>
+    </plurals>
+    <string name="home_app_filtered">%1$d OF %2$d</string>
+    <string name="home_search">SEARCH APPS</string>
+    <string name="home_search_short">SEARCH</string>
+    <string name="home_settings_button">"⚙  SETTINGS"</string>
+    <string name="home_close_button">"CLOSE  ✕"</string>
+    <string name="home_apps_loading">LOADING APPS…</string>
+    <string name="home_no_apps">NO APPS</string>
+    <string name="home_no_apps_for">NO APPS MATCH “%1$s”</string>
+
+    <string name="home_default_ok">KlikDash is now the home screen</string>
+    <string name="home_need_adb">Not done yet. Turn on USB debugging in Developer options, then try again.</string>
+    <string name="home_restore_message">Go back to the stock launcher? KlikDash stays installed and can be made the home screen again from the button on its home screen.</string>
+    <string name="home_restore_confirm">Go back</string>
+
+    <string name="home_notch_surah">SURAH %1$d</string>
+    <string name="home_notch_paused">PAUSED</string>
+    <string name="home_notch_playing">RECITATION</string>
+    <string name="home_notch_basmalah">"%1$s  ·  BASMALAH"</string>
+
+    <string name="welcome_head">SAFE JOURNEY</string>
+    <string name="welcome_head_title">"%1$s  ·  %2$s"</string>
+    <plurals name="welcome_closing_in">
+        <item quantity="one">"CLOSING IN %1$d SECOND  ·  TAP TO CLOSE"</item>
+        <item quantity="other">"CLOSING IN %1$d SECONDS  ·  TAP TO CLOSE"</item>
+    </plurals>
+    <string name="welcome_default_title">Prayer when leaving home</string>
+    <string name="welcome_default_text">In the name of Allah, I put my trust in Allah; there is no might and no power except with Allah.</string>
+
+    <string name="notice_ok">SUCCESS</string>
+    <string name="notice_fail">FAILED</string>
+    <string name="notice_remind">REMINDER</string>
+    <string name="notice_info">INFO</string>
+
+    <string name="prayer_alert_title">Prayer time</string>
+    <string name="prayer_alert_message">Time for %1$s · %2$s</string>
+    <string name="prayer_alert_notification">%1$s time</string>
+</resources>

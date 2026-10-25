@@ -25,8 +25,9 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Suara asisten. Bicara: ElevenLabs bila key & voice terisi (dan dipilih), selain itu TTS Android (id-ID).
- * Dengar (cadangan bila pengenal suara Android tidak ada): rekam AAC, berhenti saat hening, kirim ke ElevenLabs Scribe.
+ * Suara asisten. Bicara: ElevenLabs bila key & voice terisi (dan dipilih), selain itu TTS Android. Dengar (cadangan bila
+ * pengenal suara Android tidak ada): rekam AAC, berhenti saat hening, kirim ke ElevenLabs Scribe. Bahasa bicara dan
+ * dengar mengikuti bahasa asisten ({@link AiStore#lang}); pesan error mengikuti bahasa antarmuka.
  */
 final class AiVoice {
     static final String EL_API = "https://api.elevenlabs.io/v1";
@@ -39,6 +40,9 @@ final class AiVoice {
     boolean speaking;
 
     AiVoice(Context c) { ctx = c.getApplicationContext(); }
+
+    /** Pesan error untuk layar: context aplikasi tidak membawa bahasa antarmuka, jadi dibungkus dulu. */
+    String ui(int res) { return Lang.wrap(ctx).getString(res); }
 
     // Selama mendengar & menjawab: musik/murattal berhenti sementara, lanjut lagi setelahnya.
     Compat.Focus focus;
@@ -101,7 +105,7 @@ final class AiVoice {
             new Thread(() -> {
                 try {
                     long t0 = android.os.SystemClock.elapsedRealtime();
-                    File f = elevenTts(text, key, voice, AiStore.elModel(ctx));
+                    File f = elevenTts(text, key, voice, AiStore.elModel(ctx), AiStore.lang(ctx));
                     android.util.Log.i("KlikDashAI", "TTS " + voice + " " + (android.os.SystemClock.elapsedRealtime() - t0) + " ms");
                     main.post(() -> play(f, done));
                 } catch (Exception e) {
@@ -114,7 +118,7 @@ final class AiVoice {
         }
     }
 
-    File elevenTts(String text, String key, String voice, String model) throws Exception {
+    File elevenTts(String text, String key, String voice, String model, String lang) throws Exception {
         HttpURLConnection c = (HttpURLConnection) new URL(EL_API + "/text-to-speech/" + voice
                 + "?output_format=mp3_44100_128").openConnection();
         c.setConnectTimeout(15000);
@@ -125,11 +129,11 @@ final class AiVoice {
         c.setRequestProperty("Content-Type", "application/json");
         c.setRequestProperty("Accept", "audio/mpeg");
         JSONObject body = new JSONObject().put("text", text).put("model_id", model);
-        if (model.contains("flash") || model.contains("turbo")) body.put("language_code", "id");
+        if (model.contains("flash") || model.contains("turbo")) body.put("language_code", lang);
         try {
             try (OutputStream o = c.getOutputStream()) { o.write(body.toString().getBytes(StandardCharsets.UTF_8)); }
             int code = c.getResponseCode();
-            if (code >= 400) throw new IOException(AiClient.errorMessage(code, AiClient.read(c.getErrorStream())));
+            if (code >= 400) throw AiClient.AiError.http(code, AiClient.read(c.getErrorStream()));
             File f = new File(ctx.getCacheDir(), "ai-say.mp3");
             try (InputStream in = c.getInputStream(); OutputStream out = new FileOutputStream(f)) {
                 byte[] buf = new byte[16384];
@@ -176,10 +180,12 @@ final class AiVoice {
     private static TextToSpeech shared;
     private static final int IDLE = 0, STARTING = 1, READY = 2;
     private static int sharedState = IDLE;
+    /** Bahasa yang sedang dipasang di TTS bersama; bahasa asisten bisa berganti selagi TTS tetap menyala. */
+    private static Locale sharedLocale;
     private static final List<Runnable> whenReady = new java.util.ArrayList<>();
 
     /**
-     * Nyalakan TTS Android dan muat model id-ID tanpa bersuara (sintesis ke file). Dipanggil saat TANYA dibuka, dan
+     * Nyalakan TTS Android dan muat model bahasa asisten tanpa bersuara (sintesis ke file). Dipanggil saat TANYA dibuka, dan
      * dari home sesudah boot/bangun bila TANYA memakai suara Android ({@link #answersWithAndroid}). Di thread utama.
      */
     static void warm(Context c) {
@@ -191,14 +197,17 @@ final class AiVoice {
         long t0 = android.os.SystemClock.elapsedRealtime();
         shared = new TextToSpeech(app, status -> new Handler(Looper.getMainLooper()).post(() -> {
             boolean ok = status == TextToSpeech.SUCCESS && shared != null;
-            int lang = ok ? shared.setLanguage(new Locale("id", "ID")) : TextToSpeech.LANG_NOT_SUPPORTED;
-            android.util.Log.i("KlikDashAI", "TTS Android " + engine + (ok ? "" : " gagal") + ", id-ID " + lang + ", "
+            Locale loc = Lang.localeOf(AiStore.lang(app));
+            int lang = ok ? shared.setLanguage(loc) : TextToSpeech.LANG_NOT_SUPPORTED;
+            android.util.Log.i("KlikDashAI", "TTS Android " + engine + (ok ? "" : " gagal") + ", " + loc + " " + lang + ", "
                     + (android.os.SystemClock.elapsedRealtime() - t0) + " ms");
             if (ok) {
                 sharedState = READY;
-                // Model id-ID baru dimuat pada sintesis pertama (±7 dtk): lakukan sekarang ke file, tanpa suara.
+                sharedLocale = loc;
+                // Model bahasa baru dimuat pada sintesis pertama (±7 dtk): lakukan sekarang ke file, tanpa suara.
                 shared.setOnUtteranceProgressListener(null);
-                shared.synthesizeToFile("Siap.", null, new File(app.getCacheDir(), "tts-warm.wav"), "warm");
+                shared.synthesizeToFile(AiStore.inLang(app).getString(R.string.as_warm), null,
+                        new File(app.getCacheDir(), "tts-warm.wav"), "warm");
             } else {
                 resetShared(); // coba lagi lain kali (mis. mesin baru dipasang)
             }
@@ -248,6 +257,11 @@ final class AiVoice {
     }
 
     void speakNow(String text, Runnable done, boolean retry) {
+        Locale loc = Lang.localeOf(AiStore.lang(ctx));
+        if (!loc.equals(sharedLocale)) { // bahasa asisten diganti sejak TTS disiapkan
+            shared.setLanguage(loc);
+            sharedLocale = loc;
+        }
         shared.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override public void onStart(String id) { }
             @Override public void onDone(String id) { if ("ai".equals(id)) { speaking = false; post(done); } }
@@ -301,7 +315,7 @@ final class AiVoice {
     /** Rekam sampai hening 1,5 detik setelah ada suara (maks. 12 detik), lalu transkripsi. */
     void listenEleven(Heard cb) {
         String key = AiStore.elKey(ctx);
-        if (key.isEmpty()) { cb.onError("Pengenal suara Android tidak tersedia. Isi API key ElevenLabs di Pengaturan."); return; }
+        if (key.isEmpty()) { cb.onError(ui(R.string.ai_err_no_stt)); return; }
         try {
             recFile = new File(ctx.getCacheDir(), "ai-heard.m4a");
             rec = new MediaRecorder();
@@ -316,7 +330,7 @@ final class AiVoice {
             rec.start();
         } catch (Exception e) {
             cancelRecording();
-            cb.onError("Mikrofon tidak bisa dipakai");
+            cb.onError(ui(R.string.ai_err_mic));
             return;
         }
         recStart = lastLoud = System.currentTimeMillis();
@@ -338,8 +352,8 @@ final class AiVoice {
                 boolean quietAfterSpeech = heardSpeech && now - lastLoud > 1200;
                 boolean nothing = !heardSpeech && now - recStart > 6000;
                 if (tapped || quietAfterSpeech || nothing || now - recStart > 12000) {
-                    if (!finishRecording()) { cb.onError("Rekaman gagal"); return; }
-                    if (!heardSpeech) { cb.onError("Tidak terdengar suara"); return; }
+                    if (!finishRecording()) { cb.onError(ui(R.string.ai_err_record)); return; }
+                    if (!heardSpeech) { cb.onError(ui(R.string.ai_err_silent)); return; }
                     cb.onTranscribing();
                     transcribe(key, cb);
                     return;
@@ -373,21 +387,24 @@ final class AiVoice {
 
     void transcribe(String key, Heard cb) {
         File f = recFile;
+        String lang = AiStore.lang(ctx);
         new Thread(() -> {
             try {
                 long t0 = android.os.SystemClock.elapsedRealtime();
-                String text = elevenStt(f, key);
+                String text = elevenStt(f, key, lang);
                 android.util.Log.i("KlikDashAI", "STT " + (android.os.SystemClock.elapsedRealtime() - t0) + " ms: " + text.length() + " huruf");
                 main.post(() -> {
-                    if (text.isEmpty()) cb.onError("Tidak terdengar jelas"); else cb.onText(text);
+                    if (text.isEmpty()) cb.onError(ui(R.string.ai_err_unclear)); else cb.onText(text);
                 });
             } catch (Exception e) {
-                main.post(() -> cb.onError(e.getMessage() != null ? e.getMessage() : "Transkripsi gagal"));
+                String m = e instanceof AiClient.AiError ? AiClient.describe(Lang.wrap(ctx), e)
+                        : e.getMessage() != null ? e.getMessage() : ui(R.string.ai_err_transcribe);
+                main.post(() -> cb.onError(m));
             }
         }, "el-stt").start();
     }
 
-    static String elevenStt(File audio, String key) throws Exception {
+    static String elevenStt(File audio, String key, String lang) throws Exception {
         String b = "----klikdash" + System.nanoTime();
         HttpURLConnection c = (HttpURLConnection) new URL(EL_API + "/speech-to-text").openConnection();
         c.setConnectTimeout(15000);
@@ -398,7 +415,7 @@ final class AiVoice {
         c.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + b);
         ByteArrayOutputStream body = new ByteArrayOutputStream();
         part(body, b, "model_id", AiStore.EL_STT_MODEL);
-        part(body, b, "language_code", "id");
+        part(body, b, "language_code", lang);
         part(body, b, "tag_audio_events", "false"); // jangan tulis "(musik)", "(tawa)" sebagai ucapan
         body.write(("--" + b + "\r\nContent-Disposition: form-data; name=\"file\"; filename=\"heard.m4a\"\r\n"
                 + "Content-Type: audio/mp4\r\n\r\n").getBytes(StandardCharsets.UTF_8));
@@ -411,7 +428,7 @@ final class AiVoice {
             try (OutputStream o = c.getOutputStream()) { body.writeTo(o); }
             int code = c.getResponseCode();
             String txt = AiClient.read(code >= 400 ? c.getErrorStream() : c.getInputStream());
-            if (code >= 400) throw new IOException(AiClient.errorMessage(code, txt));
+            if (code >= 400) throw AiClient.AiError.http(code, txt);
             // Sisa penanda suara latar seperti "[musik]" bukan perintah.
             return new JSONObject(txt).optString("text").replaceAll("[\\[(][^\\])]*[\\])]", "").trim();
         } finally {

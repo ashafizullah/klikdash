@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pengaturan (tab Launcher & Hemat Daya), tema, dan pembaruan. -->
+<resources>
+    <string name="settings_title">PENGATURAN</string>
+    <string name="settings_close">TUTUP  ✕</string>
+    <string-array name="settings_tab_names">
+        <item>LAUNCHER</item>
+        <item>HEMAT DAYA</item>
+        <item>ASISTEN AI</item>
+    </string-array>
+    <string-array name="settings_tab_captions">
+        <item>TAMPILAN &amp; PINTASAN</item>
+        <item>APLIKASI DI LATAR</item>
+        <item>PROFIL &amp; SUARA</item>
+    </string-array>
+
+    <string name="settings_on">NYALA</string>
+    <string name="settings_off">MATI</string>
+
+    <string name="settings_home_title">TAMPILAN UTAMA</string>
+    <string name="settings_home_on">KlikDash sedang menjadi tampilan utama headunit. Kembali ke launcher bawaan kapan saja; KlikDash tetap terpasang.</string>
+    <string name="settings_home_off">Launcher bawaan masih menjadi tampilan utama. Jadikan KlikDash tampilan utama agar muncul setiap headunit menyala.</string>
+    <string name="settings_home_restore">LAUNCHER BAWAAN</string>
+    <string name="settings_home_make">JADIKAN UTAMA</string>
+
+    <string name="settings_hijri_title">TANGGAL HIJRIAH</string>
+    <string name="settings_hijri_desc">Hari ini %1$s. Dihitung dengan Umm al-Qura (sama dengan kalender Kemenag). Geser per hari bila hasil rukyat berbeda.</string>
+
+    <string name="settings_lang_title">BAHASA</string>
+    <string name="settings_lang_desc">Bahasa tampilan KlikDash. Asisten AI punya pengaturan bahasa sendiri di tab Asisten AI.</string>
+
+    <string name="settings_theme_title">TEMA</string>
+
+    <string name="settings_tiles_title">JUMLAH PINTASAN</string>
+    <string name="settings_tiles_desc">Pintasan di home, termasuk SEMUA. Makin sedikit, makin besar jam dan jadwal sholat di kiri, juga pintasan, ikon, dan tulisannya. Pintasan yang tidak tampil tetap tersimpan dan muncul lagi bila jumlahnya ditambah.</string>
+
+    <string name="settings_welcome_title">SAMBUTAN</string>
+    <string name="settings_welcome_desc">Tampil di home saat headunit menyala. %1$s</string>
+    <string name="settings_welcome_now_off">Sekarang dimatikan.</string>
+    <string name="settings_welcome_now_custom">Sekarang memakai teks Anda sendiri.</string>
+    <string name="settings_welcome_now_default">Sekarang doa keluar rumah (bawaan).</string>
+    <string name="settings_welcome_default">BAWAAN</string>
+    <string name="settings_welcome_custom">CUSTOM</string>
+    <string name="settings_welcome_view">LIHAT</string>
+    <string name="settings_welcome_disabled">Sambutan sedang dimatikan</string>
+    <string name="settings_welcome_dialog">Sambutan sendiri</string>
+    <string name="settings_welcome_f_title">JUDUL</string>
+    <string name="settings_welcome_f_title_hint">mis. Doa naik kendaraan</string>
+    <string name="settings_welcome_f_arab">TEKS ARAB (OPSIONAL)</string>
+    <string name="settings_welcome_f_latin">BACAAN LATIN (OPSIONAL)</string>
+    <string name="settings_welcome_f_text">ARTI ATAU PESAN</string>
+    <string name="settings_welcome_f_text_hint">mis. Hati-hati di jalan, jaga jarak aman.</string>
+    <string name="settings_welcome_need_text">Isi teks Arab atau pesan</string>
+
+    <string name="settings_prayer_title">PENGINGAT SHOLAT</string>
+    <string name="settings_prayer_desc">Notifikasi saat masuk waktu Subuh, Dzuhur, Ashar, Maghrib, dan Isya, tanpa adzan. Muncul juga di atas aplikasi lain seperti Maps.</string>
+    <string name="settings_prayer_test">COBA</string>
+
+    <string name="settings_tiles_reset_title">PINTASAN HOME</string>
+    <string name="settings_tiles_reset_desc">Tekan lama pintasan di home untuk mengganti atau memindahkan aplikasinya. Atur ulang mengembalikan susunan bawaan KlikDash.</string>
+    <string name="settings_tiles_reset">ATUR ULANG</string>
+    <string name="settings_tiles_reset_confirm">Kembalikan semua pintasan home ke susunan bawaan?</string>
+    <string name="settings_tiles_reset_button">Atur ulang</string>
+    <string name="settings_tiles_reset_done">Pintasan dikembalikan ke bawaan</string>
+
+    <string name="settings_system_title">PENGATURAN SISTEM</string>
+    <string name="settings_system_desc">Wi-Fi, Bluetooth, suara, layar, dan opsi pengembang ada di pengaturan Android headunit.</string>
+    <string name="settings_system_open">BUKA</string>
+
+    <string name="settings_about_title">TENTANG</string>
+    <string name="settings_about_desc">KlikDash %1$s — launcher ringan untuk headunit Android. Sumber terbuka (MIT) di github.com/ashafizullah/klikdash.</string>
+
+    <string-array name="theme_names">
+        <item>AMBER</item>
+        <item>ZAMRUD</item>
+        <item>SIANG</item>
+    </string-array>
+    <string-array name="theme_desc">
+        <item>Hitam hangat dengan aksen amber, bawaan KlikDash.</item>
+        <item>Hitam kehijauan dengan aksen hijau zamrud.</item>
+        <item>Latar krem terang dengan teks gelap, lebih terbaca di bawah terik matahari.</item>
+    </string-array>
+
+    <string name="update_title_row">PEMBARUAN</string>
+    <string name="update_desc">Versi terpasang %1$s. %2$s Pembaruan diambil dari rilis resmi di GitHub dan hanya dipasang bila tanda tangannya cocok.</string>
+    <string name="update_never_checked">Belum pernah dicek.</string>
+    <string name="update_last_checked">Terakhir dicek %1$s.</string>
+    <string name="update_just_now">baru saja</string>
+    <plurals name="update_minutes_ago">
+        <item quantity="other">%d menit lalu</item>
+    </plurals>
+    <plurals name="update_hours_ago">
+        <item quantity="other">%d jam lalu</item>
+    </plurals>
+    <plurals name="update_days_ago">
+        <item quantity="other">%d hari lalu</item>
+    </plurals>
+    <string name="update_check">CEK UPDATE</string>
+    <string name="update_checking">MENGECEK…</string>
+    <string name="update_no_internet">Tidak ada koneksi internet</string>
+    <string name="update_check_title">Cek update</string>
+    <string name="update_latest">KlikDash %1$s sudah versi terbaru</string>
+    <string name="update_available">KlikDash %1$s tersedia</string>
+    <string name="update_installed_size">Terpasang: %1$s · ukuran %2$d KB</string>
+    <string name="update_later">Nanti</string>
+    <string name="update_download_install">Unduh &amp; pasang</string>
+    <string name="update_downloading">Mengunduh KlikDash %1$s</string>
+    <string name="update_installing">Memasang… KlikDash akan tertutup sebentar lalu terbuka lagi.</string>
+    <string name="update_allow_install">Izinkan KlikDash memasang aplikasi, lalu cek update lagi</string>
+    <string name="update_title">Pembaruan</string>
+    <string name="update_try_later">Coba lagi nanti</string>
+    <string name="update_err_storage">Penyimpanan tidak bisa ditulis</string>
+    <string name="update_err_http">Unduhan gagal (HTTP %1$d)</string>
+    <string name="update_err_corrupt">File APK rusak</string>
+    <string name="update_err_not_klikdash">APK bukan KlikDash</string>
+    <string name="update_err_version">Versi APK tidak sesuai rilis</string>
+    <string name="update_err_signature">Tanda tangan APK tidak cocok, pembaruan dibatalkan</string>
+
+    <string name="power_restore_all">KEMBALIKAN SEMUA</string>
+    <string name="power_restore">KEMBALIKAN</string>
+    <string name="power_desc">Larang aplikasi berjalan diam-diam di latar supaya headunit lebih ringan dan dingin. Aplikasinya tetap terpasang dan bisa dibuka seperti biasa. Aplikasi sistem, navigasi, dan Zlink tidak ditampilkan.</string>
+    <string name="power_checking">MEMERIKSA APLIKASI…</string>
+    <string name="power_need_adb">BUTUH USB DEBUGGING\n\nAktifkan di Pengaturan › Opsi pengembang › USB debugging,\nlalu buka tab Hemat Daya lagi.</string>
+    <string name="power_no_apps">TIDAK ADA APLIKASI PIHAK KETIGA</string>
+    <plurals name="power_apps">
+        <item quantity="other">%d APLIKASI</item>
+    </plurals>
+    <string name="power_count">%1$s  ·  %2$d DIBATASI</string>
+    <string name="power_restricted">DIBATASI</string>
+    <string name="power_restrict">BATASI</string>
+    <string name="power_st_restricted">TIDAK BISA JALAN DI LATAR</string>
+    <string name="power_st_running">SEDANG BERJALAN DI LATAR</string>
+    <string name="power_st_allowed">BOLEH JALAN DI LATAR</string>
+</resources>

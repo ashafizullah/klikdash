@@ -39,7 +39,6 @@ import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 public class QuranActivity extends Activity {
 
     static final int MATCH = ViewGroup.LayoutParams.MATCH_PARENT, WRAP = ViewGroup.LayoutParams.WRAP_CONTENT;
-    static final Locale ID = new Locale("id", "ID");
 
     float dp, sp;
     Typeface fHeavy, fBold, fMono, fMonoBold, fArab, fSerif;
@@ -49,6 +48,8 @@ public class QuranActivity extends Activity {
     int followed = -1;        // indeks global ayat terakhir yang diikuti scroll
     int followedSurah = -1;   // surah pemutar yang terakhir diikuti tampilan
     boolean showLatin, showIndo;
+    /** Antarmuka English: terjemahan dari quran-en.txt (Saheeh International), bukan terjemahan Kemenag. */
+    boolean en;
 
     ListView surahList, ayahList;
     SurahAdapter surahAdapter;
@@ -70,6 +71,7 @@ public class QuranActivity extends Activity {
         super.onCreate(b);
         dp = getResources().getDisplayMetrics().density;
         sp = getResources().getDisplayMetrics().scaledDensity;
+        en = Lang.en();
         prefs = getSharedPreferences("quran", MODE_PRIVATE);
         showLatin = prefs.getBoolean("latin", false);
         showIndo = prefs.getBoolean("indo", true);
@@ -95,7 +97,8 @@ public class QuranActivity extends Activity {
     // Layar pembuka: memuat teks, atau menawarkan unduh sekali bila APK tidak membawa teks.
     LinearLayout overlay;
     TextView loadSub;
-    Chip loadBtn;
+    Chip loadBtn, loadSkip;
+    Runnable loadAction = this::downloadText;
 
     View buildOverlay() {
         overlay = new LinearLayout(this);
@@ -114,67 +117,158 @@ public class QuranActivity extends Activity {
         LinearLayout.LayoutParams sl = new LinearLayout.LayoutParams(WRAP, WRAP);
         sl.topMargin = px(16);
         overlay.addView(loadSub, sl);
-        loadBtn = new Chip("UNDUH TEKS", this::downloadText);
+        LinearLayout btns = new LinearLayout(this);
+        btns.setOrientation(LinearLayout.HORIZONTAL);
+        loadBtn = new Chip(getString(R.string.quran_download_text), () -> loadAction.run());
         loadBtn.setOn(true);
-        LinearLayout.LayoutParams bl = new LinearLayout.LayoutParams(px(220), px(56));
+        loadBtn.setMinimumWidth(px(220));
+        btns.addView(loadBtn, new LinearLayout.LayoutParams(WRAP, px(56)));
+        // Hanya untuk tawaran terjemahan English: mushaf tetap bisa dibaca tanpanya.
+        loadSkip = new Chip(getString(R.string.quran_not_now), this::skipEn);
+        loadSkip.setVisibility(View.GONE);
+        LinearLayout.LayoutParams kl = new LinearLayout.LayoutParams(WRAP, px(56));
+        kl.leftMargin = px(12);
+        btns.addView(loadSkip, kl);
+        LinearLayout.LayoutParams bl = new LinearLayout.LayoutParams(WRAP, WRAP);
         bl.topMargin = px(28);
-        overlay.addView(loadBtn, bl);
+        overlay.addView(btns, bl);
         return overlay;
     }
 
     void loadText() {
         overlay.setVisibility(View.VISIBLE);
-        loading.setText("MEMUAT MUSHAF…");
+        loading.setText(R.string.quran_loading);
         loadSub.setVisibility(View.GONE);
         loadBtn.setVisibility(View.GONE);
+        loadSkip.setVisibility(View.GONE);
         new Thread(() -> {
             try {
                 QuranData.load(this);
-                runOnUiThread(this::onLoaded);
             } catch (Exception e) {
-                runOnUiThread(() -> loading.setText("GAGAL MEMUAT MUSHAF"));
+                runOnUiThread(() -> loading.setText(R.string.quran_load_failed));
+                return;
             }
+            if (en && QuranData.availableEn(this)) {
+                try {
+                    QuranData.loadEn(this);
+                } catch (Exception e) {
+                    android.util.Log.w("KlikDash", "Muat terjemahan English gagal", e);
+                }
+            }
+            runOnUiThread(this::onLoaded);
         }, "quran-load").start();
     }
 
     void askDownload() {
-        loading.setText("TEKS AL-QUR'AN BELUM ADA");
-        loadSub.setText("Unduh sekali (±6 MB) dari equran.id: mushaf standar, Latin, dan terjemahan Kemenag. "
-                + "Setelah itu bisa dibaca offline. Audio murattal diunduh per surah saat diputar.");
+        loading.setText(R.string.quran_missing_title);
+        loadSub.setText(R.string.quran_missing_desc);
         loadSub.setVisibility(View.VISIBLE);
-        loadBtn.setLabel("UNDUH TEKS");
+        loadAction = this::downloadText;
+        loadBtn.setLabel(getString(R.string.quran_download_text));
         loadBtn.setVisibility(View.VISIBLE);
     }
 
+    /** Mushaf dari equran.id; di antarmuka English langsung disusul terjemahan English (gagal pun mushaf tetap bisa dibaca). */
     void downloadText() {
         loadBtn.setVisibility(View.GONE);
+        loadSkip.setVisibility(View.GONE);
         loadSub.setVisibility(View.GONE);
-        loading.setText("MENGUNDUH MUSHAF  0 / 114");
+        loading.setText(getString(R.string.quran_downloading, 0, QuranData.SURAH_COUNT));
         new Thread(() -> {
             try {
                 QuranData.download(this, (d, t) -> runOnUiThread(() ->
-                        loading.setText(String.format(Locale.US, "MENGUNDUH MUSHAF  %d / %d", d, t))));
-                runOnUiThread(this::loadText);
+                        loading.setText(getString(R.string.quran_downloading, d, t))));
             } catch (Exception e) {
                 android.util.Log.w("KlikDash", "Unduh teks Al-Qur'an gagal", e);
-                runOnUiThread(() -> {
-                    loading.setText("GAGAL MENGUNDUH");
-                    loadSub.setText("Periksa koneksi internet headunit, lalu coba lagi.");
-                    loadSub.setVisibility(View.VISIBLE);
-                    loadBtn.setLabel("COBA LAGI");
-                    loadBtn.setVisibility(View.VISIBLE);
-                });
+                runOnUiThread(() -> downloadFailed(this::downloadText, false));
+                return;
             }
+            if (en) {
+                try {
+                    QuranData.downloadEn(this, (d, t) -> runOnUiThread(() ->
+                            loading.setText(getString(R.string.quran_en_downloading, d, t))));
+                } catch (Exception e) {
+                    android.util.Log.w("KlikDash", "Unduh terjemahan English gagal", e);
+                }
+            }
+            runOnUiThread(this::loadText);
         }, "quran-download").start();
+    }
+
+    void downloadFailed(Runnable retry, boolean skippable) {
+        loading.setText(R.string.quran_download_failed);
+        loadSub.setText(R.string.quran_check_internet);
+        loadSub.setVisibility(View.VISIBLE);
+        loadAction = retry;
+        loadBtn.setLabel(getString(R.string.quran_retry));
+        loadBtn.setVisibility(View.VISIBLE);
+        loadSkip.setVisibility(skippable ? View.VISIBLE : View.GONE);
+    }
+
+    /** Antarmuka English tanpa terjemahan English: tawarkan unduh (±1 MB); NANTI SAJA = mushaf tanpa terjemahan. */
+    void askDownloadEn() {
+        overlay.setVisibility(View.VISIBLE);
+        loading.setText(R.string.quran_en_title);
+        loadSub.setText(R.string.quran_en_desc);
+        loadSub.setVisibility(View.VISIBLE);
+        loadAction = this::downloadEn;
+        loadBtn.setLabel(getString(R.string.quran_en_download));
+        loadBtn.setVisibility(View.VISIBLE);
+        loadSkip.setVisibility(View.VISIBLE);
+    }
+
+    void skipEn() {
+        prefs.edit().putBoolean("enAsked", true).apply();
+        overlay.setVisibility(View.GONE);
+    }
+
+    void downloadEn() {
+        loadBtn.setVisibility(View.GONE);
+        loadSkip.setVisibility(View.GONE);
+        loadSub.setVisibility(View.GONE);
+        loading.setText(getString(R.string.quran_en_downloading, 0, QuranData.SURAH_COUNT));
+        new Thread(() -> {
+            try {
+                QuranData.downloadEn(this, (d, t) -> runOnUiThread(() ->
+                        loading.setText(getString(R.string.quran_en_downloading, d, t))));
+                QuranData.loadEn(this);
+                runOnUiThread(() -> {
+                    overlay.setVisibility(View.GONE);
+                    showIndo = true;
+                    prefs.edit().putBoolean("indo", true).apply();
+                    syncTranslation();
+                    header(QuranData.get(surah));
+                    ayahAdapter.notifyDataSetChanged();
+                    surahAdapter.notifyDataSetChanged();
+                });
+            } catch (Exception e) {
+                android.util.Log.w("KlikDash", "Unduh terjemahan English gagal", e);
+                runOnUiThread(() -> downloadFailed(this::downloadEn, true));
+            }
+        }, "quran-download-en").start();
     }
 
     void onLoaded() {
         overlay.setVisibility(View.GONE);
+        syncTranslation();
         surahAdapter.notifyDataSetChanged();
         open(QuranService.surah, QuranService.ayah);
         surahList.setSelectionFromTop(Math.max(0, surah - 3), 0);
         refreshPlayer();
+        if (en && QuranData.en == null && !prefs.getBoolean("enAsked", false)) askDownloadEn();
     }
+
+    /** Terjemahan tampil hanya bila ada dalam bahasa antarmuka. */
+    boolean hasTranslation() { return !en || QuranData.en != null; }
+
+    void syncTranslation() { cIndo.setOn(showIndo && hasTranslation()); }
+
+    /** Terjemahan ayat (indeks global) dalam bahasa antarmuka, null bila belum diunduh. */
+    String translation(int g) { return en ? (QuranData.en != null ? QuranData.en[g] : null) : QuranData.indo[g]; }
+
+    String arti(QuranData.Surah q) { return en ? q.artiEn : q.arti; }
+
+    String ayatCount(int n) { return getResources().getQuantityString(R.plurals.quran_ayat_count, n, n); }
 
     @Override protected void onResume() {
         super.onResume();
@@ -227,8 +321,8 @@ public class QuranActivity extends Activity {
         LinearLayout head = new LinearLayout(this);
         head.setOrientation(LinearLayout.VERTICAL);
         head.setPadding(px(24), px(20), px(24), px(16));
-        head.addView(text("AL-QUR'AN", fHeavy, 34, TEXT));
-        TextView sub = text("114 SURAH  ·  OFFLINE", fMono, 10, AMBER);
+        head.addView(text(getString(R.string.quran_title), fHeavy, 34, TEXT));
+        TextView sub = text(getString(R.string.quran_subtitle), fMono, 10, AMBER);
         sub.setLetterSpacing(0.25f);
         sub.setPadding(0, px(6), 0, 0);
         head.addView(sub);
@@ -269,13 +363,13 @@ public class QuranActivity extends Activity {
         al.rightMargin = px(20);
         hdr.addView(hArab, al);
         if (narrow) hArab.setVisibility(View.GONE); // nama Arab tetap ada di daftar surah
-        cDl = new Chip("UNDUH", () -> {
+        cDl = new Chip(getString(R.string.quran_chip_download), () -> {
             if (have[surah] < QuranData.count(surah)) QuranService.download(this, surah);
         });
         LinearLayout.LayoutParams dl = new LinearLayout.LayoutParams(WRAP, px(48));
         dl.rightMargin = px(10);
         hdr.addView(cDl, dl);
-        cLatin = new Chip("LATIN", () -> {
+        cLatin = new Chip(getString(R.string.quran_chip_latin), () -> {
             showLatin = !showLatin;
             prefs.edit().putBoolean("latin", showLatin).apply();
             cLatin.setOn(showLatin);
@@ -283,13 +377,14 @@ public class QuranActivity extends Activity {
         });
         cLatin.setOn(showLatin);
         hdr.addView(cLatin, new LinearLayout.LayoutParams(WRAP, px(48)));
-        cIndo = new Chip("TERJEMAH", () -> {
+        cIndo = new Chip(getString(R.string.quran_chip_translation), () -> {
+            if (!hasTranslation()) { askDownloadEn(); return; }
             showIndo = !showIndo;
             prefs.edit().putBoolean("indo", showIndo).apply();
             cIndo.setOn(showIndo);
             ayahAdapter.notifyDataSetChanged();
         });
-        cIndo.setOn(showIndo);
+        cIndo.setOn(showIndo && !en);
         LinearLayout.LayoutParams il = new LinearLayout.LayoutParams(WRAP, px(48));
         il.leftMargin = px(10);
         hdr.addView(cIndo, il);
@@ -356,11 +451,7 @@ public class QuranActivity extends Activity {
 
     void open(int s, int a) {
         surah = s;
-        QuranData.Surah q = QuranData.get(s);
-        hNo.setText(String.format(Locale.US, "SURAH %03d", s));
-        hTitle.setText(q.latin.toUpperCase(ID));
-        hMeta.setText((q.arti + "  ·  " + q.count + " AYAT  ·  " + q.tempat).toUpperCase(ID));
-        hArab.setText(q.arab);
+        header(QuranData.get(s));
         ayahAdapter.notifyDataSetChanged();
         surahAdapter.notifyDataSetChanged();
         followed = -1;
@@ -368,6 +459,15 @@ public class QuranActivity extends Activity {
         // Sesudah refreshPlayer: invalidateViews() di sana membatalkan lompatan scroll. Bila refreshPlayer sudah
         // pindah ke surah yang sedang diputar, biarkan posisinya.
         if (surah == s) ayahList.setSelectionFromTop(a <= 1 ? 0 : a - 1 + offset(), 0);
+    }
+
+    void header(QuranData.Surah q) {
+        hNo.setText(getString(R.string.quran_surah_no, q.no));
+        hTitle.setText(q.latin.toUpperCase(Lang.locale()));
+        String arti = arti(q), tempat = en ? q.tempatEn : q.tempat;
+        hMeta.setText(((arti != null ? arti + "  ·  " : "") + ayatCount(q.count)
+                + (tempat != null ? "  ·  " + tempat : "")).toUpperCase(Lang.locale()));
+        hArab.setText(q.arab);
     }
 
     /** Saat murattal diputar, tap surah langsung memutarnya (satu ketukan sambil menyetir); selain itu hanya membuka. */
@@ -390,12 +490,12 @@ public class QuranActivity extends Activity {
         have = QuranService.downloaded(this);
         int need = QuranData.count(surah);
         if (have[surah] >= need) {
-            cDl.setLabel("OFFLINE");
+            cDl.setLabel(getString(R.string.quran_offline));
             cDl.setOn(true);
         } else {
             cDl.setLabel(QuranService.dlSurah == surah
                     ? (QuranService.dlDone * 100 / Math.max(1, QuranService.dlTotal)) + "%"
-                    : "UNDUH");
+                    : getString(R.string.quran_chip_download));
             cDl.setOn(false);
         }
     }
@@ -406,22 +506,22 @@ public class QuranActivity extends Activity {
         int s = QuranService.surah, a = QuranService.ayah;
         QuranData.Surah q = QuranData.get(s);
         boolean audible = QuranService.active;
+        String name = q.latin.toUpperCase(Lang.locale());
         npTitle.setText(audible
-                ? q.latin.toUpperCase(ID) + (QuranService.bismillah ? "  ·  BASMALAH" : "  ·  " + a)
-                : "TERAKHIR: " + q.latin.toUpperCase(ID) + "  ·  " + a);
+                ? name + (QuranService.bismillah ? "  ·  BASMALAH" : "  ·  " + a)
+                : getString(R.string.quran_last, name, a));
         if (QuranService.missing) {
-            npSub.setText("AUDIO BELUM ADA  ·  SAMBUNGKAN INTERNET UNTUK MENGUNDUH");
+            npSub.setText(R.string.quran_audio_missing);
             npSub.setTextColor(AMBER);
         } else if (QuranService.buffering) {
-            npSub.setText("MENGUNDUH AUDIO…");
+            npSub.setText(R.string.quran_audio_buffering);
             npSub.setTextColor(AMBER);
         } else {
-            npSub.setText(String.format(Locale.US, "%s  ·  AYAT %d / %d",
-                    QuranService.RECITER.toUpperCase(ID), a, q.count));
+            npSub.setText(getString(R.string.quran_now_playing, QuranService.RECITER.toUpperCase(Lang.locale()), a, q.count));
             npSub.setTextColor(DIM);
         }
         kPlay.setPlaying(QuranService.playing);
-        cMode.setLabel(QuranService.modeLabel());
+        cMode.setLabel(QuranService.modeLabel(this));
         cMode.setOn(QuranService.mode != QuranService.MODE_CONTINUE || QuranService.stopAfter > 0);
         refreshDownload();
 
@@ -469,8 +569,9 @@ public class QuranActivity extends Activity {
         fill[0] = () -> {
             box.removeAllViews();
             int m = QuranService.mode, r = QuranService.repeat, st = QuranService.stopAfter;
-            box.addView(caption("SETELAH SELESAI"));
-            String[] names = {"LANJUT", "ULANG AYAT", "ULANG SURAH"};
+            box.addView(caption(getString(R.string.quran_after)));
+            String[] names = {getString(R.string.quran_mode_continue), getString(R.string.quran_mode_repeat_ayah),
+                    getString(R.string.quran_mode_repeat_surah)};
             int[] modes = {QuranService.MODE_CONTINUE, QuranService.MODE_REPEAT_AYAH, QuranService.MODE_REPEAT_SURAH};
             Chip[] mc = new Chip[3];
             for (int i = 0; i < 3; i++) {
@@ -480,47 +581,49 @@ public class QuranActivity extends Activity {
             }
             box.addView(chipRow(mc));
             if (m != QuranService.MODE_CONTINUE) {
-                box.addView(caption("BERAPA KALI"));
+                box.addView(caption(getString(R.string.quran_times)));
                 Chip[] tc = new Chip[TIMES.length];
                 for (int i = 0; i < TIMES.length; i++) {
                     final int v = TIMES[i];
-                    tc[i] = new Chip(v == 0 ? "TERUS" : v + "×", () -> { QuranService.setMode(this, m, v, st); fill[0].run(); });
+                    tc[i] = new Chip(v == 0 ? getString(R.string.quran_forever) : v + "×", () -> { QuranService.setMode(this, m, v, st); fill[0].run(); });
                     tc[i].setOn(r == v);
                 }
                 box.addView(chipRow(tc));
             }
-            box.addView(caption("BERHENTI SETELAH"));
+            box.addView(caption(getString(R.string.quran_stop_after)));
             int here = QuranService.active ? QuranService.surah : surah;
-            Chip none = new Chip("TIDAK", () -> { QuranService.setMode(this, m, r, 0); fill[0].run(); });
+            Chip none = new Chip(getString(R.string.quran_stop_never), () -> { QuranService.setMode(this, m, r, 0); fill[0].run(); });
             none.setOn(st == 0);
-            Chip thisOne = new Chip("SURAH INI", () -> { QuranService.setMode(this, m, r, here); fill[0].run(); });
+            Chip thisOne = new Chip(getString(R.string.quran_this_surah), () -> { QuranService.setMode(this, m, r, here); fill[0].run(); });
             thisOne.setOn(st != 0 && st == here);
-            Chip pick = new Chip(st != 0 && st != here ? "SAMPAI " + QuranService.surahName(st).toUpperCase(ID)
-                    : "PILIH SURAH…", () -> pickStopSurah(fill[0]));
+            Chip pick = new Chip(st != 0 && st != here
+                    ? getString(R.string.quran_until, QuranService.surahName(st).toUpperCase(Lang.locale()))
+                    : getString(R.string.quran_pick_surah), () -> pickStopSurah(fill[0]));
             pick.setOn(st != 0 && st != here);
             box.addView(chipRow(new Chip[]{none, thisOne, pick}));
             box.addView(hint(modeHint()));
         };
         fill[0].run();
         SettingsActivity.showDark(new android.app.AlertDialog.Builder(this)
-                .setTitle("Pemutaran murattal")
+                .setTitle(R.string.quran_mode_title)
                 .setView(box)
-                .setPositiveButton("Selesai", null));
+                .setPositiveButton(R.string.quran_mode_done, null));
     }
 
     /** Penjelasan pilihan saat ini, dalam satu kalimat. */
     String modeHint() {
         int m = QuranService.mode, r = QuranService.repeat, st = QuranService.stopAfter;
-        String end = st > 0 ? "berhenti setelah " + QuranService.surahName(st) + "." : "terus sampai An-Nas.";
+        String end = st > 0 ? getString(R.string.quran_hint_end_stop, QuranService.surahName(st))
+                : getString(R.string.quran_hint_end_all);
         if (m == QuranService.MODE_REPEAT_AYAH) {
-            return r == 0 ? "Ayat yang sama diulang terus, sampai Anda mengubahnya."
-                    : "Tiap ayat diputar " + r + " kali, lalu lanjut ke ayat berikutnya; " + end;
+            return r == 0 ? getString(R.string.quran_hint_ayah_forever)
+                    : getResources().getQuantityString(R.plurals.quran_hint_ayah_times, r, r, end);
         }
         if (m == QuranService.MODE_REPEAT_SURAH) {
-            return r == 0 ? "Surah yang sama diulang terus, sampai Anda mengubahnya."
-                    : "Tiap surah diputar " + r + " kali, lalu lanjut ke surah berikutnya; " + end;
+            return r == 0 ? getString(R.string.quran_hint_surah_forever)
+                    : getResources().getQuantityString(R.plurals.quran_hint_surah_times, r, r, end);
         }
-        return "Otomatis lanjut ke ayat dan surah berikutnya, " + end;
+        return getString(R.string.quran_hint_continue, end);
     }
 
     void pickStopSurah(Runnable then) {
@@ -529,12 +632,12 @@ public class QuranActivity extends Activity {
             names[i] = String.format(Locale.US, "%03d  %s", i + 1, QuranService.surahName(i + 1));
         }
         SettingsActivity.showDark(new android.app.AlertDialog.Builder(this)
-                .setTitle("Berhenti setelah surah")
+                .setTitle(R.string.quran_stop_title)
                 .setItems(names, (d, w) -> {
                     QuranService.setMode(this, QuranService.mode, QuranService.repeat, w + 1);
                     then.run();
                 })
-                .setNegativeButton("Batal", null));
+                .setNegativeButton(R.string.common_cancel, null));
     }
 
     TextView caption(String s) {
@@ -612,6 +715,8 @@ public class QuranActivity extends Activity {
         final Paint fill = new Paint();
         boolean down;
 
+        final String offline = getString(R.string.quran_offline);
+
         SurahRow() {
             super(QuranActivity.this);
             num.setTypeface(fMono);
@@ -661,11 +766,12 @@ public class QuranActivity extends Activity {
             }
             name.setColor(ink);
             float avail = w - x - aw - px(36);
-            CharSequence n = TextUtils.ellipsize(q.latin.toUpperCase(ID), name, avail, TextUtils.TruncateAt.END);
+            CharSequence n = TextUtils.ellipsize(q.latin.toUpperCase(Lang.locale()), name, avail, TextUtils.TruncateAt.END);
             c.drawText(n, 0, n.length(), x, px(36), name);
             meta.setColor(down ? INK : live ? AMBER : DIM);
-            String m = (live ? "▶ " : "") + (q.arti + " · " + q.count + " AYAT").toUpperCase(ID)
-                    + (have[no] >= q.count ? " · OFFLINE" : "");
+            String arti = arti(q);
+            String m = (live ? "▶ " : "") + ((arti != null ? arti + " · " : "") + ayatCount(q.count)).toUpperCase(Lang.locale())
+                    + (have[no] >= q.count ? " · " + offline : "");
             CharSequence mm = TextUtils.ellipsize(m, meta, avail, TextUtils.TruncateAt.END);
             c.drawText(mm, 0, mm.length(), x, px(56), meta);
         }
@@ -700,7 +806,7 @@ public class QuranActivity extends Activity {
             num = text("", fMonoBold, 11, AMBER);
             num.setLetterSpacing(0.15f);
             top.addView(num, new LayoutParams(0, WRAP, 1f));
-            live = text("▶ DIBACA", fMonoBold, 10, AMBER);
+            live = text(getString(R.string.quran_reading), fMonoBold, 10, AMBER);
             live.setLetterSpacing(0.2f);
             top.addView(live);
             addView(top);
@@ -744,7 +850,7 @@ public class QuranActivity extends Activity {
             latin.setText(la);
             latin.setVisibility(showLatin && la != null ? VISIBLE : GONE);
             indo.setText(id);
-            indo.setVisibility(showIndo ? VISIBLE : GONE);
+            indo.setVisibility(showIndo && id != null ? VISIBLE : GONE);
             indo.setGravity(center ? Gravity.CENTER_HORIZONTAL : Gravity.START);
             active = act;
             live.setVisibility(act ? VISIBLE : GONE);
@@ -772,12 +878,13 @@ public class QuranActivity extends Activity {
             AyahRow r = v instanceof AyahRow ? (AyahRow) v : new AyahRow();
             boolean live = QuranService.active && QuranService.surah == surah;
             if (pos < offset()) {
-                r.bind("BASMALAH", QuranData.BISMILLAH, "Bismillāhir-raḥmānir-raḥīm(i).", QuranData.BISMILLAH_ID,
+                r.bind("BASMALAH", QuranData.BISMILLAH, "Bismillāhir-raḥmānir-raḥīm(i).",
+                        !en ? QuranData.BISMILLAH_ID : QuranData.en != null ? QuranData.BISMILLAH_EN : null,
                         live && QuranService.bismillah, true);
             } else {
                 int a = pos + 1 - offset(), g = QuranData.index(surah, a);
                 r.bind(String.format(Locale.US, "%d : %d", surah, a), QuranData.arab[g], QuranData.latin[g],
-                        QuranData.indo[g], live && !QuranService.bismillah && QuranService.ayah == a, false);
+                        translation(g), live && !QuranService.bismillah && QuranService.ayah == a, false);
             }
             return r;
         }
@@ -815,7 +922,7 @@ public class QuranActivity extends Activity {
         /** Lebar mengikuti teks bila tidak ditentukan pasti (WRAP), supaya muat di layar sempit. */
         @Override protected void onMeasure(int wSpec, int hSpec) {
             if (MeasureSpec.getMode(wSpec) == MeasureSpec.EXACTLY) { super.onMeasure(wSpec, hSpec); return; }
-            setMeasuredDimension(resolveSize(Math.round(p.measureText(label)) + px(36), wSpec),
+            setMeasuredDimension(resolveSize(Math.max(getMinimumWidth(), Math.round(p.measureText(label)) + px(36)), wSpec),
                     resolveSize(px(48), hSpec));
         }
 

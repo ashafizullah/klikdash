@@ -26,6 +26,10 @@ import java.nio.charset.StandardCharsets;
  * Format baris, dipisah tab:
  *   S  nomor  namaLatin  namaArab  arti  tempatTurun  jumlahAyat
  *   A  surah  ayat  arab  latin  indonesia
+ * Terjemahan English (Saheeh International dari alquran.cloud) ada di file terpisah filesDir/quran-en.txt, diunduh
+ * hanya bila bahasa antarmuka English ({@link #downloadEn}):
+ *   S  nomor  arti  tempatTurun
+ *   A  surah  ayat  english
  */
 final class QuranData {
     static final int SURAH_COUNT = 114, AYAH_TOTAL = 6236;
@@ -39,14 +43,19 @@ final class QuranData {
 
     static final String BISMILLAH = "بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ";
     static final String BISMILLAH_ID = "Dengan nama Allah Yang Maha Pengasih lagi Maha Penyayang.";
+    static final String BISMILLAH_EN = "In the name of Allah, the Entirely Merciful, the Especially Merciful.";
 
     static final class Surah {
         int no, count, first;
         String latin, arab, arti, tempat;
+        /** Dari quran-en.txt; null bila terjemahan English belum dimuat. */
+        String artiEn, tempatEn;
     }
 
     static volatile Surah[] surah;
     static String[] arab, latin, indo;
+    /** Terjemahan English; null bila belum diunduh atau belum dimuat ({@link #loadEn}). */
+    static volatile String[] en;
 
     private QuranData() { }
 
@@ -125,7 +134,7 @@ final class QuranData {
             for (int n = 1; n <= SURAH_COUNT; n++) {
                 JSONObject d = new JSONObject(fetch(API + n)).getJSONObject("data");
                 JSONArray ayat = d.getJSONArray("ayat");
-                if (ayat.length() != COUNTS[n - 1]) throw new IOException("Jumlah ayat surah " + n + " tidak cocok");
+                if (ayat.length() != COUNTS[n - 1]) throw new IOException(c.getString(R.string.quran_err_count, n));
                 w.write("S\t" + d.getInt("nomor") + "\t" + clean(d.getString("namaLatin")) + "\t"
                         + clean(d.getString("nama")) + "\t" + clean(d.getString("arti")) + "\t"
                         + clean(d.getString("tempatTurun")) + "\t" + d.getInt("jumlahAyat") + "\n");
@@ -137,7 +146,66 @@ final class QuranData {
                 p.update(n, SURAH_COUNT);
             }
         }
-        if (!tmp.renameTo(dst)) throw new IOException("Gagal menyimpan teks");
+        if (!tmp.renameTo(dst)) throw new IOException(c.getString(R.string.quran_err_save));
+    }
+
+    // ---------------------------------------------------------------- terjemahan English
+
+    static final String API_EN = "https://api.alquran.cloud/v1/surah/%d/en.sahih";
+
+    static File enFile(Context c) { return new File(c.getFilesDir(), "quran-en.txt"); }
+
+    /** Terjemahan English sudah ada: hasil unduhan, atau tertanam di APK (build pengembang). */
+    static boolean availableEn(Context c) {
+        if (enFile(c).length() > 0) return true;
+        try (InputStream in = c.getAssets().open("quran-en.txt")) {
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    /** Muat terjemahan English ke {@link #en} dan arti/tempat English per surah. Butuh {@link #load} lebih dulu. */
+    static synchronized void loadEn(Context c) throws IOException {
+        if (en != null) return;
+        load(c);
+        String[] e = new String[AYAH_TOTAL];
+        File f = enFile(c);
+        try (BufferedReader r = new BufferedReader(new InputStreamReader(
+                f.length() > 0 ? new FileInputStream(f) : c.getAssets().open("quran-en.txt"), StandardCharsets.UTF_8), 1 << 16)) {
+            String line;
+            while ((line = r.readLine()) != null) {
+                String[] p = line.split("\t", -1);
+                if (p[0].equals("S")) {
+                    Surah s = surah[Integer.parseInt(p[1]) - 1];
+                    s.artiEn = p[2];
+                    s.tempatEn = p[3];
+                } else {
+                    e[index(Integer.parseInt(p[1]), Integer.parseInt(p[2]))] = p[3];
+                }
+            }
+        }
+        en = e;
+    }
+
+    /** Seperti {@link #download}, untuk terjemahan Saheeh International dari alquran.cloud (±1 MB). */
+    static void downloadEn(Context c, Progress p) throws Exception {
+        File dst = enFile(c), tmp = new File(dst.getPath() + ".part");
+        try (Writer w = new OutputStreamWriter(new FileOutputStream(tmp), StandardCharsets.UTF_8)) {
+            for (int n = 1; n <= SURAH_COUNT; n++) {
+                JSONObject d = new JSONObject(fetch(String.format(java.util.Locale.US, API_EN, n))).getJSONObject("data");
+                JSONArray ayat = d.getJSONArray("ayahs");
+                if (ayat.length() != COUNTS[n - 1]) throw new IOException(c.getString(R.string.quran_err_count, n));
+                w.write("S\t" + n + "\t" + clean(d.getString("englishNameTranslation")) + "\t"
+                        + clean(d.getString("revelationType")) + "\n");
+                for (int i = 0; i < ayat.length(); i++) {
+                    JSONObject a = ayat.getJSONObject(i);
+                    w.write("A\t" + n + "\t" + a.getInt("numberInSurah") + "\t" + clean(a.getString("text")) + "\n");
+                }
+                p.update(n, SURAH_COUNT);
+            }
+        }
+        if (!tmp.renameTo(dst)) throw new IOException(c.getString(R.string.quran_err_save));
     }
 
     static String fetch(String url) throws IOException {

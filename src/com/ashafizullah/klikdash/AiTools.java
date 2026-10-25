@@ -2,6 +2,7 @@ package com.ashafizullah.klikdash;
 
 import android.app.Activity;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -24,72 +25,95 @@ import java.util.Locale;
 
 /**
  * Perintah mobil yang boleh dijalankan AI (function calling). Satu daftar untuk Claude dan OpenAI-compatible.
- * Setiap alat mengembalikan teks singkat untuk dibaca model, bukan untuk pengemudi.
+ * Setiap alat mengembalikan teks singkat untuk dibaca model, bukan untuk pengemudi. Semua teks untuk model memakai
+ * bahasa asisten ({@link AiStore#inLang}, R.string.as_*), bukan bahasa antarmuka.
  */
 final class AiTools {
-    static final Locale ID = new Locale("id", "ID");
+    /**
+     * Satu alat: nama, deskripsi (R.string.as_tool_*), dan JSON schema parameternya. Keterangan parameter yang perlu
+     * diterjemahkan ditulis %1$s, %2$s, … di schema dan diisi dari {@code args} (R.string.as_param_*).
+     */
+    static final class Tool {
+        final String name, schema;
+        final int desc;
+        final int[] args;
 
-    /** {nama, deskripsi, JSON schema parameter}. */
-    static final String[][] TOOLS = {
-            {"open_app", "Buka aplikasi yang terpasang di headunit. Pakai nama persis dari daftar aplikasi di instruksi sistem.",
-                    "{\"type\":\"object\",\"properties\":{\"app\":{\"type\":\"string\",\"description\":\"Nama aplikasi\"}},"
-                            + "\"required\":[\"app\"],\"additionalProperties\":false}"},
-            {"navigate", "Mulai navigasi ke tujuan (nama tempat atau alamat), misalnya 'masjid terdekat' atau 'Alun-alun Kendal'.",
+        Tool(String name, int desc, String schema, int... args) {
+            this.name = name;
+            this.desc = desc;
+            this.schema = schema;
+            this.args = args;
+        }
+
+        String desc(Context t) { return t.getString(desc); }
+
+        JSONObject schema(Context t) throws Exception {
+            Object[] v = new Object[args.length];
+            for (int i = 0; i < args.length; i++) v[i] = JSONObject.quote(t.getString(args[i]));
+            return new JSONObject(String.format(Locale.US, schema, v));
+        }
+    }
+
+    static final Tool[] TOOLS = {
+            new Tool("open_app", R.string.as_tool_open_app,
+                    "{\"type\":\"object\",\"properties\":{\"app\":{\"type\":\"string\",\"description\":%1$s}},"
+                            + "\"required\":[\"app\"],\"additionalProperties\":false}", R.string.as_param_app),
+            new Tool("navigate", R.string.as_tool_navigate,
                     "{\"type\":\"object\",\"properties\":{\"destination\":{\"type\":\"string\"},"
                             + "\"app\":{\"type\":\"string\",\"enum\":[\"maps\",\"waze\"],\"description\":\"Default maps\"}},"
-                            + "\"required\":[\"destination\"],\"additionalProperties\":false}"},
-            {"play_quran", "Putar murattal Al-Qur'an (Mishary Alafasy). Surah boleh nomor (1-114) atau nama Latin, misalnya 'Yasin'.",
+                            + "\"required\":[\"destination\"],\"additionalProperties\":false}"),
+            new Tool("play_quran", R.string.as_tool_play_quran,
                     "{\"type\":\"object\",\"properties\":{\"surah\":{\"type\":\"string\"},"
                             + "\"ayah\":{\"type\":\"integer\",\"minimum\":1,\"description\":\"Default 1\"}},"
-                            + "\"required\":[\"surah\"],\"additionalProperties\":false}"},
-            {"media_control", "Kendalikan audio yang sedang diputar (murattal, musik, radio).",
+                            + "\"required\":[\"surah\"],\"additionalProperties\":false}"),
+            new Tool("media_control", R.string.as_tool_media_control,
                     "{\"type\":\"object\",\"properties\":{\"action\":{\"type\":\"string\","
-                            + "\"enum\":[\"play\",\"pause\",\"next\",\"previous\"]}},\"required\":[\"action\"],\"additionalProperties\":false}"},
-            {"set_volume", "Atur volume media. Isi level 0-100, atau change naik/turun.",
+                            + "\"enum\":[\"play\",\"pause\",\"next\",\"previous\"]}},\"required\":[\"action\"],\"additionalProperties\":false}"),
+            new Tool("set_volume", R.string.as_tool_set_volume,
                     "{\"type\":\"object\",\"properties\":{\"level\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":100},"
-                            + "\"change\":{\"type\":\"string\",\"enum\":[\"up\",\"down\"]}},\"additionalProperties\":false}"},
-            {"prayer_times", "Jadwal sholat hari ini di lokasi mobil, dan waktu sholat berikutnya.",
-                    "{\"type\":\"object\",\"properties\":{},\"additionalProperties\":false}"},
-            {"open_dzikir", "Buka dzikir pagi atau petang.",
+                            + "\"change\":{\"type\":\"string\",\"enum\":[\"up\",\"down\"]}},\"additionalProperties\":false}"),
+            new Tool("prayer_times", R.string.as_tool_prayer_times,
+                    "{\"type\":\"object\",\"properties\":{},\"additionalProperties\":false}"),
+            // "pagi"/"petang" adalah kunci internal dzikir (lihat DzikirActivity), sama di semua bahasa.
+            new Tool("open_dzikir", R.string.as_tool_open_dzikir,
                     "{\"type\":\"object\",\"properties\":{\"period\":{\"type\":\"string\",\"enum\":[\"pagi\",\"petang\"],"
-                            + "\"description\":\"Kosongkan untuk mengikuti waktu sekarang\"}},\"additionalProperties\":false}"},
-            {"restrict_background", "Larang (restrict=true) atau izinkan (false) aplikasi berjalan di latar, untuk menghemat daya.",
+                            + "\"description\":%1$s}},\"additionalProperties\":false}", R.string.as_param_period),
+            new Tool("restrict_background", R.string.as_tool_restrict_background,
                     "{\"type\":\"object\",\"properties\":{\"app\":{\"type\":\"string\"},\"restrict\":{\"type\":\"boolean\"}},"
-                            + "\"required\":[\"app\",\"restrict\"],\"additionalProperties\":false}"},
-            {"car_status", "Status headunit: jam, tanggal Masehi & Hijriah, kecepatan, suhu CPU, dan lokasi.",
-                    "{\"type\":\"object\",\"properties\":{},\"additionalProperties\":false}"},
-            {"go_home", "Kembali ke layar home KlikDash.",
-                    "{\"type\":\"object\",\"properties\":{},\"additionalProperties\":false}"},
+                            + "\"required\":[\"app\",\"restrict\"],\"additionalProperties\":false}"),
+            new Tool("car_status", R.string.as_tool_car_status,
+                    "{\"type\":\"object\",\"properties\":{},\"additionalProperties\":false}"),
+            new Tool("go_home", R.string.as_tool_go_home,
+                    "{\"type\":\"object\",\"properties\":{},\"additionalProperties\":false}"),
     };
 
     /** Pencarian web lewat TinyFish, untuk semua profil bila key-nya diisi (lihat AiClient). */
-    static final String[] WEB_SEARCH = {"web_search",
-            "Cari informasi terkini di web: berita, harga, cuaca, jadwal, skor, info tempat atau acara. Pakai hanya bila "
-                    + "jawabannya butuh info terbaru atau tidak kamu ketahui.",
-            "{\"type\":\"object\",\"properties\":{\"query\":{\"type\":\"string\",\"description\":\"Kata kunci "
-                    + "pencarian, singkat\"}},\"required\":[\"query\"],\"additionalProperties\":false}"};
+    static final Tool WEB_SEARCH = new Tool("web_search", R.string.as_tool_web_search,
+            "{\"type\":\"object\",\"properties\":{\"query\":{\"type\":\"string\",\"description\":%1$s}},"
+                    + "\"required\":[\"query\"],\"additionalProperties\":false}", R.string.as_param_query);
 
-    static JSONArray claudeTools(boolean webSearch) throws Exception {
+    /** {@code t}: context berbahasa asisten ({@link AiStore#inLang}). */
+    static JSONArray claudeTools(Context t, boolean webSearch) throws Exception {
         JSONArray a = new JSONArray();
-        for (String[] t : TOOLS) a.put(claudeTool(t));
-        if (webSearch) a.put(claudeTool(WEB_SEARCH));
+        for (Tool x : TOOLS) a.put(claudeTool(t, x));
+        if (webSearch) a.put(claudeTool(t, WEB_SEARCH));
         return a;
     }
 
-    static JSONObject claudeTool(String[] t) throws Exception {
-        return new JSONObject().put("name", t[0]).put("description", t[1]).put("input_schema", new JSONObject(t[2]));
+    static JSONObject claudeTool(Context t, Tool x) throws Exception {
+        return new JSONObject().put("name", x.name).put("description", x.desc(t)).put("input_schema", x.schema(t));
     }
 
-    static JSONArray openaiTools(boolean webSearch) throws Exception {
+    static JSONArray openaiTools(Context t, boolean webSearch) throws Exception {
         JSONArray a = new JSONArray();
-        for (String[] t : TOOLS) a.put(openaiTool(t));
-        if (webSearch) a.put(openaiTool(WEB_SEARCH));
+        for (Tool x : TOOLS) a.put(openaiTool(t, x));
+        if (webSearch) a.put(openaiTool(t, WEB_SEARCH));
         return a;
     }
 
-    static JSONObject openaiTool(String[] t) throws Exception {
+    static JSONObject openaiTool(Context t, Tool x) throws Exception {
         return new JSONObject().put("type", "function").put("function", new JSONObject()
-                .put("name", t[0]).put("description", t[1]).put("parameters", new JSONObject(t[2])));
+                .put("name", x.name).put("description", x.desc(t)).put("parameters", x.schema(t)));
     }
 
     // ---------------------------------------------------------------- konteks untuk instruksi sistem
@@ -114,26 +138,24 @@ final class AiTools {
 
     /** Instruksi sistem: singkat, untuk pengemudi, dengan daftar aplikasi dan waktu sekarang. */
     static String systemPrompt(Activity a, boolean webSearch) {
+        Context t = AiStore.inLang(a);
         StringBuilder names = new StringBuilder();
         for (App x : apps(a)) names.append(names.length() > 0 ? ", " : "").append(x.label);
-        String now = new SimpleDateFormat("EEEE d MMMM yyyy, HH:mm", ID).format(new Date());
-        return "Kamu asisten suara KlikDash di headunit mobil. Pengemudi sedang menyetir dan mendengarkan jawabanmu "
-                + "lewat speaker, jadi jawab dalam bahasa Indonesia, sangat singkat (paling banyak dua kalimat), tanpa "
-                + "markdown, daftar, atau emoji, dan jangan minta pengemudi melihat atau menyentuh layar. Untuk perintah "
-                + "mobil, panggil alat yang sesuai lalu konfirmasi singkat apa yang sudah dilakukan. Kalau permintaan "
-                + "tidak jelas, tanya balik dengan satu pertanyaan pendek. Sekarang " + now + ". Aplikasi terpasang: "
-                + names + "."
-                + (webSearch ? " Untuk pertanyaan yang butuh info terbaru (berita, harga, cuaca, jadwal, skor), cari di "
-                + "web dulu, lalu jawab intinya saja tanpa membacakan alamat situs; sebut nama sumbernya bila perlu." : "");
+        String now = new SimpleDateFormat(t.getString(R.string.as_now_pattern), locale(a)).format(new Date());
+        return t.getString(R.string.as_system, now, names) + (webSearch ? " " + t.getString(R.string.as_system_web) : "");
     }
+
+    /** Locale bahasa asisten, untuk tanggal dan huruf kecil di teks untuk model. */
+    static Locale locale(Context c) { return Lang.localeOf(AiStore.lang(c)); }
 
     // ---------------------------------------------------------------- pencarian web (TinyFish)
 
     /** TinyFish Search API (gratis, 30 pencarian/menit): 5 hasil teratas sebagai teks ringkas untuk model. */
     static String webSearch(Activity a, String query) throws Exception {
-        if (query.trim().isEmpty()) return "Kata kunci kosong.";
+        Context t = AiStore.inLang(a);
+        if (query.trim().isEmpty()) return t.getString(R.string.as_search_empty);
         String key = AiStore.tinyfishKey(a);
-        if (key.isEmpty()) return "Pencarian web belum diatur: isi API key TinyFish di Pengaturan › Asisten AI.";
+        if (key.isEmpty()) return t.getString(R.string.as_search_unset);
         java.net.HttpURLConnection c = (java.net.HttpURLConnection) new java.net.URL("https://api.search.tinyfish.ai?query="
                 + java.net.URLEncoder.encode(query.trim(), "UTF-8")).openConnection();
         c.setConnectTimeout(8000);
@@ -144,11 +166,11 @@ final class AiTools {
             int code = c.getResponseCode();
             String txt = AiClient.read(code >= 400 ? c.getErrorStream() : c.getInputStream());
             android.util.Log.i("KlikDashAI", "TinyFish " + code + " " + (android.os.SystemClock.elapsedRealtime() - t0) + " ms");
-            if (code == 401 || code == 403) return "Pencarian gagal: API key TinyFish ditolak.";
-            if (code >= 400) return "Pencarian gagal (HTTP " + code + ").";
+            if (code == 401 || code == 403) return t.getString(R.string.as_search_key);
+            if (code >= 400) return t.getString(R.string.as_search_http, code);
             org.json.JSONArray rs = new JSONObject(txt).optJSONArray("results");
-            if (rs == null || rs.length() == 0) return "Tidak ada hasil untuk \"" + query + "\".";
-            StringBuilder s = new StringBuilder("Hasil pencarian \"" + query + "\":");
+            if (rs == null || rs.length() == 0) return t.getString(R.string.as_search_none, query);
+            StringBuilder s = new StringBuilder(t.getString(R.string.as_search_results, query));
             for (int i = 0; i < Math.min(5, rs.length()); i++) {
                 JSONObject r = rs.getJSONObject(i);
                 s.append("\n").append(i + 1).append(". ").append(r.optString("title"));
@@ -166,6 +188,7 @@ final class AiTools {
 
     /** Jalankan satu alat. Dipanggil dari thread latar; aksi UI dijalankan di thread utama. */
     static String run(Activity a, String name, JSONObject in) {
+        Context t = AiStore.inLang(a);
         try {
             switch (name) {
                 case "open_app": return openApp(a, in.optString("app"));
@@ -181,11 +204,11 @@ final class AiTools {
                 case "go_home":
                     ui(a, () -> a.startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)));
-                    return "Kembali ke home.";
-                default: return "Alat tidak dikenal: " + name;
+                    return t.getString(R.string.as_res_home);
+                default: return t.getString(R.string.as_res_unknown_tool, name);
             }
         } catch (Exception e) {
-            return "Gagal: " + e.getMessage();
+            return t.getString(R.string.as_res_failed, AiClient.describe(t, e));
         }
     }
 
@@ -211,10 +234,11 @@ final class AiTools {
 
     static String openApp(Activity a, String name) {
         App x = findApp(a, name);
-        if (x == null) return "Aplikasi '" + name + "' tidak ditemukan.";
+        Context t = AiStore.inLang(a);
+        if (x == null) return t.getString(R.string.as_res_app_not_found, name);
         ui(a, () -> a.startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
                 .setComponent(x.cn).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)));
-        return "Membuka " + x.label + ".";
+        return t.getString(R.string.as_res_opening, x.label);
     }
 
     static String navigate(Activity a, String dest, String app) {
@@ -229,11 +253,11 @@ final class AiTools {
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (i.resolveActivity(a.getPackageManager()) == null) {
             i.setPackage(null); // aplikasi navigasi lain apa pun
-            if (i.resolveActivity(a.getPackageManager()) == null) return "Tidak ada aplikasi navigasi.";
+            if (i.resolveActivity(a.getPackageManager()) == null) return AiStore.inLang(a).getString(R.string.as_res_no_nav);
         }
         final Intent go = i;
         ui(a, () -> a.startActivity(go));
-        return "Navigasi ke " + dest + " dimulai.";
+        return AiStore.inLang(a).getString(R.string.as_res_navigating, dest);
     }
 
     static String playQuran(Activity a, String surah, int ayah) throws Exception {
@@ -248,11 +272,12 @@ final class AiTools {
                 for (int i = 1; i <= QuranData.SURAH_COUNT && s < 0; i++) if (norm(QuranData.get(i).latin).contains(q)) s = i;
             }
         }
-        if (s < 1 || s > QuranData.SURAH_COUNT) return "Surah '" + surah + "' tidak ditemukan; minta nomor surahnya.";
+        Context t = AiStore.inLang(a);
+        if (s < 1 || s > QuranData.SURAH_COUNT) return t.getString(R.string.as_res_surah_not_found, surah);
         final int fs = s, fa = Math.max(1, Math.min(ayah, QuranData.count(s)));
         ui(a, () -> QuranService.play(a, fs, fa));
         String nm = QuranData.loaded() ? QuranData.get(fs).latin : "surah " + fs;
-        return "Memutar " + nm + " ayat " + fa + ".";
+        return t.getString(R.string.as_res_playing, nm, fa);
     }
 
     static String media(Activity a, String action) {
@@ -295,8 +320,9 @@ final class AiTools {
     }
 
     static String city(Activity a) {
-        return a.createDeviceProtectedStorageContext().getSharedPreferences("klikdash", Activity.MODE_PRIVATE)
-                .getString("city", "lokasi GPS");
+        String c = a.createDeviceProtectedStorageContext().getSharedPreferences("klikdash", Activity.MODE_PRIVATE)
+                .getString("city", null);
+        return c != null ? c : AiStore.inLang(a).getString(R.string.as_res_gps);
     }
 
     static String prayerTimes(Activity a) {
@@ -304,19 +330,24 @@ final class AiTools {
         Calendar now = Calendar.getInstance();
         int[] t = PrayerTimes.compute(now, l[0], l[1]);
         int min = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
-        StringBuilder s = new StringBuilder("Jadwal di " + city(a) + ": ");
+        Context c = AiStore.inLang(a);
+        Locale loc = locale(a);
+        String[] names = c.getResources().getStringArray(R.array.prayer_names);
+        StringBuilder s = new StringBuilder(c.getString(R.string.as_res_schedule, city(a))).append(' ');
         int next = -1;
         for (int i = 0; i < t.length; i++) {
-            s.append(Lang.prayers[i].toLowerCase(ID)).append(String.format(Locale.US, " %02d:%02d", t[i] / 60, t[i] % 60))
+            s.append(names[i].toLowerCase(loc)).append(String.format(Locale.US, " %02d:%02d", t[i] / 60, t[i] % 60))
                     .append(i < t.length - 1 ? ", " : ". ");
             if (next < 0 && t[i] > min) next = i;
         }
         if (next >= 0) {
             int left = t[next] - min;
-            s.append("Berikutnya ").append(Lang.prayers[next].toLowerCase(ID)).append(" dalam ")
-                    .append(left / 60 > 0 ? left / 60 + " jam " : "").append(left % 60).append(" menit.");
+            android.content.res.Resources r = c.getResources();
+            String wait = (left / 60 > 0 ? r.getQuantityString(R.plurals.as_hours, left / 60, left / 60) + " " : "")
+                    + r.getQuantityString(R.plurals.as_minutes, left % 60, left % 60);
+            s.append(c.getString(R.string.as_res_next, names[next].toLowerCase(loc), wait));
         } else {
-            s.append("Berikutnya subuh besok.");
+            s.append(c.getString(R.string.as_res_next_tomorrow, names[0].toLowerCase(loc)));
         }
         return s.toString();
     }
@@ -325,37 +356,41 @@ final class AiTools {
         String p = "pagi".equals(period) || "petang".equals(period) ? period : DzikirActivity.currentPeriod(a);
         ui(a, () -> a.startActivity(new Intent(a, DzikirActivity.class).putExtra("period", p)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)));
-        return "Membuka dzikir " + p + ".";
+        return AiStore.inLang(a).getString("pagi".equals(p) ? R.string.as_res_dzikir_pagi : R.string.as_res_dzikir_petang);
     }
 
     static String restrict(Activity a, String name, boolean on) throws Exception {
         App x = findApp(a, name);
-        if (x == null) return "Aplikasi '" + name + "' tidak ditemukan.";
+        Context t = AiStore.inLang(a);
+        if (x == null) return t.getString(R.string.as_res_app_not_found, name);
         String p = x.cn.getPackageName();
-        if (PowerPanel.PROTECTED.contains(p)) return x.label + " dilindungi agar navigasi/CarPlay tetap jalan.";
+        if (PowerPanel.PROTECTED.contains(p)) return t.getString(R.string.as_res_protected, x.label);
         String mode = on ? "ignore" : "allow";
         Tweaks.exec("cmd appops set " + p + " RUN_ANY_IN_BACKGROUND " + mode + "; cmd appops set " + p
                 + " RUN_IN_BACKGROUND " + mode + (on ? "; am force-stop " + p : ""));
-        return x.label + (on ? " dilarang jalan di latar." : " boleh jalan di latar lagi.");
+        return t.getString(on ? R.string.as_res_restricted : R.string.as_res_allowed, x.label);
     }
 
     static String status(Activity a) {
         Date now = new Date();
-        StringBuilder s = new StringBuilder(new SimpleDateFormat("EEEE d MMMM yyyy, 'pukul' HH:mm", ID).format(now));
+        Context x = AiStore.inLang(a);
+        Locale loc = locale(a);
+        StringBuilder s = new StringBuilder(new SimpleDateFormat(x.getString(R.string.as_status_pattern), loc).format(now));
         android.icu.util.IslamicCalendar c = new android.icu.util.IslamicCalendar();
         c.setCalculationType(android.icu.util.IslamicCalendar.CalculationType.ISLAMIC_UMALQURA);
         c.setTimeInMillis(now.getTime());
-        s.append(". Hijriah ").append(c.get(android.icu.util.Calendar.DAY_OF_MONTH)).append(' ')
-                .append(Lang.hijriMonths[c.get(android.icu.util.Calendar.MONTH)].toLowerCase(ID)).append(' ')
-                .append(c.get(android.icu.util.Calendar.YEAR)).append(" H");
-        if (SystemClock.elapsedRealtime() - HomeActivity.lastKmhAt < 10_000) s.append(". Kecepatan ").append(HomeActivity.lastKmh).append(" km/jam");
+        s.append(". ").append(x.getString(R.string.as_res_hijri, c.get(android.icu.util.Calendar.DAY_OF_MONTH),
+                x.getResources().getStringArray(R.array.hijri_months)[c.get(android.icu.util.Calendar.MONTH)].toLowerCase(loc),
+                c.get(android.icu.util.Calendar.YEAR)));
+        if (SystemClock.elapsedRealtime() - HomeActivity.lastKmhAt < 10_000)
+            s.append(". ").append(x.getString(R.string.as_res_speed, HomeActivity.lastKmh));
         String t = HomeActivity.readLine(HomeActivity.findCpuZone());
         if (t != null) {
             try {
                 int v = Integer.parseInt(t);
-                s.append(". Suhu CPU ").append(v > 1000 ? Math.round(v / 1000f) : v).append("°C");
+                s.append(". ").append(x.getString(R.string.as_res_cpu, v > 1000 ? Math.round(v / 1000f) : v));
             } catch (NumberFormatException ignored) { }
         }
-        return s.append(". Lokasi ").append(city(a)).append('.').toString();
+        return s.append(". ").append(x.getString(R.string.as_res_location, city(a))).toString();
     }
 }

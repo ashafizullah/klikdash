@@ -20,11 +20,13 @@ rm -rf build
 mkdir -p build/classes build/dex build/gen
 
 "$BT/aapt2" compile --dir res -o build/res.zip
-# Teks Al-Qur'an tidak pernah ikut APK rilis (aplikasi mengunduhnya sendiri dari equran.id).
-# Build pengembang menyertakan assets/quran.txt bila ada, supaya headunit sendiri langsung offline.
+# Teks Al-Qur'an dan terjemahan English tidak pernah ikut APK rilis (aplikasi mengunduhnya sendiri dari equran.id
+# dan alquran.cloud). Build pengembang menyertakan assets/quran.txt dan assets/quran-en.txt bila ada, supaya
+# headunit sendiri langsung offline.
 mkdir -p build/assets
 cp -R assets/. build/assets/
 if [ "$MODE" = "release" ] || [ ! -s assets/quran.txt ]; then rm -f build/assets/quran.txt; fi
+if [ "$MODE" = "release" ] || [ ! -s assets/quran-en.txt ]; then rm -f build/assets/quran-en.txt; fi
 
 # Bawaan tanpa android:debuggable: Android tidak pernah mengompilasi AOT aplikasi debuggable (dexopt turun ke "quicken")
 # dan ART menjalankannya lebih lambat (cold start home ±1,5 dtk vs ±1,1 dtk di headunit K2401).
@@ -73,7 +75,7 @@ fi
 
 if [ "$MODE" = "release" ]; then
     cp build/klikdash.apk "build/klikdash-$VERSION_NAME.apk"
-    unzip -l "build/klikdash-$VERSION_NAME.apk" | grep -q "assets/quran.txt" && { echo "quran.txt ikut di APK rilis!" >&2; exit 1; }
+    unzip -l "build/klikdash-$VERSION_NAME.apk" | grep -qE "assets/quran(-en)?\.txt" && { echo "teks Al-Qur'an ikut di APK rilis!" >&2; exit 1; }
     ls -lh "build/klikdash-$VERSION_NAME.apk"
 else
     ls -lh build/klikdash.apk

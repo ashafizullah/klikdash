@@ -30,11 +30,9 @@ import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 final class Welcome {
     static final int MODE_DEFAULT = 0, MODE_CUSTOM = 1, MODE_OFF = 2;
 
-    static final String DEF_TITLE = "Doa keluar rumah";
     static final String DEF_ARAB = "بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ لاَ حَوْلَ وَلاَ قُوَّةَ إِلاَّ بِاللَّهِ";
     static final String DEF_LATIN = "Bismillaahi tawakkaltu ‘alalloh, laa hawla wa laa quwwata illaa billaah.";
-    static final String DEF_TEXT = "Dengan nama Allah, aku bertawakal kepada-Nya; tidak ada daya dan kekuatan kecuali "
-            + "dengan-Nya.";
+    // Judul dan arti doa bawaan ada di resource (welcome_default_title/text), diisi saat ditampilkan (lihat show).
 
     /** Jeda minimum antar-sambutan, supaya layar yang dimatikan-nyalakan sebentar tidak memunculkannya lagi. */
     static final long GAP_MS = 10 * 60_000L;
@@ -46,6 +44,8 @@ final class Welcome {
 
     static final class Content {
         String title, arab, latin, text;
+        /** Doa bawaan: judul dan arti diambil dari resource sesuai bahasa saat ditampilkan. */
+        boolean def;
     }
 
     static int mode(SharedPreferences p) { return p.getInt("welcome", MODE_DEFAULT); }
@@ -62,10 +62,9 @@ final class Welcome {
             c.text = p.getString("wText", "");
             if (c.arab.isEmpty() && c.text.isEmpty()) return null;
         } else {
-            c.title = DEF_TITLE;
+            c.def = true;
             c.arab = DEF_ARAB;
             c.latin = DEF_LATIN;
-            c.text = DEF_TEXT;
         }
         return c;
     }
@@ -83,6 +82,10 @@ final class Welcome {
     static void show(Activity a, Content c) {
         ViewGroup root = a.findViewById(android.R.id.content);
         View old = root.findViewWithTag(Welcome.class);
+        if (c.def) {
+            c.title = a.getString(R.string.welcome_default_title);
+            c.text = a.getString(R.string.welcome_default_text);
+        }
         if (old != null) root.removeView(old);
         float dp = a.getResources().getDisplayMetrics().density;
         Typeface mono = Compat.font(a.getAssets(), "mono.ttf", "'wdth' 100, 'wght' 700", Typeface.MONOSPACE);
@@ -108,7 +111,9 @@ final class Welcome {
         LinearLayout.LayoutParams bl = new LinearLayout.LayoutParams(Math.round(56 * dp), Math.round(4 * dp));
         bl.gravity = Gravity.CENTER_HORIZONTAL;
         card.addView(bar, bl);
-        TextView tag = text(a, "SELAMAT JALAN" + (c.title.isEmpty() ? "" : "  ·  " + c.title.toUpperCase(HomeActivity.ID)),
+        String head = a.getString(R.string.welcome_head);
+        TextView tag = text(a, c.title.isEmpty() ? head : a.getString(R.string.welcome_head_title, head,
+                        c.title.toUpperCase(Lang.locale())),
                 mono, 12, AMBER);
         tag.setLetterSpacing(0.2f);
         tag.setGravity(Gravity.CENTER);
@@ -154,7 +159,8 @@ final class Welcome {
         Runnable tick = new Runnable() {
             @Override public void run() {
                 long left = Math.max(0, until - SystemClock.uptimeMillis());
-                hint.setText("TERTUTUP DALAM " + Math.max(1, (left + 999) / 1000) + " DETIK  ·  KETUK UNTUK MENUTUP");
+                int sec = (int) Math.max(1, (left + 999) / 1000);
+                hint.setText(a.getResources().getQuantityString(R.plurals.welcome_closing_in, sec, sec));
                 // Digerakkan sendiri, bukan animate(): headunit sering mematikan skala animasi sistem (0×).
                 fill.setScaleX(left / (float) SHOW_MS);
                 if (left > 0) scrim.postDelayed(this, 100);

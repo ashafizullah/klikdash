@@ -120,11 +120,33 @@ public class QuranService extends Service
     }
 
     /** Untuk tombol mode, notch, dan notifikasi: "LANJUT", "LANJUT → AN-NAS", "ULANG AYAT 3×", "ULANG SURAH ∞". */
-    static String modeLabel() {
+    static String modeLabel() { return modeLabel(res); }
+
+    static String modeLabel(Context c) {
+        if (c == null) return "";
+        c = res(c);
         if (mode == MODE_CONTINUE) {
-            return stopAfter > 0 ? "LANJUT → " + surahName(stopAfter).toUpperCase(Locale.US) : "LANJUT";
+            return stopAfter > 0 ? c.getString(R.string.quran_label_continue_to, surahName(stopAfter).toUpperCase(Locale.US))
+                    : c.getString(R.string.quran_mode_continue);
         }
-        return (mode == MODE_REPEAT_AYAH ? "ULANG AYAT " : "ULANG SURAH ") + (repeat == 0 ? "∞" : repeat + "×");
+        return c.getString(mode == MODE_REPEAT_AYAH ? R.string.quran_label_repeat_ayah : R.string.quran_label_repeat_surah,
+                repeat == 0 ? "∞" : repeat + "×");
+    }
+
+    /**
+     * Context untuk teks sesuai bahasa antarmuka saat ini. Layanan bisa hidup lebih lama dari pergantian bahasa
+     * (context-nya dibungkus sekali di attachBaseContext), dan {@link #modeLabel()} dipanggil tanpa context.
+     */
+    private static Context res;
+    private static String resLang;
+
+    static Context res(Context c) {
+        String code = Lang.code != null ? Lang.code : Lang.saved(c);
+        if (res == null || !code.equals(resLang)) {
+            res = Lang.wrap(c.getApplicationContext(), code);
+            resLang = code;
+        }
+        return res;
     }
 
     static String surahName(int s) {
@@ -155,6 +177,7 @@ public class QuranService extends Service
 
     @Override public void onCreate() {
         super.onCreate();
+        res(this);
         loadState(this);
         am = (AudioManager) getSystemService(AUDIO_SERVICE);
         nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -448,18 +471,17 @@ public class QuranService extends Service
     // ------------------------------------------------------------ status & notifikasi
 
     String title() {
-        String name = QuranData.loaded() ? QuranData.get(surah).latin : "Surah " + surah;
-        return bismillah ? name + " · Basmalah" : name + " · Ayat " + ayah;
+        String name = surahName(surah);
+        return bismillah ? res(this).getString(R.string.quran_n_basmalah, name)
+                : res(this).getString(R.string.quran_n_ayah, name, ayah);
     }
 
     String status() {
-        if (missing) return "Audio belum ada — sambungkan internet untuk mengunduh";
-        if (buffering) return "Mengunduh audio…";
-        if (dlSurah > 0) {
-            String name = QuranData.loaded() ? QuranData.get(dlSurah).latin : "Surah " + dlSurah;
-            return "Mengunduh " + name + " " + dlDone + "/" + dlTotal;
-        }
-        return mode == MODE_CONTINUE && stopAfter == 0 ? RECITER : RECITER + " · " + modeLabel();
+        Context r = res(this);
+        if (missing) return r.getString(R.string.quran_n_missing);
+        if (buffering) return r.getString(R.string.quran_n_buffering);
+        if (dlSurah > 0) return r.getString(R.string.quran_n_downloading, surahName(dlSurah), dlDone, dlTotal);
+        return mode == MODE_CONTINUE && stopAfter == 0 ? RECITER : RECITER + " · " + modeLabel(this);
     }
 
     void publish() {
@@ -472,7 +494,7 @@ public class QuranService extends Service
         session.setMetadata(new MediaMetadata.Builder()
                 .putString(MediaMetadata.METADATA_KEY_TITLE, title())
                 .putString(MediaMetadata.METADATA_KEY_ARTIST, RECITER)
-                .putString(MediaMetadata.METADATA_KEY_ALBUM, "Al-Qur'an")
+                .putString(MediaMetadata.METADATA_KEY_ALBUM, res(this).getString(R.string.app_quran))
                 .build());
         nm.notify(1, notification());
         if (!playing) stopForeground(false);
@@ -482,16 +504,18 @@ public class QuranService extends Service
     Notification notification() {
         PendingIntent open = PendingIntent.getActivity(this, 0,
                 new Intent(this, QuranActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
-        return Compat.notification(this, CHANNEL, getString(R.string.channel_quran))
+        Context r = res(this);
+        return Compat.notification(this, CHANNEL, r.getString(R.string.channel_quran))
                 .setSmallIcon(R.drawable.ic_quran)
                 .setContentTitle(title())
                 .setContentText(status())
                 .setContentIntent(open)
                 .setOngoing(playing)
                 .setShowWhen(false)
-                .addAction(new Notification.Action.Builder(null, "Sebelumnya", pi(ACTION_PREV, 1)).build())
-                .addAction(new Notification.Action.Builder(null, playing ? "Jeda" : "Putar", pi(ACTION_TOGGLE, 2)).build())
-                .addAction(new Notification.Action.Builder(null, "Berikutnya", pi(ACTION_NEXT, 3)).build())
+                .addAction(new Notification.Action.Builder(null, r.getString(R.string.quran_n_prev), pi(ACTION_PREV, 1)).build())
+                .addAction(new Notification.Action.Builder(null,
+                        r.getString(playing ? R.string.quran_n_pause : R.string.quran_n_play), pi(ACTION_TOGGLE, 2)).build())
+                .addAction(new Notification.Action.Builder(null, r.getString(R.string.quran_n_next), pi(ACTION_NEXT, 3)).build())
                 .setStyle(new Notification.MediaStyle()
                         .setMediaSession(session.getSessionToken())
                         .setShowActionsInCompactView(0, 1, 2))

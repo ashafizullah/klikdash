@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quran_title">QURAN</string>
+    <string name="quran_subtitle">114 SURAHS  ·  OFFLINE</string>
+    <string name="quran_loading">LOADING QURAN…</string>
+    <string name="quran_load_failed">COULDN\'T LOAD THE QURAN</string>
+    <string name="quran_missing_title">QURAN TEXT NOT DOWNLOADED YET</string>
+    <string name="quran_missing_desc">Download once: the standard mushaf with transliteration (about 6 MB, equran.id) and the English translation (Saheeh International, about 1 MB, alquran.cloud). After that it works offline. Recitation audio is downloaded per surah when played.</string>
+    <string name="quran_download_text">DOWNLOAD</string>
+    <string name="quran_downloading">DOWNLOADING QURAN  %1$d / %2$d</string>
+    <string name="quran_download_failed">DOWNLOAD FAILED</string>
+    <string name="quran_check_internet">Check the headunit\'s internet connection, then try again.</string>
+    <string name="quran_retry">TRY AGAIN</string>
+    <string name="quran_not_now">NOT NOW</string>
+
+    <string name="quran_en_title">TRANSLATION NOT DOWNLOADED YET</string>
+    <string name="quran_en_desc">Download the English translation once (Saheeh International, about 1 MB from alquran.cloud). After that it works offline.</string>
+    <string name="quran_en_download">DOWNLOAD TRANSLATION</string>
+    <string name="quran_en_downloading">DOWNLOADING TRANSLATION  %1$d / %2$d</string>
+
+    <string name="quran_chip_download">DOWNLOAD</string>
+    <string name="quran_chip_latin">LATIN</string>
+    <string name="quran_chip_translation">TRANSLATION</string>
+    <string name="quran_offline">OFFLINE</string>
+    <string name="quran_surah_no">SURAH %1$03d</string>
+    <plurals name="quran_ayat_count">
+        <item quantity="one">%d VERSE</item>
+        <item quantity="other">%d VERSES</item>
+    </plurals>
+    <string name="quran_last">LAST: %1$s  ·  %2$d</string>
+    <string name="quran_audio_missing">NO AUDIO YET  ·  CONNECT TO THE INTERNET TO DOWNLOAD</string>
+    <string name="quran_audio_buffering">DOWNLOADING AUDIO…</string>
+    <string name="quran_now_playing">%1$s  ·  VERSE %2$d / %3$d</string>
+    <string name="quran_reading">▶ PLAYING</string>
+
+    <string name="quran_mode_title">Recitation playback</string>
+    <string name="quran_mode_done">Done</string>
+    <string name="quran_after">WHEN FINISHED</string>
+    <string name="quran_mode_continue">CONTINUE</string>
+    <string name="quran_mode_repeat_ayah">REPEAT VERSE</string>
+    <string name="quran_mode_repeat_surah">REPEAT SURAH</string>
+    <string name="quran_times">HOW MANY TIMES</string>
+    <string name="quran_forever">FOREVER</string>
+    <string name="quran_stop_after">STOP AFTER</string>
+    <string name="quran_stop_never">NEVER</string>
+    <string name="quran_this_surah">THIS SURAH</string>
+    <string name="quran_until">UNTIL %1$s</string>
+    <string name="quran_pick_surah">CHOOSE SURAH…</string>
+    <string name="quran_stop_title">Stop after surah</string>
+    <string name="quran_hint_end_stop">stopping after %1$s.</string>
+    <string name="quran_hint_end_all">all the way to An-Nas.</string>
+    <string name="quran_hint_ayah_forever">The same verse repeats until you change it.</string>
+    <string name="quran_hint_surah_forever">The same surah repeats until you change it.</string>
+    <plurals name="quran_hint_ayah_times">
+        <item quantity="one">Each verse plays %1$d time, then moves on to the next verse; %2$s</item>
+        <item quantity="other">Each verse plays %1$d times, then moves on to the next verse; %2$s</item>
+    </plurals>
+    <plurals name="quran_hint_surah_times">
+        <item quantity="one">Each surah plays %1$d time, then moves on to the next surah; %2$s</item>
+        <item quantity="other">Each surah plays %1$d times, then moves on to the next surah; %2$s</item>
+    </plurals>
+    <string name="quran_hint_continue">Automatically continues to the next verse and surah, %1$s</string>
+
+    <string name="quran_label_continue_to">CONTINUE → %1$s</string>
+    <string name="quran_label_repeat_ayah">REPEAT VERSE %1$s</string>
+    <string name="quran_label_repeat_surah">REPEAT SURAH %1$s</string>
+
+    <string name="quran_n_prev">Previous</string>
+    <string name="quran_n_pause">Pause</string>
+    <string name="quran_n_play">Play</string>
+    <string name="quran_n_next">Next</string>
+    <string name="quran_n_basmalah">%1$s · Basmalah</string>
+    <string name="quran_n_ayah">%1$s · Verse %2$d</string>
+    <string name="quran_n_missing">No audio yet — connect to the internet to download</string>
+    <string name="quran_n_buffering">Downloading audio…</string>
+    <string name="quran_n_downloading">Downloading %1$s %2$d/%3$d</string>
+
+    <string name="quran_err_count">Verse count of surah %1$d does not match</string>
+    <string name="quran_err_save">Couldn\'t save the text</string>
+</resources>

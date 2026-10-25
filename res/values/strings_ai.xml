@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Teks layar asisten AI (tab Asisten AI di Pengaturan, layar TANYA): mengikuti bahasa antarmuka. -->
+<resources>
+    <!-- Pengaturan › Asisten AI -->
+    <string name="ai_profiles_title">PROFIL AI</string>
+    <string name="ai_profiles_empty">Belum ada profil. Tambahkan API key Claude (console.anthropic.com) atau layanan OpenAI-compatible seperti OpenAI, OpenRouter, Groq, atau server lokal.</string>
+    <string name="ai_profiles_desc">Ketuk PAKAI untuk memilih profil yang dipakai pintasan TANYA. API key disimpan terenkripsi di headunit ini dan hanya dikirim ke alamat profilnya.</string>
+    <string name="ai_model_unset">model belum diisi</string>
+    <string name="ai_test">UJI</string>
+    <string name="ai_testing">MENGUJI…</string>
+    <string name="ai_active">AKTIF</string>
+    <string name="ai_use">PAKAI</string>
+    <string name="ai_edit">UBAH</string>
+    <string name="ai_off">MATI</string>
+    <string name="ai_empty">kosong</string>
+    <string name="ai_connected">Tersambung</string>
+
+    <string name="ai_web_title">PENCARIAN WEB</string>
+    <string name="ai_web_intro">TANYA mencari info terkini (berita, harga, cuaca, jadwal) bila perlu.</string>
+    <string name="ai_web_anthropic">profil Claude resmi mencari lewat pencarian Anthropic, ditagih ke akun Claude ($10 per 1.000 pencarian); profil lain tanpa pencarian.</string>
+    <string name="ai_web_no_key">Isi API key TinyFish (gratis, buat di agent.tinyfish.ai) supaya semua profil mencari lewat TinyFish. Tanpa TinyFish, %1$s</string>
+    <string name="ai_web_on">Semua profil mencari lewat TinyFish (gratis), key %1$s.</string>
+    <string name="ai_web_off">TinyFish dimatikan: %1$s</string>
+
+    <string name="ai_lang_title">BAHASA ASISTEN</string>
+    <string name="ai_lang_desc">Bahasa yang didengar dan diucapkan TANYA, terpisah dari bahasa tampilan.</string>
+    <string name="ai_lang_voice_hint">Suara %1$s berlogat Indonesia: pilih suara lain di SUARA ELEVENLABS.</string>
+
+    <string name="ai_el_title">SUARA ELEVENLABS</string>
+    <string name="ai_el_unset">Belum diatur.</string>
+    <string name="ai_el_state">Key %1$s · suara %2$s · %3$s.</string>
+    <string name="ai_voice_unpicked">belum dipilih</string>
+    <string name="ai_el_desc">Dipakai untuk suara jawaban dan untuk mendengar perintah bila headunit tidak punya pengenal suara Android.</string>
+    <string name="ai_voice">SUARA</string>
+
+    <string name="ai_tts_title">SUARA JAWABAN</string>
+    <string name="ai_tts_android">Suara Android memakai %1$s.</string>
+    <string name="ai_tts_missing">Suara Android butuh aplikasi Speech Services by Google (gratis, bisa offline), yang belum terpasang di headunit ini: ketuk PASANG untuk memasangnya dari Play Store.</string>
+    <string name="ai_tts_need_el">Isi API key ElevenLabs di atas untuk bisa memilih suara ElevenLabs.</string>
+    <string name="ai_tts_el">ElevenLabs butuh internet dan memakai kuota akun ElevenLabs; bila gagal, otomatis memakai suara Android.</string>
+    <string name="ai_tts_el_only">ElevenLabs butuh internet dan memakai kuota akun ElevenLabs.</string>
+    <string name="ai_install">PASANG</string>
+    <string name="ai_listen">DENGAR</string>
+
+    <string name="ai_stt_title">PENGENALAN SUARA</string>
+    <string name="ai_stt_android">Pengenal suara Android memakai %1$s.</string>
+    <string name="ai_stt_builtin">layanan bawaan headunit</string>
+    <string name="ai_stt_missing">Pengenal suara Android butuh aplikasi Google (gratis), yang belum terpasang di headunit ini: ketuk PASANG untuk memasangnya dari Play Store.</string>
+    <string name="ai_stt_need_el">Isi API key ElevenLabs di atas untuk bisa memilih ElevenLabs Scribe.</string>
+    <string name="ai_stt_el">ElevenLabs Scribe mentranskripsi rekaman ucapan Anda dan memakai kuota akun ElevenLabs; bila pengenal Android gagal, rekaman dikirim ke ElevenLabs.</string>
+    <string name="ai_stt_el_only">ElevenLabs Scribe mentranskripsi rekaman ucapan Anda dan memakai kuota akun ElevenLabs.</string>
+
+    <string name="ai_need_el_first">Isi API key &amp; voice ID ElevenLabs dulu</string>
+    <string name="ai_key_missing">API key belum diisi</string>
+
+    <string name="ai_field_name_hint">Nama profil</string>
+    <string name="ai_field_model_hint">mis. gpt-5.1 atau openai/gpt-5.1</string>
+    <string name="ai_field_key_hint">Tempel API key</string>
+    <string name="ai_field_keep">Kosongkan = tetap %1$s</string>
+    <string name="ai_label_name">NAMA</string>
+    <string name="ai_pick_model">PILIH MODEL</string>
+    <string name="ai_new_claude">Profil Claude baru</string>
+    <string name="ai_new_openai">Profil OpenAI-compatible baru</string>
+    <string name="ai_edit_profile">Ubah profil</string>
+    <string name="ai_url_https">Base URL harus diawali https://</string>
+    <string name="ai_need_model">Isi nama model</string>
+    <string name="ai_need_key">Isi API key</string>
+    <string name="ai_need_key_first">Isi API key dulu</string>
+    <string name="ai_no_models">Daftar model tidak tersedia; ketik nama model</string>
+    <string name="ai_choose_model">Pilih model</string>
+    <string name="ai_delete_confirm">Hapus profil %1$s beserta API key-nya dari headunit ini?</string>
+    <string name="ai_delete_key">Hapus key</string>
+    <string name="ai_tf_hint">Tempel API key TinyFish</string>
+    <string name="ai_tf_title">API key TinyFish</string>
+    <string name="ai_el_hint">Tempel API key ElevenLabs</string>
+    <string name="ai_el_key_title">API key ElevenLabs</string>
+    <string name="ai_el_model_title">Model suara ElevenLabs</string>
+    <!-- Urutan sama dengan AiStore.EL_MODELS -->
+    <string-array name="ai_el_model_desc">
+        <item>paling cepat, disarankan di mobil</item>
+        <item>cepat, sedikit lebih natural</item>
+        <item>paling ekspresif, lebih lambat</item>
+    </string-array>
+    <string name="ai_el_need_key">Isi API key ElevenLabs dulu</string>
+    <string name="ai_loading_voices">Mengambil daftar suara…</string>
+    <string name="ai_voices_failed">Daftar suara tidak bisa diambil</string>
+    <string name="ai_voice_lang_id">Indonesia</string>
+    <string name="ai_voice_lang_en">Inggris</string>
+    <string name="ai_voice_mine">Di akun</string>
+    <string name="ai_male">pria</string>
+    <string name="ai_female">wanita</string>
+    <string name="ai_recommended">disarankan</string>
+    <string name="ai_choose_voice">Pilih suara</string>
+
+    <!-- Error AI dan suara: ditampilkan dalam bahasa antarmuka, versi singkatnya diucapkan dalam bahasa asisten -->
+    <string name="ai_err_key">API key ditolak</string>
+    <string name="ai_err_limit">Batas pemakaian tercapai</string>
+    <string name="ai_err_server">Server AI sedang bermasalah</string>
+    <string name="ai_err_http">Permintaan ditolak (HTTP %1$d)</string>
+    <string name="ai_err_empty">Jawaban kosong dari server</string>
+    <string name="ai_err_timeout">Server AI terlalu lama menjawab, coba lagi</string>
+    <string name="ai_err_offline">Tidak ada koneksi internet</string>
+    <string name="ai_err_generic">Terjadi kesalahan</string>
+    <string name="ai_err_no_stt">Pengenal suara Android tidak tersedia. Isi API key ElevenLabs di Pengaturan.</string>
+    <string name="ai_err_mic">Mikrofon tidak bisa dipakai</string>
+    <string name="ai_err_record">Rekaman gagal</string>
+    <string name="ai_err_silent">Tidak terdengar suara</string>
+    <string name="ai_err_unclear">Tidak terdengar jelas</string>
+    <string name="ai_err_transcribe">Transkripsi gagal</string>
+
+    <!-- Layar TANYA -->
+    <string name="ask_title">TANYA</string>
+    <string name="ask_close">"TUTUP  ✕"</string>
+    <string name="ask_again">TANYA LAGI</string>
+    <string name="ask_setup">ATUR AI</string>
+    <string name="ask_no_profile">BELUM ADA PROFIL AI</string>
+    <string name="ask_no_profile_hint">TANYA butuh profil AI. Ketuk ATUR AI, lalu tambahkan API key Claude atau OpenAI-compatible.</string>
+    <string name="ask_mic_denied">IZIN MIKROFON DITOLAK</string>
+    <string name="ask_info_voice">SUARA</string>
+    <string name="ask_info_listen">DENGAR</string>
+    <string name="ask_info_search">CARI</string>
+    <string name="ask_listening">MENDENGARKAN…</string>
+    <string name="ask_recognizing">MENGENALI SUARA…</string>
+    <string name="ask_processing">MEMPROSES…</string>
+    <string name="ask_answering">MENJAWAB</string>
+    <string name="ask_failed">GAGAL</string>
+    <string name="ask_done">SELESAI</string>
+    <string name="ask_heard">TERDENGAR</string>
+    <string name="ask_not_heard">TIDAK TERDENGAR</string>
+    <string name="ask_not_heard_hint">Ketuk mikrofon lalu ucapkan perintah, misalnya “%1$s”.</string>
+    <string name="ask_stt_failed">PENGENAL SUARA GAGAL</string>
+    <string name="ask_stt_error">Pengenal suara Android error %1$d. Isi API key ElevenLabs di Pengaturan › Asisten AI sebagai cadangan.</string>
+    <string name="ask_mic">Mikrofon</string>
+    <string name="ask_tap_setup">KETUK UNTUK MENGATUR</string>
+    <string name="ask_tap_finish">KETUK UNTUK SELESAI</string>
+    <string name="ask_tap_talk">KETUK UNTUK BICARA</string>
+</resources>

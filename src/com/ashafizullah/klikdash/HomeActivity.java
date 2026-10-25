@@ -82,6 +82,12 @@ public class HomeActivity extends Activity {
     };
     static final int SLOTS = DEFAULTS.length;
     /**
+     * Teks tampilan label bawaan (indeks sama dengan DEFAULTS; 0 = sama di semua bahasa). Prefs l0..l10 tetap menyimpan
+     * label Indonesia sebagai kunci (ikut berpindah saat ubin ditukar), dan baru diterjemahkan saat digambar.
+     */
+    static final int[] DEFAULT_TEXT = {0, 0, 0, 0, R.string.home_tile_phone, 0, R.string.home_tile_dzikir,
+            R.string.home_tile_quran, R.string.home_tile_camera, R.string.home_tile_system, R.string.home_tile_ask};
+    /**
      * Pilihan jumlah ubin home (slot + ubin "Semua"), diatur di Pengaturan. Lebih sedikit = ubin, ikon, dan tulisan
      * lebih besar. Slot yang tidak tampil tetap tersimpan dan muncul lagi bila jumlahnya ditambah.
      */
@@ -181,7 +187,11 @@ public class HomeActivity extends Activity {
     }
 
     /** Panel kiri sempit (headunit 800/1024 px): label pendek supaya baris status tidak terpotong. */
-    String diskLabel = "PENYIMPANAN";
+    String diskLabel;
+    /** Teks yang digambar tiap frame (ubin, panel sholat): diambil sekali saat home dibangun, bukan getString tiap onDraw. */
+    String tAll, tApps, tMorning, tEvening, tAssistant, tEmpty, tTapToFill, tNextIn, tApprox;
+    /** Label tersimpan (kunci Indonesia, lihat DEFAULT_TEXT) → teks dalam bahasa antarmuka. */
+    final Map<String, String> defaultText = new HashMap<>();
 
     /** RAM dan (bila {@code withDisk}) penyimpanan internal yang terpakai, dalam persen; peringatan di atas 85% dan 90%. */
     void updateMemory(boolean withDisk) {
@@ -194,7 +204,7 @@ public class HomeActivity extends Activity {
         } catch (Exception ignored) { }
         if (total > 0 && avail >= 0) {
             int p = (int) Math.round(100.0 * (total - avail) / total);
-            show(ram, "RAM " + p + "%", p >= 85 ? WARN : DIM);
+            show(ram, getString(R.string.home_ram, p), p >= 85 ? WARN : DIM);
         } else {
             show(ram, "", DIM);
         }
@@ -238,7 +248,7 @@ public class HomeActivity extends Activity {
             return;
         }
         if (c > 1000) c = Math.round(c / 1000f); // sensor melaporkan mili-derajat
-        show(temp, c >= 85 ? "CPU " + c + "°C · PANAS" : "CPU " + c + "°C", c >= 85 ? HOT : c >= 70 ? WARN : DIM);
+        show(temp, getString(c >= 85 ? R.string.home_cpu_hot : R.string.home_cpu, c), c >= 85 ? HOT : c >= 70 ? WARN : DIM);
     }
     Gauge gauge;
     PrayerView prayerView;
@@ -293,6 +303,17 @@ public class HomeActivity extends Activity {
 
         // Ikon dibuat monokrom dalam warna tema; warna asli muncul saat ditekan.
         mono = Theme.iconFilter();
+
+        tAll = getString(R.string.home_tile_all);
+        tApps = getString(R.string.home_tile_apps);
+        tMorning = getString(R.string.home_tile_morning);
+        tEvening = getString(R.string.home_tile_evening);
+        tAssistant = getString(R.string.home_tile_assistant);
+        tEmpty = getString(R.string.home_tile_empty);
+        tTapToFill = getString(R.string.home_tile_tap_to_fill);
+        tNextIn = getString(R.string.home_prayer_next_in);
+        tApprox = getString(R.string.home_location_approx);
+        for (int i = 0; i < SLOTS; i++) if (DEFAULT_TEXT[i] != 0) defaultText.put(DEFAULTS[i][1], getString(DEFAULT_TEXT[i]));
 
         loadSlots();
         loadLocation();
@@ -418,8 +439,9 @@ public class HomeActivity extends Activity {
         android.icu.util.IslamicCalendar c = new android.icu.util.IslamicCalendar();
         c.setCalculationType(android.icu.util.IslamicCalendar.CalculationType.ISLAMIC_UMALQURA);
         c.setTimeInMillis(now + offsetDays * 86_400_000L);
+        // Statis (dipakai juga Pengaturan tanpa home): akhiran tahun dari bahasa, bukan resource.
         return c.get(android.icu.util.Calendar.DAY_OF_MONTH) + " " + Lang.hijriMonths[c.get(android.icu.util.Calendar.MONTH)]
-                + " " + c.get(android.icu.util.Calendar.YEAR) + " H";
+                + " " + c.get(android.icu.util.Calendar.YEAR) + (Lang.en() ? " AH" : " H");
     }
 
     /** Sebelum Ashar = dzikir pagi, sejak Ashar = dzikir petang. */
@@ -653,6 +675,12 @@ public class HomeActivity extends Activity {
         }
     }
 
+    /** Label tersimpan untuk ditampilkan: label bawaan diterjemahkan (lihat DEFAULT_TEXT), selain itu apa adanya. */
+    String labelText(String label) {
+        String t = defaultText.get(label);
+        return t != null ? t : label;
+    }
+
     /** {@code label} null: pakai nama aplikasi. */
     void saveSlot(int i, ComponentName cn, String label) {
         slotCn[i] = cn;
@@ -724,8 +752,9 @@ public class HomeActivity extends Activity {
             if (HomeActivity.class.getName().equals(r.activityInfo.name)) continue;
             App a = new App();
             a.cn = new ComponentName(r.activityInfo.packageName, r.activityInfo.name);
-            a.label = String.valueOf(r.loadLabel(pm)).trim();
-            a.upper = a.label.toUpperCase(ID);
+            int own = ownLabel(r.activityInfo.name);
+            a.label = own != 0 ? getString(own) : String.valueOf(r.loadLabel(pm)).trim();
+            a.upper = a.label.toUpperCase(Lang.locale());
             Drawable d = DzikirActivity.class.getName().equals(r.activityInfo.name)
                     ? getDrawable(R.drawable.ic_dzikir_tile).mutate() : r.loadIcon(pm).mutate();
             a.bmp = render(d, iconPx);
@@ -734,6 +763,18 @@ public class HomeActivity extends Activity {
         }
         Collections.sort(list, (x, y) -> x.label.compareToIgnoreCase(y.label));
         return list;
+    }
+
+    /**
+     * Label aktivitas KlikDash sendiri dari resource: loadLabel mengikuti bahasa sistem, bukan bahasa yang dipilih di
+     * Pengaturan. 0 untuk aplikasi lain.
+     */
+    static int ownLabel(String activity) {
+        if (QuranActivity.class.getName().equals(activity)) return R.string.app_quran;
+        if (DzikirActivity.class.getName().equals(activity)) return R.string.app_dzikir;
+        if (AskActivity.class.getName().equals(activity)) return R.string.app_ask;
+        if (SettingsActivity.class.getName().equals(activity)) return R.string.app_settings;
+        return 0;
     }
 
     static Bitmap render(Drawable d, int size) {
@@ -793,7 +834,7 @@ public class HomeActivity extends Activity {
             try {
                 if (li != null) { startActivity(li); return; }
             } catch (Exception ignored) { }
-            Notice.fail(this, "Tidak bisa membuka aplikasi");
+            Notice.fail(this, getString(R.string.home_cannot_open));
         }
     }
 
@@ -913,7 +954,8 @@ public class HomeActivity extends Activity {
         if (prayerView != null) prayerView.invalidate();
         show(clock, two(now.get(Calendar.HOUR_OF_DAY)) + ":" + two(now.get(Calendar.MINUTE)));
         show(day, Lang.days[now.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY]);
-        show(date, now.get(Calendar.DAY_OF_MONTH) + " " + Lang.months[now.get(Calendar.MONTH)] + " " + now.get(Calendar.YEAR));
+        show(date, getString(R.string.home_date, now.get(Calendar.DAY_OF_MONTH), Lang.months[now.get(Calendar.MONTH)],
+                now.get(Calendar.YEAR)));
         show(hijri, hijriText(now.getTimeInMillis()));
         gauge.invalidate();
         int dz = dzikirPagi() ? 1 : 0; // ubin Dzikir berganti PAGI → PETANG saat Ashar, walau home terus tampil
@@ -1007,14 +1049,14 @@ public class HomeActivity extends Activity {
         // Pengaturan KlikDash (tampilan, Hemat Daya, asisten AI). Kotak sentuh 48dp walau ikonnya kecil.
         TextView gear = text("⚙", fMonoBold, 18, DIM);
         gear.setGravity(Gravity.CENTER);
-        gear.setContentDescription("Pengaturan KlikDash");
+        gear.setContentDescription(getString(R.string.app_settings));
         gear.setOnClickListener(v -> openSettings());
         top.addView(gear, new LinearLayout.LayoutParams(px(48), px(48)));
         top.setGravity(Gravity.CENTER_VERTICAL);
         left.addView(top);
 
         // Kondisi headunit: suhu CPU, RAM, dan penyimpanan terpakai (diperbarui tiap 5 detik, lihat tempTick).
-        diskLabel = leftDp < 380 ? "DISK" : "PENYIMPANAN";
+        diskLabel = getString(leftDp < 380 ? R.string.home_disk_short : R.string.home_disk);
         LinearLayout stats = new LinearLayout(this);
         stats.setOrientation(LinearLayout.HORIZONTAL);
         temp = text("", fMonoBold, 11, DIM);
@@ -1029,7 +1071,7 @@ public class HomeActivity extends Activity {
         left.addView(stats);
 
         // Muncul hanya bila KlikDash belum jadi tampilan utama (lihat refreshDefaultHome).
-        makeDefault = new Button("JADIKAN TAMPILAN UTAMA", true);
+        makeDefault = new Button(getString(R.string.home_make_default), true);
         makeDefault.setOnClickListener(v -> HomeSwitch.makeDefault(this, prefs, this::refreshDefaultHome));
         makeDefault.setVisibility(View.GONE);
         LinearLayout.LayoutParams ml = new LinearLayout.LayoutParams(MATCH, px(48));
@@ -1052,7 +1094,7 @@ public class HomeActivity extends Activity {
         // WRAP, bukan bawaan MATCH_PARENT: hanya lebar WRAP yang diukur ulang saat angkanya berubah. Dengan MATCH_PARENT
         // lebarnya tetap selebar "0" atau "--" saat pertama tampil, sehingga angka 2–3 digit terpotong di kanan.
         speedBox.addView(speed, new LinearLayout.LayoutParams(WRAP, WRAP));
-        TextView unit = text("KM/H", fMono, 10 * k, DIM);
+        TextView unit = text(getString(R.string.home_speed_unit), fMono, 10 * k, DIM);
         unit.setLetterSpacing(0.25f);
         LinearLayout.LayoutParams ul = new LinearLayout.LayoutParams(WRAP, WRAP);
         ul.topMargin = px(4);
@@ -1141,12 +1183,13 @@ public class HomeActivity extends Activity {
         head.setGravity(Gravity.CENTER_VERTICAL);
 
         boolean narrow = wDp < 1000;
-        drawerTitle = text("SEMUA APLIKASI", fHeavy, narrow ? 30 : 40, TEXT);
+        drawerTitle = text(getString(R.string.home_all_apps), fHeavy, narrow ? 30 : 40, TEXT);
         head.addView(drawerTitle);
         drawerCount = text("", fMono, 13, AMBER);
         drawerCount.setLetterSpacing(0.2f);
         // Selebar teks terpanjang, supaya kolom cari tidak bergeser saat hitungannya berubah ("36 APLIKASI" ↔ "4 DARI 36").
-        drawerCount.setMinWidth(Math.round(drawerCount.getPaint().measureText("000 APLIKASI")));
+        drawerCount.setMinWidth(Math.round(drawerCount.getPaint().measureText(
+                getResources().getQuantityString(R.plurals.home_app_count, 100, 100))));
         LinearLayout.LayoutParams cl = new LinearLayout.LayoutParams(WRAP, WRAP);
         cl.leftMargin = px(20);
         head.addView(drawerCount, cl);
@@ -1154,7 +1197,7 @@ public class HomeActivity extends Activity {
 
         // Cari aplikasi: menyaring sambil mengetik. Keyboard hanya muncul bila kolomnya diketuk.
         search = new android.widget.EditText(this);
-        search.setHint(narrow ? "CARI" : "CARI APLIKASI");
+        search.setHint(getString(narrow ? R.string.home_search_short : R.string.home_search));
         search.setSingleLine(true);
         search.setTypeface(fMonoBold);
         search.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
@@ -1188,13 +1231,13 @@ public class HomeActivity extends Activity {
         sl.rightMargin = px(12);
         head.addView(search, sl);
 
-        Button settings = new Button(wDp < 900 ? "⚙" : "⚙  PENGATURAN", false);
+        Button settings = new Button(wDp < 900 ? "⚙" : getString(R.string.home_settings_button), false);
         settings.setOnClickListener(v -> openSettings());
         LinearLayout.LayoutParams stl = new LinearLayout.LayoutParams(WRAP, px(56));
         stl.rightMargin = px(12);
         head.addView(settings, stl);
 
-        Button close = new Button(wDp < 900 ? "✕" : "TUTUP  ✕", false);
+        Button close = new Button(wDp < 900 ? "✕" : getString(R.string.home_close_button), false);
         close.setOnClickListener(v -> closeDrawer());
         head.addView(close, new LinearLayout.LayoutParams(WRAP, px(56)));
         d.addView(head, new LinearLayout.LayoutParams(MATCH, px(64)));
@@ -1239,15 +1282,16 @@ public class HomeActivity extends Activity {
 
     /** Saring laci dengan teks pencarian (nama aplikasi yang tampil), tanpa memuat ulang ikon. */
     void filterApps() {
-        String q = search != null ? search.getText().toString().trim().toLowerCase(ID) : "";
+        String q = search != null ? search.getText().toString().trim().toLowerCase(Lang.locale()) : "";
         shownApps.clear();
         for (App a : apps) {
-            if (q.isEmpty() || a.label.toLowerCase(ID).contains(q)) shownApps.add(a);
+            if (q.isEmpty() || a.label.toLowerCase(Lang.locale()).contains(q)) shownApps.add(a);
         }
         adapter.notifyDataSetChanged();
-        drawerCount.setText(q.isEmpty() ? apps.size() + " APLIKASI" : shownApps.size() + " DARI " + apps.size());
-        noApps.setText(!appsReady ? "MEMUAT DAFTAR APLIKASI…" : q.isEmpty() ? "TIDAK ADA APLIKASI"
-                : "TIDAK ADA APLIKASI “" + search.getText().toString().trim().toUpperCase(ID) + "”");
+        drawerCount.setText(q.isEmpty() ? getResources().getQuantityString(R.plurals.home_app_count, apps.size(), apps.size())
+                : getString(R.string.home_app_filtered, shownApps.size(), apps.size()));
+        noApps.setText(!appsReady ? getString(R.string.home_apps_loading) : q.isEmpty() ? getString(R.string.home_no_apps)
+                : getString(R.string.home_no_apps_for, search.getText().toString().trim().toUpperCase(Lang.locale())));
     }
 
     void hideKeyboard() {
@@ -1259,8 +1303,8 @@ public class HomeActivity extends Activity {
     void openDrawer(int slot) {
         pickSlot = slot;
         drawerTitle.setText(slot >= 0
-                ? String.format(Locale.US, "PILIH UNTUK SLOT %02d", slot + 1)
-                : "SEMUA APLIKASI");
+                ? getString(R.string.home_pick_for_slot, slot + 1)
+                : getString(R.string.home_all_apps));
         search.setText(""); // juga menyaring ulang
         filterApps();
         grid.setSelection(0);
@@ -1464,23 +1508,23 @@ public class HomeActivity extends Activity {
                     c.drawRect(x, y, x + cell, y + cell, dot);
                     if (i == 4) dot.setColor(down ? INK : TEXT);
                 }
-                name = "SEMUA";
-                sub = "APLIKASI  →";
+                name = tAll;
+                sub = tApps;
             } else if (a != null) {
                 drawIcon(c, iconOf(a), w - m - icon, m, icon, down);
-                name = slotLabel[idx] != null ? slotLabel[idx] : a.upper;
+                name = slotLabel[idx] != null ? labelText(slotLabel[idx]) : a.upper;
                 if (DzikirActivity.class.getName().equals(a.cn.getClassName())) {
-                    sub = dzikirPagi() ? "PAGI" : "PETANG";
+                    sub = dzikirPagi() ? tMorning : tEvening;
                 }
-                if (AskActivity.class.getName().equals(a.cn.getClassName())) sub = "ASISTEN AI";
+                if (AskActivity.class.getName().equals(a.cn.getClassName())) sub = tAssistant;
                 if (QuranActivity.class.getName().equals(a.cn.getClassName()) && QuranService.playing) {
                     sub = String.format(Locale.US, "▶ %d : %d", QuranService.surah, QuranService.ayah);
                 }
             } else if (loading) {
-                name = slotLabel[idx] != null ? slotLabel[idx] : ""; // daftar aplikasi belum termuat, ikon menyusul
+                name = slotLabel[idx] != null ? labelText(slotLabel[idx]) : ""; // daftar aplikasi belum termuat, ikon menyusul
             } else {
-                name = slotLabel[idx] != null ? slotLabel[idx] : "KOSONG";
-                sub = "KETUK UNTUK ISI";
+                name = slotLabel[idx] != null ? labelText(slotLabel[idx]) : tEmpty;
+                sub = tTapToFill;
             }
 
             float base = h - m;
@@ -1711,13 +1755,13 @@ public class HomeActivity extends Activity {
             int target = next >= 0 ? pray[next] : 1440 + prayTomorrow[0];
             int left = (target - now) * 60 - cal.get(Calendar.SECOND); // detik tersisa
             String wait = String.format(Locale.US, "%02d:%02d:%02d", left / 3600, left / 60 % 60, left % 60);
-            String msg = "▸ " + Lang.prayers[next >= 0 ? next : 0] + " DALAM " + wait;
+            String msg = String.format(tNextIn, Lang.prayers[next >= 0 ? next : 0], wait);
             info.setColor(AMBER);
             info.setTextAlign(Paint.Align.LEFT);
             c.drawText(msg, 0, px(96 * k), info);
 
             String place = (city != null ? city : String.format(Locale.US, "%.2f, %.2f", lat, lon))
-                    + (locApprox ? " · PERKIRAAN" : "");
+                    + (locApprox ? tApprox : "");
             float avail = w - info.measureText(msg) - px(16);
             info.setColor(DIM);
             info.setTextAlign(Paint.Align.RIGHT);

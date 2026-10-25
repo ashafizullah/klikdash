@@ -19,7 +19,7 @@
   <br>
   <img src="https://img.shields.io/badge/idle%20CPU-~0%25-FFB000" alt="Idle CPU around 0%">
   <img src="https://img.shields.io/badge/offline-100%25-FFB000" alt="Fully offline">
-  <img src="https://img.shields.io/badge/UI-Indonesian-lightgrey" alt="Indonesian user interface">
+  <img src="https://img.shields.io/badge/UI-Indonesian%20%7C%20English-lightgrey" alt="Indonesian or English user interface">
 </p>
 
 <p align="center">
@@ -38,7 +38,8 @@
 ## About
 
 KlikDash replaces the headunit's stock launcher with a static instrument-panel home screen (~0–1% CPU,
-~30 MB RAM). Plain Java, no libraries. The app itself is in Indonesian. On the NWD K2401 it was built on, the
+~30 MB RAM). Plain Java, no libraries. The interface is in Indonesian or English (**⚙ › Launcher › BAHASA / LANGUAGE**), and the
+voice assistant has its own language setting. On the NWD K2401 it was built on, the
 stock launcher renders a 3D animation nonstop (~40% CPU).
 
 ## Features
@@ -165,6 +166,8 @@ behaves: see **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**.
   Literata (via Google Fonts). Literata is instanced and subset; its name and license are unchanged.
 - **Text, transliteration, and translation** (not included): [equran.id](https://equran.id), i.e. the
   Kemenag RI standard mushaf and translation. Rights and terms belong to their owners.
+- **English translation** (not included, downloaded on request): Saheeh International via
+  [alquran.cloud](https://alquran.cloud) (from [Tanzil](https://tanzil.net/trans/)). Rights belong to its owners.
 - **Audio** (not included): [everyayah.com](https://everyayah.com) / versebyversequran.com, Mishary Rashid
   Alafasy 128 kbps. Follow the license on that site.
 - **Prayer times:** the [praytimes.org](http://praytimes.org) algorithm.

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Teks untuk model dan ucapan asisten TANYA: mengikuti BAHASA ASISTEN (AiStore.lang), bukan bahasa antarmuka.
+  Selalu dibaca lewat AiStore.inLang(context).
+-->
+<resources>
+    <string name="as_system">Kamu asisten suara KlikDash di headunit mobil. Pengemudi sedang menyetir dan mendengarkan jawabanmu lewat speaker, jadi jawab dalam bahasa Indonesia, sangat singkat (paling banyak dua kalimat), tanpa markdown, daftar, atau emoji, dan jangan minta pengemudi melihat atau menyentuh layar. Untuk perintah mobil, panggil alat yang sesuai lalu konfirmasi singkat apa yang sudah dilakukan. Kalau permintaan tidak jelas, tanya balik dengan satu pertanyaan pendek. Sekarang %1$s. Aplikasi terpasang: %2$s.</string>
+    <string name="as_system_web">Untuk pertanyaan yang butuh info terbaru (berita, harga, cuaca, jadwal, skor), cari di web dulu, lalu jawab intinya saja tanpa membacakan alamat situs; sebut nama sumbernya bila perlu.</string>
+    <!-- SimpleDateFormat: teks di antara tanda kutip tunggal tidak diubah -->
+    <string name="as_now_pattern">EEEE d MMMM yyyy, HH:mm</string>
+    <string name="as_status_pattern">EEEE d MMMM yyyy, \'pukul\' HH:mm</string>
+
+    <!-- Deskripsi alat -->
+    <string name="as_tool_open_app">Buka aplikasi yang terpasang di headunit. Pakai nama persis dari daftar aplikasi di instruksi sistem.</string>
+    <string name="as_tool_navigate">Mulai navigasi ke tujuan (nama tempat atau alamat), misalnya \'masjid terdekat\' atau \'Alun-alun Kendal\'.</string>
+    <string name="as_tool_play_quran">Putar murattal Al-Qur\'an (Mishary Alafasy). Surah boleh nomor (1-114) atau nama Latin, misalnya \'Yasin\'. Bila ragu dengan nama Latinnya, kirim nomor surahnya.</string>
+    <string name="as_tool_media_control">Kendalikan audio yang sedang diputar (murattal, musik, radio).</string>
+    <string name="as_tool_set_volume">Atur volume media. Isi level 0-100, atau change naik/turun.</string>
+    <string name="as_tool_prayer_times">Jadwal sholat hari ini di lokasi mobil, dan waktu sholat berikutnya.</string>
+    <string name="as_tool_open_dzikir">Buka dzikir pagi atau petang.</string>
+    <string name="as_tool_restrict_background">Larang (restrict=true) atau izinkan (false) aplikasi berjalan di latar, untuk menghemat daya.</string>
+    <string name="as_tool_car_status">Status headunit: jam, tanggal Masehi &amp; Hijriah, kecepatan, suhu CPU, dan lokasi.</string>
+    <string name="as_tool_go_home">Kembali ke layar home KlikDash.</string>
+    <string name="as_tool_web_search">Cari informasi terkini di web: berita, harga, cuaca, jadwal, skor, info tempat atau acara. Pakai hanya bila jawabannya butuh info terbaru atau tidak kamu ketahui.</string>
+    <string name="as_param_app">Nama aplikasi</string>
+    <string name="as_param_period">Kosongkan untuk mengikuti waktu sekarang</string>
+    <string name="as_param_query">Kata kunci pencarian, singkat</string>
+
+    <!-- Hasil alat (dibaca model) -->
+    <string name="as_res_home">Kembali ke home.</string>
+    <string name="as_res_unknown_tool">Alat tidak dikenal: %1$s</string>
+    <string name="as_res_failed">Gagal: %1$s</string>
+    <string name="as_res_app_not_found">Aplikasi \'%1$s\' tidak ditemukan.</string>
+    <string name="as_res_opening">Membuka %1$s.</string>
+    <string name="as_res_no_nav">Tidak ada aplikasi navigasi.</string>
+    <string name="as_res_navigating">Navigasi ke %1$s dimulai.</string>
+    <string name="as_res_surah_not_found">Surah \'%1$s\' tidak ditemukan; minta nomor surahnya.</string>
+    <string name="as_res_playing">Memutar %1$s ayat %2$d.</string>
+    <string name="as_res_dzikir_pagi">Membuka dzikir pagi.</string>
+    <string name="as_res_dzikir_petang">Membuka dzikir petang.</string>
+    <string name="as_res_protected">%1$s dilindungi agar navigasi/CarPlay tetap jalan.</string>
+    <string name="as_res_restricted">%1$s dilarang jalan di latar.</string>
+    <string name="as_res_allowed">%1$s boleh jalan di latar lagi.</string>
+    <string name="as_res_gps">lokasi GPS</string>
+    <string name="as_res_schedule">Jadwal di %1$s:</string>
+    <string name="as_res_next">Berikutnya %1$s dalam %2$s.</string>
+    <string name="as_res_next_tomorrow">Berikutnya %1$s besok.</string>
+    <plurals name="as_hours">
+        <item quantity="other">%d jam</item>
+    </plurals>
+    <plurals name="as_minutes">
+        <item quantity="other">%d menit</item>
+    </plurals>
+    <string name="as_res_hijri">Hijriah %1$d %2$s %3$d H</string>
+    <string name="as_res_speed">Kecepatan %1$d km/jam</string>
+    <string name="as_res_cpu">Suhu CPU %1$d°C</string>
+    <string name="as_res_location">Lokasi %1$s.</string>
+    <string name="as_search_empty">Kata kunci kosong.</string>
+    <string name="as_search_unset">Pencarian web belum diatur: isi API key TinyFish di Pengaturan › Asisten AI.</string>
+    <string name="as_search_key">Pencarian gagal: API key TinyFish ditolak.</string>
+    <string name="as_search_http">Pencarian gagal (HTTP %1$d).</string>
+    <string name="as_search_none">Tidak ada hasil untuk \"%1$s\".</string>
+    <string name="as_search_results">Hasil pencarian \"%1$s\":</string>
+
+    <!-- Ucapan asisten -->
+    <string name="as_done">Sudah.</string>
+    <string name="as_sorry">Maaf, %1$s.</string>
+    <string name="as_refusal">Maaf, permintaan itu tidak bisa saya proses.</string>
+    <string name="as_too_many_steps">Maaf, terlalu banyak langkah. Coba ulangi dengan lebih singkat.</string>
+    <string name="as_test_say">Halo, saya asisten KlikDash. Mau ke mana kita hari ini?</string>
+    <string name="as_test_prompt">Tes koneksi. Jawab satu kalimat singkat bahwa kamu siap, tanpa memakai alat.</string>
+    <string name="as_warm">Siap.</string>
+    <string name="as_example">navigasi ke SPBU terdekat</string>
+</resources>

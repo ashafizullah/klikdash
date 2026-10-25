@@ -116,6 +116,24 @@ The script also cleans the text:
 - It attaches waqf marks to the preceding word.
 - It strips control characters.
 
+The English translation (Saheeh International, from alquran.cloud) is downloaded separately into
+`quran-en.txt` when the interface is in English. To embed it in a developer build (never in a release):
+
+```bash
+python3 -I tools/build_quran.py --en assets/quran-en.txt
+```
+
+## Translations
+
+The interface is in Indonesian (`res/values/strings_*.xml`, the default) and English
+(`res/values-en/strings_*.xml`), chosen in **⚙ › Launcher › BAHASA** and not from the system language (`Lang.java`).
+- Every new piece of UI text goes into **both** folders under the same name. Use positional arguments
+  (`%1$s`) and `<plurals>` for counts. Never compare or save displayed text: keep a separate key.
+- Activities and `QuranService` wrap their context in `attachBaseContext`. Receivers and the application context
+  call `Lang.wrap(c)` before `getString`.
+- The voice assistant has its own language (`AiStore`, **⚙ › Asisten AI**). Its prompts and spoken replies are in
+  `strings_assistant.xml` and are read with `Lang.wrap(c, AiStore.lang(c))`.
+
 ## Firmware-specific behaviour
 
 - **Default launcher.** The NWD firmware ignores Android's home choice and uses

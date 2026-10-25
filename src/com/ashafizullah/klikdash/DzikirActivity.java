@@ -48,11 +48,13 @@ import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 
 /**
  * Dzikir pagi & petang dengan penghitung berpanduan. Data dari assets/dzikir.json, dibangun dari KlikBand
- * (tools/build_dzikir.mjs): urutan & jumlah dari Almanhaj, Latin mengikuti Hisnul Muslim, ayat dari Tanzil.
+ * (tools/build_dzikir.mjs): urutan & jumlah dari Almanhaj, Latin mengikuti Hisnul Muslim, ayat dari Tanzil. Judul, arti,
+ * dan catatan punya versi English (title_en, meaning_en, note_en) untuk antarmuka English.
  */
 public class DzikirActivity extends Activity {
 
     static final int MATCH = ViewGroup.LayoutParams.MATCH_PARENT, WRAP = ViewGroup.LayoutParams.WRAP_CONTENT;
+    /** Kunci internal (JSON, prefs, extra "period", tool AI); teks tampilannya dari resource. */
     static final String PAGI = "pagi", PETANG = "petang";
 
     static final class Item {
@@ -128,14 +130,15 @@ public class DzikirActivity extends Activity {
         period = p;
         items.clear();
         JSONArray arr = data.optJSONArray(p);
+        String sfx = Lang.en() ? "_en" : "";
         for (int i = 0; arr != null && i < arr.length(); i++) {
             JSONObject o = arr.optJSONObject(i);
             Item it = new Item();
             it.arabic = o.optString("arabic");
             it.latin = o.optString("latin");
-            it.title = o.optString("title", it.latin);
-            it.meaning = o.optString("meaning");
-            it.note = o.isNull("note") ? null : o.optString("note");
+            it.title = pick(o, "title", sfx, it.latin);
+            it.meaning = pick(o, "meaning", sfx, "");
+            it.note = pick(o, "note", sfx, null);
             it.count = Math.max(1, o.optInt("count", 1));
             items.add(it);
         }
@@ -143,9 +146,15 @@ public class DzikirActivity extends Activity {
         cur = firstUndone();
         cPagi.setOn(PAGI.equals(p));
         cPetang.setOn(PETANG.equals(p));
-        title.setText(PAGI.equals(p) ? "DZIKIR PAGI" : "DZIKIR PETANG");
+        title.setText(PAGI.equals(p) ? R.string.dzikir_title_pagi : R.string.dzikir_title_petang);
         adapter.notifyDataSetChanged();
         show(cur);
+    }
+
+    /** Field dalam bahasa antarmuka (mis. "meaning_en"), atau versi Indonesia bila kosong. */
+    static String pick(JSONObject o, String key, String sfx, String fallback) {
+        if (!sfx.isEmpty() && !o.isNull(key + sfx)) return o.optString(key + sfx);
+        return o.isNull(key) ? fallback : o.optString(key);
     }
 
     /** Progres disimpan per hari dan per waktu, jadi keluar-masuk tidak mengulang hitungan. */
@@ -186,8 +195,7 @@ public class DzikirActivity extends Activity {
         if (items.isEmpty()) return;
         cur = Math.max(0, Math.min(i, items.size() - 1));
         Item it = items.get(cur);
-        step.setText(String.format(Locale.US, "BACAAN %02d / %02d  ·  %s  ·  %d×", cur + 1, items.size(),
-                it.title.toUpperCase(new Locale("id", "ID")), it.count));
+        step.setText(getString(R.string.dzikir_step, cur + 1, items.size(), it.title.toUpperCase(Lang.locale()), it.count));
         arab.setText(it.arabic);
         latin.setText(it.latin);
         meaning.setText(it.meaning);
@@ -263,12 +271,12 @@ public class DzikirActivity extends Activity {
         LinearLayout head = new LinearLayout(this);
         head.setOrientation(LinearLayout.VERTICAL);
         head.setPadding(px(24), px(20), px(24), px(14));
-        title = text("DZIKIR", fHeavy, 34, TEXT);
+        title = text(getString(R.string.dzikir_title), fHeavy, 34, TEXT);
         head.addView(title);
         LinearLayout chips = new LinearLayout(this);
         chips.setOrientation(LinearLayout.HORIZONTAL);
-        cPagi = new Chip("PAGI", () -> open(PAGI));
-        cPetang = new Chip("PETANG", () -> open(PETANG));
+        cPagi = new Chip(getString(R.string.dzikir_pagi), () -> open(PAGI));
+        cPetang = new Chip(getString(R.string.dzikir_petang), () -> open(PETANG));
         LinearLayout.LayoutParams c1 = new LinearLayout.LayoutParams(0, px(44), 1f);
         c1.topMargin = px(12);
         chips.addView(cPagi, c1);
@@ -330,14 +338,14 @@ public class DzikirActivity extends Activity {
         bar.setGravity(Gravity.CENTER_VERTICAL);
         bar.setBackgroundColor(PANEL);
         bar.setPadding(px(20), px(12), px(20), px(12));
-        bar.addView(new Chip(narrow ? "‹" : "‹  SEBELUMNYA", () -> show(cur - 1)),
+        bar.addView(new Chip(narrow ? "‹" : getString(R.string.dzikir_prev), () -> show(cur - 1)),
                 new LinearLayout.LayoutParams(narrow ? px(72) : WRAP, px(72)));
         counter = new Counter();
         LinearLayout.LayoutParams kl = new LinearLayout.LayoutParams(0, px(72), 1f);
         kl.leftMargin = px(12);
         kl.rightMargin = px(12);
         bar.addView(counter, kl);
-        bar.addView(new Chip(narrow ? "›" : "BERIKUTNYA  ›", () -> show(cur + 1)),
+        bar.addView(new Chip(narrow ? "›" : getString(R.string.dzikir_next), () -> show(cur + 1)),
                 new LinearLayout.LayoutParams(narrow ? px(72) : WRAP, px(72)));
         right.addView(bar, new LinearLayout.LayoutParams(MATCH, px(96)));
         row.addView(right, portrait ? new LinearLayout.LayoutParams(MATCH, 0, 1f) : new LinearLayout.LayoutParams(0, MATCH, 1f));
@@ -444,6 +452,9 @@ public class DzikirActivity extends Activity {
     class Counter extends View {
         boolean down;
         final Paint fill = new Paint(), big = new Paint(Paint.ANTI_ALIAS_FLAG), small = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final String sDone = getString(R.string.dzikir_done), sFinished = getString(R.string.dzikir_hint_finished),
+                sFull = getString(R.string.dzikir_hint_full), sCount = getString(R.string.dzikir_hint_count),
+                sShortFull = getString(R.string.dzikir_short_full), sShortCount = getString(R.string.dzikir_short_count);
 
         Counter() {
             super(DzikirActivity.this);
@@ -475,10 +486,9 @@ public class DzikirActivity extends Activity {
             c.drawRect(0, h - px(6), w * Math.min(1f, counts[cur] / (float) it.count), h, fill);
             big.setColor(INK);
             small.setColor(INK);
-            String n = finished ? "SELESAI" : Math.min(counts[cur], it.count) + " / " + it.count;
-            String hint = finished ? "ALHAMDULILLAH  ·  KETUK UNTUK MENGULANG"
-                    : full ? "SELESAI  ·  KETUK UNTUK LANJUT" : "KETUK UNTUK MENGHITUNG";
-            if (small.measureText(hint) > w - px(16)) hint = finished ? "ALHAMDULILLAH" : full ? "LANJUT" : "KETUK";
+            String n = finished ? sDone : Math.min(counts[cur], it.count) + " / " + it.count;
+            String hint = finished ? sFinished : full ? sFull : sCount;
+            if (small.measureText(hint) > w - px(16)) hint = finished ? "ALHAMDULILLAH" : full ? sShortFull : sShortCount;
             c.drawText(n, w / 2f, px(40), big);
             c.drawText(hint, w / 2f, px(60), small);
         }
@@ -490,6 +500,7 @@ public class DzikirActivity extends Activity {
         final Paint fill = new Paint();
         final TextPaint num = new TextPaint(Paint.ANTI_ALIAS_FLAG), name = new TextPaint(Paint.ANTI_ALIAS_FLAG),
                 meta = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        final String sDone = getString(R.string.dzikir_done);
 
         Row() {
             super(DzikirActivity.this);
@@ -529,7 +540,7 @@ public class DzikirActivity extends Activity {
             CharSequence n = TextUtils.ellipsize(it.title, name, avail, TextUtils.TruncateAt.END);
             c.drawText(n, 0, n.length(), x, px(32), name);
             meta.setColor(ok ? AMBER : FAINT);
-            String m = ok ? "SELESAI" : Math.min(counts[i], it.count) + " / " + it.count + "×";
+            String m = ok ? sDone : Math.min(counts[i], it.count) + " / " + it.count + "×";
             c.drawText(m, x, px(52), meta);
         }
     }

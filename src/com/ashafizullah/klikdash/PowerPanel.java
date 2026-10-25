@@ -32,7 +32,6 @@ import static com.ashafizullah.klikdash.HomeActivity.INK;
 import static com.ashafizullah.klikdash.HomeActivity.LINE;
 import static com.ashafizullah.klikdash.HomeActivity.PANEL;
 import static com.ashafizullah.klikdash.HomeActivity.TEXT;
-import static com.ashafizullah.klikdash.SettingsActivity.ID;
 import static com.ashafizullah.klikdash.SettingsActivity.MATCH;
 import static com.ashafizullah.klikdash.SettingsActivity.WRAP;
 
@@ -70,15 +69,13 @@ final class PowerPanel {
         head.setGravity(Gravity.CENTER_VERTICAL);
         count = a.label("");
         head.addView(count, new LinearLayout.LayoutParams(0, WRAP, 1f));
-        head.addView(a.key(a.narrow ? "KEMBALIKAN" : "KEMBALIKAN SEMUA", false, this::restoreAll),
+        head.addView(a.key(a.getString(a.narrow ? R.string.power_restore : R.string.power_restore_all), false, this::restoreAll),
                 new LinearLayout.LayoutParams(WRAP, a.px(52)));
         LinearLayout.LayoutParams hl = new LinearLayout.LayoutParams(MATCH, WRAP);
         hl.topMargin = a.px(20);
         root.addView(head, hl);
 
-        TextView sub = a.paragraph("Larang aplikasi berjalan diam-diam di latar supaya headunit lebih ringan dan dingin. "
-                + "Aplikasinya tetap terpasang dan bisa dibuka seperti biasa. Aplikasi sistem, navigasi, dan Zlink "
-                + "tidak ditampilkan.");
+        TextView sub = a.paragraph(a.getString(R.string.power_desc));
         LinearLayout.LayoutParams sl = new LinearLayout.LayoutParams(MATCH, WRAP);
         sl.topMargin = a.px(12);
         sl.bottomMargin = a.px(16);
@@ -113,7 +110,7 @@ final class PowerPanel {
     /** Aplikasi pihak ketiga yang bisa dibatasi, beserta status dari appops dan pidof. */
     void refresh() {
         busy = true;
-        showMessage("MEMERIKSA APLIKASI…");
+        showMessage(a.getString(R.string.power_checking));
         new Thread(() -> {
             PackageManager pm = a.getPackageManager();
             List<Item> found = new ArrayList<>();
@@ -140,8 +137,7 @@ final class PowerPanel {
             } catch (Exception e) {
                 a.runOnUiThread(() -> {
                     busy = false;
-                    showMessage("BUTUH USB DEBUGGING\n\nAktifkan di Pengaturan › Opsi pengembang › USB debugging,\n"
-                            + "lalu buka tab Hemat Daya lagi.");
+                    showMessage(a.getString(R.string.power_need_adb));
                 });
                 return;
             }
@@ -165,7 +161,7 @@ final class PowerPanel {
                 items.addAll(found);
                 adapter.notifyDataSetChanged();
                 updateCount();
-                if (items.isEmpty()) showMessage("TIDAK ADA APLIKASI PIHAK KETIGA"); else message.setVisibility(View.GONE);
+                if (items.isEmpty()) showMessage(a.getString(R.string.power_no_apps)); else message.setVisibility(View.GONE);
             });
         }, "power-refresh").start();
     }
@@ -206,7 +202,8 @@ final class PowerPanel {
     void updateCount() {
         int r = 0;
         for (Item it : items) if (it.restricted) r++;
-        count.setText(items.size() + " APLIKASI  ·  " + r + " DIBATASI");
+        count.setText(a.getString(R.string.power_count,
+                a.getResources().getQuantityString(R.plurals.power_apps, items.size(), items.size()), r));
     }
 
     void showMessage(String s) {
@@ -221,6 +218,9 @@ final class PowerPanel {
         final Paint fill = new Paint(), stroke = new Paint(Paint.ANTI_ALIAS_FLAG);
         final TextPaint name = new TextPaint(Paint.ANTI_ALIAS_FLAG), status = new TextPaint(Paint.ANTI_ALIAS_FLAG),
                 sw = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        final String restricted = a.getString(R.string.power_restricted), restrict = a.getString(R.string.power_restrict),
+                stRestricted = a.getString(R.string.power_st_restricted), stRunning = a.getString(R.string.power_st_running),
+                stAllowed = a.getString(R.string.power_st_allowed);
 
         Row() {
             super(a);
@@ -264,14 +264,13 @@ final class PowerPanel {
             }
             sw.setColor(item.restricted ? INK : TEXT);
             Paint.FontMetrics fm = sw.getFontMetrics();
-            c.drawText(item.restricted ? "DIBATASI" : "BATASI", swx + sww / 2f, h / 2f - (fm.ascent + fm.descent) / 2f, sw);
+            c.drawText(item.restricted ? restricted : restrict, swx + sww / 2f, h / 2f - (fm.ascent + fm.descent) / 2f, sw);
 
             float tx = x + icon + a.px(20), avail = swx - tx - a.px(20);
             name.setColor(TEXT);
-            CharSequence n = TextUtils.ellipsize(item.label.toUpperCase(ID), name, avail, TextUtils.TruncateAt.END);
+            CharSequence n = TextUtils.ellipsize(item.label.toUpperCase(Lang.locale()), name, avail, TextUtils.TruncateAt.END);
             c.drawText(n, 0, n.length(), tx, a.px(40), name);
-            String st = item.restricted ? "TIDAK BISA JALAN DI LATAR"
-                    : item.running ? "SEDANG BERJALAN DI LATAR" : "BOLEH JALAN DI LATAR";
+            String st = item.restricted ? stRestricted : item.running ? stRunning : stAllowed;
             status.setColor(item.running && !item.restricted ? AMBER : item.restricted ? DIM : FAINT);
             CharSequence ss = TextUtils.ellipsize(st + "  ·  " + item.pkg, status, avail, TextUtils.TruncateAt.END);
             c.drawText(ss, 0, ss.length(), tx, a.px(62), status);

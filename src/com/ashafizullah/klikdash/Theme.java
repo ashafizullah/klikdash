@@ -15,12 +15,8 @@ import android.view.Window;
  * diganti saat ia di latar. Disimpan di prefs DE "klikdash" (bisa dibaca saat direct boot).
  */
 final class Theme {
-    static final String[] NAMES = {"AMBER", "ZAMRUD", "SIANG"};
-    static final String[] DESC = {
-            "Hitam hangat dengan aksen amber, bawaan KlikDash.",
-            "Hitam kehijauan dengan aksen hijau zamrud.",
-            "Latar krem terang dengan teks gelap, lebih terbaca di bawah terik matahari.",
-    };
+    /** Jumlah tema; nama dan penjelasannya di resource (theme_names, theme_desc). */
+    static final int COUNT = 3;
 
     //                        BG          PANEL       LINE        TEXT        DIM         FAINT       AKSEN       INK
     //                        HOT         SOFT        ACTIVE      WARN
@@ -46,7 +42,7 @@ final class Theme {
 
     static int saved(Context c) {
         int t = prefs(c).getInt("theme", 0);
-        return t >= 0 && t < NAMES.length ? t : 0;
+        return t >= 0 && t < COUNT ? t : 0;
     }
 
     static void save(Context c, int t) {

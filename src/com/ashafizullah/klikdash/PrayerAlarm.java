@@ -69,27 +69,29 @@ public class PrayerAlarm extends BroadcastReceiver {
 
     /** Tampilkan pengingat untuk waktu sholat {@code i} (indeks {@link Lang#prayers}) pada {@code at}. */
     static void notify(Context c, int i, long at) {
+        Context w = Lang.wrap(c); // receiver: context tanpa bahasa KlikDash; juga memuat Lang.prayers
         String name = titleCase(Lang.prayers[i]);
         Calendar t = Calendar.getInstance();
         t.setTimeInMillis(at);
         String time = String.format(Locale.US, "%02d:%02d", t.get(Calendar.HOUR_OF_DAY), t.get(Calendar.MINUTE));
         String city = prefs(c).getString("city", null);
-        String msg = "Masuk waktu " + name + " · " + time + (city != null ? " · " + titleCase(city) : "");
+        String msg = w.getString(R.string.prayer_alert_message, name, time) + (city != null ? " · " + titleCase(city) : "");
+        String title = w.getString(R.string.prayer_alert_title);
         Activity a = home.get();
         if (a != null && !a.isFinishing()) {
-            Notice.show(a, Notice.REMIND, "Waktu sholat", msg);
+            Notice.show(a, Notice.REMIND, title, msg);
             return;
         }
         // Aplikasi lain di depan: notifikasi KlikDash melayang di atasnya. Firmware NWD memblokir notifikasi sistem
         // dari aplikasi pihak ketiga ("Not allowed show notification"), jadi notifikasi sistem hanya cadangan.
         Theme.load(c);
-        if (Notice.overlay(c, Notice.REMIND, "Waktu sholat", msg)) return;
+        if (Notice.overlay(c, Notice.REMIND, title, msg)) return;
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
         PendingIntent open = PendingIntent.getActivity(c, 0,
                 new Intent(c, HomeActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
-        Notification.Builder b = Compat.alertNotification(c, CHANNEL, "Pengingat waktu sholat")
+        Notification.Builder b = Compat.alertNotification(c, CHANNEL, w.getString(R.string.channel_prayer))
                 .setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle("Waktu " + name)
+                .setContentTitle(w.getString(R.string.prayer_alert_notification, name))
                 .setContentText(msg)
                 .setContentIntent(open)
                 .setAutoCancel(true)

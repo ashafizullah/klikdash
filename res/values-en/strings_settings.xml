@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">SETTINGS</string>
+    <string name="settings_close">CLOSE  ✕</string>
+    <string-array name="settings_tab_names">
+        <item>LAUNCHER</item>
+        <item>POWER SAVER</item>
+        <item>AI ASSISTANT</item>
+    </string-array>
+    <string-array name="settings_tab_captions">
+        <item>DISPLAY &amp; SHORTCUTS</item>
+        <item>BACKGROUND APPS</item>
+        <item>PROFILES &amp; VOICE</item>
+    </string-array>
+
+    <string name="settings_on">ON</string>
+    <string name="settings_off">OFF</string>
+
+    <string name="settings_home_title">HOME SCREEN</string>
+    <string name="settings_home_on">KlikDash is the headunit\'s home screen. You can switch back to the stock launcher at any time; KlikDash stays installed.</string>
+    <string name="settings_home_off">The stock launcher is still the home screen. Make KlikDash the home screen so it shows every time the headunit starts.</string>
+    <string name="settings_home_restore">STOCK LAUNCHER</string>
+    <string name="settings_home_make">MAKE DEFAULT</string>
+
+    <string name="settings_hijri_title">HIJRI DATE</string>
+    <string name="settings_hijri_desc">Today is %1$s. Calculated with Umm al-Qura (matches the Kemenag calendar). Shift it by a day if the moon sighting differs.</string>
+
+    <string name="settings_lang_title">LANGUAGE</string>
+    <string name="settings_lang_desc">KlikDash display language. The AI assistant has its own language setting in the AI Assistant tab.</string>
+
+    <string name="settings_theme_title">THEME</string>
+
+    <string name="settings_tiles_title">NUMBER OF SHORTCUTS</string>
+    <string name="settings_tiles_desc">Shortcuts on the home screen, including ALL. Fewer shortcuts make the clock, prayer times, shortcuts, icons and labels bigger. Hidden shortcuts are kept and come back when you raise the number.</string>
+
+    <string name="settings_welcome_title">WELCOME</string>
+    <string name="settings_welcome_desc">Shown on the home screen when the headunit starts. %1$s</string>
+    <string name="settings_welcome_now_off">Currently off.</string>
+    <string name="settings_welcome_now_custom">Currently using your own text.</string>
+    <string name="settings_welcome_now_default">Currently the prayer for leaving home (default).</string>
+    <string name="settings_welcome_default">DEFAULT</string>
+    <string name="settings_welcome_custom">CUSTOM</string>
+    <string name="settings_welcome_view">VIEW</string>
+    <string name="settings_welcome_disabled">The welcome screen is off</string>
+    <string name="settings_welcome_dialog">Custom welcome</string>
+    <string name="settings_welcome_f_title">TITLE</string>
+    <string name="settings_welcome_f_title_hint">e.g. Prayer for riding a vehicle</string>
+    <string name="settings_welcome_f_arab">ARABIC TEXT (OPTIONAL)</string>
+    <string name="settings_welcome_f_latin">TRANSLITERATION (OPTIONAL)</string>
+    <string name="settings_welcome_f_text">MEANING OR MESSAGE</string>
+    <string name="settings_welcome_f_text_hint">e.g. Drive safely and keep your distance.</string>
+    <string name="settings_welcome_need_text">Fill in the Arabic text or a message</string>
+
+    <string name="settings_prayer_title">PRAYER REMINDER</string>
+    <string name="settings_prayer_desc">A notification when Fajr, Dhuhr, Asr, Maghrib and Isha begin, without the adhan. Also shown on top of other apps such as Maps.</string>
+    <string name="settings_prayer_test">TEST</string>
+
+    <string name="settings_tiles_reset_title">HOME SHORTCUTS</string>
+    <string name="settings_tiles_reset_desc">Long-press a shortcut on the home screen to change or move its app. Reset restores the KlikDash default layout.</string>
+    <string name="settings_tiles_reset">RESET</string>
+    <string name="settings_tiles_reset_confirm">Restore all home shortcuts to the default layout?</string>
+    <string name="settings_tiles_reset_button">Reset</string>
+    <string name="settings_tiles_reset_done">Shortcuts restored to default</string>
+
+    <string name="settings_system_title">SYSTEM SETTINGS</string>
+    <string name="settings_system_desc">Wi-Fi, Bluetooth, sound, display and developer options are in the headunit\'s Android settings.</string>
+    <string name="settings_system_open">OPEN</string>
+
+    <string name="settings_about_title">ABOUT</string>
+    <string name="settings_about_desc">KlikDash %1$s — a lightweight launcher for Android headunits. Open source (MIT) at github.com/ashafizullah/klikdash.</string>
+
+    <string-array name="theme_names">
+        <item>AMBER</item>
+        <item>EMERALD</item>
+        <item>DAY</item>
+    </string-array>
+    <string-array name="theme_desc">
+        <item>Warm black with an amber accent, the KlikDash default.</item>
+        <item>Greenish black with an emerald green accent.</item>
+        <item>Light cream background with dark text, easier to read in bright sunlight.</item>
+    </string-array>
+
+    <string name="update_title_row">UPDATES</string>
+    <string name="update_desc">Installed version %1$s. %2$s Updates come from the official releases on GitHub and are only installed when the signature matches.</string>
+    <string name="update_never_checked">Never checked.</string>
+    <string name="update_last_checked">Last checked %1$s.</string>
+    <string name="update_just_now">just now</string>
+    <plurals name="update_minutes_ago">
+        <item quantity="one">%d minute ago</item>
+        <item quantity="other">%d minutes ago</item>
+    </plurals>
+    <plurals name="update_hours_ago">
+        <item quantity="one">%d hour ago</item>
+        <item quantity="other">%d hours ago</item>
+    </plurals>
+    <plurals name="update_days_ago">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+    <string name="update_check">CHECK UPDATE</string>
+    <string name="update_checking">CHECKING…</string>
+    <string name="update_no_internet">No internet connection</string>
+    <string name="update_check_title">Update check</string>
+    <string name="update_latest">KlikDash %1$s is up to date</string>
+    <string name="update_available">KlikDash %1$s available</string>
+    <string name="update_installed_size">Installed: %1$s · size %2$d KB</string>
+    <string name="update_later">Later</string>
+    <string name="update_download_install">Download &amp; install</string>
+    <string name="update_downloading">Downloading KlikDash %1$s</string>
+    <string name="update_installing">Installing… KlikDash will close briefly and then open again.</string>
+    <string name="update_allow_install">Allow KlikDash to install apps, then check for updates again</string>
+    <string name="update_title">Update</string>
+    <string name="update_try_later">Try again later</string>
+    <string name="update_err_storage">Storage is not writable</string>
+    <string name="update_err_http">Download failed (HTTP %1$d)</string>
+    <string name="update_err_corrupt">The APK file is corrupt</string>
+    <string name="update_err_not_klikdash">The APK is not KlikDash</string>
+    <string name="update_err_version">The APK version does not match the release</string>
+    <string name="update_err_signature">The APK signature does not match, update cancelled</string>
+
+    <string name="power_restore_all">RESTORE ALL</string>
+    <string name="power_restore">RESTORE</string>
+    <string name="power_desc">Stop apps from running silently in the background so the headunit stays lighter and cooler. The apps stay installed and open as usual. System apps, navigation and Zlink are not listed.</string>
+    <string name="power_checking">CHECKING APPS…</string>
+    <string name="power_need_adb">USB DEBUGGING NEEDED\n\nTurn it on in Settings › Developer options › USB debugging,\nthen open the Power Saver tab again.</string>
+    <string name="power_no_apps">NO THIRD-PARTY APPS</string>
+    <plurals name="power_apps">
+        <item quantity="one">%d APP</item>
+        <item quantity="other">%d APPS</item>
+    </plurals>
+    <string name="power_count">%1$s  ·  %2$d RESTRICTED</string>
+    <string name="power_restricted">RESTRICTED</string>
+    <string name="power_restrict">RESTRICT</string>
+    <string name="power_st_restricted">CANNOT RUN IN BACKGROUND</string>
+    <string name="power_st_running">RUNNING IN BACKGROUND</string>
+    <string name="power_st_allowed">ALLOWED IN BACKGROUND</string>
+</resources>

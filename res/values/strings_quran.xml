@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Al-Qur'an (QuranActivity, QuranService, QuranData). Terjemahan English di res/values-en. -->
+<resources>
+    <string name="quran_title">AL-QUR\'AN</string>
+    <string name="quran_subtitle">114 SURAH  ·  OFFLINE</string>
+    <string name="quran_loading">MEMUAT MUSHAF…</string>
+    <string name="quran_load_failed">GAGAL MEMUAT MUSHAF</string>
+    <string name="quran_missing_title">TEKS AL-QUR\'AN BELUM ADA</string>
+    <string name="quran_missing_desc">Unduh sekali (±6 MB) dari equran.id: mushaf standar, Latin, dan terjemahan Kemenag. Setelah itu bisa dibaca offline. Audio murattal diunduh per surah saat diputar.</string>
+    <string name="quran_download_text">UNDUH TEKS</string>
+    <string name="quran_downloading">MENGUNDUH MUSHAF  %1$d / %2$d</string>
+    <string name="quran_download_failed">GAGAL MENGUNDUH</string>
+    <string name="quran_check_internet">Periksa koneksi internet headunit, lalu coba lagi.</string>
+    <string name="quran_retry">COBA LAGI</string>
+    <string name="quran_not_now">NANTI SAJA</string>
+
+    <!-- Terjemahan English (hanya ditawarkan saat bahasa antarmuka English) -->
+    <string name="quran_en_title">TERJEMAHAN ENGLISH BELUM ADA</string>
+    <string name="quran_en_desc">Unduh sekali terjemahan English (Saheeh International, ±1 MB dari alquran.cloud). Setelah itu bisa dibaca offline.</string>
+    <string name="quran_en_download">UNDUH TERJEMAHAN</string>
+    <string name="quran_en_downloading">MENGUNDUH TERJEMAHAN  %1$d / %2$d</string>
+
+    <string name="quran_chip_download">UNDUH</string>
+    <string name="quran_chip_latin">LATIN</string>
+    <string name="quran_chip_translation">TERJEMAH</string>
+    <string name="quran_offline">OFFLINE</string>
+    <string name="quran_surah_no">SURAH %1$03d</string>
+    <plurals name="quran_ayat_count">
+        <item quantity="other">%d AYAT</item>
+    </plurals>
+    <string name="quran_last">TERAKHIR: %1$s  ·  %2$d</string>
+    <string name="quran_audio_missing">AUDIO BELUM ADA  ·  SAMBUNGKAN INTERNET UNTUK MENGUNDUH</string>
+    <string name="quran_audio_buffering">MENGUNDUH AUDIO…</string>
+    <string name="quran_now_playing">%1$s  ·  AYAT %2$d / %3$d</string>
+    <string name="quran_reading">▶ DIBACA</string>
+
+    <!-- Dialog mode pemutaran -->
+    <string name="quran_mode_title">Pemutaran murattal</string>
+    <string name="quran_mode_done">Selesai</string>
+    <string name="quran_after">SETELAH SELESAI</string>
+    <string name="quran_mode_continue">LANJUT</string>
+    <string name="quran_mode_repeat_ayah">ULANG AYAT</string>
+    <string name="quran_mode_repeat_surah">ULANG SURAH</string>
+    <string name="quran_times">BERAPA KALI</string>
+    <string name="quran_forever">TERUS</string>
+    <string name="quran_stop_after">BERHENTI SETELAH</string>
+    <string name="quran_stop_never">TIDAK</string>
+    <string name="quran_this_surah">SURAH INI</string>
+    <string name="quran_until">SAMPAI %1$s</string>
+    <string name="quran_pick_surah">PILIH SURAH…</string>
+    <string name="quran_stop_title">Berhenti setelah surah</string>
+    <string name="quran_hint_end_stop">berhenti setelah %1$s.</string>
+    <string name="quran_hint_end_all">terus sampai An-Nas.</string>
+    <string name="quran_hint_ayah_forever">Ayat yang sama diulang terus, sampai Anda mengubahnya.</string>
+    <string name="quran_hint_surah_forever">Surah yang sama diulang terus, sampai Anda mengubahnya.</string>
+    <plurals name="quran_hint_ayah_times">
+        <item quantity="other">Tiap ayat diputar %1$d kali, lalu lanjut ke ayat berikutnya; %2$s</item>
+    </plurals>
+    <plurals name="quran_hint_surah_times">
+        <item quantity="other">Tiap surah diputar %1$d kali, lalu lanjut ke surah berikutnya; %2$s</item>
+    </plurals>
+    <string name="quran_hint_continue">Otomatis lanjut ke ayat dan surah berikutnya, %1$s</string>
+
+    <!-- Label mode di tombol, notch home, dan notifikasi: "LANJUT → AN-NAS", "ULANG AYAT 3×", "ULANG SURAH ∞" -->
+    <string name="quran_label_continue_to">LANJUT → %1$s</string>
+    <string name="quran_label_repeat_ayah">ULANG AYAT %1$s</string>
+    <string name="quran_label_repeat_surah">ULANG SURAH %1$s</string>
+
+    <!-- Notifikasi murattal -->
+    <string name="quran_n_prev">Sebelumnya</string>
+    <string name="quran_n_pause">Jeda</string>
+    <string name="quran_n_play">Putar</string>
+    <string name="quran_n_next">Berikutnya</string>
+    <string name="quran_n_basmalah">%1$s · Basmalah</string>
+    <string name="quran_n_ayah">%1$s · Ayat %2$d</string>
+    <string name="quran_n_missing">Audio belum ada — sambungkan internet untuk mengunduh</string>
+    <string name="quran_n_buffering">Mengunduh audio…</string>
+    <string name="quran_n_downloading">Mengunduh %1$s %2$d/%3$d</string>
+
+    <string name="quran_err_count">Jumlah ayat surah %1$d tidak cocok</string>
+    <string name="quran_err_save">Gagal menyimpan teks</string>
+</resources>

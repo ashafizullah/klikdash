@@ -16,7 +16,6 @@ import android.provider.Settings;
  */
 final class HomeSwitch {
     static final String NWD_PROP = "persist.nwd.launcher.default";
-    static final String NEED_ADB = "Belum berhasil. Aktifkan USB debugging di Opsi pengembang, lalu coba lagi.";
 
     private HomeSwitch() { }
 
@@ -58,7 +57,8 @@ final class HomeSwitch {
         Tweaks.shellAsync("setprop " + NWD_PROP + " " + me + "; cmd package set-home-activity " + me + "/.HomeActivity",
                 ok -> a.runOnUiThread(() -> {
                     if (done != null) done.run();
-                    if (isDefault(a)) Notice.ok(a, "KlikDash sekarang tampilan utama"); else Notice.fail(a, NEED_ADB);
+                    if (isDefault(a)) Notice.ok(a, a.getString(R.string.home_default_ok));
+                    else Notice.fail(a, a.getString(R.string.home_need_adb));
                 }));
     }
 
@@ -68,17 +68,16 @@ final class HomeSwitch {
             return;
         }
         new AlertDialog.Builder(a)
-                .setMessage("Kembali ke launcher bawaan? KlikDash tetap terpasang dan bisa dijadikan tampilan utama lagi "
-                        + "dari tombol di home-nya.")
-                .setNegativeButton("Batal", null)
-                .setPositiveButton("Kembali", (dlg, w) -> {
+                .setMessage(R.string.home_restore_message)
+                .setNegativeButton(R.string.common_cancel, null)
+                .setPositiveButton(R.string.home_restore_confirm, (dlg, w) -> {
                     String prev = prefs.getString("nwdPrev", "com.android.launcher");
                     ComponentName stock = stockHome(a, prev);
                     Tweaks.shellAsync("setprop " + NWD_PROP + " " + prev
                                     + (stock != null ? "; cmd package set-home-activity " + stock.flattenToShortString() : "")
                                     + "; input keyevent KEYCODE_HOME",
                             ok -> {
-                                if (!ok) Notice.fail(a, NEED_ADB);
+                                if (!ok) Notice.fail(a, a.getString(R.string.home_need_adb));
                             });
                 })
                 .show();

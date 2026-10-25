@@ -7,7 +7,8 @@ phone's hotspot) during the first setup.
 
 > ⚠️ **Do this with the car parked.** Do not operate the screen while driving.
 >
-> The app's own interface is in Indonesian; the button names below are shown as they appear on screen.
+> The app starts in Indonesian; the button names below are shown as they appear on screen in Indonesian. To switch
+> the interface to English, open **⚙ › Launcher › BAHASA** and tap **ENGLISH**.
 
 ▶️ Prefer video? Watch the **[5-minute install tutorial on YouTube](https://youtu.be/sSRKIyC3Ato)** (Indonesian, with subtitles).
 

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dzikir pagi & petang (DzikirActivity). Isi bacaan ada di assets/dzikir.json (field *_en untuk English). -->
+<resources>
+    <string name="dzikir_title">DZIKIR</string>
+    <string name="dzikir_title_pagi">DZIKIR PAGI</string>
+    <string name="dzikir_title_petang">DZIKIR PETANG</string>
+    <string name="dzikir_pagi">PAGI</string>
+    <string name="dzikir_petang">PETANG</string>
+    <string name="dzikir_step">BACAAN %1$02d / %2$02d  ·  %3$s  ·  %4$d×</string>
+    <string name="dzikir_prev">‹  SEBELUMNYA</string>
+    <string name="dzikir_next">BERIKUTNYA  ›</string>
+    <string name="dzikir_done">SELESAI</string>
+    <string name="dzikir_hint_finished">ALHAMDULILLAH  ·  KETUK UNTUK MENGULANG</string>
+    <string name="dzikir_hint_full">SELESAI  ·  KETUK UNTUK LANJUT</string>
+    <string name="dzikir_hint_count">KETUK UNTUK MENGHITUNG</string>
+    <string name="dzikir_short_full">LANJUT</string>
+    <string name="dzikir_short_count">KETUK</string>
+</resources>

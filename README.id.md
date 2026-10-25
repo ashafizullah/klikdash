@@ -19,7 +19,7 @@
   <br>
   <img src="https://img.shields.io/badge/CPU%20saat%20diam-~0%25-FFB000" alt="CPU saat diam sekitar 0%">
   <img src="https://img.shields.io/badge/offline-100%25-FFB000" alt="Sepenuhnya offline">
-  <img src="https://img.shields.io/badge/tampilan-Bahasa%20Indonesia-lightgrey" alt="Tampilan berbahasa Indonesia">
+  <img src="https://img.shields.io/badge/tampilan-Indonesia%20%7C%20English-lightgrey" alt="Tampilan berbahasa Indonesia atau Inggris">
 </p>
 
 <p align="center">
@@ -38,7 +38,8 @@
 ## Tentang
 
 KlikDash menggantikan launcher bawaan headunit dengan home statis bergaya panel instrumen (~0–1% CPU, ~30 MB RAM).
-Ditulis dengan Java murni tanpa library. Di NWD K2401 tempat KlikDash dikembangkan, launcher bawaannya terus
+Ditulis dengan Java murni tanpa library. Tampilan berbahasa Indonesia atau Inggris (**⚙ › Launcher › BAHASA**),
+dan asisten suara punya pengaturan bahasanya sendiri. Di NWD K2401 tempat KlikDash dikembangkan, launcher bawaannya terus
 merender animasi 3D (~40% CPU).
 
 ## Fitur
@@ -167,6 +168,8 @@ Struktur kode, build tanpa Gradle, audio murattal, membuat teks Al-Qur'an, dan c
   dan Literata (via Google Fonts). Literata di-instance dan di-subset; nama dan lisensinya tetap.
 - **Teks, transliterasi, dan terjemahan** (tidak disertakan): [equran.id](https://equran.id), yaitu mushaf
   standar dan terjemahan Kemenag RI. Hak dan ketentuannya ada pada pemiliknya.
+- **Terjemahan Inggris** (tidak disertakan, diunduh bila diminta): Saheeh International lewat
+  [alquran.cloud](https://alquran.cloud) (dari [Tanzil](https://tanzil.net/trans/)). Haknya ada pada pemiliknya.
 - **Audio** (tidak disertakan): [everyayah.com](https://everyayah.com) / versebyversequran.com, Mishary
   Rashid Alafasy 128 kbps. Ikuti lisensi di situs tersebut.
 - **Jadwal sholat:** algoritma [praytimes.org](http://praytimes.org).

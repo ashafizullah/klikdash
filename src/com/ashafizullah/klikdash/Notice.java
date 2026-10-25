@@ -122,8 +122,9 @@ final class Notice {
         int ph = Math.round(22 * dp), pv = Math.round(16 * dp);
         col.setPadding(ph, pv, Math.round(24 * dp), pv);
         TextView tag = new TextView(c);
-        String kindText = kind == OK ? "BERHASIL" : kind == FAIL ? "GAGAL" : kind == REMIND ? "PENGINGAT" : "INFO";
-        tag.setText(title != null && !title.isEmpty() ? kindText + "  ·  " + title.toUpperCase(HomeActivity.ID) : kindText);
+        String kindText = c.getString(kind == OK ? R.string.notice_ok : kind == FAIL ? R.string.notice_fail
+                : kind == REMIND ? R.string.notice_remind : R.string.notice_info);
+        tag.setText(title != null && !title.isEmpty() ? kindText + "  ·  " + title.toUpperCase(Lang.locale()) : kindText);
         tag.setTypeface(fTag);
         tag.setTextSize(12);
         tag.setLetterSpacing(0.15f);
@@ -161,7 +162,7 @@ final class Notice {
         if (!android.provider.Settings.canDrawOverlays(c)) return false;
         Context app = c.getApplicationContext();
         WindowManager wm = (WindowManager) app.getSystemService(Context.WINDOW_SERVICE);
-        LinearLayout box = build(app, kind, title, msg);
+        LinearLayout box = build(Lang.wrap(app), kind, title, msg); // context aplikasi tidak ikut bahasa KlikDash
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 Compat.O ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE,

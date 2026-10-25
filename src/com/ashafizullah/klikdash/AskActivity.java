@@ -32,7 +32,8 @@ import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 
 /**
  * Ubin TANYA: dengar perintah, jalankan lewat AI + alat mobil (AiTools), bacakan jawabannya.
- * Satu sesi = satu percakapan, jadi pertanyaan lanjutan ("yang kedua saja") tetap nyambung.
+ * Satu sesi = satu percakapan, jadi pertanyaan lanjutan ("yang kedua saja") tetap nyambung. Teks layar mengikuti
+ * bahasa antarmuka; yang didengar dan diucapkan mengikuti bahasa asisten ({@link AiStore#lang}).
  */
 public class AskActivity extends Activity {
     static final int MATCH = ViewGroup.LayoutParams.MATCH_PARENT, WRAP = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -97,14 +98,14 @@ public class AskActivity extends Activity {
         LinearLayout head = new LinearLayout(this);
         head.setOrientation(LinearLayout.HORIZONTAL);
         head.setGravity(Gravity.CENTER_VERTICAL);
-        head.addView(text("TANYA", fHeavy, wDp < 700 ? 30 : 40, TEXT));
+        head.addView(text(getString(R.string.ask_title), fHeavy, wDp < 700 ? 30 : 40, TEXT));
         who = text("", fMono, 12, DIM);
         who.setLetterSpacing(0.2f);
         who.setEllipsize(android.text.TextUtils.TruncateAt.END);
         LinearLayout.LayoutParams wl = new LinearLayout.LayoutParams(0, WRAP, 1f);
         wl.leftMargin = px(20);
         head.addView(who, wl);
-        head.addView(key(wDp < 900 ? "✕" : "TUTUP  ✕", false, this::finish), new LinearLayout.LayoutParams(WRAP, px(56)));
+        head.addView(key(wDp < 900 ? "✕" : getString(R.string.ask_close), false, this::finish), new LinearLayout.LayoutParams(WRAP, px(56)));
         root.addView(head, new LinearLayout.LayoutParams(MATCH, px(64)));
         View rule = new View(this);
         rule.setBackgroundColor(LINE);
@@ -145,7 +146,7 @@ public class AskActivity extends Activity {
         LinearLayout.LayoutParams al = new LinearLayout.LayoutParams(textW, WRAP);
         al.topMargin = px(12);
         body.addView(answer, al);
-        again = key("TANYA LAGI", true, this::listen);
+        again = key(getString(R.string.ask_again), true, this::listen);
         LinearLayout.LayoutParams gl = new LinearLayout.LayoutParams(WRAP, px(52));
         gl.topMargin = px(16);
         body.addView(again, gl);
@@ -170,7 +171,7 @@ public class AskActivity extends Activity {
             getIntent().removeExtra("stt");
             sttOnly = true;
             again.setVisibility(View.INVISIBLE);
-            setState(LISTEN, "MENDENGARKAN…");
+            setState(LISTEN, getString(R.string.ask_listening));
             listenAndroid();
             return;
         }
@@ -178,16 +179,16 @@ public class AskActivity extends Activity {
         needsSetup = profile == null || profile.apiKey.isEmpty();
         if (needsSetup) {
             who.setText("");
-            setState(IDLE, "BELUM ADA PROFIL AI");
-            heard.setText("TANYA butuh profil AI. Ketuk ATUR AI, lalu tambahkan API key Claude atau OpenAI-compatible.");
-            again.setLabel("ATUR AI");
+            setState(IDLE, getString(R.string.ask_no_profile));
+            heard.setText(R.string.ask_no_profile_hint);
+            again.setLabel(getString(R.string.ask_setup));
             again.setOnClickListener(v -> openAiSettings());
             again.setVisibility(View.VISIBLE);
             return;
         }
         if (client == null || !client.matches(this, profile)) client = new AiClient(this, profile);
         who.setText(info());
-        again.setLabel("TANYA LAGI");
+        again.setLabel(getString(R.string.ask_again));
         again.setOnClickListener(v -> listen());
         // Uji tanpa mikrofon: adb shell am start -n com.ashafizullah.klikdash/.AskActivity --es q "putar surat Yasin"
         // Hanya di build debuggable (DEBUGGABLE=1 ./build.sh install): TANYA bisa dibuka aplikasi lain, jadi di APK rilis aplikasi lain
@@ -207,7 +208,7 @@ public class AskActivity extends Activity {
 
     @Override public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
         if (results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED) listen();
-        else setState(IDLE, "IZIN MIKROFON DITOLAK");
+        else setState(IDLE, getString(R.string.ask_mic_denied));
     }
 
     @Override protected void onRestart() {
@@ -262,11 +263,11 @@ public class AskActivity extends Activity {
         boolean elTts = AiStore.elTts(this) && !elKey.isEmpty() && !AiStore.elVoice(this).isEmpty();
         boolean elStt = !SpeechRecognizer.isRecognitionAvailable(this) || AiStore.elStt(this) && !elKey.isEmpty();
         String s = (profile.model.isEmpty() ? AiStore.CLAUDE_MODEL : profile.model)
-                + "  ·  SUARA " + (elTts ? "ELEVENLABS" : "ANDROID")
-                + "  ·  DENGAR " + (elStt ? "ELEVENLABS" : "ANDROID");
-        if (client.search == AiClient.TINYFISH_SEARCH) s += "  ·  CARI TINYFISH";
-        else if (client.search == AiClient.ANTHROPIC_SEARCH) s += "  ·  CARI ANTHROPIC";
-        return s.toUpperCase(HomeActivity.ID);
+                + "  ·  " + getString(R.string.ask_info_voice) + " " + (elTts ? "ELEVENLABS" : "ANDROID")
+                + "  ·  " + getString(R.string.ask_info_listen) + " " + (elStt ? "ELEVENLABS" : "ANDROID");
+        if (client.search == AiClient.TINYFISH_SEARCH) s += "  ·  " + getString(R.string.ask_info_search) + " TINYFISH";
+        else if (client.search == AiClient.ANTHROPIC_SEARCH) s += "  ·  " + getString(R.string.ask_info_search) + " ANTHROPIC";
+        return s.toUpperCase(Lang.locale());
     }
 
     /** Jawaban panjang: huruf lebih kecil, dan halaman digulir supaya status dan awal jawaban terlihat. */
@@ -288,7 +289,7 @@ public class AskActivity extends Activity {
         androidStt = SpeechRecognizer.isRecognitionAvailable(this)
                 && (!AiStore.elStt(this) || AiStore.elKey(this).isEmpty());
         voice.hush();
-        setState(LISTEN, "MENDENGARKAN…");
+        setState(LISTEN, getString(R.string.ask_listening));
         if (androidStt) listenAndroid(); else listenEleven();
     }
 
@@ -311,8 +312,8 @@ public class AskActivity extends Activity {
                 @Override public void onResults(Bundle r) {
                     String s = first(r);
                     android.util.Log.i("KlikDashAI", "STT Android: " + s.length() + " huruf");
-                    if (s.isEmpty()) idle("TIDAK TERDENGAR", "Ketuk mikrofon lalu ucapkan perintah, misalnya “navigasi ke SPBU terdekat”.");
-                    else if (sttOnly) idle("TERDENGAR", "“" + s + "”");
+                    if (s.isEmpty()) idle(getString(R.string.ask_not_heard), notHeardHint());
+                    else if (sttOnly) idle(getString(R.string.ask_heard), "“" + s + "”");
                     else ask(s);
                 }
 
@@ -320,25 +321,27 @@ public class AskActivity extends Activity {
                     mic.level(0);
                     android.util.Log.i("KlikDashAI", "STT Android error " + e);
                     if (e == SpeechRecognizer.ERROR_NO_MATCH || e == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
-                        idle("TIDAK TERDENGAR", "Ketuk mikrofon lalu ucapkan perintah, misalnya “navigasi ke SPBU terdekat”.");
+                        idle(getString(R.string.ask_not_heard), notHeardHint());
                     } else if (!AiStore.elKey(AskActivity.this).isEmpty()) {
                         androidStt = false; // pengenal Android bermasalah (mis. tanpa Google): pakai ElevenLabs
                         listenEleven();
                     } else {
-                        idle("PENGENAL SUARA GAGAL", "Pengenal suara Android error " + e
-                                + ". Isi API key ElevenLabs di Pengaturan › Asisten AI sebagai cadangan.");
+                        idle(getString(R.string.ask_stt_failed), getString(R.string.ask_stt_error, e));
                     }
                 }
             });
         }
         Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
                 .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "id-ID")
+                .putExtra(RecognizerIntent.EXTRA_LANGUAGE, AiStore.speechTag(this))
                 .putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
                 .putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
                 .putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getPackageName());
         recognizer.startListening(i);
     }
+
+    /** Contoh perintah dalam bahasa asisten (yang harus diucapkan), di dalam kalimat berbahasa antarmuka. */
+    String notHeardHint() { return getString(R.string.ask_not_heard_hint, AiStore.inLang(this).getString(R.string.as_example)); }
 
     static String first(Bundle r) {
         ArrayList<String> l = r != null ? r.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION) : null;
@@ -346,14 +349,14 @@ public class AskActivity extends Activity {
     }
 
     void listenEleven() {
-        setState(LISTEN, "MENDENGARKAN…");
+        setState(LISTEN, getString(R.string.ask_listening));
         voice.listenEleven(new AiVoice.Heard() {
             @Override public void onText(String text) { ask(text); }
-            @Override public void onError(String message) { idle("TIDAK TERDENGAR", message); }
+            @Override public void onError(String message) { idle(getString(R.string.ask_not_heard), message); }
             @Override public void onLevel(float l) { mic.level(l); }
             @Override public void onTranscribing() {
                 mic.level(0);
-                setState(THINK, "MENGENALI SUARA…");
+                setState(THINK, getString(R.string.ask_recognizing));
             }
         });
         // Saat merekam, tampilkan bahwa transkripsi berjalan setelah hening.
@@ -365,29 +368,30 @@ public class AskActivity extends Activity {
         heard.setText("“" + text + "”");
         answer.setText("");
         again.setVisibility(View.INVISIBLE);
-        setState(THINK, "MEMPROSES…");
+        setState(THINK, getString(R.string.ask_processing));
         AiClient c = client;
+        Context talk = c.inLang;
         new Thread(() -> {
-            String reply;
+            String reply, spoken;
             boolean failed = false;
             try {
-                reply = c.ask(text);
-                if (reply.isEmpty()) reply = "Sudah.";
+                reply = spoken = c.ask(text);
+                if (reply.isEmpty()) reply = spoken = talk.getString(R.string.as_done);
             } catch (Exception e) {
                 failed = true;
-                reply = e instanceof java.net.UnknownHostException || e instanceof java.net.SocketTimeoutException
-                        ? "Tidak ada koneksi internet." : (e.getMessage() != null ? e.getMessage() : "Terjadi kesalahan.");
+                // Pesan error lengkap dibaca di layar (bahasa antarmuka); yang diucapkan intinya saja (bahasa asisten).
+                reply = AiClient.describe(this, e);
+                spoken = talk.getString(R.string.as_sorry, AiClient.head(talk, e).split(":")[0]);
                 client = new AiClient(this, profile); // riwayat mungkin setengah jadi: mulai baru
             }
-            final String r = reply;
+            final String r = reply, say = spoken;
             final boolean f = failed;
             runOnUiThread(() -> {
                 if (!alive) return;
                 showAnswer(r);
-                setState(SPEAK, f ? "GAGAL" : "MENJAWAB");
-                // Pesan error panjang cukup dibaca; yang diucapkan versi singkat.
-                voice.say(f ? "Maaf, " + r.split(":")[0] + "." : r, () -> {
-                    if (alive && state == SPEAK) idle(f ? "GAGAL" : "SELESAI", null);
+                setState(SPEAK, getString(f ? R.string.ask_failed : R.string.ask_answering));
+                voice.say(say, () -> {
+                    if (alive && state == SPEAK) idle(getString(f ? R.string.ask_failed : R.string.ask_done), null);
                 });
             });
         }, "ai-ask").start();
@@ -437,7 +441,7 @@ public class AskActivity extends Activity {
         Mic() {
             super(AskActivity.this);
             setClickable(true);
-            setContentDescription("Mikrofon");
+            setContentDescription(getString(R.string.ask_mic));
             ring.setStyle(Paint.Style.STROKE);
             ring.setStrokeWidth(px(3));
             p.setTypeface(fMonoBold);
@@ -468,8 +472,8 @@ public class AskActivity extends Activity {
                 c.drawCircle(cx, cy, r * (0.28f + 0.6f * lvl), fill);
             }
             // Ikon + keterangan sebagai satu kelompok di tengah lingkaran.
-            String hint = needsSetup ? "KETUK UNTUK MENGATUR" : state == LISTEN ? "KETUK UNTUK SELESAI"
-                    : state == THINK ? "" : "KETUK UNTUK BICARA";
+            String hint = needsSetup ? getString(R.string.ask_tap_setup) : state == LISTEN ? getString(R.string.ask_tap_finish)
+                    : state == THINK ? "" : getString(R.string.ask_tap_talk);
             float s = r * 0.22f;
             float iy = hint.isEmpty() ? cy : cy - r * 0.12f; // pusat ikon
             fill.setColor(state == LISTEN || down ? INK : state == THINK ? DIM : TEXT);

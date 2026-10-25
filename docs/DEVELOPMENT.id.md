@@ -114,6 +114,24 @@ Skrip ini juga membersihkan teks:
 - Menempelkan tanda waqaf ke kata sebelumnya.
 - Membuang karakter kontrol.
 
+Terjemahan Inggris (Saheeh International, dari alquran.cloud) diunduh terpisah ke `quran-en.txt` saat tampilan
+berbahasa Inggris. Untuk menyertakannya di build pengembang (tidak pernah di rilis):
+
+```bash
+python3 -I tools/build_quran.py --en assets/quran-en.txt
+```
+
+## Terjemahan antarmuka
+
+Tampilan berbahasa Indonesia (`res/values/strings_*.xml`, bawaan) dan Inggris (`res/values-en/strings_*.xml`),
+dipilih di **⚙ › Launcher › BAHASA**, tidak mengikuti bahasa sistem (`Lang.java`).
+- Setiap teks UI baru masuk ke **kedua** folder dengan nama yang sama. Pakai argumen posisional (`%1$s`) dan
+  `<plurals>` untuk bilangan. Jangan membandingkan atau menyimpan teks tampilan: simpan kunci terpisah.
+- Aktivitas dan `QuranService` membungkus context di `attachBaseContext`. Receiver dan context aplikasi
+  memanggil `Lang.wrap(c)` sebelum `getString`.
+- Asisten suara punya bahasa sendiri (`AiStore`, **⚙ › Asisten AI**). Prompt dan ucapannya ada di
+  `strings_assistant.xml` dan dibaca dengan `Lang.wrap(c, AiStore.lang(c))`.
+
 ## Cara kerja khusus firmware
 
 - **Launcher default.** Firmware NWD mengabaikan pilihan home Android dan memakai

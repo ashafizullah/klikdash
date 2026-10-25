@@ -107,7 +107,7 @@ final class Updater {
 
     static File download(Context c, Release r, Progress p) throws Exception {
         File dir = new File(c.getExternalFilesDir(null), "update");
-        if (!dir.isDirectory() && !dir.mkdirs()) throw new IOException("Penyimpanan tidak bisa ditulis");
+        if (!dir.isDirectory() && !dir.mkdirs()) throw new IOException(c.getString(R.string.update_err_storage));
         for (File old : dir.listFiles()) old.delete();
         File f = new File(dir, "klikdash-" + r.version + ".apk");
         // browser_download_url mengalihkan ke CDN GitHub; HttpURLConnection mengikuti pengalihan https→https.
@@ -116,7 +116,7 @@ final class Updater {
         con.setReadTimeout(30000);
         con.setRequestProperty("User-Agent", "KlikDash");
         try {
-            if (con.getResponseCode() >= 400) throw new IOException("Unduhan gagal (HTTP " + con.getResponseCode() + ")");
+            if (con.getResponseCode() >= 400) throw new IOException(c.getString(R.string.update_err_http, con.getResponseCode()));
             long total = con.getContentLengthLong() > 0 ? con.getContentLengthLong() : r.size;
             try (InputStream in = con.getInputStream(); OutputStream out = new FileOutputStream(f)) {
                 byte[] buf = new byte[32768];
@@ -140,12 +140,12 @@ final class Updater {
     static void verify(Context c, File apk, String version) throws Exception {
         PackageManager pm = c.getPackageManager();
         PackageInfo got = pm.getPackageArchiveInfo(apk.getPath(), PackageManager.GET_SIGNATURES);
-        if (got == null) throw new IOException("File APK rusak");
-        if (!c.getPackageName().equals(got.packageName)) throw new IOException("APK bukan KlikDash");
-        if (!version.equals(got.versionName)) throw new IOException("Versi APK tidak sesuai rilis");
+        if (got == null) throw new IOException(c.getString(R.string.update_err_corrupt));
+        if (!c.getPackageName().equals(got.packageName)) throw new IOException(c.getString(R.string.update_err_not_klikdash));
+        if (!version.equals(got.versionName)) throw new IOException(c.getString(R.string.update_err_version));
         PackageInfo me = pm.getPackageInfo(c.getPackageName(), PackageManager.GET_SIGNATURES);
         if (!sameSigners(me.signatures, got.signatures)) {
-            throw new IOException("Tanda tangan APK tidak cocok, pembaruan dibatalkan");
+            throw new IOException(c.getString(R.string.update_err_signature));
         }
     }
 

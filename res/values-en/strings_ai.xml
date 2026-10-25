@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings › AI Assistant -->
+    <string name="ai_profiles_title">AI PROFILES</string>
+    <string name="ai_profiles_empty">No profile yet. Add a Claude API key (console.anthropic.com) or an OpenAI-compatible service such as OpenAI, OpenRouter, Groq, or a local server.</string>
+    <string name="ai_profiles_desc">Tap USE to choose the profile the ASK shortcut uses. API keys are stored encrypted on this headunit and only sent to their profile\'s address.</string>
+    <string name="ai_model_unset">no model set</string>
+    <string name="ai_test">TEST</string>
+    <string name="ai_testing">TESTING…</string>
+    <string name="ai_active">ACTIVE</string>
+    <string name="ai_use">USE</string>
+    <string name="ai_edit">EDIT</string>
+    <string name="ai_off">OFF</string>
+    <string name="ai_empty">empty</string>
+    <string name="ai_connected">Connected</string>
+
+    <string name="ai_web_title">WEB SEARCH</string>
+    <string name="ai_web_intro">ASK looks up current information (news, prices, weather, schedules) when needed.</string>
+    <string name="ai_web_anthropic">official Claude profiles search with Anthropic web search, billed to the Claude account ($10 per 1,000 searches); other profiles don\'t search.</string>
+    <string name="ai_web_no_key">Enter a TinyFish API key (free, create one at agent.tinyfish.ai) so every profile searches with TinyFish. Without TinyFish, %1$s</string>
+    <string name="ai_web_on">Every profile searches with TinyFish (free), key %1$s.</string>
+    <string name="ai_web_off">TinyFish is off: %1$s</string>
+
+    <string name="ai_lang_title">ASSISTANT LANGUAGE</string>
+    <string name="ai_lang_desc">The language ASK listens and speaks in, separate from the display language.</string>
+    <string name="ai_lang_voice_hint">%1$s has an Indonesian accent: pick another voice under ELEVENLABS VOICE.</string>
+
+    <string name="ai_el_title">ELEVENLABS VOICE</string>
+    <string name="ai_el_unset">Not set up.</string>
+    <string name="ai_el_state">Key %1$s · voice %2$s · %3$s.</string>
+    <string name="ai_voice_unpicked">not chosen</string>
+    <string name="ai_el_desc">Used for the answer voice, and to hear commands when the headunit has no Android speech recognition.</string>
+    <string name="ai_voice">VOICE</string>
+
+    <string name="ai_tts_title">ANSWER VOICE</string>
+    <string name="ai_tts_android">The Android voice uses %1$s.</string>
+    <string name="ai_tts_missing">The Android voice needs the Speech Services by Google app (free, works offline), which isn\'t installed on this headunit: tap INSTALL to get it from the Play Store.</string>
+    <string name="ai_tts_need_el">Enter an ElevenLabs API key above to choose an ElevenLabs voice.</string>
+    <string name="ai_tts_el">ElevenLabs needs internet and uses your ElevenLabs quota; if it fails, the Android voice is used.</string>
+    <string name="ai_tts_el_only">ElevenLabs needs internet and uses your ElevenLabs quota.</string>
+    <string name="ai_install">INSTALL</string>
+    <string name="ai_listen">LISTEN</string>
+
+    <string name="ai_stt_title">SPEECH RECOGNITION</string>
+    <string name="ai_stt_android">Android speech recognition uses %1$s.</string>
+    <string name="ai_stt_builtin">the headunit\'s built-in service</string>
+    <string name="ai_stt_missing">Android speech recognition needs the Google app (free), which isn\'t installed on this headunit: tap INSTALL to get it from the Play Store.</string>
+    <string name="ai_stt_need_el">Enter an ElevenLabs API key above to choose ElevenLabs Scribe.</string>
+    <string name="ai_stt_el">ElevenLabs Scribe transcribes a recording of your speech and uses your ElevenLabs quota; if Android recognition fails, the recording is sent to ElevenLabs.</string>
+    <string name="ai_stt_el_only">ElevenLabs Scribe transcribes a recording of your speech and uses your ElevenLabs quota.</string>
+
+    <string name="ai_need_el_first">Enter the ElevenLabs API key &amp; voice ID first</string>
+    <string name="ai_key_missing">The API key is empty</string>
+
+    <string name="ai_field_name_hint">Profile name</string>
+    <string name="ai_field_model_hint">e.g. gpt-5.1 or openai/gpt-5.1</string>
+    <string name="ai_field_key_hint">Paste API key</string>
+    <string name="ai_field_keep">Leave empty = keep %1$s</string>
+    <string name="ai_label_name">NAME</string>
+    <string name="ai_pick_model">CHOOSE MODEL</string>
+    <string name="ai_new_claude">New Claude profile</string>
+    <string name="ai_new_openai">New OpenAI-compatible profile</string>
+    <string name="ai_edit_profile">Edit profile</string>
+    <string name="ai_url_https">Base URL must start with https://</string>
+    <string name="ai_need_model">Enter a model name</string>
+    <string name="ai_need_key">Enter an API key</string>
+    <string name="ai_need_key_first">Enter the API key first</string>
+    <string name="ai_no_models">Model list unavailable; type the model name</string>
+    <string name="ai_choose_model">Choose model</string>
+    <string name="ai_delete_confirm">Delete profile %1$s and its API key from this headunit?</string>
+    <string name="ai_delete_key">Delete key</string>
+    <string name="ai_tf_hint">Paste TinyFish API key</string>
+    <string name="ai_tf_title">TinyFish API key</string>
+    <string name="ai_el_hint">Paste ElevenLabs API key</string>
+    <string name="ai_el_key_title">ElevenLabs API key</string>
+    <string name="ai_el_model_title">ElevenLabs voice model</string>
+    <string-array name="ai_el_model_desc">
+        <item>fastest, recommended in the car</item>
+        <item>fast, a little more natural</item>
+        <item>most expressive, slower</item>
+    </string-array>
+    <string name="ai_el_need_key">Enter the ElevenLabs API key first</string>
+    <string name="ai_loading_voices">Loading voices…</string>
+    <string name="ai_voices_failed">Could not load the voice list</string>
+    <string name="ai_voice_lang_id">Indonesian</string>
+    <string name="ai_voice_lang_en">English</string>
+    <string name="ai_voice_mine">In account</string>
+    <string name="ai_male">male</string>
+    <string name="ai_female">female</string>
+    <string name="ai_recommended">recommended</string>
+    <string name="ai_choose_voice">Choose voice</string>
+
+    <string name="ai_err_key">API key rejected</string>
+    <string name="ai_err_limit">Usage limit reached</string>
+    <string name="ai_err_server">The AI server is having problems</string>
+    <string name="ai_err_http">Request rejected (HTTP %1$d)</string>
+    <string name="ai_err_empty">Empty answer from the server</string>
+    <string name="ai_err_timeout">The AI server took too long to answer, try again</string>
+    <string name="ai_err_offline">No internet connection</string>
+    <string name="ai_err_generic">Something went wrong</string>
+    <string name="ai_err_no_stt">Android speech recognition is not available. Enter an ElevenLabs API key in Settings.</string>
+    <string name="ai_err_mic">The microphone can\'t be used</string>
+    <string name="ai_err_record">Recording failed</string>
+    <string name="ai_err_silent">No voice heard</string>
+    <string name="ai_err_unclear">Couldn\'t hear that clearly</string>
+    <string name="ai_err_transcribe">Transcription failed</string>
+
+    <!-- ASK screen -->
+    <string name="ask_title">ASK</string>
+    <string name="ask_close">"CLOSE  ✕"</string>
+    <string name="ask_again">ASK AGAIN</string>
+    <string name="ask_setup">SET UP AI</string>
+    <string name="ask_no_profile">NO AI PROFILE YET</string>
+    <string name="ask_no_profile_hint">ASK needs an AI profile. Tap SET UP AI, then add a Claude or OpenAI-compatible API key.</string>
+    <string name="ask_mic_denied">MICROPHONE PERMISSION DENIED</string>
+    <string name="ask_info_voice">VOICE</string>
+    <string name="ask_info_listen">HEARING</string>
+    <string name="ask_info_search">SEARCH</string>
+    <string name="ask_listening">LISTENING…</string>
+    <string name="ask_recognizing">RECOGNIZING SPEECH…</string>
+    <string name="ask_processing">PROCESSING…</string>
+    <string name="ask_answering">ANSWERING</string>
+    <string name="ask_failed">FAILED</string>
+    <string name="ask_done">DONE</string>
+    <string name="ask_heard">HEARD</string>
+    <string name="ask_not_heard">NOTHING HEARD</string>
+    <string name="ask_not_heard_hint">Tap the microphone and say a command, for example “%1$s”.</string>
+    <string name="ask_stt_failed">SPEECH RECOGNITION FAILED</string>
+    <string name="ask_stt_error">Android speech recognition error %1$d. Enter an ElevenLabs API key in Settings › AI Assistant as a backup.</string>
+    <string name="ask_mic">Microphone</string>
+    <string name="ask_tap_setup">TAP TO SET UP</string>
+    <string name="ask_tap_finish">TAP TO FINISH</string>
+    <string name="ask_tap_talk">TAP TO TALK</string>
+</resources>

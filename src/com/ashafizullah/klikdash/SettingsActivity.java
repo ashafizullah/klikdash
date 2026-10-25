@@ -40,14 +40,9 @@ import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 public class SettingsActivity extends Activity {
 
     static final int MATCH = ViewGroup.LayoutParams.MATCH_PARENT, WRAP = ViewGroup.LayoutParams.WRAP_CONTENT;
-    static final Locale ID = new Locale("id", "ID");
     static final String EXTRA_TAB = "tab";
     static final int TAB_LAUNCHER = 0, TAB_POWER = 1, TAB_AI = 2;
-    static final String[][] TABS = {
-            {"LAUNCHER", "TAMPILAN & PINTASAN"},
-            {"HEMAT DAYA", "APLIKASI DI LATAR"},
-            {"ASISTEN AI", "PROFIL & SUARA"},
-    };
+    static final int TAB_COUNT = 3;
 
     float dp, sp, wDp, hDp, railDp;
     boolean portrait, narrow;
@@ -56,7 +51,7 @@ public class SettingsActivity extends Activity {
     SharedPreferences prefs;
 
     FrameLayout content;
-    final Tab[] tabs = new Tab[TABS.length];
+    final Tab[] tabs = new Tab[TAB_COUNT];
     int current = -1;
     PowerPanel power;
     AiPanel ai;
@@ -123,9 +118,9 @@ public class SettingsActivity extends Activity {
         LinearLayout head = new LinearLayout(this);
         head.setOrientation(LinearLayout.HORIZONTAL);
         head.setGravity(Gravity.CENTER_VERTICAL);
-        head.addView(text("PENGATURAN", fHeavy, wDp < 700 ? 30 : 40, TEXT));
+        head.addView(text(getString(R.string.settings_title), fHeavy, wDp < 700 ? 30 : 40, TEXT));
         head.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1f));
-        head.addView(key(wDp < 900 ? "✕" : "TUTUP  ✕", false, this::finish), new LinearLayout.LayoutParams(WRAP, px(56)));
+        head.addView(key(wDp < 900 ? "✕" : getString(R.string.settings_close), false, this::finish), new LinearLayout.LayoutParams(WRAP, px(56)));
         root.addView(head, new LinearLayout.LayoutParams(MATCH, px(64)));
         root.addView(rule(), ruleParams(true, 16, 0));
 
@@ -133,9 +128,11 @@ public class SettingsActivity extends Activity {
         body.setOrientation(portrait ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
         LinearLayout rail = new LinearLayout(this);
         rail.setOrientation(portrait ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
-        for (int i = 0; i < TABS.length; i++) {
+        String[] names = getResources().getStringArray(R.array.settings_tab_names),
+                captions = getResources().getStringArray(R.array.settings_tab_captions);
+        for (int i = 0; i < TAB_COUNT; i++) {
             final int idx = i;
-            tabs[i] = new Tab(TABS[i][0], TABS[i][1], () -> show(idx));
+            tabs[i] = new Tab(names[i], captions[i], () -> show(idx));
             rail.addView(tabs[i], portrait ? new LinearLayout.LayoutParams(0, px(76), 1f)
                     : new LinearLayout.LayoutParams(MATCH, px(88)));
         }
@@ -158,7 +155,7 @@ public class SettingsActivity extends Activity {
     void show(int tab) { show(tab, false); }
 
     void show(int tab, boolean force) {
-        tab = Math.max(0, Math.min(TABS.length - 1, tab));
+        tab = Math.max(0, Math.min(TAB_COUNT - 1, tab));
         if (tab == current && !force) return;
         current = tab;
         for (int i = 0; i < tabs.length; i++) tabs[i].setSelected(i == tab);
@@ -185,13 +182,10 @@ public class SettingsActivity extends Activity {
         LinearLayout list = column();
 
         boolean def = HomeSwitch.isDefault(this);
-        list.addView(row("TAMPILAN UTAMA",
-                def ? "KlikDash sedang menjadi tampilan utama headunit. Kembali ke launcher bawaan kapan saja; KlikDash "
-                        + "tetap terpasang."
-                        : "Launcher bawaan masih menjadi tampilan utama. Jadikan KlikDash tampilan utama agar muncul "
-                        + "setiap headunit menyala.",
-                def ? key("LAUNCHER BAWAAN", false, () -> HomeSwitch.restore(this, prefs))
-                        : key("JADIKAN UTAMA", true, () -> HomeSwitch.makeDefault(this, prefs,
+        list.addView(row(getString(R.string.settings_home_title),
+                getString(def ? R.string.settings_home_on : R.string.settings_home_off),
+                def ? key(getString(R.string.settings_home_restore), false, () -> HomeSwitch.restore(this, prefs))
+                        : key(getString(R.string.settings_home_make), true, () -> HomeSwitch.makeDefault(this, prefs,
                         () -> show(TAB_LAUNCHER, true)))));
 
         int off = prefs.getInt("hijriOffset", 0);
@@ -204,22 +198,33 @@ public class SettingsActivity extends Activity {
             });
             shift[i].minWidth = px(56);
         }
-        list.addView(row("TANGGAL HIJRIAH",
-                "Hari ini " + titleCase(HomeActivity.hijriText(System.currentTimeMillis(), off))
-                        + ". Dihitung dengan Umm al-Qura (sama dengan kalender Kemenag). Geser per hari bila hasil "
-                        + "rukyat berbeda.", shift));
+        list.addView(row(getString(R.string.settings_hijri_title), getString(R.string.settings_hijri_desc,
+                titleCase(HomeActivity.hijriText(System.currentTimeMillis(), off))), shift));
 
-        Key[] themes = new Key[Theme.NAMES.length];
+        Key[] langs = new Key[Lang.CODES.length];
+        for (int i = 0; i < langs.length; i++) {
+            final String code = Lang.CODES[i];
+            langs[i] = key(getString(Lang.EN.equals(code) ? R.string.lang_en : R.string.lang_id), code.equals(Lang.code), () -> {
+                if (code.equals(Lang.saved(this))) return;
+                Lang.save(this, code);
+                recreate(); // seperti tema: home dan layar lain menyusul saat tampil lagi (Theme.stale)
+            });
+        }
+        list.addView(row(getString(R.string.settings_lang_title), getString(R.string.settings_lang_desc), langs));
+
+        String[] themeNames = getResources().getStringArray(R.array.theme_names);
+        Key[] themes = new Key[Theme.COUNT];
         int cur = Theme.saved(this);
         for (int i = 0; i < themes.length; i++) {
             final int t = i;
-            themes[i] = key(Theme.NAMES[i], t == cur, () -> {
+            themes[i] = key(themeNames[i], t == cur, () -> {
                 if (t == Theme.saved(this)) return;
                 Theme.save(this, t);
                 recreate(); // home dan layar lain menyusul saat tampil lagi (Theme.stale)
             });
         }
-        list.addView(row("TEMA", Theme.DESC[cur], themes));
+        list.addView(row(getString(R.string.settings_theme_title),
+                getResources().getStringArray(R.array.theme_desc)[cur], themes));
 
         int tc = HomeActivity.tileCount(prefs);
         Key[] counts = new Key[HomeActivity.TILE_COUNTS.length];
@@ -231,41 +236,34 @@ public class SettingsActivity extends Activity {
             });
             counts[i].minWidth = px(56);
         }
-        list.addView(row("JUMLAH PINTASAN",
-                "Pintasan di home, termasuk SEMUA. Makin sedikit, makin besar jam dan jadwal sholat di kiri, juga pintasan, "
-                        + "ikon, dan tulisannya. Pintasan yang tidak tampil tetap tersimpan dan muncul lagi bila "
-                        + "jumlahnya ditambah.", counts));
+        list.addView(row(getString(R.string.settings_tiles_title), getString(R.string.settings_tiles_desc), counts));
 
         int wm = Welcome.mode(prefs);
-        list.addView(row("SAMBUTAN",
-                "Tampil di home saat headunit menyala. " + (wm == Welcome.MODE_OFF ? "Sekarang dimatikan."
-                        : wm == Welcome.MODE_CUSTOM ? "Sekarang memakai teks Anda sendiri."
-                        : "Sekarang doa keluar rumah (bawaan)."),
-                key("BAWAAN", wm == Welcome.MODE_DEFAULT, () -> setWelcome(Welcome.MODE_DEFAULT)),
-                key("CUSTOM", wm == Welcome.MODE_CUSTOM, this::editWelcome),
-                key("MATI", wm == Welcome.MODE_OFF, () -> setWelcome(Welcome.MODE_OFF)),
-                key("LIHAT", false, () -> {
+        list.addView(row(getString(R.string.settings_welcome_title), getString(R.string.settings_welcome_desc,
+                getString(wm == Welcome.MODE_OFF ? R.string.settings_welcome_now_off
+                        : wm == Welcome.MODE_CUSTOM ? R.string.settings_welcome_now_custom
+                        : R.string.settings_welcome_now_default)),
+                key(getString(R.string.settings_welcome_default), wm == Welcome.MODE_DEFAULT,
+                        () -> setWelcome(Welcome.MODE_DEFAULT)),
+                key(getString(R.string.settings_welcome_custom), wm == Welcome.MODE_CUSTOM, this::editWelcome),
+                key(getString(R.string.settings_off), wm == Welcome.MODE_OFF, () -> setWelcome(Welcome.MODE_OFF)),
+                key(getString(R.string.settings_welcome_view), false, () -> {
                     Welcome.Content c = Welcome.content(prefs);
-                    if (c == null) Notice.info(this, "Sambutan sedang dimatikan");
+                    if (c == null) Notice.info(this, getString(R.string.settings_welcome_disabled));
                     else Welcome.show(this, c);
                 })));
 
         boolean pa = PrayerAlarm.enabled(prefs);
-        list.addView(row("PENGINGAT SHOLAT",
-                "Notifikasi saat masuk waktu Subuh, Dzuhur, Ashar, Maghrib, dan Isya, tanpa adzan. Muncul juga di atas "
-                        + "aplikasi lain seperti Maps.",
-                key("NYALA", pa, () -> setPrayerAlert(true)),
-                key("MATI", !pa, () -> setPrayerAlert(false)),
-                key("COBA", false, () -> PrayerAlarm.notify(this, 3, System.currentTimeMillis()))));
+        list.addView(row(getString(R.string.settings_prayer_title), getString(R.string.settings_prayer_desc),
+                key(getString(R.string.settings_on), pa, () -> setPrayerAlert(true)),
+                key(getString(R.string.settings_off), !pa, () -> setPrayerAlert(false)),
+                key(getString(R.string.settings_prayer_test), false, () -> PrayerAlarm.notify(this, 3, System.currentTimeMillis()))));
 
-        list.addView(row("PINTASAN HOME",
-                "Tekan lama pintasan di home untuk mengganti atau memindahkan aplikasinya. Atur ulang mengembalikan susunan "
-                        + "bawaan KlikDash.",
-                key("ATUR ULANG", false, this::resetTiles)));
+        list.addView(row(getString(R.string.settings_tiles_reset_title), getString(R.string.settings_tiles_reset_desc),
+                key(getString(R.string.settings_tiles_reset), false, this::resetTiles)));
 
-        list.addView(row("PENGATURAN SISTEM",
-                "Wi-Fi, Bluetooth, suara, layar, dan opsi pengembang ada di pengaturan Android headunit.",
-                key("BUKA", false, () -> {
+        list.addView(row(getString(R.string.settings_system_title), getString(R.string.settings_system_desc),
+                key(getString(R.string.settings_system_open), false, () -> {
                     try {
                         startActivity(new Intent(Settings.ACTION_SETTINGS));
                     } catch (Exception ignored) { }
@@ -273,50 +271,57 @@ public class SettingsActivity extends Activity {
 
         String ver = Updater.installedVersion(this);
         long checked = prefs.getLong("updateChecked", 0);
-        updateKey = key("CEK UPDATE", false, this::checkUpdate);
-        list.addView(row("PEMBARUAN",
-                "Versi terpasang " + ver + ". " + (checked == 0 ? "Belum pernah dicek."
-                        : "Terakhir dicek " + ago(checked) + ".")
-                        + " Pembaruan diambil dari rilis resmi di GitHub dan hanya dipasang bila tanda tangannya cocok.",
+        updateKey = key(getString(R.string.update_check), false, this::checkUpdate);
+        list.addView(row(getString(R.string.update_title_row), getString(R.string.update_desc, ver, checked == 0
+                        ? getString(R.string.update_never_checked) : getString(R.string.update_last_checked, ago(this, checked))),
                 updateKey));
 
-        list.addView(row("TENTANG",
-                "KlikDash " + ver + " — launcher ringan untuk headunit Android. Sumber terbuka (MIT) di "
-                        + "github.com/ashafizullah/klikdash."));
+        list.addView(row(getString(R.string.settings_about_title), getString(R.string.settings_about_desc, ver)));
         return scroll(list);
     }
 
-    /** "12 JUMADIL AWAL 1448 H" → "12 Jumadil Awal 1448 H". */
+    /**
+     * "12 JUMADIL AWAL 1448 H" → "12 Jumadil Awal 1448 H", "12 RABI' AL-AWWAL 1448 AH" → "12 Rabi' Al-Awwal 1448 AH".
+     * Kata pendek berhuruf besar semua (H, AH) adalah singkatan dan dibiarkan.
+     */
     static String titleCase(String s) {
         StringBuilder b = new StringBuilder(s.length());
-        boolean start = true;
-        for (char ch : s.toCharArray()) {
-            b.append(start ? ch : Character.toLowerCase(ch));
-            start = ch == ' ';
+        for (String w : s.split(" ", -1)) {
+            if (b.length() > 0) b.append(' ');
+            if (w.length() <= 2 && w.equals(w.toUpperCase(Locale.ROOT))) { b.append(w); continue; }
+            boolean start = true;
+            for (char ch : w.toCharArray()) {
+                b.append(start ? ch : Character.toLowerCase(ch));
+                start = ch == '-';
+            }
         }
-        return b.toString().replace(" h", " H");
+        return b.toString();
     }
 
     Key updateKey;
     boolean updating;
 
-    /** "baru saja", "5 menit lalu", "3 jam lalu", "2 hari lalu" (DateUtils mengikuti bahasa sistem, sering Inggris). */
-    static String ago(long t) {
-        long m = Math.max(0, (System.currentTimeMillis() - t) / 60_000);
-        return m < 1 ? "baru saja" : m < 60 ? m + " menit lalu" : m < 1440 ? m / 60 + " jam lalu" : m / 1440 + " hari lalu";
+    /** "baru saja", "5 menit lalu", "3 jam lalu", "2 hari lalu" (DateUtils mengikuti bahasa sistem, bukan Lang). */
+    static String ago(Context c, long t) {
+        int m = (int) Math.max(0, (System.currentTimeMillis() - t) / 60_000);
+        android.content.res.Resources r = c.getResources();
+        return m < 1 ? c.getString(R.string.update_just_now)
+                : m < 60 ? r.getQuantityString(R.plurals.update_minutes_ago, m, m)
+                : m < 1440 ? r.getQuantityString(R.plurals.update_hours_ago, m / 60, m / 60)
+                : r.getQuantityString(R.plurals.update_days_ago, m / 1440, m / 1440);
     }
 
     void checkUpdate() {
         if (updating) return;
         updating = true;
-        updateKey.setLabel("MENGECEK…");
+        updateKey.setLabel(getString(R.string.update_checking));
         new Thread(() -> {
             Updater.Release r = null;
             String err = null;
             try {
                 r = Updater.latest();
             } catch (Exception e) {
-                err = e instanceof java.net.UnknownHostException ? "Tidak ada koneksi internet" : e.getMessage();
+                err = e instanceof java.net.UnknownHostException ? getString(R.string.update_no_internet) : AiClient.describe(this, e);
             }
             final Updater.Release rel = r;
             final String e = err;
@@ -326,43 +331,44 @@ public class SettingsActivity extends Activity {
                 if (e == null) prefs.edit().putLong("updateChecked", System.currentTimeMillis()).apply();
                 String cur = Updater.installedVersion(this);
                 if (e != null) {
-                    updateKey.setLabel("CEK UPDATE");
-                    Notice.show(this, Notice.FAIL, "Cek update", e);
+                    updateKey.setLabel(getString(R.string.update_check));
+                    Notice.show(this, Notice.FAIL, getString(R.string.update_check_title), e);
                 } else if (rel == null || Updater.compare(rel.version, cur) <= 0) {
                     show(TAB_LAUNCHER, true);
-                    Notice.ok(this, "KlikDash " + cur + " sudah versi terbaru");
+                    Notice.ok(this, getString(R.string.update_latest, cur));
                 } else {
-                    updateKey.setLabel("CEK UPDATE");
+                    updateKey.setLabel(getString(R.string.update_check));
                     // Catatan rilis utuh; pesan AlertDialog sudah bisa digulir bila panjang.
                     String notes = Updater.plainNotes(rel.notes);
                     showDark(new AlertDialog.Builder(this)
-                            .setTitle("KlikDash " + rel.version + " tersedia")
-                            .setMessage("Terpasang: " + cur + " · ukuran " + Math.max(1, rel.size / 1024) + " KB"
+                            .setTitle(getString(R.string.update_available, rel.version))
+                            .setMessage(getString(R.string.update_installed_size, cur, (int) Math.max(1, rel.size / 1024))
                                     + (notes.isEmpty() ? "" : "\n\n" + notes))
-                            .setNegativeButton("Nanti", null)
-                            .setPositiveButton("Unduh & pasang", (d, w) -> downloadUpdate(rel)));
+                            .setNegativeButton(getString(R.string.update_later), null)
+                            .setPositiveButton(getString(R.string.update_download_install), (d, w) -> downloadUpdate(rel)));
                 }
             });
         }, "update-check").start();
     }
 
     void downloadUpdate(Updater.Release rel) {
-        AlertDialog prog = showDark(new AlertDialog.Builder(this).setTitle("Mengunduh KlikDash " + rel.version)
+        AlertDialog prog = showDark(new AlertDialog.Builder(this).setTitle(getString(R.string.update_downloading, rel.version))
                 .setMessage("0%").setCancelable(false));
         new Thread(() -> {
             try {
                 java.io.File apk = Updater.download(this, rel, pct -> runOnUiThread(() -> prog.setMessage(pct + "%")));
                 runOnUiThread(() -> {
-                    prog.setMessage("Memasang… KlikDash akan tertutup sebentar lalu terbuka lagi.");
+                    prog.setMessage(getString(R.string.update_installing));
                     Updater.install(this, apk, () -> runOnUiThread(() -> {
                         prog.dismiss();
-                        Notice.info(this, "Izinkan KlikDash memasang aplikasi, lalu cek update lagi");
+                        Notice.info(this, getString(R.string.update_allow_install));
                     }));
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> {
                     prog.dismiss();
-                    Notice.show(this, Notice.FAIL, "Pembaruan", e.getMessage() != null ? e.getMessage() : "Coba lagi nanti");
+                    Notice.show(this, Notice.FAIL, getString(R.string.update_title),
+                            e.getMessage() != null ? e.getMessage() : getString(R.string.update_try_later));
                 });
             }
         }, "update-download").start();
@@ -385,20 +391,22 @@ public class SettingsActivity extends Activity {
         LinearLayout form = column();
         int pad = px(24);
         form.setPadding(pad, pad, pad, 0);
-        EditText title = welcomeField(form, "JUDUL", "mis. Doa naik kendaraan", "wTitle", false);
-        EditText arab = welcomeField(form, "TEKS ARAB (OPSIONAL)", "", "wArab", true);
+        EditText title = welcomeField(form, getString(R.string.settings_welcome_f_title),
+                getString(R.string.settings_welcome_f_title_hint), "wTitle", false);
+        EditText arab = welcomeField(form, getString(R.string.settings_welcome_f_arab), "", "wArab", true);
         arab.setTextDirection(View.TEXT_DIRECTION_RTL);
-        EditText latin = welcomeField(form, "BACAAN LATIN (OPSIONAL)", "", "wLatin", true);
-        EditText text = welcomeField(form, "ARTI ATAU PESAN", "mis. Hati-hati di jalan, jaga jarak aman.", "wText", true);
+        EditText latin = welcomeField(form, getString(R.string.settings_welcome_f_latin), "", "wLatin", true);
+        EditText text = welcomeField(form, getString(R.string.settings_welcome_f_text),
+                getString(R.string.settings_welcome_f_text_hint), "wText", true);
         AlertDialog d = showDark(new AlertDialog.Builder(this)
-                .setTitle("Sambutan sendiri")
+                .setTitle(getString(R.string.settings_welcome_dialog))
                 .setView(scroll(form))
-                .setNegativeButton("Batal", null)
-                .setPositiveButton("Simpan", null));
+                .setNegativeButton(getString(R.string.common_cancel), null)
+                .setPositiveButton(getString(R.string.common_save), null));
         // Simpan tidak langsung menutup dialog, supaya isian kosong bisa dilengkapi.
         d.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String a = arab.getText().toString().trim(), t = text.getText().toString().trim();
-            if (a.isEmpty() && t.isEmpty()) { Notice.info(this, "Isi teks Arab atau pesan"); return; }
+            if (a.isEmpty() && t.isEmpty()) { Notice.info(this, getString(R.string.settings_welcome_need_text)); return; }
             prefs.edit().putString("wTitle", title.getText().toString().trim()).putString("wArab", a)
                     .putString("wLatin", latin.getText().toString().trim()).putString("wText", t)
                     .putInt("welcome", Welcome.MODE_CUSTOM).apply();
@@ -429,13 +437,13 @@ public class SettingsActivity extends Activity {
 
     void resetTiles() {
         showDark(new AlertDialog.Builder(this)
-                .setMessage("Kembalikan semua pintasan home ke susunan bawaan?")
-                .setNegativeButton("Batal", null)
-                .setPositiveButton("Atur ulang", (d, w) -> {
+                .setMessage(getString(R.string.settings_tiles_reset_confirm))
+                .setNegativeButton(getString(R.string.common_cancel), null)
+                .setPositiveButton(getString(R.string.settings_tiles_reset_button), (d, w) -> {
                     SharedPreferences.Editor e = prefs.edit();
                     for (int i = 0; i < HomeActivity.SLOTS; i++) e.remove("s" + i).remove("l" + i);
                     e.apply();
-                    Notice.ok(this, "Pintasan dikembalikan ke bawaan");
+                    Notice.ok(this, getString(R.string.settings_tiles_reset_done));
                 }));
     }
 

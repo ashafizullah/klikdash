@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dzikir_title">DHIKR</string>
+    <string name="dzikir_title_pagi">MORNING DHIKR</string>
+    <string name="dzikir_title_petang">EVENING DHIKR</string>
+    <string name="dzikir_pagi">MORNING</string>
+    <string name="dzikir_petang">EVENING</string>
+    <string name="dzikir_step">READING %1$02d / %2$02d  ·  %3$s  ·  %4$d×</string>
+    <string name="dzikir_prev">‹  PREVIOUS</string>
+    <string name="dzikir_next">NEXT  ›</string>
+    <string name="dzikir_done">DONE</string>
+    <string name="dzikir_hint_finished">ALHAMDULILLAH  ·  TAP TO START OVER</string>
+    <string name="dzikir_hint_full">DONE  ·  TAP TO CONTINUE</string>
+    <string name="dzikir_hint_count">TAP TO COUNT</string>
+    <string name="dzikir_short_full">NEXT</string>
+    <string name="dzikir_short_count">TAP</string>
+</resources>

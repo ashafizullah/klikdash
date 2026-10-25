@@ -11,6 +11,7 @@ build/
 # Teks Al-Qur'an (mushaf & terjemahan Kemenag) tidak diedarkan lewat repo ini;
 # bangun sendiri dengan tools/build_quran.py (lihat README).
 assets/quran.txt
+assets/quran-en.txt
 
 # Poster promosi (media sosial), dibuat per rilis; tidak perlu di repo
 design/poster-*
