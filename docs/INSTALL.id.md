@@ -54,6 +54,29 @@ Nyalakan dulu:
 **Muncul pertanyaan "Allow USB debugging?"** setelah mengetuk tombol kuning? Itu headunit menanyakan izin
 KlikDash memakai ADB-nya. Centang **Always allow**, lalu ketuk **OK**. Pertanyaan ini hanya muncul sekali.
 
+**USB debugging sudah aktif, tapi muncul pesan "port 5555"?** Umum di headunit Android 11 ke atas: ADB-nya hanya
+mendengar kabel USB, belum terbuka untuk aplikasi di headunit itu sendiri. Bukalah sekali dari komputer yang
+terpasang [Android platform-tools](https://developer.android.com/tools/releases/platform-tools):
+
+1. Sambungkan headunit dan komputer ke WiFi yang sama (misalnya hotspot HP).
+2. Di headunit, buka **Pengaturan › Opsi pengembang › Wireless debugging** (*Debugging nirkabel*), nyalakan,
+   lalu ketuk **Pair device with pairing code**. Catat alamat (`IP:port`) dan kode 6 angkanya.
+3. Di komputer, jalankan:
+   ```
+   adb pair IP:PORT_PAIRING KODE
+   adb connect IP:PORT
+   adb tcpip 5555
+   ```
+   `IP:PORT` adalah alamat yang tertulis di halaman utama Wireless debugging (bukan alamat pairing).
+   Kalau port USB headunit bisa disambungkan ke komputer, cukup sambungkan kabelnya lalu jalankan `adb tcpip 5555`.
+4. Kembali ke KlikDash, ketuk lagi tombol kuningnya, lalu izinkan seperti di atas.
+
+Pilihan tampilan utama tersimpan permanen, jadi langkah ini cukup sekali. Port 5555 tertutup lagi setelah
+headunit dinyalakan ulang, sehingga **Hemat Daya** dan penyetelan otomatis (ksmd, Zlink) tidak jalan sampai
+dibuka lagi. Agar tetap terbuka, jalankan juga `adb shell setprop persist.adb.tcp.port 5555` (tidak semua
+firmware mengizinkannya). ADB yang terbuka memberi akses penuh ke headunit: sambungkan hanya ke jaringan
+pribadi, jangan ke WiFi publik.
+
 ## 4. Izinkan lokasi
 
 Saat diminta, ketuk **Izinkan**. Lokasi dipakai untuk menghitung jadwal sholat sesuai kota Anda. Sebelum GPS

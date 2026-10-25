@@ -44,6 +44,7 @@
 
     <string name="home_default_ok">KlikDash is now the home screen</string>
     <string name="home_need_adb">Not done yet: can\'t reach the headunit\'s ADB. Turn on USB debugging in Developer options, then try again.</string>
+    <string name="home_need_adb_port">Not done yet: USB debugging is on, but this headunit doesn\'t open ADB to apps (port 5555, common on Android 11 and later). Open it once from a computer with adb tcpip 5555 (steps in the install guide), then try again.</string>
     <string name="home_adb_allow">When asked \"Allow USB debugging?\", tick \"Always allow\" and tap OK.</string>
     <string name="home_adb_denied">Not allowed yet. Tap the button again, tick \"Always allow\" when asked \"Allow USB debugging?\", then tap OK.</string>
     <string name="home_setprop_failed">Not done yet: this headunit refuses to change the home screen over ADB.</string>

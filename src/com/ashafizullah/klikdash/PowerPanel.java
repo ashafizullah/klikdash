@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.ashafizullah.klikdash.HomeActivity.AMBER;
-import static com.ashafizullah.klikdash.HomeActivity.BG;
 import static com.ashafizullah.klikdash.HomeActivity.DIM;
 import static com.ashafizullah.klikdash.HomeActivity.FAINT;
 import static com.ashafizullah.klikdash.HomeActivity.INK;
@@ -97,7 +96,7 @@ final class PowerPanel {
         message.setLetterSpacing(0.25f);
         message.setGravity(Gravity.CENTER);
         message.setSingleLine(false);
-        message.setBackgroundColor(BG);
+        Theme.fill(message); // menutupi daftar
         body.addView(message, MATCH, MATCH);
         root.addView(body, new LinearLayout.LayoutParams(MATCH, 0, 1f));
         view = root;
@@ -137,7 +136,7 @@ final class PowerPanel {
             } catch (Exception e) {
                 a.runOnUiThread(() -> {
                     busy = false;
-                    showMessage(a.getString(R.string.power_need_adb));
+                    showMessage(a.getString(Tweaks.debuggingOn(a) ? R.string.power_need_adb_port : R.string.power_need_adb));
                 });
                 return;
             }

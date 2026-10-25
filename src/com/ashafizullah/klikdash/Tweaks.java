@@ -1,6 +1,7 @@
 package com.ashafizullah.klikdash;
 
 import android.content.Context;
+import android.provider.Settings;
 import android.util.Base64;
 
 import java.io.BufferedReader;
@@ -60,6 +61,14 @@ final class Tweaks {
     /** Folder kunci ADB (penyimpanan DE, bisa dibaca saat direct boot). Tanpa ini, autentikasi dilewati. */
     private static volatile File keyDir;
     private static KeyPair key;
+
+    /**
+     * USB debugging menyala. Bila ya tapi ADB tetap tidak bisa dihubungi, adbd hanya mendengar USB, bukan port 5555
+     * (umum di Android 11 ke atas): perlu {@code adb tcpip 5555} sekali dari komputer, lihat docs/INSTALL.
+     */
+    static boolean debuggingOn(Context c) {
+        return Settings.Global.getInt(c.getContentResolver(), Settings.Global.ADB_ENABLED, 0) == 1;
+    }
 
     static void init(Context c) {
         if (keyDir == null) keyDir = c.getApplicationContext().createDeviceProtectedStorageContext().getFilesDir();

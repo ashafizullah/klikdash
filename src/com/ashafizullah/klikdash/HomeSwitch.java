@@ -60,14 +60,17 @@ final class HomeSwitch {
                 r -> a.runOnUiThread(() -> {
                     if (done != null) done.run();
                     if (isDefault(a)) Notice.ok(a, a.getString(R.string.home_default_ok));
-                    else Notice.fail(a, a.getString(failure(r)));
+                    else Notice.fail(a, a.getString(failure(a, r)));
                 }));
     }
 
-    /** Pesan bila ADB gagal: tidak bisa dihubungi, kunci KlikDash belum diizinkan, atau perintahnya ditolak firmware. */
-    static int failure(int adbResult) {
+    /**
+     * Pesan bila ADB gagal: USB debugging mati, port 5555 tertutup meski USB debugging menyala, kunci KlikDash belum
+     * diizinkan, atau perintahnya ditolak firmware.
+     */
+    static int failure(Context c, int adbResult) {
         if (adbResult == Tweaks.NOT_ALLOWED) return R.string.home_adb_denied;
-        if (adbResult == Tweaks.NO_ADB) return R.string.home_need_adb;
+        if (adbResult == Tweaks.NO_ADB) return Tweaks.debuggingOn(c) ? R.string.home_need_adb_port : R.string.home_need_adb;
         return R.string.home_setprop_failed;
     }
 
@@ -87,7 +90,7 @@ final class HomeSwitch {
                                     + "; input keyevent KEYCODE_HOME",
                             () -> Notice.info(a, a.getString(R.string.home_adb_allow)),
                             r -> {
-                                if (r != Tweaks.DONE) Notice.fail(a, a.getString(failure(r)));
+                                if (r != Tweaks.DONE) Notice.fail(a, a.getString(failure(a, r)));
                             });
                 })
                 .show();

@@ -58,6 +58,28 @@ developer options are off. Turn them on:
 **Asked "Allow USB debugging?"** after tapping the yellow button? That is the headunit asking whether KlikDash
 may use its ADB. Tick **Always allow** and tap **OK**. It is asked only once.
 
+**USB debugging is on, but the message mentions "port 5555"?** Common on Android 11 and later headunits: ADB
+only listens on the USB cable and is not yet open to apps on the headunit itself. Open it once from a computer
+with [Android platform-tools](https://developer.android.com/tools/releases/platform-tools):
+
+1. Connect the headunit and the computer to the same WiFi (for example your phone's hotspot).
+2. On the headunit, open **Settings › Developer options › Wireless debugging**, turn it on, then tap
+   **Pair device with pairing code**. Note the address (`IP:port`) and the 6-digit code.
+3. On the computer, run:
+   ```
+   adb pair IP:PAIRING_PORT CODE
+   adb connect IP:PORT
+   adb tcpip 5555
+   ```
+   `IP:PORT` is the address shown on the main Wireless debugging page (not the pairing address).
+   If the headunit's USB port can be connected to a computer, just plug in the cable and run `adb tcpip 5555`.
+4. Go back to KlikDash, tap the yellow button again, and allow it as above.
+
+The home screen choice is saved permanently, so this is needed only once. Port 5555 closes again when the
+headunit restarts, so **Power Saver** and the automatic tweaks (ksmd, Zlink) stop working until it is opened
+again. To keep it open, also run `adb shell setprop persist.adb.tcp.port 5555` (not every firmware allows it).
+Open ADB gives full access to the headunit: connect it only to a private network, never to public WiFi.
+
 ## 4. Allow location
 
 Tap **Allow** when asked. Location is used to calculate prayer times for your city. Until the GPS gets a

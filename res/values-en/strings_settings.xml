@@ -126,6 +126,7 @@
     <string name="power_restore">RESTORE</string>
     <string name="power_desc">Stop apps from running silently in the background so the headunit stays lighter and cooler. The apps stay installed and open as usual. System apps, navigation and Zlink are not listed.</string>
     <string name="power_checking">CHECKING APPS…</string>
+    <string name="power_need_adb_port">ADB NOT OPEN YET\n\nUSB debugging is on, but ADB port 5555 is closed.\nOpen it with adb tcpip 5555 (see the install guide),\nthen open the Power Saver tab again.</string>
     <string name="power_need_adb">USB DEBUGGING NEEDED\n\nTurn it on in Settings › Developer options › USB debugging,\nthen open the Power Saver tab again.</string>
     <string name="power_no_apps">NO THIRD-PARTY APPS</string>
     <plurals name="power_apps">
