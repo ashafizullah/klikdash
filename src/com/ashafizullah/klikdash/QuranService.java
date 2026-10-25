@@ -163,6 +163,9 @@ public class QuranService extends Service
     Compat.Focus focus;
     NotificationManager nm;
     boolean resumeOnGain;
+    /** Dikecilkan selama aplikasi lain bicara sebentar (navigasi); ayat berikutnya ikut kecil. */
+    boolean ducked;
+    static final float DUCK = 0.3f;
     final Handler main = new Handler(Looper.getMainLooper());
     /** Unduhan surah berurutan di satu thread; file yang sedang ditunggu pemutar diunduh terpisah. */
     final ExecutorService downloader = Executors.newSingleThreadExecutor();
@@ -247,23 +250,43 @@ public class QuranService extends Service
 
     // ------------------------------------------------------------ pemutaran
 
-    /** Mulai dari ayat {@code a}; basmalah diputar dulu bila ayat 1 dan surah memilikinya. */
+    /** Mulai dari ayat {@code a} atas pilihan pengguna; basmalah diputar dulu bila ayat 1 dan surah memilikinya. */
     void start(int s, int a, boolean withBismillah) {
-        surah = s;
-        ayah = Math.max(1, Math.min(a, QuranData.count(s)));
-        bismillah = withBismillah && ayah == 1 && QuranData.hasBismillah(s);
-        getSharedPreferences("quran", MODE_PRIVATE).edit().putInt("s", surah).putInt("a", ayah).apply();
         if (focus.request() != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            select(s, a, withBismillah);
             playing = false;
             publish();
             return;
         }
+        advance(s, a, withBismillah);
+    }
+
+    /**
+     * Lanjut ke ayat berikutnya tanpa meminta audio focus lagi (sudah dipegang). Di firmware NWD tiap permintaan
+     * dan tiap jeda tanpa audio membuat MCU berpindah sumber audio lagi, yang memotong awal ayat.
+     */
+    void advance(int s, int a, boolean withBismillah) {
+        select(s, a, withBismillah);
         playCurrent();
     }
 
+    void select(int s, int a, boolean withBismillah) {
+        surah = s;
+        ayah = Math.max(1, Math.min(a, QuranData.count(s)));
+        bismillah = withBismillah && ayah == 1 && QuranData.hasBismillah(s);
+        getSharedPreferences("quran", MODE_PRIVATE).edit().putInt("s", surah).putInt("a", ayah).apply();
+    }
+
+    /**
+     * Putar file ayat/basmalah saat ini. Player lama dibisukan dan baru dilepas sesudah yang baru mulai: firmware NWD
+     * (NwdAudioService) memperlakukan jeda tanpa audio aktif, walau hanya ±60 ms, sebagai sumber audio yang berhenti,
+     * lalu saat audio mulai lagi MCU berpindah sumber dan amplifier sesaat bisu; huruf pertama tiap ayat hilang.
+     */
     void playCurrent() {
         final File f = bismillah ? audioFile(this, 1, 1) : audioFile(this, surah, ayah);
-        release();
+        MediaPlayer old = player;
+        player = null;
+        if (old != null) old.setVolume(0f, 0f);
         missing = false;
         if (!f.exists()) {
             // Unduh ayat ini dulu (thread sendiri, tidak antre), sisa surah menyusul di latar.
@@ -276,6 +299,7 @@ public class QuranService extends Service
                 main.post(() -> onFetched(f, ok));
             }, "quran-fetch").start();
             queueSurah(surah, ayah);
+            if (old != null) old.release();
             publish();
             return;
         }
@@ -286,6 +310,7 @@ public class QuranService extends Service
             player.setDataSource(f.getPath());
             player.setOnCompletionListener(this);
             player.prepare();
+            if (ducked) player.setVolume(DUCK, DUCK);
             player.start();
             playing = true;
             android.util.Log.i("KlikDashQuran", "putar " + surah + ":" + (bismillah ? "basmalah" : ayah)
@@ -294,6 +319,7 @@ public class QuranService extends Service
             release();
             playing = false;
         }
+        if (old != null) old.release();
         publish();
     }
 
@@ -313,12 +339,12 @@ public class QuranService extends Service
         }
         ayahPlays = 0;
         if (ayah < QuranData.count(surah)) {
-            start(surah, ayah + 1, false);
+            advance(surah, ayah + 1, false);
             return;
         }
         // Akhir surah.
         if (mode == MODE_REPEAT_SURAH && (repeat == 0 || ++surahPlays < repeat)) {
-            start(surah, 1, true);
+            advance(surah, 1, true);
             return;
         }
         surahPlays = 0;
@@ -329,7 +355,7 @@ public class QuranService extends Service
             playing = false;
             publish();
         } else {
-            start(surah + 1, 1, true);
+            advance(surah + 1, 1, true);
         }
     }
 
@@ -458,9 +484,11 @@ public class QuranService extends Service
                 pause();
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                if (player != null) player.setVolume(0.3f, 0.3f);
+                ducked = true;
+                if (player != null) player.setVolume(DUCK, DUCK);
                 break;
             case AudioManager.AUDIOFOCUS_GAIN:
+                ducked = false;
                 if (player != null) player.setVolume(1f, 1f);
                 if (resumeOnGain) resume();
                 resumeOnGain = false;
