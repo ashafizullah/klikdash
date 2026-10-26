@@ -52,6 +52,7 @@
     <string name="home_restore_confirm">Go back</string>
 
     <string name="home_notch_surah">SURAH %1$d</string>
+    <string name="home_notch_dzikir">DHIKR</string>
     <string name="home_notch_paused">PAUSED</string>
     <string name="home_notch_playing">RECITATION</string>
     <string name="home_notch_basmalah">"%1$s  ·  BASMALAH"</string>

@@ -51,6 +51,8 @@ merender animasi 3D (~40% CPU).
   dibaca offline.
 - **Dzikir:** dzikir pagi dan petang dengan penghitung terpandu, dan audio yang tetap diputar di latar sambil
   menyetir (tiap bacaan diulang sebanyak hitungannya dan penghitung ikut bertambah).
+- **Notch pemutar:** selama murattal, dzikir, atau musik aplikasi lain (Spotify, YouTube Music, ...) diputar, bilah
+  kecil di atas home menampilkan yang diputar, dengan tombol jeda dan berikutnya.
 - **Hemat Daya:** larang aplikasi seperti Netflix atau Spotify berjalan di latar.
 - **Asisten suara TANYA AI (opsional):** ucapkan *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai Waze"*,
   atau *"buka Zlink"*. Pakai key Claude atau OpenAI-compatible sendiri; mendengar dan berbicara dengan suara

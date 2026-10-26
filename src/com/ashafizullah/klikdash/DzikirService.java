@@ -37,8 +37,8 @@ public class DzikirService extends Service
 
     // Status dibaca langsung oleh UI (satu proses, thread utama).
     static String period = DzikirActivity.PAGI;
-    /** Bacaan yang diputar, putaran yang sudah selesai, dan berapa putaran yang diputar kali ini. */
-    static int index, rep, reps;
+    /** Bacaan yang diputar (dari {@code total}), putaran yang sudah selesai, dan berapa putaran yang diputar kali ini. */
+    static int index, total, rep, reps;
     static boolean playing, active, missing;
     /** SATU BACAAN: berhenti setelah bacaan yang dipilih selesai diputar. */
     static boolean single;
@@ -140,6 +140,7 @@ public class DzikirService extends Service
     void start(String p, int i) {
         period = p;
         items = DzikirActivity.items(this, p);
+        total = items.size();
         if (items.isEmpty()) return;
         boolean granted = focus.request() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
         select(Math.max(0, Math.min(i, items.size() - 1)));

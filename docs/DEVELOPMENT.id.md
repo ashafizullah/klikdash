@@ -12,7 +12,8 @@ klikdash/
 ├── src/com/ashafizullah/klikdash/   dikelompokkan per fitur; tiap kelas diawali komentar penjelasan
 │   ├── Home*.java, Hijri, Welcome, ScreenLock   launcher: ubin, laci, panel jam, tanggal Hijriah, sambutan, kunci PIN
 │   ├── Prayer*.java, Clock      jadwal sholat (parameter Kemenag RI), pengingat sholat, jam dari GPS
-│   ├── Quran*.java              mushaf, pemutar murattal di latar, notch di home
+│   ├── Quran*.java              mushaf, pemutar murattal di latar
+│   ├── MediaNotch, MediaListener   notch pemutar di home: murattal, dzikir, musik aplikasi lain (MediaSession)
 │   ├── Dzikir*.java             dzikir pagi & petang: penghitung terpandu, pemutar audio di latar, unduhan audio
 │   ├── SettingsActivity, PowerPanel   Pengaturan: launcher, hemat daya
 │   ├── Ask*, Ai*.java           TANYA AI: suara, perintah mobil, profil & kunci API terenkripsi, tab pengaturan

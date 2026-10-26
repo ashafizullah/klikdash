@@ -54,6 +54,7 @@
     <string name="home_restore_confirm">Kembali</string>
 
     <string name="home_notch_surah">SURAH %1$d</string>
+    <string name="home_notch_dzikir">DZIKIR</string>
     <string name="home_notch_paused">JEDA</string>
     <string name="home_notch_playing">MURATTAL</string>
     <string name="home_notch_basmalah">"%1$s  ·  BASMALAH"</string>

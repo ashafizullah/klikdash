@@ -51,6 +51,8 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
   Alafasy, readable offline.
 - **Dhikr:** morning and evening readings with a guided counter, and audio that keeps playing in the background while
   you drive (each reading repeats as many times as its count and the counter follows along).
+- **Player notch:** while the recitation, the dhikr or music from another app (Spotify, YouTube Music, ...) plays, a
+  small bar at the top of the home shows what is playing, with pause and next.
 - **Power saver:** stop apps such as Netflix or Spotify from running in the background.
 - **Voice assistant TANYA AI / ASK AI (optional):** say *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai
   Waze"* or *"buka Zlink"*. Bring your own Claude or OpenAI-compatible key; it listens and speaks with the

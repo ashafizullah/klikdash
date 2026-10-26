@@ -168,8 +168,8 @@ public class HomeActivity extends Activity {
         LinearLayout drawerView = drawer.build();
         drawerView.setVisibility(View.GONE);
         root.addView(home, MATCH, MATCH);
-        notch = new QuranNotch(this, fBold, fMonoBold);
-        root.addView(notch, QuranNotch.params(dp)); // di bawah laci aplikasi, yang menutupinya saat dibuka
+        notch = new MediaNotch(this, fBold, fMonoBold);
+        root.addView(notch, MediaNotch.params(dp)); // di bawah laci aplikasi, yang menutupinya saat dibuka
         root.addView(drawerView, MATCH, MATCH);
         setContentView(root);
         // Keyboard hanya untuk kolom cari di laci: tidak muncul sendiri, dan laci menyusut di atasnya.
@@ -225,7 +225,9 @@ public class HomeActivity extends Activity {
         if (results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED) loc.start();
     }
 
-    QuranNotch notch;
+    MediaNotch notch;
+    /** Musik aplikasi lain berganti lagu atau status: hanya notch. */
+    final Runnable onMedia = () -> notch.refresh();
     /** Murattal berganti ayat atau status: hanya ubin Al-Qur'an ("▶ surah : ayat") dan notch yang berubah. */
     final Runnable onQuran = () -> {
         for (HomeViews.Tile t : tiles) if (t != null && t.quran()) t.invalidate();
@@ -233,11 +235,12 @@ public class HomeActivity extends Activity {
     };
 
     /**
-     * Dzikir diputar atau berhenti: ubin Dzikir menampilkan "▶ PAGI/PETANG". Pemutar memberi kabar tiap putaran
-     * (tiap ±5 detik saat tasbih 100×); gambar ulang ubin hanya bila yang ditampilkan berubah.
+     * Dzikir berganti bacaan/putaran atau status: notch selalu, ubin Dzikir ("▶ PAGI/PETANG") hanya bila yang
+     * ditampilkannya berubah (pemutar memberi kabar tiap putaran, tiap ±5 detik saat tasbih 100×).
      */
     String dzikirShown = "";
     final Runnable onDzikir = () -> {
+        notch.refresh();
         String now = DzikirService.playing + DzikirService.period;
         if (now.equals(dzikirShown)) return;
         dzikirShown = now;
@@ -263,6 +266,8 @@ public class HomeActivity extends Activity {
         keepOrientation();
         QuranService.listeners.add(onQuran);
         DzikirService.listeners.add(onDzikir);
+        MediaListener.listeners.add(onMedia);
+        MediaListener.start(this);
         PrayerAlarm.home = new java.lang.ref.WeakReference<>(this);
         PrayerAlarm.schedule(this);
         apps.untrim();
@@ -394,6 +399,7 @@ public class HomeActivity extends Activity {
         status.stop();
         QuranService.listeners.remove(onQuran);
         DzikirService.listeners.remove(onDzikir);
+        MediaListener.listeners.remove(onMedia);
         if (PrayerAlarm.home.get() == this) PrayerAlarm.home.clear();
         super.onPause();
     }

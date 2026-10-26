@@ -55,6 +55,8 @@ final class HomeDrawer {
         Theme.fill(d);
         int pad = h.px(24);
         d.setPadding(pad, pad, pad, 0);
+        // Tangkap ketukan di area kosong laci; tanpa ini ketukan tembus ke notch dan ubin home di bawahnya.
+        d.setClickable(true);
 
         LinearLayout head = new LinearLayout(h);
         head.setOrientation(LinearLayout.HORIZONTAL);

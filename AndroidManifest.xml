@@ -125,5 +125,16 @@
         <service
             android:name=".DzikirService"
             android:exported="false" />
+
+        <!-- Hanya untuk melihat sesi media aplikasi lain (notch pemutar di home); notifikasinya tidak dibaca -->
+        <service
+            android:name=".MediaListener"
+            android:label="KlikDash"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>

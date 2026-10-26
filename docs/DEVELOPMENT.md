@@ -12,7 +12,8 @@ klikdash/
 ├── src/com/ashafizullah/klikdash/   grouped by feature; each class starts with a comment explaining it
 │   ├── Home*.java, Hijri, Welcome, ScreenLock   launcher: tiles, drawer, clock panel, Hijri date, welcome card, PIN lock
 │   ├── Prayer*.java, Clock      prayer times (Kemenag RI parameters), prayer alerts, clock set from GPS
-│   ├── Quran*.java              mushaf, background recitation player, home notch
+│   ├── Quran*.java              mushaf, background recitation player
+│   ├── MediaNotch, MediaListener   home player notch: recitation, dhikr, other apps' music (MediaSession)
 │   ├── Dzikir*.java             morning & evening dhikr: guided counter, background audio player, audio download
 │   ├── SettingsActivity, PowerPanel   settings: launcher, power saver
 │   ├── Ask*, Ai*.java           TANYA AI: voice, car commands, profiles & encrypted API keys, settings tab
