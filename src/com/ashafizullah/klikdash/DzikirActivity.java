@@ -83,6 +83,9 @@ public class DzikirActivity extends Activity {
     /** Popup unduh disetujui dari tombol PUTAR: begitu audio lengkap, langsung putar. */
     boolean playAfterDownload;
     final Runnable onService = this::refreshPlayer;
+    /** Isi dialog Audio dzikir selagi terbuka: diisi ulang saat unduhan selesai (tombol UNDUH ULANG kembali aktif). */
+    Runnable audioDialog;
+    boolean audioDialogBusy;
 
     int themeBuilt;
 
@@ -119,6 +122,21 @@ public class DzikirActivity extends Activity {
         String p = getIntent().getStringExtra("period");
         open(p != null ? p : DzikirService.active ? DzikirService.period : currentPeriod(this));
         if (DzikirAudio.ready(this) && !DzikirAudio.updateAsked) DzikirAudio.checkUpdate(this);
+        pruneCounts(this);
+    }
+
+    /** Hitungan hari-hari sebelumnya tidak dipakai lagi; tanpa ini file prefs bertambah dua kunci per hari. */
+    static void pruneCounts(Context c) {
+        SharedPreferences p = DzikirAudio.prefs(c);
+        String today = key(PAGI).substring(key(PAGI).lastIndexOf('_'));
+        SharedPreferences.Editor e = null;
+        for (String k : p.getAll().keySet()) {
+            if (k.startsWith("c_") && !k.endsWith(today)) {
+                if (e == null) e = p.edit();
+                e.remove(k);
+            }
+        }
+        if (e != null) e.apply();
     }
 
     @Override protected void onNewIntent(android.content.Intent i) {
@@ -353,21 +371,29 @@ public class DzikirActivity extends Activity {
             box.addView(caption(getString(R.string.dzikir_audio_caption)));
             Key dl = chip(getString(DzikirAudio.downloading ? R.string.dzikir_audio_busy : R.string.dzikir_audio_redownload), () -> {
                 DzikirAudio.download(this, true);
+                audioDialogBusy = DzikirAudio.downloading;
                 fill[0].run();
             });
             box.addView(chipRow(dl));
             box.addView(hint(getString(R.string.dzikir_audio_credit)));
         };
         fill[0].run();
+        audioDialog = fill[0];
+        audioDialogBusy = DzikirAudio.downloading;
         SettingsActivity.showDark(new android.app.AlertDialog.Builder(this)
                 .setTitle(R.string.dzikir_audio_menu)
                 .setView(box)
+                .setOnDismissListener(d -> audioDialog = null)
                 .setPositiveButton(R.string.quran_mode_done, null));
     }
 
     /** Status pemutar dan unduhan berubah: perbarui bar pemutar, ikuti bacaan dan hitungan dari pemutar. */
     void refreshPlayer() {
         if (kPlay == null || items.isEmpty()) return;
+        if (audioDialog != null && audioDialogBusy != DzikirAudio.downloading) {
+            audioDialogBusy = DzikirAudio.downloading;
+            audioDialog.run();
+        }
         boolean ready = DzikirAudio.ready(this), here = here();
         if (playAfterDownload && !DzikirAudio.downloading) {
             playAfterDownload = false;

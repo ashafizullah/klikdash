@@ -232,8 +232,15 @@ public class HomeActivity extends Activity {
         notch.refresh();
     };
 
-    /** Dzikir diputar atau berhenti: ubin Dzikir menampilkan "▶ PAGI/PETANG". */
+    /**
+     * Dzikir diputar atau berhenti: ubin Dzikir menampilkan "▶ PAGI/PETANG". Pemutar memberi kabar tiap putaran
+     * (tiap ±5 detik saat tasbih 100×); gambar ulang ubin hanya bila yang ditampilkan berubah.
+     */
+    String dzikirShown = "";
     final Runnable onDzikir = () -> {
+        String now = DzikirService.playing + DzikirService.period;
+        if (now.equals(dzikirShown)) return;
+        dzikirShown = now;
         for (HomeViews.Tile t : tiles) if (t != null) t.invalidate();
     };
 

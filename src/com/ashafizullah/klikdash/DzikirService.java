@@ -171,6 +171,7 @@ public class DzikirService extends Service
         File f = audio.length > 0 ? DzikirAudio.file(this, audio[clip]) : null;
         missing = f == null || !f.exists();
         if (missing) {
+            DzikirAudio.forget();
             playing = false;
         } else {
             try {

@@ -40,17 +40,31 @@ final class DzikirAudio {
     static int done, total;
     /** Tawaran pembaruan sudah ditampilkan sekali di proses ini; jangan ditanyakan tiap halaman dibuka. */
     static boolean updateAsked;
+    /** Cek pembaruan terakhir (uptime); halaman Dzikir yang dibuka berulang tidak perlu ke jaringan tiap kali. */
+    private static long checkedAt = -1;
+    static final long CHECK_EVERY = 60 * 60 * 1000L;
+
+    // Hasil yang tidak berubah selama proses hidup: daftar potongan audio dari dzikir.json, folder audio, dan
+    // "semua file ada" (sekali true tetap true, kecuali pemutar mendapati file hilang, lihat forget()). ready()
+    // dipanggil tiap status pemutar berubah (tiap putaran), jadi jangan memeriksa puluhan file di thread utama.
+    private static volatile Set<String> clips;
+    private static volatile File dir, quranDir;
+    private static volatile boolean ready;
 
     private static final Handler main = new Handler(Looper.getMainLooper());
 
     private DzikirAudio() { }
 
-    static File dir(Context c) { return new File(c.getExternalFilesDir(null), "dzikir/audio"); }
+    static File dir(Context c) {
+        if (dir == null) dir = new File(c.getExternalFilesDir(null), "dzikir/audio");
+        return dir;
+    }
 
     /** File untuk satu potongan audio di field "audio" dzikir.json: "alafasy/002255" atau nama rekaman. */
     static File file(Context c, String clip) {
-        return clip.startsWith(QURAN) ? new File(QuranService.audioDir(c), clip.substring(QURAN.length()) + ".mp3")
-                : new File(dir(c), clip + ".mp3");
+        if (!clip.startsWith(QURAN)) return new File(dir(c), clip + ".mp3");
+        if (quranDir == null) quranDir = QuranService.audioDir(c);
+        return new File(quranDir, clip.substring(QURAN.length()) + ".mp3");
     }
 
     static String url(String clip) {
@@ -59,6 +73,7 @@ final class DzikirAudio {
 
     /** Semua potongan audio dzikir pagi & petang, tanpa duplikat. */
     static Set<String> clips(Context c) {
+        if (clips != null) return clips;
         Set<String> s = new LinkedHashSet<>();
         JSONObject d = DzikirActivity.data(c);
         for (String p : new String[]{DzikirActivity.PAGI, DzikirActivity.PETANG}) {
@@ -68,13 +83,18 @@ final class DzikirAudio {
                 for (int k = 0; a != null && k < a.length(); k++) s.add(a.optString(k));
             }
         }
+        if (!s.isEmpty()) clips = java.util.Collections.unmodifiableSet(s);
         return s;
     }
 
     static boolean ready(Context c) {
+        if (ready) return true;
         for (String clip : clips(c)) if (!file(c, clip).exists()) return false;
-        return true;
+        return ready = true;
     }
+
+    /** Pemutar mendapati file hilang (mis. penyimpanan dibersihkan): periksa ulang di ready() berikutnya. */
+    static void forget() { ready = false; }
 
     static SharedPreferences prefs(Context c) { return c.getSharedPreferences("dzikir", Context.MODE_PRIVATE); }
 
@@ -119,6 +139,7 @@ final class DzikirAudio {
                 downloading = false;
                 failed = !fine;
                 if (fine) update = false;
+                ready = false; // periksa ulang sekali
                 DzikirService.notifyListeners();
             });
         }, "dzikir-download").start();
@@ -126,7 +147,9 @@ final class DzikirAudio {
 
     /** Cek di latar apakah ada rekaman yang diperbaiki di repo; hasilnya di {@link #update}. Offline: diam saja. */
     static void checkUpdate(Context ctx) {
-        if (downloading) return;
+        long now = android.os.SystemClock.uptimeMillis();
+        if (downloading || (checkedAt >= 0 && now - checkedAt < CHECK_EVERY)) return;
+        checkedAt = now;
         Context c = ctx.getApplicationContext();
         new Thread(() -> {
             try {
