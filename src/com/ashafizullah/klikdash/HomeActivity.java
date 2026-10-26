@@ -582,13 +582,26 @@ public class HomeActivity extends Activity {
         Paint.FontMetrics fmc = pm.getFontMetrics();
         float clockLine = (fmc.descent - fmc.ascent) / 100 / dp; // tinggi baris jam, dp per sp
         // Tema kilap: panel jam jadi kartu kaca dengan jarak dalam `inset` di tiap sisi; jarak ke ubin menyempit.
-        int inset = Theme.gloss() ? 16 : 0, sep = Theme.gloss() ? 13 : 57;
-        float spDp = sp / dp, availH = (portrait ? panelH - 24 : screenH - 48) - 2 * inset;
+        // `edge`: jarak tepi layar ke panel jam dan ubin.
+        int inset = Theme.gloss() ? 16 : 0, sep = Theme.gloss() ? 13 : 57, edge = 24;
+        float spDp = sp / dp, availH = (portrait ? panelH - 24 : screenH - 2 * edge) - 2 * inset;
         // Tombol JADIKAN TAMPILAN UTAMA (48 + jarak 14) ikut dihitung bila tampil; lihat refreshDefaultHome.
         reservedDefault = knownDefault != null && !knownDefault;
         float fixed = 48 + 14 * spDp + 42 + 1.3f * (18 + (panelH < 560 ? 28 : 36) + 13) * k * spDp + 14 + 104 * k
                 + (shortPanel ? 0 : 74) + (reservedDefault ? 62 : 0);
         float clockFit = (availH - fixed - 8) / clockLine;
+        // Layar pendek (mis. 1280×720 dengan density 180 dan huruf sistem besar): jam sudah di ukuran terkecil (56) dan
+        // isi panel tetap terlalu tinggi, sehingga di tema kilap bingkai kartu memotong penggaris dan hitung mundur
+        // sholat. Rapatkan tepi layar dan bingkai kartu supaya ruangnya setidaknya sama dengan tema datar; di portrait
+        // panel jam meminjam jarak garis pemisah (20 di tema datar, 6 di tema kilap) dari ubin.
+        int grow = 0;
+        if (Theme.gloss() && clockFit < 56) {
+            int was = inset;
+            inset = 10;
+            if (portrait) grow = 2 * (20 - 6); else edge = 12;
+            availH += 2 * (was - inset) + (portrait ? grow : 2 * (24 - edge));
+            clockFit = (availH - fixed - 8) / clockLine;
+        }
 
         // Landscape: panel jam di kiri, 34% lebar; dengan ubin lebih sedikit selebar yang dibutuhkan jam (sampai 55%).
         // Portrait: panel jam di atas, ubin di bawah.
@@ -599,10 +612,10 @@ public class HomeActivity extends Activity {
         if (big == 0) clockSp = Math.min(clockSp, panelH * 0.21f);
         clockSp = Math.max(56, Math.min(clockSp, clockFit));
 
-        float gridW = portrait ? wDp - 48 : wDp - 48 - leftDp - sep;
+        float gridW = portrait ? wDp - 48 : wDp - 2 * edge - leftDp - sep;
         cols = n == 4 ? 2 : n == 12 && !portrait && gridW >= 600 ? 4 : 3;
         if (n == 6) { // 3×2 atau 2×3: mana yang ubinnya paling mendekati persegi
-            float gridH = portrait ? screenH - panelH - (Theme.gloss() ? 13 : 41) : screenH - 48;
+            float gridH = portrait ? screenH - panelH - grow - (Theme.gloss() ? 13 : 41) : screenH - 2 * edge;
             double c2 = Math.log((gridW - 12) / 2f / ((gridH - 24) / 3f)), c3 = Math.log((gridW - 24) / 3f / ((gridH - 12) / 2f));
             cols = Math.abs(c2) < Math.abs(c3) ? 2 : 3;
         }
@@ -610,7 +623,7 @@ public class HomeActivity extends Activity {
 
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(portrait ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
-        int pad = px(24);
+        int pad = px(edge);
         row.setPadding(pad, pad, pad, pad);
         if (!Theme.gloss()) row.setBackground(new HomeViews.CropMarks(this));
 
@@ -722,7 +735,7 @@ public class HomeActivity extends Activity {
         left.addView(gauge, gl);
         if (shortPanel) gauge.setVisibility(View.GONE);
 
-        row.addView(left, portrait ? new LinearLayout.LayoutParams(MATCH, px(panelH - 24))
+        row.addView(left, portrait ? new LinearLayout.LayoutParams(MATCH, px(panelH - 24 + grow))
                 : new LinearLayout.LayoutParams(px(leftDp), MATCH));
 
         View div = new View(this);
