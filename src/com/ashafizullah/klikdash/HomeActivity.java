@@ -232,6 +232,11 @@ public class HomeActivity extends Activity {
         notch.refresh();
     };
 
+    /** Dzikir diputar atau berhenti: ubin Dzikir menampilkan "▶ PAGI/PETANG". */
+    final Runnable onDzikir = () -> {
+        for (HomeViews.Tile t : tiles) if (t != null) t.invalidate();
+    };
+
     /** Semua ubin dan notch: saat home tampil lagi (dzikir pagi/petang, murattal bisa berubah selama di latar). */
     void refreshTiles() {
         invalidateTiles();
@@ -250,6 +255,7 @@ public class HomeActivity extends Activity {
         refreshLock(); // PIN bisa diatur atau dihapus di Pengaturan
         keepOrientation();
         QuranService.listeners.add(onQuran);
+        DzikirService.listeners.add(onDzikir);
         PrayerAlarm.home = new java.lang.ref.WeakReference<>(this);
         PrayerAlarm.schedule(this);
         apps.untrim();
@@ -380,6 +386,7 @@ public class HomeActivity extends Activity {
         prayerView.stopTicking();
         status.stop();
         QuranService.listeners.remove(onQuran);
+        DzikirService.listeners.remove(onDzikir);
         if (PrayerAlarm.home.get() == this) PrayerAlarm.home.clear();
         super.onPause();
     }

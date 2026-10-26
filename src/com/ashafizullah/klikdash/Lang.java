@@ -86,6 +86,7 @@ final class Lang {
         Context w = wrap(c, code);
         rename(nm, PrayerAlarm.CHANNEL, w.getString(R.string.channel_prayer));
         rename(nm, QuranService.CHANNEL, w.getString(R.string.channel_quran));
+        rename(nm, DzikirService.CHANNEL, w.getString(R.string.channel_dzikir));
         rename(nm, BeamService.CHANNEL, w.getString(R.string.beam_channel));
     }
 

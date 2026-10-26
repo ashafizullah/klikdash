@@ -121,5 +121,9 @@
         <service
             android:name=".QuranService"
             android:exported="false" />
+
+        <service
+            android:name=".DzikirService"
+            android:exported="false" />
     </application>
 </manifest>

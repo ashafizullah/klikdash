@@ -49,7 +49,8 @@ merender animasi 3D (~40% CPU).
 - **Jadwal sholat:** offline, metode Kemenag, lokasi dari GPS, hitung mundur ke waktu sholat berikutnya.
 - **Al-Qur'an:** 114 surah dengan teks dan terjemahan Kemenag, murattal Mishary Rashid Alafasy per ayat, bisa
   dibaca offline.
-- **Dzikir:** dzikir pagi dan petang dengan penghitung terpandu.
+- **Dzikir:** dzikir pagi dan petang dengan penghitung terpandu, dan audio yang tetap diputar di latar sambil
+  menyetir (tiap bacaan diulang sebanyak hitungannya dan penghitung ikut bertambah).
 - **Hemat Daya:** larang aplikasi seperti Netflix atau Spotify berjalan di latar.
 - **Asisten suara TANYA AI (opsional):** ucapkan *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai Waze"*,
   atau *"buka Zlink"*. Pakai key Claude atau OpenAI-compatible sendiri; mendengar dan berbicara dengan suara
@@ -193,6 +194,8 @@ KlikDash gratis. Kalau bermanfaat, **[traktir saya token AI di Trakteer](https:/
   Al-Qur'an dari [Tanzil](https://tanzil.net): Tanzil Quran Text (Simple Plain, Version 1.1), © Tanzil Project,
   CC BY 3.0 dengan ketentuan Tanzil (hanya salinan apa adanya, dengan kredit dan tautan). Bangun ulang dengan
   `node tools/build_dzikir.mjs <klikband>/src/common/dhikrmorningevening.js assets/dzikir.json`.
+  Audio dzikir: ayat Al-Qur'an dibacakan Mishary Rashid Alafasy (everyayah.com); bacaan lainnya rekaman KlikDash di
+  `audio/dzikir/`, diunduh aplikasi sekali (`python3 tools/build_dzikir_audio.py <folder rekaman>`).
 
 Proyek ini tidak berafiliasi dengan NWD, Zjinnova (Zlink), Apple, Google, Anthropic, OpenAI, ElevenLabs, TinyFish,
 maupun Kemenag RI. Nama produk adalah merek dagang pemiliknya.

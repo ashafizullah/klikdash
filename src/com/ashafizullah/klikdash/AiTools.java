@@ -77,7 +77,8 @@ final class AiTools {
             // "pagi"/"petang" adalah kunci internal dzikir (lihat DzikirActivity), sama di semua bahasa.
             new Tool("open_dzikir", R.string.as_tool_open_dzikir,
                     "{\"type\":\"object\",\"properties\":{\"period\":{\"type\":\"string\",\"enum\":[\"pagi\",\"petang\"],"
-                            + "\"description\":%1$s}},\"additionalProperties\":false}", R.string.as_param_period),
+                            + "\"description\":%1$s},\"play\":{\"type\":\"boolean\",\"description\":%2$s}},"
+                            + "\"additionalProperties\":false}", R.string.as_param_period, R.string.as_param_dzikir_play),
             new Tool("restrict_background", R.string.as_tool_restrict_background,
                     "{\"type\":\"object\",\"properties\":{\"app\":{\"type\":\"string\"},\"restrict\":{\"type\":\"boolean\"}},"
                             + "\"required\":[\"app\",\"restrict\"],\"additionalProperties\":false}"),
@@ -197,7 +198,7 @@ final class AiTools {
                 case "media_control": return media(a, in.optString("action"));
                 case "set_volume": return volume(a, in);
                 case "prayer_times": return prayerTimes(a);
-                case "open_dzikir": return openDzikir(a, in.optString("period", ""));
+                case "open_dzikir": return openDzikir(a, in.optString("period", ""), in.optBoolean("play", false));
                 case "restrict_background": return restrict(a, in.optString("app"), in.optBoolean("restrict", true));
                 case "car_status": return status(a);
                 case "web_search": return webSearch(a, in.optString("query"));
@@ -281,8 +282,15 @@ final class AiTools {
     }
 
     static String media(Activity a, String action) {
-        // Murattal KlikDash: perintah langsung ke layanannya. Tombol media biasa tidak membatalkan "lanjut otomatis"
-        // setelah asisten selesai bicara, sehingga murattal bisa jalan lagi padahal diminta berhenti.
+        // Murattal & dzikir KlikDash: perintah langsung ke layanannya. Tombol media biasa tidak membatalkan "lanjut
+        // otomatis" setelah asisten selesai bicara, sehingga audio bisa jalan lagi padahal diminta berhenti.
+        // Keduanya aktif: yang sedang berbunyi, kalau tidak ada, dzikir.
+        if (DzikirService.active && (DzikirService.playing || !QuranService.playing)) {
+            String act = "pause".equals(action) ? DzikirService.ACTION_PAUSE : "next".equals(action) ? DzikirService.ACTION_NEXT
+                    : "previous".equals(action) ? DzikirService.ACTION_PREV : DzikirService.ACTION_RESUME;
+            Compat.startForegroundService(a, new Intent(a, DzikirService.class).setAction(act));
+            return "Dzikir: " + action + ".";
+        }
         if (QuranService.active) {
             String act = "pause".equals(action) ? QuranService.ACTION_PAUSE : "next".equals(action) ? QuranService.ACTION_NEXT
                     : "previous".equals(action) ? QuranService.ACTION_PREV : QuranService.ACTION_RESUME;
@@ -352,11 +360,22 @@ final class AiTools {
         return s.toString();
     }
 
-    static String openDzikir(Activity a, String period) {
+    /** {@code play}: putar audionya juga, dari bacaan pertama yang belum selesai hari ini. */
+    static String openDzikir(Activity a, String period, boolean play) {
         String p = "pagi".equals(period) || "petang".equals(period) ? period : DzikirActivity.currentPeriod(a);
         ui(a, () -> a.startActivity(new Intent(a, DzikirActivity.class).putExtra("period", p)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)));
-        return AiStore.inLang(a).getString("pagi".equals(p) ? R.string.as_res_dzikir_pagi : R.string.as_res_dzikir_petang);
+        Context t = AiStore.inLang(a);
+        boolean pagi = "pagi".equals(p);
+        if (!play) return t.getString(pagi ? R.string.as_res_dzikir_pagi : R.string.as_res_dzikir_petang);
+        if (!DzikirAudio.ready(a)) return t.getString(R.string.as_res_dzikir_no_audio);
+        List<DzikirActivity.Item> items = DzikirActivity.items(a, p);
+        int[] c = DzikirActivity.loadCounts(a, p, items.size());
+        int first = 0;
+        while (first < items.size() - 1 && c[first] >= items.get(first).count) first++;
+        final int from = first;
+        ui(a, () -> DzikirService.play(a, p, from));
+        return t.getString(pagi ? R.string.as_res_dzikir_play_pagi : R.string.as_res_dzikir_play_petang);
     }
 
     static String restrict(Activity a, String name, boolean on) throws Exception {

@@ -167,7 +167,8 @@ final class HomeViews {
                 h.drawIcon(c, apps.iconOf(a), w - m - icon, m, icon, down);
                 name = apps.slotLabel[idx] != null ? apps.labelText(apps.slotLabel[idx]) : a.upper;
                 if (DzikirActivity.class.getName().equals(a.cn.getClassName())) {
-                    sub = h.loc.dzikirPagi() ? h.tMorning : h.tEvening;
+                    sub = DzikirService.playing ? "▶ " + (DzikirActivity.PAGI.equals(DzikirService.period) ? h.tMorning : h.tEvening)
+                            : h.loc.dzikirPagi() ? h.tMorning : h.tEvening;
                 }
                 if (AskActivity.class.getName().equals(a.cn.getClassName())) sub = h.tAssistant;
                 if (QuranActivity.class.getName().equals(a.cn.getClassName()) && QuranService.playing) {

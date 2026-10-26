@@ -13,7 +13,7 @@ klikdash/
 │   ├── Home*.java, Hijri, Welcome, ScreenLock   launcher: tiles, drawer, clock panel, Hijri date, welcome card, PIN lock
 │   ├── Prayer*.java, Clock      prayer times (Kemenag RI parameters), prayer alerts, clock set from GPS
 │   ├── Quran*.java              mushaf, background recitation player, home notch
-│   ├── DzikirActivity           morning & evening dhikr with a guided counter
+│   ├── Dzikir*.java             morning & evening dhikr: guided counter, background audio player, audio download
 │   ├── SettingsActivity, PowerPanel   settings: launcher, power saver
 │   ├── Ask*, Ai*.java           TANYA AI: voice, car commands, profiles & encrypted API keys, settings tab
 │   ├── Beam*.java               KlikBeam (beta): phone screen mirroring over WiFi
@@ -29,7 +29,9 @@ klikdash/
 │   ├── serif.ttf             Literata (translation; instanced & subset)
 │   ├── static/               static instances of display/mono for Android 7–8.1 (tools/build_static_fonts.py)
 │   └── licenses/             SIL OFL text for each font (shipped inside the APK)
+├── audio/dzikir/             dhikr recordings (MP3) + index.json, downloaded by the app — NOT in the APK
 ├── tools/build_quran.py      builds quran.txt from equran.id JSON
+├── tools/build_dzikir_audio.py  trims & levels raw recordings into audio/dzikir/ (needs ffmpeg, numpy)
 ├── tools/build_static_fonts.py  builds assets/static/ (needs fonttools)
 ├── design/                   README header (header.html → header.png / header.id.png) + real screenshots
 └── LICENSE                   MIT (code); fonts stay under the OFL

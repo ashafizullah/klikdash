@@ -1,0 +1,80 @@
+{
+ "files": {
+  "ashbahna": {
+   "size": 393716,
+   "sha1": "b4914765e8f0a5a5b8866e1872ada04498a49fa3"
+  },
+  "amsaina": {
+   "size": 457455,
+   "sha1": "71a2bd86b0f96443df89152e1010a65482b57e78"
+  },
+  "bika_ashbahna": {
+   "size": 105742,
+   "sha1": "bc7b8669b84ce069d8bf49fe2880b7928b9d0c69"
+  },
+  "bika_amsaina": {
+   "size": 103652,
+   "sha1": "9a0273cff762239ae12e9d23371743193e5a34d6"
+  },
+  "fitrah_pagi": {
+   "size": 223189,
+   "sha1": "a886fc5df99133b06612f42fef2800e14df746a1"
+  },
+  "fitrah_petang": {
+   "size": 224025,
+   "sha1": "7c29685236556fa4559a27f8b3863ceec5a0f14f"
+  },
+  "sayyidul_istighfar": {
+   "size": 294242,
+   "sha1": "95f4ab61bfc9b5a6458a189eceb6faa9970f621c"
+  },
+  "aafini": {
+   "size": 299466,
+   "sha1": "63b5bb5ff20938e91b94d3862ee463df6ccb949a"
+  },
+  "afwa": {
+   "size": 434467,
+   "sha1": "2ff13a0f902fa6236f6ba1249304d33049e17918"
+  },
+  "alimal_ghaib": {
+   "size": 329977,
+   "sha1": "e8376b3ddc31146f2e7e87648674e784dc580d2b"
+  },
+  "bismillah": {
+   "size": 106578,
+   "sha1": "0b930d30601511dfed7d9fdccadef520255c2895"
+  },
+  "radhitu": {
+   "size": 111803,
+   "sha1": "a5636ed0157a14850357ee48c7271fb4f1d3a4e1"
+  },
+  "ya_hayyu": {
+   "size": 134372,
+   "sha1": "d31965f99db0f141626abb8684d4d88a377acc86"
+  },
+  "tahlil": {
+   "size": 131656,
+   "sha1": "f41b9502b138f71dd5dc00a9355d176e20f91f87"
+  },
+  "tasbih": {
+   "size": 37824,
+   "sha1": "10d44effd5bf06203f5d30c2dfbf8dab5e98005d"
+  },
+  "istighfar": {
+   "size": 49318,
+   "sha1": "07dd94c973a53df961b674d70e7e9c183395a8ce"
+  },
+  "tasbih_adada": {
+   "size": 114101,
+   "sha1": "b91a5a02a71ed45fe4bacc05294fd0738961fcfe"
+  },
+  "ilman_nafia": {
+   "size": 106160,
+   "sha1": "650e393609dd843e7f93c5933caaa3539bc81c75"
+  },
+  "audzu_bikalimat": {
+   "size": 69380,
+   "sha1": "a0e3efedf42cd5addf1a4e4c49b1a6d926939987"
+  }
+ }
+}

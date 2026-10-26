@@ -17,13 +17,14 @@
     <string name="as_tool_media_control">Kendalikan audio yang sedang diputar (murattal, musik, radio).</string>
     <string name="as_tool_set_volume">Atur volume media. Isi level 0-100, atau change naik/turun.</string>
     <string name="as_tool_prayer_times">Jadwal sholat hari ini di lokasi mobil, dan waktu sholat berikutnya.</string>
-    <string name="as_tool_open_dzikir">Buka dzikir pagi atau petang.</string>
+    <string name="as_tool_open_dzikir">Buka dzikir pagi atau petang, bisa sekaligus memutar audionya.</string>
     <string name="as_tool_restrict_background">Larang (restrict=true) atau izinkan (false) aplikasi berjalan di latar, untuk menghemat daya.</string>
     <string name="as_tool_car_status">Status headunit: jam, tanggal Masehi &amp; Hijriah, kecepatan, suhu CPU, dan lokasi.</string>
     <string name="as_tool_go_home">Kembali ke layar home KlikDash.</string>
     <string name="as_tool_web_search">Cari informasi terkini di web: berita, harga, cuaca, jadwal, skor, info tempat atau acara. Pakai hanya bila jawabannya butuh info terbaru atau tidak kamu ketahui.</string>
     <string name="as_param_app">Nama aplikasi</string>
     <string name="as_param_period">Kosongkan untuk mengikuti waktu sekarang</string>
+    <string name="as_param_dzikir_play">true untuk langsung memutar audio dzikir (mis. \"putar dzikir pagi\")</string>
     <string name="as_param_query">Kata kunci pencarian, singkat</string>
 
     <!-- Hasil alat (dibaca model) -->
@@ -38,6 +39,9 @@
     <string name="as_res_playing">Memutar %1$s ayat %2$d.</string>
     <string name="as_res_dzikir_pagi">Membuka dzikir pagi.</string>
     <string name="as_res_dzikir_petang">Membuka dzikir petang.</string>
+    <string name="as_res_dzikir_play_pagi">Memutar dzikir pagi.</string>
+    <string name="as_res_dzikir_play_petang">Memutar dzikir petang.</string>
+    <string name="as_res_dzikir_no_audio">Audio dzikir belum diunduh. Halaman dzikir sudah dibuka; ketuk PUTAR untuk mengunduhnya.</string>
     <string name="as_res_protected">%1$s dilindungi agar navigasi/CarPlay tetap jalan.</string>
     <string name="as_res_restricted">%1$s dilarang jalan di latar.</string>
     <string name="as_res_allowed">%1$s boleh jalan di latar lagi.</string>

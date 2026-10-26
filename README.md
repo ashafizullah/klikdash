@@ -49,7 +49,8 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
 - **Prayer times:** offline, Kemenag method, location from GPS, live countdown to the next prayer.
 - **Al-Qur'an:** all 114 surahs with Kemenag text and translation, verse-by-verse recitation by Mishary Rashid
   Alafasy, readable offline.
-- **Dhikr:** morning and evening readings with a guided counter.
+- **Dhikr:** morning and evening readings with a guided counter, and audio that keeps playing in the background while
+  you drive (each reading repeats as many times as its count and the counter follows along).
 - **Power saver:** stop apps such as Netflix or Spotify from running in the background.
 - **Voice assistant TANYA AI / ASK AI (optional):** say *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai
   Waze"* or *"buka Zlink"*. Bring your own Claude or OpenAI-compatible key; it listens and speaks with the
@@ -194,6 +195,8 @@ KlikDash is free. If it saves you time, **[buy me an AI token on Trakteer](https
   verses from [Tanzil](https://tanzil.net): Tanzil Quran Text (Simple Plain, Version 1.1), © Tanzil Project,
   CC BY 3.0 with Tanzil's terms (verbatim copies only, with credit and a link). Rebuild with
   `node tools/build_dzikir.mjs <klikband>/src/common/dhikrmorningevening.js assets/dzikir.json`.
+  Dhikr audio: Qur'an verses recited by Mishary Rashid Alafasy (everyayah.com); the other readings are KlikDash
+  recordings in `audio/dzikir/`, downloaded by the app once (`python3 tools/build_dzikir_audio.py <recordings>`).
 
 This project is not affiliated with NWD, Zjinnova (Zlink), Apple, Google, Anthropic, OpenAI, ElevenLabs, TinyFish,
 or Kemenag RI. Product names are trademarks of their owners.

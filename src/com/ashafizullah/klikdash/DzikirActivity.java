@@ -60,12 +60,12 @@ public class DzikirActivity extends Activity {
     static final class Item {
         String title, arabic, latin, meaning, note;
         int count;
+        /** Potongan audio satu kali baca, diputar berurutan ({@link DzikirAudio#file}). */
+        String[] audio;
     }
 
     float dp, sp;
     Typeface fHeavy, fBold, fMono, fMonoBold, fArab, fSerif;
-    SharedPreferences prefs;
-    JSONObject data;
 
     String period;
     final List<Item> items = new ArrayList<>();
@@ -74,16 +74,31 @@ public class DzikirActivity extends Activity {
 
     ListView list;
     ItemAdapter adapter;
-    TextView step, arab, latin, meaning, note, title;
+    TextView step, arab, latin, meaning, note, title, npSub;
     ScrollView scroll;
-    Key cPagi, cPetang;
+    Key cPagi, cPetang, cMode, kPlay;
     Counter counter;
+    /** Bacaan pemutar yang terakhir diikuti tampilan; -1: ikuti lagi (halaman baru tampil). */
+    int followed = -1;
+    /** Popup unduh disetujui dari tombol PUTAR: begitu audio lengkap, langsung putar. */
+    boolean playAfterDownload;
+    final Runnable onService = this::refreshPlayer;
 
     int themeBuilt;
 
     @Override protected void onResume() {
         super.onResume();
-        Theme.stale(this, themeBuilt);
+        if (Theme.stale(this, themeBuilt)) return;
+        DzikirService.listeners.add(onService);
+        followed = -1;
+        counts = loadCounts(); // bisa bertambah oleh pemutar selama halaman ini tidak tampil
+        show(cur);
+        refreshPlayer();
+    }
+
+    @Override protected void onPause() {
+        DzikirService.listeners.remove(onService);
+        super.onPause();
     }
 
     @Override protected void attachBaseContext(Context base) { super.attachBaseContext(Lang.wrap(base)); }
@@ -93,21 +108,23 @@ public class DzikirActivity extends Activity {
         super.onCreate(b);
         dp = getResources().getDisplayMetrics().density;
         sp = getResources().getDisplayMetrics().scaledDensity;
-        prefs = getSharedPreferences("dzikir", MODE_PRIVATE);
         fHeavy = font("display.ttf", "'opsz' 72, 'wght' 800");
         fBold = font("display.ttf", "'opsz' 36, 'wght' 700");
         fMono = font("mono.ttf", "'wdth' 100, 'wght' 400");
         fMonoBold = font("mono.ttf", "'wdth' 100, 'wght' 700");
         fArab = font("arabic.ttf", null);
         fSerif = font("serif.ttf", null);
-        try {
-            data = new JSONObject(readAsset("dzikir.json"));
-        } catch (Exception e) {
-            data = new JSONObject();
-        }
+        DzikirService.loadMode(this);
         setContentView(buildUi());
         String p = getIntent().getStringExtra("period");
-        open(p != null ? p : currentPeriod(this));
+        open(p != null ? p : DzikirService.active ? DzikirService.period : currentPeriod(this));
+        if (DzikirAudio.ready(this) && !DzikirAudio.updateAsked) DzikirAudio.checkUpdate(this);
+    }
+
+    @Override protected void onNewIntent(android.content.Intent i) {
+        super.onNewIntent(i);
+        String p = i.getStringExtra("period");
+        if (p != null && !p.equals(period)) open(p);
     }
 
     // ---------------------------------------------------------------- data
@@ -129,7 +146,41 @@ public class DzikirActivity extends Activity {
     void open(String p) {
         period = p;
         items.clear();
-        JSONArray arr = data.optJSONArray(p);
+        items.addAll(items(this, p));
+        counts = loadCounts();
+        boolean here = DzikirService.active && p.equals(DzikirService.period);
+        cur = here ? Math.min(DzikirService.index, Math.max(0, items.size() - 1)) : firstUndone();
+        followed = here ? cur : -1;
+        cPagi.setOn(PAGI.equals(p));
+        cPetang.setOn(PETANG.equals(p));
+        title.setText(PAGI.equals(p) ? R.string.dzikir_title_pagi : R.string.dzikir_title_petang);
+        adapter.notifyDataSetChanged();
+        show(cur);
+        refreshPlayer();
+    }
+
+    private static JSONObject data;
+
+    /** assets/dzikir.json, dimuat sekali per proses; dipakai halaman ini, pemutar, dan unduhan audio. */
+    static synchronized JSONObject data(Context c) {
+        if (data == null) {
+            try (InputStream in = c.getAssets().open("dzikir.json")) {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                byte[] buf = new byte[16384];
+                for (int k; (k = in.read(buf)) > 0; ) out.write(buf, 0, k);
+                data = new JSONObject(new String(out.toByteArray(), StandardCharsets.UTF_8));
+            } catch (Exception e) {
+                android.util.Log.w("KlikDash", "Muat dzikir.json gagal", e);
+                return new JSONObject();
+            }
+        }
+        return data;
+    }
+
+    /** Bacaan dzikir {@code p} dalam bahasa antarmuka. */
+    static List<Item> items(Context c, String p) {
+        List<Item> list = new ArrayList<>();
+        JSONArray arr = data(c).optJSONArray(p);
         String sfx = Lang.en() ? "_en" : "";
         for (int i = 0; arr != null && i < arr.length(); i++) {
             JSONObject o = arr.optJSONObject(i);
@@ -140,15 +191,12 @@ public class DzikirActivity extends Activity {
             it.meaning = pick(o, "meaning", sfx, "");
             it.note = pick(o, "note", sfx, null);
             it.count = Math.max(1, o.optInt("count", 1));
-            items.add(it);
+            JSONArray a = o.optJSONArray("audio");
+            it.audio = new String[a != null ? a.length() : 0];
+            for (int k = 0; k < it.audio.length; k++) it.audio[k] = a.optString(k);
+            list.add(it);
         }
-        counts = loadCounts();
-        cur = firstUndone();
-        cPagi.setOn(PAGI.equals(p));
-        cPetang.setOn(PETANG.equals(p));
-        title.setText(PAGI.equals(p) ? R.string.dzikir_title_pagi : R.string.dzikir_title_petang);
-        adapter.notifyDataSetChanged();
-        show(cur);
+        return list;
     }
 
     /** Field dalam bahasa antarmuka (mis. "meaning_en"), atau versi Indonesia bila kosong. */
@@ -157,25 +205,32 @@ public class DzikirActivity extends Activity {
         return o.isNull(key) ? fallback : o.optString(key);
     }
 
-    /** Progres disimpan per hari dan per waktu, jadi keluar-masuk tidak mengulang hitungan. */
-    String key() {
+    /**
+     * Progres disimpan per hari dan per waktu, jadi keluar-masuk tidak mengulang hitungan. Pemutar
+     * ({@link DzikirService}) menambah hitungan di tempat yang sama.
+     */
+    static String key(String period) {
         return "c_" + period + "_" + new SimpleDateFormat("yyyyMMdd", Locale.US).format(new Date());
     }
 
-    int[] loadCounts() {
-        int[] c = new int[items.size()];
-        String[] f = prefs.getString(key(), "").split(",");
+    static int[] loadCounts(Context ctx, String period, int n) {
+        int[] c = new int[n];
+        String[] f = DzikirAudio.prefs(ctx).getString(key(period), "").split(",");
         for (int i = 0; i < c.length && i < f.length; i++) {
             try { c[i] = Integer.parseInt(f[i]); } catch (NumberFormatException ignored) { }
         }
         return c;
     }
 
-    void saveCounts() {
+    static void saveCounts(Context ctx, String period, int[] counts) {
         StringBuilder s = new StringBuilder();
         for (int i = 0; i < counts.length; i++) s.append(i > 0 ? "," : "").append(counts[i]);
-        prefs.edit().putString(key(), s.toString()).apply();
+        DzikirAudio.prefs(ctx).edit().putString(key(period), s.toString()).apply();
     }
+
+    int[] loadCounts() { return loadCounts(this, period, items.size()); }
+
+    void saveCounts() { saveCounts(this, period, counts); }
 
     boolean done(int i) { return counts[i] >= items.get(i).count; }
 
@@ -231,6 +286,128 @@ public class DzikirActivity extends Activity {
             counter.invalidate();
             adapter.notifyDataSetChanged();
         }
+    }
+
+    // ---------------------------------------------------------------- audio
+
+    /** Pemutar sedang memegang dzikir yang tampil (pagi/petang yang sama). */
+    boolean here() { return DzikirService.active && period.equals(DzikirService.period); }
+
+    boolean playingHere() { return here() && DzikirService.playing; }
+
+    /** PUTAR/JEDA: bacaan yang tampil = bacaan pemutar: jeda/lanjut; selain itu putar bacaan yang tampil. */
+    void togglePlay() {
+        if (DzikirAudio.downloading) return;
+        if (!DzikirAudio.ready(this)) { askDownload(); return; }
+        if (here() && DzikirService.index == cur) DzikirService.send(this, DzikirService.ACTION_TOGGLE);
+        else DzikirService.play(this, period, cur);
+    }
+
+    /** ‹ / ›: saat diputar, pemutar ikut pindah bacaan (tampilan menyusul lewat refreshPlayer). */
+    void stepBy(int d) {
+        if (playingHere()) DzikirService.send(this, d > 0 ? DzikirService.ACTION_NEXT : DzikirService.ACTION_PREV);
+        else show(cur + d);
+    }
+
+    /** Saat dzikir diputar, ketuk bacaan di daftar langsung memutarnya; selain itu hanya membuka. */
+    void pickItem(int i) {
+        if (playingHere()) DzikirService.play(this, period, i);
+        show(i);
+    }
+
+    void askDownload() {
+        SettingsActivity.showDark(new android.app.AlertDialog.Builder(this)
+                .setTitle(R.string.dzikir_audio_title)
+                .setMessage(R.string.dzikir_audio_desc)
+                .setPositiveButton(R.string.dzikir_audio_download, (d, w) -> {
+                    playAfterDownload = true;
+                    DzikirAudio.download(this, false);
+                })
+                .setNegativeButton(R.string.quran_not_now, null));
+    }
+
+    void askUpdate() {
+        DzikirAudio.updateAsked = true;
+        SettingsActivity.showDark(new android.app.AlertDialog.Builder(this)
+                .setTitle(R.string.dzikir_update_title)
+                .setMessage(R.string.dzikir_update_desc)
+                .setPositiveButton(R.string.dzikir_audio_download, (d, w) -> DzikirAudio.download(this, false))
+                .setNegativeButton(R.string.quran_not_now, null));
+    }
+
+    /** Pilihan pemutaran (LANJUT / SATU BACAAN) dan unduh ulang audio. */
+    void showAudioDialog() {
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(px(24), px(4), px(24), px(8));
+        Runnable[] fill = new Runnable[1];
+        fill[0] = () -> {
+            box.removeAllViews();
+            box.addView(caption(getString(R.string.dzikir_after)));
+            Key cont = chip(getString(R.string.dzikir_mode_continue), () -> { DzikirService.setSingle(this, false); fill[0].run(); });
+            cont.setOn(!DzikirService.single);
+            Key one = chip(getString(R.string.dzikir_mode_single), () -> { DzikirService.setSingle(this, true); fill[0].run(); });
+            one.setOn(DzikirService.single);
+            box.addView(chipRow(cont, one));
+            box.addView(hint(getString(DzikirService.single ? R.string.dzikir_hint_single : R.string.dzikir_hint_continue)));
+            box.addView(caption(getString(R.string.dzikir_audio_caption)));
+            Key dl = chip(getString(DzikirAudio.downloading ? R.string.dzikir_audio_busy : R.string.dzikir_audio_redownload), () -> {
+                DzikirAudio.download(this, true);
+                fill[0].run();
+            });
+            box.addView(chipRow(dl));
+            box.addView(hint(getString(R.string.dzikir_audio_credit)));
+        };
+        fill[0].run();
+        SettingsActivity.showDark(new android.app.AlertDialog.Builder(this)
+                .setTitle(R.string.dzikir_audio_menu)
+                .setView(box)
+                .setPositiveButton(R.string.quran_mode_done, null));
+    }
+
+    /** Status pemutar dan unduhan berubah: perbarui bar pemutar, ikuti bacaan dan hitungan dari pemutar. */
+    void refreshPlayer() {
+        if (kPlay == null || items.isEmpty()) return;
+        boolean ready = DzikirAudio.ready(this), here = here();
+        if (playAfterDownload && !DzikirAudio.downloading) {
+            playAfterDownload = false;
+            if (ready) { DzikirService.play(this, period, cur); return; }
+        }
+        kPlay.setLabel(getString(playingHere() ? R.string.dzikir_pause : R.string.dzikir_play));
+        cMode.setLabel(getString(DzikirService.single ? R.string.dzikir_mode_single : R.string.dzikir_mode_continue));
+        cMode.setOn(DzikirService.single);
+        int color = AMBER;
+        String s;
+        if (DzikirAudio.downloading) {
+            s = getString(R.string.dzikir_audio_downloading, DzikirAudio.done, DzikirAudio.total);
+        } else if (DzikirAudio.failed) {
+            s = getString(R.string.dzikir_audio_failed);
+        } else if (!ready) {
+            s = getString(R.string.dzikir_audio_none);
+            color = DIM;
+        } else if (here && DzikirService.missing) {
+            s = getString(R.string.dzikir_audio_missing);
+        } else if (here && DzikirService.reps > 0) {
+            s = (DzikirService.playing ? "▶  " : "❚❚  ") + getString(R.string.dzikir_now, DzikirService.index + 1,
+                    Math.min(DzikirService.rep + 1, DzikirService.reps), DzikirService.reps);
+            if (!DzikirService.playing) color = DIM;
+        } else {
+            s = getString(R.string.dzikir_audio_ready);
+            color = DIM;
+        }
+        npSub.setText(s);
+        npSub.setTextColor(color);
+        if (here) {
+            counts = loadCounts();
+            if (DzikirService.playing && DzikirService.index != followed) {
+                followed = DzikirService.index;
+                show(followed);
+            } else {
+                counter.invalidate();
+                adapter.notifyDataSetChanged();
+            }
+        }
+        if (DzikirAudio.update && !DzikirAudio.updateAsked && !DzikirAudio.downloading) askUpdate();
     }
 
     // ---------------------------------------------------------------- layout
@@ -295,7 +472,7 @@ public class DzikirActivity extends Activity {
         list.setVerticalScrollBarEnabled(false);
         adapter = new ItemAdapter();
         list.setAdapter(adapter);
-        list.setOnItemClickListener((p, v, pos, id) -> show(pos));
+        list.setOnItemClickListener((p, v, pos, id) -> pickItem(pos));
         left.addView(list, new LinearLayout.LayoutParams(MATCH, 0, 1f));
         row.addView(left, portrait ? new LinearLayout.LayoutParams(MATCH, px(hDp * 0.34f))
                 : new LinearLayout.LayoutParams(px(listDp()), MATCH));
@@ -333,19 +510,40 @@ public class DzikirActivity extends Activity {
         scroll.addView(body);
         right.addView(scroll, new LinearLayout.LayoutParams(MATCH, 0, 1f));
 
+        // Pemutar audio: mode di kiri, jauh dari PUTAR (sambil menyetir ketukan mudah meleset).
+        right.addView(rule(), new LinearLayout.LayoutParams(MATCH, px(1)));
+        LinearLayout player = new LinearLayout(this);
+        player.setOrientation(LinearLayout.HORIZONTAL);
+        player.setGravity(Gravity.CENTER_VERTICAL);
+        player.setPadding(px(20), px(8), px(20), px(8));
+        cMode = chip("", this::showAudioDialog);
+        player.addView(cMode, new LinearLayout.LayoutParams(WRAP, px(48)));
+        npSub = text("", fMonoBold, 11, DIM);
+        npSub.setLetterSpacing(0.15f);
+        npSub.setSingleLine(true);
+        npSub.setEllipsize(TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams sl = new LinearLayout.LayoutParams(0, WRAP, 1f);
+        sl.leftMargin = px(16);
+        sl.rightMargin = px(16);
+        player.addView(npSub, sl);
+        kPlay = new Key(this, fMonoBold, getString(R.string.dzikir_play), true, this::togglePlay).textSp(12);
+        kPlay.minWidth = px(narrow ? 110 : 150);
+        player.addView(kPlay, new LinearLayout.LayoutParams(WRAP, px(48)));
+        right.addView(player, new LinearLayout.LayoutParams(MATCH, px(64)));
+
         LinearLayout bar = new LinearLayout(this);
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
         bar.setBackgroundColor(PANEL);
         bar.setPadding(px(20), px(12), px(20), px(12));
-        bar.addView(chip(narrow ? "‹" : getString(R.string.dzikir_prev), () -> show(cur - 1)),
+        bar.addView(chip(narrow ? "‹" : getString(R.string.dzikir_prev), () -> stepBy(-1)),
                 new LinearLayout.LayoutParams(narrow ? px(72) : WRAP, px(72)));
         counter = new Counter();
         LinearLayout.LayoutParams kl = new LinearLayout.LayoutParams(0, px(72), 1f);
         kl.leftMargin = px(12);
         kl.rightMargin = px(12);
         bar.addView(counter, kl);
-        bar.addView(chip(narrow ? "›" : getString(R.string.dzikir_next), () -> show(cur + 1)),
+        bar.addView(chip(narrow ? "›" : getString(R.string.dzikir_next), () -> stepBy(1)),
                 new LinearLayout.LayoutParams(narrow ? px(72) : WRAP, px(72)));
         right.addView(bar, new LinearLayout.LayoutParams(MATCH, px(96)));
         row.addView(right, portrait ? new LinearLayout.LayoutParams(MATCH, 0, 1f) : new LinearLayout.LayoutParams(0, MATCH, 1f));
@@ -353,15 +551,6 @@ public class DzikirActivity extends Activity {
     }
 
     // ---------------------------------------------------------------- helpers
-
-    String readAsset(String name) throws java.io.IOException {
-        try (InputStream in = getAssets().open(name)) {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            byte[] buf = new byte[16384];
-            for (int k; (k = in.read(buf)) > 0; ) out.write(buf, 0, k);
-            return new String(out.toByteArray(), StandardCharsets.UTF_8);
-        }
-    }
 
     Typeface font(String file, String axes) { return Compat.font(getAssets(), file, axes, Typeface.DEFAULT); }
 
@@ -391,6 +580,31 @@ public class DzikirActivity extends Activity {
         View v = new View(this);
         v.setBackgroundColor(LINE);
         return v;
+    }
+
+    TextView caption(String s) {
+        TextView t = text(s, fMonoBold, 11, DIM);
+        t.setLetterSpacing(0.2f);
+        t.setPadding(0, px(20), 0, px(10));
+        return t;
+    }
+
+    TextView hint(String s) {
+        TextView t = serif(16, SOFT);
+        t.setText(s);
+        t.setPadding(0, px(14), 0, 0);
+        return t;
+    }
+
+    LinearLayout chipRow(Key... chips) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        for (int i = 0; i < chips.length; i++) {
+            LinearLayout.LayoutParams l = new LinearLayout.LayoutParams(WRAP, px(48));
+            if (i > 0) l.leftMargin = px(8);
+            row.addView(chips[i], l);
+        }
+        return row;
     }
 
     int px(float v) { return Math.round(v * dp); }

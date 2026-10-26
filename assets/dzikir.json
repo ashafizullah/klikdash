@@ -10,7 +10,11 @@
    "meaning": "Diawali A'uudzu billaahi minasy syaithoonir rojiim, lalu baca QS. Al-Baqarah: 255",
    "meaning_en": "Begin with A'udhu billahi minash-shaytanir-rajim, then recite Al-Baqarah 2:255",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "alafasy/audhubillah",
+    "alafasy/002255"
+   ]
   },
   {
    "title": "Surat Al-Ikhlas",
@@ -21,7 +25,14 @@
    "meaning": "Baca surat Al-Ikhlas",
    "meaning_en": "Recite Surah Al-Ikhlas",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "alafasy/001001",
+    "alafasy/112001",
+    "alafasy/112002",
+    "alafasy/112003",
+    "alafasy/112004"
+   ]
   },
   {
    "title": "Surat Al-Falaq",
@@ -32,7 +43,15 @@
    "meaning": "Baca surat Al-Falaq",
    "meaning_en": "Recite Surah Al-Falaq",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "alafasy/001001",
+    "alafasy/113001",
+    "alafasy/113002",
+    "alafasy/113003",
+    "alafasy/113004",
+    "alafasy/113005"
+   ]
   },
   {
    "title": "Surat An-Nas",
@@ -43,7 +62,16 @@
    "meaning": "Baca surat An-Nas",
    "meaning_en": "Recite Surah An-Nas",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "alafasy/001001",
+    "alafasy/114001",
+    "alafasy/114002",
+    "alafasy/114003",
+    "alafasy/114004",
+    "alafasy/114005",
+    "alafasy/114006"
+   ]
   },
   {
    "title": "Ashbahnaa wa ashbahal mulku lillaah",
@@ -54,7 +82,10 @@
    "meaning": "Kami memasuki waktu pagi dan kerajaan hanya milik Allah, segala puji bagi Allah. Tiada Rabb yang berhak disembah selain Allah Yang Maha Esa. Ya Rabbku, aku mohon kebaikan di hari ini dan sesudahnya, dan aku berlindung dari kejahatan hari ini dan sesudahnya, dari kemalasan, keburukan di hari tua, siksa neraka dan siksa kubur.",
    "meaning_en": "We have entered the morning and the dominion belongs to Allah; all praise is for Allah. There is no god but Allah alone. My Lord, I ask You for the good of this day and what follows it, and seek refuge from its evil and what follows it, from laziness and the misery of old age, and from the punishment of the Fire and the grave.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "ashbahna"
+   ]
   },
   {
    "title": "Allahumma bika ashbahnaa",
@@ -65,7 +96,10 @@
    "meaning": "Ya Allah, dengan rahmat-Mu kami memasuki waktu pagi dan waktu sore, dengan-Mu kami hidup dan mati, dan kepada-Mu kebangkitan.",
    "meaning_en": "O Allah, by You we enter the morning and the evening, by You we live and die, and to You is the resurrection.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "bika_ashbahna"
+   ]
   },
   {
    "title": "Sayyidul Istighfar",
@@ -76,7 +110,10 @@
    "meaning": "Sayyidul Istighfar. Ya Allah, Engkau Rabbku, tiada Rabb yang berhak disembah selain Engkau. Engkau menciptakanku dan aku hamba-Mu, aku berada di atas perjanjian-Mu semampuku. Aku berlindung dari kejahatan perbuatanku, aku mengakui nikmat-Mu dan dosaku, maka ampunilah aku, karena tiada yang mengampuni dosa selain Engkau.",
    "meaning_en": "The master of seeking forgiveness. O Allah, You are my Lord, there is no god but You. You created me and I am Your servant, keeping Your covenant as best I can. I seek refuge from the evil I have done, I acknowledge Your favour upon me and my sin, so forgive me, for none forgives sins but You.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "sayyidul_istighfar"
+   ]
   },
   {
    "title": "Allahumma 'aafinii fii badanii",
@@ -87,7 +124,10 @@
    "meaning": "Ya Allah, selamatkanlah tubuhku, pendengaranku, dan penglihatanku. Tiada Rabb yang berhak disembah selain Engkau. Ya Allah, aku berlindung kepada-Mu dari kekufuran, kefakiran, dan siksa kubur.",
    "meaning_en": "O Allah, grant health to my body, my hearing and my sight. There is no god but You. O Allah, I seek refuge in You from disbelief, poverty, and the punishment of the grave.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "aafini"
+   ]
   },
   {
    "title": "Allahumma innii as-alukal 'afwa wal…",
@@ -98,7 +138,10 @@
    "meaning": "Ya Allah, aku memohon ampunan dan keselamatan di dunia dan akhirat, dalam agama, dunia, keluarga, dan hartaku. Tutupilah auratku dan tenteramkan aku dari rasa takut. Peliharalah aku dari depan, belakang, kanan, kiri, dan atas, dan aku berlindung dengan keagungan-Mu agar tidak dicelakakan dari bawah.",
    "meaning_en": "O Allah, I ask You for pardon and well-being in this world and the next, in my religion, worldly affairs, family and wealth. Conceal my faults and calm my fears. Protect me from in front, behind, my right, my left and above, and I seek refuge in Your greatness from being harmed from below.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "afwa"
+   ]
   },
   {
    "title": "Allahumma 'aalimal ghoibi wasy syahaadah",
@@ -109,7 +152,10 @@
    "meaning": "Ya Allah, Yang Mengetahui yang gaib dan yang nyata, Pencipta langit dan bumi, Rabb dan Penguasa segala sesuatu. Aku bersaksi tiada Rabb yang berhak disembah selain Engkau. Aku berlindung dari kejahatan diriku, setan dan ajakan syiriknya, serta dari berbuat buruk terhadap diriku atau kepada seorang muslim.",
    "meaning_en": "O Allah, Knower of the unseen and the seen, Creator of the heavens and the earth, Lord and Sovereign of all things. I bear witness that there is no god but You. I seek refuge from the evil of myself, of Satan and his call to shirk, and from wronging myself or any Muslim.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "alimal_ghaib"
+   ]
   },
   {
    "title": "Bismillaahil ladzii laa yadhurru ma'asmihi…",
@@ -120,7 +166,10 @@
    "meaning": "Dengan nama Allah yang bila disebut, segala sesuatu di bumi dan langit tidak akan membahayakan. Dia Maha Mendengar lagi Maha Mengetahui.",
    "meaning_en": "In the name of Allah, with whose name nothing on earth or in the heavens can cause harm, and He is the All-Hearing, the All-Knowing.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "bismillah"
+   ]
   },
   {
    "title": "Rodhiitu billaahi robbaa",
@@ -131,7 +180,10 @@
    "meaning": "Aku ridha Allah sebagai Rabb, Islam sebagai agama, dan Muhammad shallallahu alaihi wa sallam sebagai nabi.",
    "meaning_en": "I am pleased with Allah as my Lord, Islam as my religion, and Muhammad (peace be upon him) as my Prophet.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "radhitu"
+   ]
   },
   {
    "title": "Yaa Hayyu yaa Qoyyuum",
@@ -142,7 +194,10 @@
    "meaning": "Wahai Rabb Yang Maha Hidup dan Berdiri Sendiri, dengan rahmat-Mu aku memohon pertolongan. Perbaikilah seluruh urusanku dan jangan Engkau serahkan kepada diriku walau sekejap mata.",
    "meaning_en": "O Ever-Living, O Self-Sustaining, by Your mercy I seek help. Set right all my affairs and do not leave me to myself even for the blink of an eye.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "ya_hayyu"
+   ]
   },
   {
    "title": "Ashbahnaa 'alaa fithrotil islaam",
@@ -153,7 +208,10 @@
    "meaning": "Di waktu pagi kami berada di atas fitrah Islam, kalimat ikhlas, agama Nabi kami Muhammad, dan agama bapak kami Ibrahim yang lurus dan muslim, dan ia tidak termasuk orang musyrik.",
    "meaning_en": "We have entered the morning upon the natural way of Islam, the word of sincerity, the religion of our Prophet Muhammad, and the way of our father Ibrahim, upright and Muslim, who was not of the polytheists.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "fitrah_pagi"
+   ]
   },
   {
    "title": "Laa ilaaha illallaah wahdahu laa…",
@@ -164,7 +222,10 @@
    "meaning": "Tiada Rabb yang berhak disembah selain Allah Yang Maha Esa, tidak ada sekutu bagi-Nya. Bagi-Nya kerajaan dan pujian, Dia Mahakuasa atas segala sesuatu.",
    "meaning_en": "There is no god but Allah alone, without partner. His is the dominion and the praise, and He has power over all things.",
    "note": "Atau 1x saat malas",
-   "note_en": "Or once if unable"
+   "note_en": "Or once if unable",
+   "audio": [
+    "tahlil"
+   ]
   },
   {
    "title": "Subhaanallaahi wa bihamdihi 'adada kholqihi",
@@ -175,7 +236,10 @@
    "meaning": "Maha Suci Allah dan aku memuji-Nya sebanyak makhluk-Nya, sesuai ridha-Nya, seberat timbangan Arsy-Nya, dan sebanyak tinta kalimat-Nya.",
    "meaning_en": "Glory be to Allah and praise Him, as many as His creation, as much as pleases Him, as heavy as His Throne, and as much as the ink of His words.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "tasbih_adada"
+   ]
   },
   {
    "title": "Allahumma innii as-aluka 'ilman naafi'aa",
@@ -186,7 +250,10 @@
    "meaning": "Ya Allah, aku memohon kepada-Mu ilmu yang bermanfaat, rezeki yang halal, dan amal yang diterima.",
    "meaning_en": "O Allah, I ask You for beneficial knowledge, good provision, and accepted deeds.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "ilman_nafia"
+   ]
   },
   {
    "title": "Subhaanallaahi wa bihamdih",
@@ -197,7 +264,10 @@
    "meaning": "Maha Suci Allah, aku memuji-Nya",
    "meaning_en": "Glory be to Allah and praise Him",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "tasbih"
+   ]
   },
   {
    "title": "Astaghfirullaaha wa atuubu ilaih",
@@ -208,7 +278,10 @@
    "meaning": "Aku memohon ampun kepada Allah dan bertaubat kepada-Nya",
    "meaning_en": "I seek forgiveness from Allah and repent to Him",
    "note": "100x dalam sehari",
-   "note_en": "100 times a day"
+   "note_en": "100 times a day",
+   "audio": [
+    "istighfar"
+   ]
   }
  ],
  "petang": [
@@ -221,7 +294,11 @@
    "meaning": "Diawali A'uudzu billaahi minasy syaithoonir rojiim, lalu baca QS. Al-Baqarah: 255",
    "meaning_en": "Begin with A'udhu billahi minash-shaytanir-rajim, then recite Al-Baqarah 2:255",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "alafasy/audhubillah",
+    "alafasy/002255"
+   ]
   },
   {
    "title": "Surat Al-Ikhlas",
@@ -232,7 +309,14 @@
    "meaning": "Baca surat Al-Ikhlas",
    "meaning_en": "Recite Surah Al-Ikhlas",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "alafasy/001001",
+    "alafasy/112001",
+    "alafasy/112002",
+    "alafasy/112003",
+    "alafasy/112004"
+   ]
   },
   {
    "title": "Surat Al-Falaq",
@@ -243,7 +327,15 @@
    "meaning": "Baca surat Al-Falaq",
    "meaning_en": "Recite Surah Al-Falaq",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "alafasy/001001",
+    "alafasy/113001",
+    "alafasy/113002",
+    "alafasy/113003",
+    "alafasy/113004",
+    "alafasy/113005"
+   ]
   },
   {
    "title": "Surat An-Nas",
@@ -254,7 +346,16 @@
    "meaning": "Baca surat An-Nas",
    "meaning_en": "Recite Surah An-Nas",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "alafasy/001001",
+    "alafasy/114001",
+    "alafasy/114002",
+    "alafasy/114003",
+    "alafasy/114004",
+    "alafasy/114005",
+    "alafasy/114006"
+   ]
   },
   {
    "title": "Amsainaa wa amsal mulku lillaah",
@@ -265,7 +366,10 @@
    "meaning": "Kami memasuki waktu sore dan kerajaan hanya milik Allah, segala puji bagi Allah. Tiada Rabb yang berhak disembah selain Allah Yang Maha Esa. Ya Rabbku, aku mohon kebaikan di malam ini dan sesudahnya, dan aku berlindung dari kejahatan malam ini dan sesudahnya, dari kemalasan, keburukan di hari tua, siksa neraka dan siksa kubur.",
    "meaning_en": "We have entered the evening and the dominion belongs to Allah; all praise is for Allah. There is no god but Allah alone. My Lord, I ask You for the good of this night and what follows it, and seek refuge from its evil and what follows it, from laziness and the misery of old age, and from the punishment of the Fire and the grave.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "amsaina"
+   ]
   },
   {
    "title": "Allahumma bika amsainaa",
@@ -276,7 +380,10 @@
    "meaning": "Ya Allah, dengan rahmat-Mu kami memasuki waktu sore dan waktu pagi, dengan-Mu kami hidup dan mati, dan kepada-Mu tempat kembali.",
    "meaning_en": "O Allah, by You we enter the evening and the morning, by You we live and die, and to You is the return.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "bika_amsaina"
+   ]
   },
   {
    "title": "Sayyidul Istighfar",
@@ -287,7 +394,10 @@
    "meaning": "Sayyidul Istighfar. Ya Allah, Engkau Rabbku, tiada Rabb yang berhak disembah selain Engkau. Engkau menciptakanku dan aku hamba-Mu, aku berada di atas perjanjian-Mu semampuku. Aku berlindung dari kejahatan perbuatanku, aku mengakui nikmat-Mu dan dosaku, maka ampunilah aku, karena tiada yang mengampuni dosa selain Engkau.",
    "meaning_en": "The master of seeking forgiveness. O Allah, You are my Lord, there is no god but You. You created me and I am Your servant, keeping Your covenant as best I can. I seek refuge from the evil I have done, I acknowledge Your favour upon me and my sin, so forgive me, for none forgives sins but You.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "sayyidul_istighfar"
+   ]
   },
   {
    "title": "Allahumma 'aafinii fii badanii",
@@ -298,7 +408,10 @@
    "meaning": "Ya Allah, selamatkanlah tubuhku, pendengaranku, dan penglihatanku. Tiada Rabb yang berhak disembah selain Engkau. Ya Allah, aku berlindung kepada-Mu dari kekufuran, kefakiran, dan siksa kubur.",
    "meaning_en": "O Allah, grant health to my body, my hearing and my sight. There is no god but You. O Allah, I seek refuge in You from disbelief, poverty, and the punishment of the grave.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "aafini"
+   ]
   },
   {
    "title": "Allahumma innii as-alukal 'afwa wal…",
@@ -309,7 +422,10 @@
    "meaning": "Ya Allah, aku memohon ampunan dan keselamatan di dunia dan akhirat, dalam agama, dunia, keluarga, dan hartaku. Tutupilah auratku dan tenteramkan aku dari rasa takut. Peliharalah aku dari depan, belakang, kanan, kiri, dan atas, dan aku berlindung dengan keagungan-Mu agar tidak dicelakakan dari bawah.",
    "meaning_en": "O Allah, I ask You for pardon and well-being in this world and the next, in my religion, worldly affairs, family and wealth. Conceal my faults and calm my fears. Protect me from in front, behind, my right, my left and above, and I seek refuge in Your greatness from being harmed from below.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "afwa"
+   ]
   },
   {
    "title": "Allahumma 'aalimal ghoibi wasy syahaadah",
@@ -320,7 +436,10 @@
    "meaning": "Ya Allah, Yang Mengetahui yang gaib dan yang nyata, Pencipta langit dan bumi, Rabb dan Penguasa segala sesuatu. Aku bersaksi tiada Rabb yang berhak disembah selain Engkau. Aku berlindung dari kejahatan diriku, setan dan ajakan syiriknya, serta dari berbuat buruk terhadap diriku atau kepada seorang muslim.",
    "meaning_en": "O Allah, Knower of the unseen and the seen, Creator of the heavens and the earth, Lord and Sovereign of all things. I bear witness that there is no god but You. I seek refuge from the evil of myself, of Satan and his call to shirk, and from wronging myself or any Muslim.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "alimal_ghaib"
+   ]
   },
   {
    "title": "Bismillaahil ladzii laa yadhurru ma'asmihi…",
@@ -331,7 +450,10 @@
    "meaning": "Dengan nama Allah yang bila disebut, segala sesuatu di bumi dan langit tidak akan membahayakan. Dia Maha Mendengar lagi Maha Mengetahui.",
    "meaning_en": "In the name of Allah, with whose name nothing on earth or in the heavens can cause harm, and He is the All-Hearing, the All-Knowing.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "bismillah"
+   ]
   },
   {
    "title": "Rodhiitu billaahi robbaa",
@@ -342,7 +464,10 @@
    "meaning": "Aku ridha Allah sebagai Rabb, Islam sebagai agama, dan Muhammad shallallahu alaihi wa sallam sebagai nabi.",
    "meaning_en": "I am pleased with Allah as my Lord, Islam as my religion, and Muhammad (peace be upon him) as my Prophet.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "radhitu"
+   ]
   },
   {
    "title": "Yaa Hayyu yaa Qoyyuum",
@@ -353,7 +478,10 @@
    "meaning": "Wahai Rabb Yang Maha Hidup dan Berdiri Sendiri, dengan rahmat-Mu aku memohon pertolongan. Perbaikilah seluruh urusanku dan jangan Engkau serahkan kepada diriku walau sekejap mata.",
    "meaning_en": "O Ever-Living, O Self-Sustaining, by Your mercy I seek help. Set right all my affairs and do not leave me to myself even for the blink of an eye.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "ya_hayyu"
+   ]
   },
   {
    "title": "Amsainaa 'alaa fithrotil islaam",
@@ -364,7 +492,10 @@
    "meaning": "Di waktu sore kami berada di atas fitrah Islam, kalimat ikhlas, agama Nabi kami Muhammad, dan agama bapak kami Ibrahim yang lurus dan muslim, dan ia tidak termasuk orang musyrik.",
    "meaning_en": "We have entered the evening upon the natural way of Islam, the word of sincerity, the religion of our Prophet Muhammad, and the way of our father Ibrahim, upright and Muslim, who was not of the polytheists.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "fitrah_petang"
+   ]
   },
   {
    "title": "Laa ilaaha illallaah wahdahu laa…",
@@ -375,7 +506,10 @@
    "meaning": "Tiada Rabb yang berhak disembah selain Allah Yang Maha Esa, tidak ada sekutu bagi-Nya. Bagi-Nya kerajaan dan pujian, Dia Mahakuasa atas segala sesuatu.",
    "meaning_en": "There is no god but Allah alone, without partner. His is the dominion and the praise, and He has power over all things.",
    "note": "Atau 1x saat malas",
-   "note_en": "Or once if unable"
+   "note_en": "Or once if unable",
+   "audio": [
+    "tahlil"
+   ]
   },
   {
    "title": "Subhaanallaahi wa bihamdih",
@@ -386,7 +520,10 @@
    "meaning": "Maha Suci Allah, aku memuji-Nya",
    "meaning_en": "Glory be to Allah and praise Him",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "tasbih"
+   ]
   },
   {
    "title": "Astaghfirullaaha wa atuubu ilaih",
@@ -397,7 +534,10 @@
    "meaning": "Aku memohon ampun kepada Allah dan bertaubat kepada-Nya",
    "meaning_en": "I seek forgiveness from Allah and repent to Him",
    "note": "100x dalam sehari",
-   "note_en": "100 times a day"
+   "note_en": "100 times a day",
+   "audio": [
+    "istighfar"
+   ]
   },
   {
    "title": "A'uudzu bi kalimaatillaahit taammaati min…",
@@ -408,7 +548,10 @@
    "meaning": "Aku berlindung dengan kalimat-kalimat Allah yang sempurna dari kejahatan makhluk yang diciptakan-Nya.",
    "meaning_en": "I seek refuge in the perfect words of Allah from the evil of what He has created.",
    "note": null,
-   "note_en": null
+   "note_en": null,
+   "audio": [
+    "audzu_bikalimat"
+   ]
   }
  ]
 }

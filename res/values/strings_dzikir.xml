@@ -15,4 +15,32 @@
     <string name="dzikir_hint_count">KETUK UNTUK MENGHITUNG</string>
     <string name="dzikir_short_full">LANJUT</string>
     <string name="dzikir_short_count">KETUK</string>
+    <!-- Audio dzikir (DzikirService, DzikirAudio) -->
+    <string name="dzikir_play">▶  PUTAR</string>
+    <string name="dzikir_pause">❚❚  JEDA</string>
+    <string name="dzikir_mode_continue">LANJUT</string>
+    <string name="dzikir_mode_single">SATU BACAAN</string>
+    <string name="dzikir_audio_menu">Audio dzikir</string>
+    <string name="dzikir_after">SETELAH BACAAN SELESAI DIPUTAR</string>
+    <string name="dzikir_hint_continue">Tiap bacaan diputar sebanyak hitungannya dan penghitung ikut bertambah, lalu lanjut ke bacaan berikutnya yang belum selesai sampai dzikir selesai.</string>
+    <string name="dzikir_hint_single">Bacaan yang dipilih diputar sebanyak hitungannya, lalu berhenti. Pilih bacaan lain di daftar dan ketuk PUTAR.</string>
+    <string name="dzikir_audio_caption">AUDIO</string>
+    <string name="dzikir_audio_redownload">UNDUH ULANG AUDIO</string>
+    <string name="dzikir_audio_busy">SEDANG MENGUNDUH…</string>
+    <string name="dzikir_audio_credit">Ayat Al-Qur\'an dibacakan Mishary Rashid Alafasy (everyayah.com); bacaan lainnya rekaman KlikDash.</string>
+    <string name="dzikir_audio_title">Unduh audio dzikir?</string>
+    <string name="dzikir_audio_desc">Audio dzikir pagi dan petang (±6 MB) diunduh sekali, lalu bisa diputar tanpa internet sambil menyetir.</string>
+    <string name="dzikir_audio_download">UNDUH</string>
+    <string name="dzikir_update_title">Ada perbaikan audio dzikir</string>
+    <string name="dzikir_update_desc">Sebagian rekaman dzikir sudah diperbaiki. Unduh sekarang? Hanya rekaman yang berubah yang diunduh.</string>
+    <string name="dzikir_audio_downloading">MENGUNDUH AUDIO  %1$d / %2$d</string>
+    <string name="dzikir_audio_failed">UNDUH GAGAL  ·  PERIKSA INTERNET LALU KETUK PUTAR</string>
+    <string name="dzikir_audio_none">AUDIO BELUM DIUNDUH  ·  KETUK PUTAR</string>
+    <string name="dzikir_audio_missing">AUDIO TIDAK ADA  ·  UNDUH ULANG LEWAT TOMBOL DI KIRI</string>
+    <string name="dzikir_audio_ready">AUDIO SIAP  ·  KETUK PUTAR UNTUK MENDENGARKAN</string>
+    <string name="dzikir_now">BACAAN %1$02d  ·  PUTARAN %2$d / %3$d</string>
+    <string name="dzikir_n_pagi">Dzikir pagi</string>
+    <string name="dzikir_n_petang">Dzikir petang</string>
+    <string name="dzikir_n_rep">Putaran %1$d dari %2$d</string>
+    <string name="dzikir_n_missing">Audio belum diunduh — buka Dzikir untuk mengunduh</string>
 </resources>

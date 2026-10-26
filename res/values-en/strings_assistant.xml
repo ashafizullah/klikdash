@@ -11,13 +11,14 @@
     <string name="as_tool_media_control">Control the audio that is playing (recitation, music, radio).</string>
     <string name="as_tool_set_volume">Set the media volume. Give level 0-100, or change up/down.</string>
     <string name="as_tool_prayer_times">Today\'s prayer times at the car\'s location, and the next prayer.</string>
-    <string name="as_tool_open_dzikir">Open the morning (pagi) or evening (petang) dhikr.</string>
+    <string name="as_tool_open_dzikir">Open the morning (pagi) or evening (petang) dhikr, optionally playing its audio.</string>
     <string name="as_tool_restrict_background">Forbid (restrict=true) or allow (false) an app to run in the background, to save power.</string>
     <string name="as_tool_car_status">Headunit status: time, Gregorian &amp; Hijri date, speed, CPU temperature, and location.</string>
     <string name="as_tool_go_home">Go back to the KlikDash home screen.</string>
     <string name="as_tool_web_search">Search the web for current information: news, prices, weather, schedules, scores, places or events. Use only when the answer needs recent information or you don\'t know it.</string>
     <string name="as_param_app">App name</string>
     <string name="as_param_period">Leave empty to follow the current time</string>
+    <string name="as_param_dzikir_play">true to start playing the dhikr audio right away (e.g. \"play the morning dhikr\")</string>
     <string name="as_param_query">Short search keywords</string>
 
     <string name="as_res_home">Back to home.</string>
@@ -31,6 +32,9 @@
     <string name="as_res_playing">Playing %1$s from verse %2$d.</string>
     <string name="as_res_dzikir_pagi">Opening the morning dhikr.</string>
     <string name="as_res_dzikir_petang">Opening the evening dhikr.</string>
+    <string name="as_res_dzikir_play_pagi">Playing the morning dhikr.</string>
+    <string name="as_res_dzikir_play_petang">Playing the evening dhikr.</string>
+    <string name="as_res_dzikir_no_audio">The dhikr audio is not downloaded yet. The dhikr page is open; tap PLAY to download it.</string>
     <string name="as_res_protected">%1$s is protected so navigation/CarPlay keeps working.</string>
     <string name="as_res_restricted">%1$s may no longer run in the background.</string>
     <string name="as_res_allowed">%1$s may run in the background again.</string>

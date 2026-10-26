@@ -13,7 +13,7 @@ klikdash/
 │   ├── Home*.java, Hijri, Welcome, ScreenLock   launcher: ubin, laci, panel jam, tanggal Hijriah, sambutan, kunci PIN
 │   ├── Prayer*.java, Clock      jadwal sholat (parameter Kemenag RI), pengingat sholat, jam dari GPS
 │   ├── Quran*.java              mushaf, pemutar murattal di latar, notch di home
-│   ├── DzikirActivity           dzikir pagi & petang dengan penghitung terpandu
+│   ├── Dzikir*.java             dzikir pagi & petang: penghitung terpandu, pemutar audio di latar, unduhan audio
 │   ├── SettingsActivity, PowerPanel   Pengaturan: launcher, hemat daya
 │   ├── Ask*, Ai*.java           TANYA AI: suara, perintah mobil, profil & kunci API terenkripsi, tab pengaturan
 │   ├── Beam*.java               KlikBeam (beta): mirror layar HP lewat WiFi
@@ -28,7 +28,9 @@ klikdash/
 │   ├── arabic.ttf            Amiri Quran
 │   ├── serif.ttf             Literata (terjemahan; di-instance & subset)
 │   └── licenses/             teks SIL OFL tiap font (ikut terbawa di APK)
+├── audio/dzikir/             rekaman dzikir (MP3) + index.json, diunduh aplikasi — TIDAK ikut APK
 ├── tools/build_quran.py      bangun quran.txt dari JSON equran.id
+├── tools/build_dzikir_audio.py  potong & samakan level rekaman mentah ke audio/dzikir/ (butuh ffmpeg, numpy)
 ├── tools/build_static_fonts.py  bangun assets/static/ (butuh fonttools)
 ├── design/                   header README (header.html → header.png / header.id.png) + screenshot asli
 └── LICENSE                   MIT (kode); font tetap OFL
