@@ -12,7 +12,6 @@ import android.content.SharedPreferences;
 
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
-import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -84,7 +83,9 @@ public class PrayerAlarm extends BroadcastReceiver {
         String name = titleCase(Lang.prayers[i]);
         Calendar t = Calendar.getInstance();
         t.setTimeInMillis(at);
-        String time = String.format(Locale.US, "%02d:%02d", t.get(Calendar.HOUR_OF_DAY), t.get(Calendar.MINUTE));
+        int min = t.get(Calendar.HOUR_OF_DAY) * 60 + t.get(Calendar.MINUTE);
+        boolean twelve = Clock.twelve(prefs(c));
+        String time = Clock.hm(twelve, min) + (twelve ? " " + Clock.ampm(min) : "");
         String city = prefs(c).getString("city", null);
         String msg = w.getString(R.string.prayer_alert_message, name, time) + (city != null ? " · " + titleCase(city) : "");
         String title = w.getString(R.string.prayer_alert_title);

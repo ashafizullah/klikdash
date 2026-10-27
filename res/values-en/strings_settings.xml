@@ -24,6 +24,10 @@
     <string name="settings_home_restore">STOCK LAUNCHER</string>
     <string name="settings_home_make">MAKE DEFAULT</string>
 
+    <string name="settings_clock_title">CLOCK FORMAT</string>
+    <string name="settings_clock_desc">Clock on the home screen, prayer times, and prayer reminders. 12-hour shows AM/PM next to the clock.</string>
+    <string name="settings_clock_24">24-HOUR</string>
+    <string name="settings_clock_12">12-HOUR</string>
     <string name="settings_hijri_title">HIJRI DATE</string>
     <string name="settings_hijri_desc">Today is %1$s. Calculated with the Umm al-Qura calendar, which can be a day off from the Kemenag calendar. Shift it by a day if the moon sighting differs.</string>
 

@@ -23,6 +23,17 @@ final class Clock {
 
     private Clock() { }
 
+    /** Pengaturan › Launcher › Format jam: true = 12 jam (AM/PM), bawaan 24 jam. */
+    static boolean twelve(SharedPreferences p) { return p.getBoolean("clock12", false); }
+
+    /** Jam dari menit sejak tengah malam: "14:05", atau "2:05" untuk 12 jam (AM/PM terpisah, lihat {@link #ampm}). */
+    static String hm(boolean twelve, int minuteOfDay) {
+        int h = minuteOfDay / 60 % 24, m = minuteOfDay % 60;
+        return (twelve ? String.valueOf(h % 12 == 0 ? 12 : h % 12) : HomeActivity.two(h)) + ":" + HomeActivity.two(m);
+    }
+
+    static String ampm(int minuteOfDay) { return minuteOfDay / 60 % 24 < 12 ? "AM" : "PM"; }
+
     /** Jam terbukti benar pada boot ini (cache {@link #ok} untuk proses ini). */
     private static volatile boolean ok;
     /** elapsedRealtime percobaan terakhir memasang jam dari GPS; paling sering sekali semenit. */

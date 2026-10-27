@@ -80,7 +80,7 @@ public class HomeActivity extends Activity {
     static String two(int n) { return n < 10 ? "0" + n : String.valueOf(n); }
 
     View home;
-    TextView clock, day, date, hijri, speed;
+    TextView clock, ampm, day, date, hijri, speed;
 
     /** Teks yang digambar tiap frame (ubin, panel sholat): diambil sekali saat home dibangun, bukan getString tiap onDraw. */
     String tAll, tApps, tMorning, tEvening, tAssistant, tEmpty, tTapToFill, tNextIn, tApprox;
@@ -539,7 +539,11 @@ public class HomeActivity extends Activity {
         Calendar now = Calendar.getInstance(); // zona waktu saat ini, juga sesudah diganti
         loc.computePrayer(now);
         if (prayerView != null) prayerView.invalidate();
-        show(clock, two(now.get(Calendar.HOUR_OF_DAY)) + ":" + two(now.get(Calendar.MINUTE)));
+        int min = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
+        boolean twelve = Clock.twelve(prefs);
+        show(clock, Clock.hm(twelve, min));
+        show(ampm, twelve ? Clock.ampm(min) : "");
+        ampm.setVisibility(twelve ? View.VISIBLE : View.GONE);
         show(day, Lang.days[now.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY]);
         show(date, getString(R.string.home_date, now.get(Calendar.DAY_OF_MONTH), Lang.months[now.get(Calendar.MONTH)],
                 now.get(Calendar.YEAR)));
@@ -698,6 +702,13 @@ public class HomeActivity extends Activity {
         clock = text("00:00", fHeavy, clockSp, TEXT);
         clock.setLetterSpacing(-0.01f);
         clockRow.addView(clock);
+        // Format 12 jam: AM/PM kecil di samping jam, sejajar satuan kecepatan.
+        ampm = text("", fMonoBold, 16 * k, DIM);
+        ampm.setLetterSpacing(0.2f);
+        LinearLayout.LayoutParams al = new LinearLayout.LayoutParams(WRAP, WRAP);
+        al.leftMargin = px(12);
+        al.bottomMargin = px(14);
+        clockRow.addView(ampm, al);
         clockRow.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1f));
         LinearLayout speedBox = new LinearLayout(this);
         speedBox.setOrientation(LinearLayout.VERTICAL);

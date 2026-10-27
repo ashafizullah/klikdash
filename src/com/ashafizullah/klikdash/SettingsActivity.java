@@ -190,6 +190,17 @@ public class SettingsActivity extends Activity {
                         : key(getString(R.string.settings_home_make), true, () -> HomeSwitch.makeDefault(this, prefs,
                         () -> show(TAB_LAUNCHER, true)))));
 
+        boolean twelve = Clock.twelve(prefs);
+        Key[] fmt = new Key[2];
+        for (int i = 0; i < 2; i++) {
+            final boolean v = i == 1;
+            fmt[i] = key(getString(v ? R.string.settings_clock_12 : R.string.settings_clock_24), v == twelve, () -> {
+                prefs.edit().putBoolean("clock12", v).apply();
+                show(TAB_LAUNCHER, true);
+            });
+        }
+        list.addView(row(getString(R.string.settings_clock_title), getString(R.string.settings_clock_desc), fmt));
+
         int off = prefs.getInt("hijriOffset", 0);
         Key[] shift = new Key[5];
         for (int i = 0; i < 5; i++) {

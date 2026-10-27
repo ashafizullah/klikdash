@@ -25,6 +25,10 @@
     <string name="settings_home_restore">LAUNCHER BAWAAN</string>
     <string name="settings_home_make">JADIKAN UTAMA</string>
 
+    <string name="settings_clock_title">FORMAT JAM</string>
+    <string name="settings_clock_desc">Jam di home, jadwal sholat, dan pengingat sholat. Format 12 jam menampilkan AM/PM di samping jam.</string>
+    <string name="settings_clock_24">24 JAM</string>
+    <string name="settings_clock_12">12 JAM</string>
     <string name="settings_hijri_title">TANGGAL HIJRIAH</string>
     <string name="settings_hijri_desc">Hari ini %1$s. Dihitung dengan kalender Umm al-Qura, yang bisa selisih sehari dari kalender Kemenag. Geser per hari bila hasil rukyat berbeda.</string>
 

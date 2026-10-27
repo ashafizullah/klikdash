@@ -13,7 +13,6 @@ import android.os.SystemClock;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 import java.util.TimeZone;
 
 import static com.ashafizullah.klikdash.HomeActivity.ID;
@@ -170,12 +169,13 @@ final class HomeLocation {
     }
 
     void computePrayer(Calendar now) {
-        int key = now.get(Calendar.YEAR) * 1000 + now.get(Calendar.DAY_OF_YEAR);
+        boolean twelve = Clock.twelve(h.prefs);
+        int key = (now.get(Calendar.YEAR) * 1000 + now.get(Calendar.DAY_OF_YEAR)) * 2 + (twelve ? 1 : 0); // ganti format: tulis ulang
         if (key == prayDayKey) return;
         prayDayKey = key;
         pray = PrayerTimes.compute(now, lat, lon);
         prayText = new String[pray.length];
-        for (int i = 0; i < pray.length; i++) prayText[i] = String.format(Locale.US, "%02d:%02d", pray[i] / 60, pray[i] % 60);
+        for (int i = 0; i < pray.length; i++) prayText[i] = Clock.hm(twelve, pray[i]);
         Calendar t = (Calendar) now.clone();
         t.add(Calendar.DAY_OF_MONTH, 1);
         prayTomorrow = PrayerTimes.compute(t, lat, lon);
