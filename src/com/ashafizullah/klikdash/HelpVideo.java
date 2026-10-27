@@ -49,14 +49,19 @@ final class HelpVideo {
                 .show());
     }
 
-    /** Kartu putih berisi QR, ajakan memindai, dan link pendeknya (untuk yang tidak bisa memindai). */
+    /** Kartu QR video tutorial (lihat {@link #qrCard}). */
     static LinearLayout card(Context c, int video) {
+        return qrCard(c, QR[video], c.getString(R.string.help_scan), URL[video]);
+    }
+
+    /** Kartu putih berisi QR, ajakan memindai, dan link pendeknya (untuk yang tidak bisa memindai). */
+    static LinearLayout qrCard(Context c, int qrRes, String caption, String shortUrl) {
         float dp = c.getResources().getDisplayMetrics().density;
         LinearLayout col = new LinearLayout(c);
         col.setOrientation(LinearLayout.VERTICAL);
         col.setGravity(Gravity.CENTER_HORIZONTAL);
         ImageView qr = new ImageView(c);
-        qr.setImageResource(QR[video]);
+        qr.setImageResource(qrRes);
         int pad = Math.round(10 * dp), size = Math.round(168 * dp);
         qr.setPadding(pad, pad, pad, pad);
         GradientDrawable bg = new GradientDrawable();
@@ -66,7 +71,7 @@ final class HelpVideo {
         col.addView(qr, new LinearLayout.LayoutParams(size, size));
         Typeface mono = Compat.font(c.getAssets(), "mono.ttf", "'wdth' 100, 'wght' 700", Typeface.MONOSPACE);
         TextView scan = new TextView(c);
-        scan.setText(R.string.help_scan);
+        scan.setText(caption);
         scan.setTypeface(mono);
         scan.setTextSize(11);
         scan.setLetterSpacing(0.15f);
@@ -76,12 +81,13 @@ final class HelpVideo {
         scan.setPadding(0, Math.round(12 * dp), 0, 0);
         col.addView(scan, new LinearLayout.LayoutParams(size, LinearLayout.LayoutParams.WRAP_CONTENT));
         TextView url = new TextView(c);
-        url.setText(URL[video]);
+        url.setText(shortUrl);
         url.setTypeface(mono);
         url.setTextSize(11);
         url.setTextColor(DIM);
+        url.setGravity(Gravity.CENTER);
         url.setPadding(0, Math.round(4 * dp), 0, 0);
-        col.addView(url);
+        col.addView(url, new LinearLayout.LayoutParams(size, LinearLayout.LayoutParams.WRAP_CONTENT));
         return col;
     }
 }
