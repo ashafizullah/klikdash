@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  <a href="https://trakteer.id/adamshafizullah/tip"><img src="https://img.shields.io/badge/Buy%20me%20an%20AI%20token-Trakteer-C02E2E?style=for-the-badge" alt="Buy me an AI token on Trakteer"></a>
+  <a href="https://trakteer.id/adamshafizullah/tip"><img src="https://img.shields.io/badge/Traktir%20token%20AI-Trakteer-C02E2E?style=for-the-badge" alt="Traktir token AI di Trakteer"></a>
 </p>
 
 <p align="center">
@@ -175,7 +175,7 @@ Struktur kode, build tanpa Gradle, audio murattal, membuat teks Al-Qur'an, dan c
 
 ## Dukungan
 
-KlikDash gratis. Kalau bermanfaat, **[traktir saya token AI di Trakteer](https://trakteer.id/adamshafizullah/tip)** ☕🤖.
+KlikDash gratis. Kalau aplikasi ini menghemat waktu Anda, **[traktir saya token AI di Trakteer](https://trakteer.id/adamshafizullah/tip)** ☕🤖.
 
 ## Sumber & lisensi
 
