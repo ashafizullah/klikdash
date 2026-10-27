@@ -28,6 +28,13 @@
     <string name="settings_clock_desc">Clock on the home screen, prayer times, and prayer reminders. 12-hour shows AM/PM next to the clock.</string>
     <string name="settings_clock_24">24-HOUR</string>
     <string name="settings_clock_12">12-HOUR</string>
+    <string name="settings_method_title">PRAYER TIMES</string>
+    <string name="settings_method_desc">Automatic: JAKIM when the headunit\'s time zone is Malaysia, otherwise Kemenag (Indonesia). Now calculated with %1$s.</string>
+    <string name="settings_method_auto">AUTO</string>
+    <string name="settings_method_kemenag">KEMENAG</string>
+    <string name="settings_method_jakim">JAKIM</string>
+    <string name="settings_method_kemenag_name">Kemenag, Indonesia (Fajr 20°, Isha 18°)</string>
+    <string name="settings_method_jakim_name">JAKIM, Malaysia (Fajr 18°, Isha 18°)</string>
     <string name="settings_hijri_title">HIJRI DATE</string>
     <string name="settings_hijri_desc">Today is %1$s. Calculated with the Umm al-Qura calendar, which can be a day off from the Kemenag calendar. Shift it by a day if the moon sighting differs.</string>
 

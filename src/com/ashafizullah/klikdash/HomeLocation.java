@@ -170,15 +170,17 @@ final class HomeLocation {
 
     void computePrayer(Calendar now) {
         boolean twelve = Clock.twelve(h.prefs);
-        int key = (now.get(Calendar.YEAR) * 1000 + now.get(Calendar.DAY_OF_YEAR)) * 2 + (twelve ? 1 : 0); // ganti format: tulis ulang
+        int method = PrayerTimes.method(h.prefs);
+        // Ganti format jam atau metode: hitung dan tulis ulang.
+        int key = ((now.get(Calendar.YEAR) * 1000 + now.get(Calendar.DAY_OF_YEAR)) * 2 + (twelve ? 1 : 0)) * 2 + method;
         if (key == prayDayKey) return;
         prayDayKey = key;
-        pray = PrayerTimes.compute(now, lat, lon);
+        pray = PrayerTimes.compute(now, lat, lon, method);
         prayText = new String[pray.length];
         for (int i = 0; i < pray.length; i++) prayText[i] = Clock.hm(twelve, pray[i]);
         Calendar t = (Calendar) now.clone();
         t.add(Calendar.DAY_OF_MONTH, 1);
-        prayTomorrow = PrayerTimes.compute(t, lat, lon);
+        prayTomorrow = PrayerTimes.compute(t, lat, lon, method);
     }
 
     /** Indeks waktu sholat berikutnya, atau -1 jika berikutnya Subuh besok. */

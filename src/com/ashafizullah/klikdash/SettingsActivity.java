@@ -201,6 +201,22 @@ public class SettingsActivity extends Activity {
         }
         list.addView(row(getString(R.string.settings_clock_title), getString(R.string.settings_clock_desc), fmt));
 
+        int pm = prefs.getInt("prayerMethod", PrayerTimes.AUTO);
+        int[] pmValue = {PrayerTimes.AUTO, PrayerTimes.KEMENAG, PrayerTimes.JAKIM};
+        int[] pmLabel = {R.string.settings_method_auto, R.string.settings_method_kemenag, R.string.settings_method_jakim};
+        Key[] methods = new Key[pmValue.length];
+        for (int i = 0; i < methods.length; i++) {
+            final int v = pmValue[i];
+            methods[i] = key(getString(pmLabel[i]), v == pm, () -> {
+                prefs.edit().putInt("prayerMethod", v).apply();
+                PrayerAlarm.schedule(this); // pengingat ikut jadwal metode baru
+                show(TAB_LAUNCHER, true);
+            });
+        }
+        list.addView(row(getString(R.string.settings_method_title), getString(R.string.settings_method_desc,
+                getString(PrayerTimes.method(prefs) == PrayerTimes.JAKIM ? R.string.settings_method_jakim_name
+                        : R.string.settings_method_kemenag_name)), methods));
+
         int off = prefs.getInt("hijriOffset", 0);
         Key[] shift = new Key[5];
         for (int i = 0; i < 5; i++) {

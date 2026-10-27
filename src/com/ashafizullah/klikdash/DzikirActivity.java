@@ -156,7 +156,7 @@ public class DzikirActivity extends Activity {
             if (la != null && lo != null) { lat = Double.parseDouble(la); lon = Double.parseDouble(lo); }
         } catch (NumberFormatException ignored) { }
         Calendar now = Calendar.getInstance();
-        int ashar = PrayerTimes.compute(now, lat, lon)[2];
+        int ashar = PrayerTimes.compute(now, lat, lon, PrayerTimes.method(hp))[2];
         int min = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
         return min < ashar ? PAGI : PETANG;
     }

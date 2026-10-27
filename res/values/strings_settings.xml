@@ -29,6 +29,13 @@
     <string name="settings_clock_desc">Jam di home, jadwal sholat, dan pengingat sholat. Format 12 jam menampilkan AM/PM di samping jam.</string>
     <string name="settings_clock_24">24 JAM</string>
     <string name="settings_clock_12">12 JAM</string>
+    <string name="settings_method_title">JADWAL SHOLAT</string>
+    <string name="settings_method_desc">Otomatis: JAKIM bila zona waktu headunit Malaysia, selain itu Kemenag RI. Sekarang dihitung dengan %1$s.</string>
+    <string name="settings_method_auto">OTOMATIS</string>
+    <string name="settings_method_kemenag">KEMENAG</string>
+    <string name="settings_method_jakim">JAKIM</string>
+    <string name="settings_method_kemenag_name">Kemenag RI (Subuh 20°, Isya 18°)</string>
+    <string name="settings_method_jakim_name">JAKIM Malaysia (Subuh 18°, Isyak 18°)</string>
     <string name="settings_hijri_title">TANGGAL HIJRIAH</string>
     <string name="settings_hijri_desc">Hari ini %1$s. Dihitung dengan kalender Umm al-Qura, yang bisa selisih sehari dari kalender Kemenag. Geser per hari bila hasil rukyat berbeda.</string>
 

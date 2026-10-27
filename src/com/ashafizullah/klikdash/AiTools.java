@@ -336,7 +336,8 @@ final class AiTools {
     static String prayerTimes(Activity a) {
         double[] l = location(a);
         Calendar now = Calendar.getInstance();
-        int[] t = PrayerTimes.compute(now, l[0], l[1]);
+        int[] t = PrayerTimes.compute(now, l[0], l[1], PrayerTimes.method(
+                a.createDeviceProtectedStorageContext().getSharedPreferences("klikdash", Context.MODE_PRIVATE)));
         int min = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
         Context c = AiStore.inLang(a);
         Locale loc = locale(a);

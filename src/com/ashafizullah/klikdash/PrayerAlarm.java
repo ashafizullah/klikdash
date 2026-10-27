@@ -44,7 +44,7 @@ public class PrayerAlarm extends BroadcastReceiver {
         for (int day = 0; day < 2; day++) {
             Calendar d = (Calendar) now.clone();
             d.add(Calendar.DAY_OF_MONTH, day);
-            int[] t = PrayerTimes.compute(d, loc[0], loc[1]);
+            int[] t = PrayerTimes.compute(d, loc[0], loc[1], PrayerTimes.method(p));
             for (int i = 0; i < t.length; i++) {
                 Calendar at = (Calendar) d.clone();
                 at.set(Calendar.HOUR_OF_DAY, t[i] / 60);
