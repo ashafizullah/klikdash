@@ -57,19 +57,23 @@ public final class AdbWifiService extends Service {
      */
     static boolean offer(Activity a, int adbResult, String cmd, boolean openPort, IntConsumer done) {
         if (adbResult != Tweaks.NO_ADB || !supported() || !Tweaks.debuggingOn(a) || a.isFinishing()) return false;
-        String msg = a.getString(R.string.adbwifi_offer_message);
+        Sheet s = new Sheet(a, HomeActivity.AMBER, a.getString(R.string.adbwifi_offer_title), a.getString(R.string.adbwifi_offer_heading),
+                HelpVideo.WIRELESS)
+                .text(a.getString(R.string.adbwifi_offer_intro), 0)
+                .step(1, a.getString(R.string.adbwifi_offer_step1))
+                .step(2, a.getString(R.string.adbwifi_offer_step2))
+                .step(3, a.getString(R.string.adbwifi_offer_step3))
+                .text(a.getString(R.string.adbwifi_offer_outro), HomeActivity.DIM);
         if (openPort) {
-            msg += a.getString(R.string.adbwifi_offer_port_note);
+            s.text(a.getString(R.string.adbwifi_offer_port_note), HomeActivity.DIM);
             // ro.adb.secure=0: adbd di port 5555 tidak meminta izin kunci sama sekali.
-            if ("0".equals(HomeSwitch.getprop("ro.adb.secure"))) msg += a.getString(R.string.adbwifi_offer_insecure_note);
+            if ("0".equals(HomeSwitch.getprop("ro.adb.secure"))) s.text(a.getString(R.string.adbwifi_offer_insecure_note), HomeActivity.HOT);
         }
-        Notice.track(new android.app.AlertDialog.Builder(a)
-                .setTitle(R.string.adbwifi_offer_title)
-                .setMessage(msg)
-                .setNegativeButton(R.string.common_cancel, (d, w) -> done.accept(Tweaks.NO_ADB))
-                .setOnCancelListener(d -> done.accept(Tweaks.NO_ADB))
-                .setPositiveButton(R.string.adbwifi_offer_start, (d, w) -> start(a, cmd, openPort, done))
-                .show());
+        Runnable cancel = () -> done.accept(Tweaks.NO_ADB);
+        s.onCancel(cancel)
+                .key(a.getString(R.string.common_cancel).toUpperCase(Lang.locale()), false, cancel)
+                .key(a.getString(R.string.adbwifi_offer_start).toUpperCase(Lang.locale()), true, () -> start(a, cmd, openPort, done))
+                .show();
         return true;
     }
 

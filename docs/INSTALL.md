@@ -12,7 +12,7 @@ phone's hotspot) during the first setup.
 
 ▶️ Prefer video? Watch the **[5-minute install tutorial on YouTube](https://youtu.be/sSRKIyC3Ato)** (Indonesian, with subtitles).
 
-📺 All KlikDash videos (install, TANYA AI, TinyFish web search, updates) are in the **[YouTube playlist](https://www.youtube.com/playlist?list=PLEAZ252hW8a4)**.
+📺 All KlikDash videos (install, TANYA AI, TinyFish web search, updates, USB debugging, Wireless debugging) are in the **[YouTube playlist](https://www.youtube.com/playlist?list=PLEAZ252hW8a4)**.
 
 ## What you need
 
@@ -48,7 +48,8 @@ button. Tap it.
 ![Pick KlikDash as the home app](img/home-settings.png)
 
 **Seeing "Belum berhasil. Aktifkan USB debugging" ("not done yet, turn on USB debugging")?** The headunit's
-developer options are off. Turn them on:
+developer options are off. ▶️ Watch the **[USB debugging video](https://youtu.be/eVMA64kG_H8)** (2 minutes, Indonesian
+with subtitles), or turn them on:
 1. Open **Settings › About** (or *Device info*) and tap **Build number / Version** 7 times until you see
    *"You are now a developer"*. Some headunits ask for a factory code here. It is usually in the manual or
    available from the seller (often `8888`, `3368` or `1234`).
@@ -60,7 +61,7 @@ may use its ADB. Tick **Always allow** and tap **OK**. It is asked only once.
 
 **USB debugging is on, but ADB is not open yet (port 5555)?** Common on Android 11 and later headunits: ADB
 only listens on the USB cable and is not yet open to apps on the headunit itself. KlikDash can open it without a
-computer over **Wireless debugging**: tap **Start** on the *Open ADB without a computer* offer, then:
+computer over **Wireless debugging** (▶️ **[video tutorial](https://youtu.be/qDb4Irg5wok)**, 3 minutes, Indonesian with subtitles): tap **Start** on the *Open ADB without a computer* offer, then:
 
 1. Connect the headunit to WiFi, for example your phone's hotspot.
 2. In **Developer options** (opened for you), turn on **Wireless debugging** and allow the network, then tap

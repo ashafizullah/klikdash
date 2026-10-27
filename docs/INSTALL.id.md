@@ -9,7 +9,7 @@ saat pertama kali memasang.
 
 ▶️ Lebih suka video? Tonton **[tutorial pemasangan 5 menit di YouTube](https://youtu.be/sSRKIyC3Ato)**.
 
-📺 Semua video KlikDash (pemasangan, TANYA AI, pencarian web TinyFish, update) ada di **[playlist YouTube](https://www.youtube.com/playlist?list=PLEAZ252hW8a4)**.
+📺 Semua video KlikDash (pemasangan, TANYA AI, pencarian web TinyFish, update, USB debugging, Wireless debugging) ada di **[playlist YouTube](https://www.youtube.com/playlist?list=PLEAZ252hW8a4)**.
 
 ## Yang dibutuhkan
 
@@ -44,7 +44,8 @@ Buka **KlikDash**. Di kiri atas ada tombol kuning **JADIKAN TAMPILAN UTAMA**. Ke
 ![Pilih KlikDash sebagai aplikasi home](img/home-settings.png)
 
 **Muncul pesan "Belum berhasil. Aktifkan USB debugging"?** Itu artinya opsi pengembang headunit masih mati.
-Nyalakan dulu:
+▶️ Tonton **[video cara mengaktifkan USB debugging](https://youtu.be/eVMA64kG_H8)** (2 menit), atau ikuti langkah
+ini. Nyalakan dulu:
 1. Buka **Pengaturan › Tentang** (atau *Info perangkat*), lalu ketuk **Nomor build / Versi** 7 kali sampai
    muncul tulisan *"Anda sekarang pengembang"*. Beberapa headunit meminta kode pabrik di sini. Kodenya biasanya
    ada di buku manual atau bisa ditanyakan ke penjual (sering `8888`, `3368`, atau `1234`).
@@ -56,7 +57,7 @@ KlikDash memakai ADB-nya. Centang **Always allow**, lalu ketuk **OK**. Pertanyaa
 
 **USB debugging sudah aktif, tapi ADB belum terbuka (port 5555)?** Umum di headunit Android 11 ke atas: ADB-nya
 hanya mendengar kabel USB, belum terbuka untuk aplikasi di headunit itu sendiri. KlikDash bisa membukanya tanpa
-komputer lewat **Wireless debugging**: ketuk **Mulai** pada tawaran *Buka ADB tanpa komputer*, lalu:
+komputer lewat **Wireless debugging** (▶️ **[video tutorialnya](https://youtu.be/qDb4Irg5wok)**, 3 menit): ketuk **Mulai** pada tawaran *Buka ADB tanpa komputer*, lalu:
 
 1. Sambungkan headunit ke WiFi, misalnya hotspot HP.
 2. Di **Opsi pengembang** (dibuka otomatis), nyalakan **Wireless debugging** dan izinkan jaringannya, lalu

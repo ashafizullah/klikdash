@@ -66,8 +66,9 @@ final class HomeSwitch {
                         if (done != null) done.run();
                         if (isDefault(a)) Notice.ok(a, a.getString(R.string.home_default_ok));
                         else if (w == Tweaks.DONE) Notice.fail(a, a.getString(R.string.home_setprop_failed));
-                        else Notice.fail(a, a.getString(R.string.home_need_adb_port)); // dibatalkan/gagal: cara lewat komputer
-                    })) Notice.fail(a, a.getString(failure(a, r)));
+                        // Dibatalkan/gagal: video Wireless debugging, dan cara lewat komputer di pesannya.
+                        else HelpVideo.fail(a, a.getString(R.string.home_need_adb_port), HelpVideo.WIRELESS);
+                    })) HelpVideo.fail(a, a.getString(failure(a, r)), HelpVideo.forAdb(a, r));
                 }));
     }
 
@@ -97,7 +98,7 @@ final class HomeSwitch {
                                     + "; input keyevent KEYCODE_HOME",
                             () -> Notice.info(a, a.getString(R.string.home_adb_allow)),
                             r -> {
-                                if (r != Tweaks.DONE) Notice.fail(a, a.getString(failure(a, r)));
+                                if (r != Tweaks.DONE) HelpVideo.fail(a, a.getString(failure(a, r)), HelpVideo.forAdb(a, r));
                             });
                 })
                 .show();

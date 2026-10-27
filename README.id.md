@@ -68,7 +68,7 @@ merender animasi 3D (~40% CPU).
 
 ▶️ **[Video tutorial di YouTube](https://youtu.be/sSRKIyC3Ato)** (5 menit, dengan subtitle) ·
 👉 **[Panduan langkah demi langkah](docs/INSTALL.id.md)** dengan screenshot dan tanya jawab ·
-📺 **[Semua video tutorial](https://www.youtube.com/playlist?list=PLEAZ252hW8a4)**: pemasangan, TANYA AI, pencarian web TinyFish, update
+📺 **[Semua video tutorial](https://www.youtube.com/playlist?list=PLEAZ252hW8a4)**: pemasangan, TANYA AI, pencarian web TinyFish, update, USB dan Wireless debugging
 
 [![Tutorial pemasangan KlikDash di YouTube](docs/img/video.png)](https://youtu.be/sSRKIyC3Ato)
 

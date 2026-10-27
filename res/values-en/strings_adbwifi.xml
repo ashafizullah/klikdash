@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="adbwifi_offer_title">OPEN ADB WITHOUT A COMPUTER</string>
-    <string name="adbwifi_offer_message">This headunit hasn\'t opened ADB to apps yet (port 5555). KlikDash can open it itself over Wireless debugging:\n\n1. Connect the headunit to WiFi, for example your phone\'s hotspot.\n2. In Developer options, turn on Wireless debugging, then tap \"Pair device with pairing code\".\n3. Leave the code dialog open. Pull down the notification panel, tap ENTER CODE on the KlikDash notification, and type the 6-digit code.\n\nWhen it\'s done, Wireless debugging is turned off again automatically.</string>
     <string name="adbwifi_offer_start">Start</string>
-    <string name="adbwifi_offer_port_note">\n\nPower Saver needs port 5555 to stay open. Other devices on the same WiFi can reach that port: use it only on a private network.</string>
 
-    <string name="adbwifi_offer_insecure_note">\n\nWARNING: this headunit\'s ADB doesn\'t ask for permission. While port 5555 is open, anyone on the same WiFi can control the headunit without being asked.</string>
     <string name="adbwifi_channel">Open ADB</string>
     <string name="adbwifi_title">Open ADB without a computer</string>
     <string name="adbwifi_waiting">Turn on Wireless debugging, tap \"Pair device with pairing code\", then tap ENTER CODE here.</string>
@@ -19,4 +16,15 @@
     <string name="adbwifi_no_dialog">Pairing dialog not found. Make sure the headunit is on WiFi and the dialog is still open. You can also type the port and code, for example 37215 482913.</string>
     <string name="adbwifi_pair_failed">Pairing failed. Open \"Pair device with pairing code\" again and type the new code.</string>
     <string name="adbwifi_connect_failed">Paired, but ADB can\'t be reached yet. Make sure Wireless debugging is still on, then try again from KlikDash.</string>
+
+    <string name="adbwifi_offer_heading">Open it over Wireless debugging</string>
+    <string name="adbwifi_offer_intro">This headunit hasn\'t opened ADB to apps yet (port 5555). KlikDash can open it itself, without a computer:</string>
+    <string name="adbwifi_offer_step1">Connect the headunit to WiFi, for example your phone\'s hotspot.</string>
+    <string name="adbwifi_offer_step2">In Developer options, turn on Wireless debugging, then tap \"Pair device with pairing code\".</string>
+    <string name="adbwifi_offer_step3">Leave the code dialog open. Pull down the notification panel, tap ENTER CODE on the KlikDash notification, and type the 6-digit code.</string>
+    <string name="adbwifi_offer_outro">When it\'s done, Wireless debugging is turned off again automatically.</string>
+    <string name="help_fail_tag">NEED HELP?</string>
+    <string name="help_scan">SCAN WITH YOUR PHONE FOR THE VIDEO TUTORIAL (INDONESIAN, SUBTITLED)</string>
+    <string name="adbwifi_offer_port_note">Power Saver needs port 5555 to stay open until the headunit restarts. Other devices on the same WiFi can reach that port: use it only on a private network.</string>
+    <string name="adbwifi_offer_insecure_note">WARNING: this headunit\'s ADB doesn\'t ask for permission. While port 5555 is open, anyone on the same WiFi can control the headunit without being asked.</string>
 </resources>

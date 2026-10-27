@@ -69,7 +69,7 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
 
 ▶️ **[Video tutorial on YouTube](https://youtu.be/sSRKIyC3Ato)** (5 minutes, Indonesian with subtitles) ·
 👉 **[Step-by-step guide](docs/INSTALL.md)** with screenshots and FAQ ·
-📺 **[All video tutorials](https://www.youtube.com/playlist?list=PLEAZ252hW8a4)**: install, TANYA AI / ASK AI, TinyFish web search, updates
+📺 **[All video tutorials](https://www.youtube.com/playlist?list=PLEAZ252hW8a4)**: install, TANYA AI / ASK AI, TinyFish web search, updates, USB and Wireless debugging
 
 [![KlikDash install tutorial on YouTube](docs/img/video.png)](https://youtu.be/sSRKIyC3Ato)
 

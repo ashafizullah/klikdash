@@ -137,7 +137,8 @@ final class PowerPanel {
                 a.runOnUiThread(() -> {
                     busy = false;
                     if (!Tweaks.debuggingOn(a)) {
-                        showMessage(a.getString(R.string.power_need_adb));
+                        showMessage(a.getString(R.string.power_need_adb) + a.getString(R.string.power_help_video));
+                        message.setOnClickListener(v -> HelpVideo.fail(a, a.getString(R.string.home_need_adb), HelpVideo.USB));
                     } else if (AdbWifiService.supported()) {
                         // Android 11+: port 5555 bisa dibuka tanpa komputer lewat Wireless debugging.
                         showMessage(a.getString(R.string.power_need_adb_port_wifi));

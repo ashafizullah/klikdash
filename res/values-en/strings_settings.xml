@@ -130,6 +130,7 @@
     <string name="power_checking">CHECKING APPS…</string>
     <string name="power_need_adb_port_wifi">ADB NOT OPEN YET\n\nUSB debugging is on, but ADB port 5555 is closed.\nTap here to open it without a computer\nover Wireless debugging.</string>
     <string name="power_need_adb_port">ADB NOT OPEN YET\n\nUSB debugging is on, but ADB port 5555 is closed.\nOpen it with adb tcpip 5555 (see the install guide),\nthen open the Power Saver tab again.</string>
+    <string name="power_help_video">\n\nTap here for the video tutorial.</string>
     <string name="power_need_adb">USB DEBUGGING NEEDED\n\nTurn it on in Settings › Developer options › USB debugging,\nthen open the Power Saver tab again.</string>
     <string name="power_no_apps">NO THIRD-PARTY APPS</string>
     <plurals name="power_apps">
