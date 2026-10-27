@@ -13,5 +13,6 @@ build/
 assets/quran.txt
 assets/quran-en.txt
 
-# Poster promosi (media sosial), dibuat per rilis; tidak perlu di repo
-design/poster-*
+# Bahan desain (poster, screenshot) tidak masuk repo. Yang sudah dilacak tetap dilacak: header README
+# (header.html, header.png, header.id.png) dan screenshot-nya.
+design/
