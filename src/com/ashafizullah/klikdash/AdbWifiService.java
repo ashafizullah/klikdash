@@ -230,9 +230,10 @@ public final class AdbWifiService extends Service {
         int cp = waitFor(false);
         try {
             if (cp <= 0) throw new IOException("port Wireless debugging tidak ditemukan");
-            String back = settingsPkg != null ? "am force-stop " + settingsPkg : null;
-            String first = cmd != null && back != null ? cmd + "; " + back : cmd != null ? cmd : back;
-            if (first != null) Tweaks.execTls(cp, "shell:" + first, 30_000);
+            // Tutup panel notifikasi (kodenya diketik di sana) dan Pengaturan, supaya layar KlikDash pemanggil beserta
+            // pesan hasilnya langsung terlihat.
+            String back = "cmd statusbar collapse" + (settingsPkg != null ? "; am force-stop " + settingsPkg : "");
+            Tweaks.execTls(cp, "shell:" + (cmd != null ? cmd + "; " + back : back), 30_000);
             if (openPort) {
                 // Hanya sampai headunit dinyalakan ulang: persist.adb.tcp.port tidak diatur, supaya port 5555 tidak
                 // terbuka permanen di setiap WiFi yang nanti disambungkan.
