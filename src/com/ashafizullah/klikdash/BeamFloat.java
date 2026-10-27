@@ -1,9 +1,11 @@
 package com.ashafizullah.klikdash;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentCallbacks;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.Typeface;
@@ -33,9 +35,9 @@ import static com.ashafizullah.klikdash.HomeActivity.WRAP;
 
 /**
  * Jendela melayang KlikBeam di atas aplikasi lain (izin "tampil di atas aplikasi lain", seperti {@link Notice}):
- * video HP dalam kotak kecil yang bisa digeser ke mana saja. Ketuk sekali untuk tombol (LAYAR PENUH, UKURAN,
- * TUTUP), ketuk dua kali untuk layar penuh. Sentuhan di luar kotak tetap ke aplikasi di belakangnya. Posisi dan
- * ukuran disimpan di prefs "beam" (floatX, floatY, floatSize).
+ * video HP dalam kotak kecil yang bisa digeser ke mana saja. Ketuk sekali untuk tombol (LAYAR PENUH dan UKURAN di
+ * tengah, ✕ tutup di pojok kanan atas), ketuk dua kali untuk layar penuh. Sentuhan di luar kotak tetap ke aplikasi di
+ * belakangnya. Posisi dan ukuran disimpan di prefs "beam" (floatX, floatY, floatSize).
  */
 final class BeamFloat implements BeamHub.Listener {
     /** Lebar kotak sebagai bagian dari lebar layar: kecil, sedang, besar. */
@@ -49,10 +51,23 @@ final class BeamFloat implements BeamHub.Listener {
     private final FrameLayout box;
     private final SurfaceView video;
     private final TextView label;
-    private final LinearLayout controls;
+    private final FrameLayout controls;
     private final Point screen = new Point();
     private Surface surface;
     private int size;
+
+    /**
+     * Layar headunit berputar atau berubah ukuran: hitung ulang kotak supaya tetap di dalam layar. Lewat aplikasi,
+     * karena view jendela melayang tidak menerima onConfigurationChanged.
+     */
+    private final ComponentCallbacks resized = new ComponentCallbacks() {
+        @Override public void onConfigurationChanged(Configuration cfg) {
+            measureScreen();
+            layout();
+            update();
+        }
+        @Override public void onLowMemory() { }
+    };
 
     private final Runnable hideControls = new Runnable() {
         @Override public void run() { controls.setVisibility(View.GONE); }
@@ -109,12 +124,14 @@ final class BeamFloat implements BeamHub.Listener {
         label.setBackground(chip);
         box.addView(label, new FrameLayout.LayoutParams(WRAP, WRAP, Gravity.CENTER));
 
-        controls = new LinearLayout(c);
-        controls.setGravity(Gravity.CENTER);
+        controls = new FrameLayout(c);
         controls.setBackgroundColor(0xB0000000);
-        controls.addView(button(R.string.beam_fullscreen, mono, v -> expand()));
-        controls.addView(button(R.string.beam_size, mono, v -> cycleSize()));
-        controls.addView(button(R.string.beam_close, mono, v -> BeamHub.stop()));
+        LinearLayout row = new LinearLayout(c);
+        row.setGravity(Gravity.CENTER);
+        row.addView(button(R.string.beam_fullscreen, mono, v -> expand()));
+        row.addView(button(R.string.beam_size, mono, v -> cycleSize()));
+        controls.addView(row, new FrameLayout.LayoutParams(WRAP, WRAP, Gravity.CENTER));
+        controls.addView(closeButton(), new FrameLayout.LayoutParams(dp(44), dp(44), Gravity.TOP | Gravity.END));
         controls.setVisibility(View.GONE);
         box.addView(controls, new FrameLayout.LayoutParams(MATCH, MATCH));
 
@@ -123,13 +140,14 @@ final class BeamFloat implements BeamHub.Listener {
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 PixelFormat.TRANSLUCENT);
         lp.gravity = Gravity.TOP | Gravity.START;
-        wm.getDefaultDisplay().getSize(screen); // tanpa bilah navigasi, supaya kotak tidak tertutup
+        measureScreen();
         lp.x = prefs.getInt("floatX", Integer.MIN_VALUE);
         lp.y = prefs.getInt("floatY", Integer.MIN_VALUE);
         box.setOnTouchListener(new Drag());
     }
 
-    void show() {
+    /** false bila Android menolak menampilkan jendela (mis. izin dicabut tepat saat itu). */
+    boolean show() {
         layout();
         if (lp.x == Integer.MIN_VALUE) { // pertama kali: pojok kanan bawah
             lp.x = screen.x - lp.width - dp(24);
@@ -139,14 +157,17 @@ final class BeamFloat implements BeamHub.Listener {
         try {
             wm.addView(box, lp);
         } catch (RuntimeException e) {
-            return; // izin dicabut di tengah jalan
+            return false; // izin dicabut di tengah jalan
         }
+        c.getApplicationContext().registerComponentCallbacks(resized);
         BeamHub.addListener(this);
         onBeamChanged();
+        return true;
     }
 
     void hide() {
         BeamHub.removeListener(this);
+        c.getApplicationContext().unregisterComponentCallbacks(resized);
         box.removeCallbacks(hideControls);
         try {
             if (box.isAttachedToWindow()) wm.removeView(box);
@@ -166,6 +187,11 @@ final class BeamFloat implements BeamHub.Listener {
     }
 
     // ---- Ukuran & posisi ----
+
+    @SuppressWarnings("deprecation")
+    private void measureScreen() {
+        wm.getDefaultDisplay().getSize(screen); // tanpa bilah navigasi, supaya kotak tidak tertutup
+    }
 
     /** Ukuran kotak dari pilihan ukuran dan rasio video; true bila berubah. */
     private boolean layout() {
@@ -240,6 +266,19 @@ final class BeamFloat implements BeamHub.Listener {
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(WRAP, WRAP);
         p.setMargins(dp(4), 0, dp(4), 0);
         t.setLayoutParams(p);
+        return t;
+    }
+
+    /** Tutup di pojok kanan atas, terpisah dari LAYAR PENUH dan UKURAN supaya tidak berdesakan di kotak kecil. */
+    private TextView closeButton() {
+        TextView t = new TextView(c);
+        t.setText("✕");
+        t.setTypeface(Typeface.DEFAULT_BOLD); // font mono KlikDash tidak punya ✕
+        t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        t.setTextColor(TEXT);
+        t.setGravity(Gravity.CENTER);
+        t.setContentDescription(c.getString(R.string.beam_close));
+        t.setOnClickListener(v -> BeamHub.stop());
         return t;
     }
 

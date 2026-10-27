@@ -95,8 +95,9 @@ final class BeamHub {
         if (server == null) return false;
         if (floater != null) return true;
         if (!BeamFloat.allowed(app)) return false;
-        floater = new BeamFloat(app);
-        floater.show();
+        BeamFloat f = new BeamFloat(app);
+        if (!f.show()) return false; // tanpa jendela, siaran tidak boleh jalan diam-diam di latar
+        floater = f;
         ui.removeCallbacks(idleClose);
         if (!streaming) ui.postDelayed(idleClose, FLOAT_IDLE_CLOSE_MS);
         changed();
