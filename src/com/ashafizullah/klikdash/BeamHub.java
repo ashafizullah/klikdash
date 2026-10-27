@@ -54,8 +54,6 @@ final class BeamHub {
 
     static boolean running() { return server != null; }
 
-    static boolean floating() { return floater != null; }
-
     /** Nyalakan server bila belum (dari layar penuh). */
     static void start(Context c) {
         if (server != null) return;

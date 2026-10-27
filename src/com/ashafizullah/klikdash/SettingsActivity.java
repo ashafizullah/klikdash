@@ -28,7 +28,6 @@ import static com.ashafizullah.klikdash.HomeActivity.AMBER;
 import static com.ashafizullah.klikdash.HomeActivity.BG;
 import static com.ashafizullah.klikdash.HomeActivity.DIM;
 import static com.ashafizullah.klikdash.HomeActivity.FAINT;
-import static com.ashafizullah.klikdash.HomeActivity.INK;
 import static com.ashafizullah.klikdash.HomeActivity.LINE;
 import static com.ashafizullah.klikdash.HomeActivity.PANEL;
 import static com.ashafizullah.klikdash.HomeActivity.TEXT;

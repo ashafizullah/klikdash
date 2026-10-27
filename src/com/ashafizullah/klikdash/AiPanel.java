@@ -2,14 +2,12 @@ package com.ashafizullah.klikdash;
 
 import android.app.AlertDialog;
 import android.net.Uri;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
 import java.util.List;
 
-import static com.ashafizullah.klikdash.SettingsActivity.MATCH;
 import static com.ashafizullah.klikdash.SettingsActivity.WRAP;
 
 /**

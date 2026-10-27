@@ -22,7 +22,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import static com.ashafizullah.klikdash.HomeActivity.AMBER;
-import static com.ashafizullah.klikdash.HomeActivity.BG;
 import static com.ashafizullah.klikdash.HomeActivity.DIM;
 import static com.ashafizullah.klikdash.HomeActivity.FAINT;
 import static com.ashafizullah.klikdash.HomeActivity.INK;
