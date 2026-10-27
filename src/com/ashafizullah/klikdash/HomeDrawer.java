@@ -145,9 +145,7 @@ final class HomeDrawer {
         grid.setOnItemClickListener((p, v, pos, id) -> onPick(shown.get(pos)));
         grid.setOnItemLongClickListener((p, v, pos, id) -> {
             v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-            h.startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                    Uri.fromParts("package", shown.get(pos).cn.getPackageName(), null))
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            appMenu(shown.get(pos));
             return true;
         });
         d.addView(grid, new LinearLayout.LayoutParams(MATCH, 0, 1f));
@@ -164,17 +162,42 @@ final class HomeDrawer {
 
     /** Saring laci dengan teks pencarian (nama aplikasi yang tampil), tanpa memuat ulang ikon. */
     void filter() {
-        List<HomeApps.App> apps = h.apps.all;
+        java.util.Set<String> hidden = HomeApps.hidden(h.prefs);
         String q = search != null ? search.getText().toString().trim().toLowerCase(Lang.locale()) : "";
         shown.clear();
-        for (HomeApps.App a : apps) {
+        int total = 0;
+        for (HomeApps.App a : h.apps.all) {
+            if (hidden.contains(a.cn.flattenToString())) continue;
+            total++;
             if (q.isEmpty() || a.label.toLowerCase(Lang.locale()).contains(q)) shown.add(a);
         }
         adapter.notifyDataSetChanged();
-        count.setText(q.isEmpty() ? h.getResources().getQuantityString(R.plurals.home_app_count, apps.size(), apps.size())
-                : h.getString(R.string.home_app_filtered, shown.size(), apps.size()));
+        count.setText(q.isEmpty() ? h.getResources().getQuantityString(R.plurals.home_app_count, total, total)
+                : h.getString(R.string.home_app_filtered, shown.size(), total));
         noApps.setText(!h.apps.ready ? h.getString(R.string.home_apps_loading) : q.isEmpty() ? h.getString(R.string.home_no_apps)
                 : h.getString(R.string.home_no_apps_for, search.getText().toString().trim().toUpperCase(Lang.locale())));
+    }
+
+    /** Tekan lama: sembunyikan dari Semua Aplikasi (dimunculkan lagi di Pengaturan) atau buka info aplikasi. */
+    void appMenu(HomeApps.App a) {
+        hideKeyboard();
+        java.util.Locale l = Lang.locale();
+        new Sheet(h, AMBER, h.getString(R.string.home_app_menu_tag), a.label, HelpVideo.NONE)
+                .text(h.getString(R.string.home_hide_desc), 0)
+                .key(h.getString(R.string.common_cancel).toUpperCase(l), false, null)
+                .key(h.getString(R.string.home_app_info).toUpperCase(l), false, () -> {
+                    try {
+                        h.startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.fromParts("package", a.cn.getPackageName(), null))
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                    } catch (Exception ignored) { }
+                })
+                .key(h.getString(R.string.home_hide).toUpperCase(l), true, () -> {
+                    HomeApps.setHidden(h.prefs, a.cn.flattenToString(), true);
+                    filter();
+                    Notice.ok(h, h.getString(R.string.home_hidden_done, a.label));
+                })
+                .show();
     }
 
     void hideKeyboard() {

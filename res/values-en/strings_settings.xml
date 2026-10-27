@@ -75,6 +75,18 @@
     <string name="settings_tiles_reset_button">Reset</string>
     <string name="settings_tiles_reset_done">Shortcuts restored to default</string>
 
+    <string name="settings_hidden_title">HIDDEN APPS</string>
+    <string name="settings_hidden_none">None yet. Long-press an icon in All Apps to hide it, e.g. an icon that shows up twice.</string>
+    <plurals name="settings_hidden_desc">
+        <item quantity="one">%1$d app hidden from All Apps. Long-press an icon in All Apps to hide another.</item>
+        <item quantity="other">%1$d apps hidden from All Apps. Long-press an icon in All Apps to hide another.</item>
+    </plurals>
+    <string name="settings_hidden_show">SHOW</string>
+    <string name="settings_hidden_pick">Tap an app to show it again</string>
+    <string name="settings_hidden_all">Show all</string>
+    <string name="settings_hidden_shown">%1$s is back in All Apps</string>
+    <string name="settings_hidden_all_done">All apps are shown again</string>
+
     <string name="settings_system_title">SYSTEM SETTINGS</string>
     <string name="settings_system_desc">Wi-Fi, Bluetooth, sound, display and developer options are in the headunit\'s Android settings.</string>
     <string name="settings_system_open">OPEN</string>

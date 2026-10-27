@@ -43,6 +43,11 @@
     <string name="home_apps_loading">MEMUAT DAFTAR APLIKASI…</string>
     <string name="home_no_apps">TIDAK ADA APLIKASI</string>
     <string name="home_no_apps_for">TIDAK ADA APLIKASI “%1$s”</string>
+    <string name="home_app_menu_tag">APLIKASI</string>
+    <string name="home_hide_desc">Sembunyikan dari Semua Aplikasi? Cocok untuk ikon yang muncul dobel. Aplikasinya tidak dihapus, dan bisa dimunculkan lagi di Pengaturan → Aplikasi tersembunyi.</string>
+    <string name="home_hide">Sembunyikan</string>
+    <string name="home_app_info">Info aplikasi</string>
+    <string name="home_hidden_done">%1$s disembunyikan</string>
 
     <string name="home_default_ok">KlikDash sekarang tampilan utama</string>
     <string name="home_need_adb">Belum berhasil: ADB headunit tidak bisa dihubungi. Aktifkan USB debugging di Opsi pengembang, lalu coba lagi.</string>

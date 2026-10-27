@@ -126,12 +126,16 @@ final class AiTools {
 
     static List<App> apps(Activity a) {
         List<App> out = new ArrayList<>();
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        java.util.Set<String> hidden = HomeApps.hidden(
+                a.createDeviceProtectedStorageContext().getSharedPreferences("klikdash", Activity.MODE_PRIVATE));
         PackageManager pm = a.getPackageManager();
         for (ResolveInfo r : pm.queryIntentActivities(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0)) {
             if (HomeActivity.class.getName().equals(r.activityInfo.name)) continue;
             App x = new App();
             x.cn = new ComponentName(r.activityInfo.packageName, r.activityInfo.name);
             x.label = String.valueOf(r.loadLabel(pm)).trim();
+            if (hidden.contains(x.cn.flattenToString()) || !seen.add(HomeApps.dupKey(x.cn, x.label))) continue;
             out.add(x);
         }
         return out;

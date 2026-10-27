@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /** Isi ubin home (slot tersimpan di prefs) dan daftar aplikasi untuk ubin dan laci. */
@@ -166,6 +167,7 @@ final class HomeApps {
      */
     List<App> query(java.util.Set<String> keep, int iconPx) {
         List<App> list = new ArrayList<>();
+        java.util.Set<String> seen = new java.util.HashSet<>();
         PackageManager pm = h.getPackageManager();
         Intent q = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
         for (ResolveInfo r : pm.queryIntentActivities(q, 0)) {
@@ -174,6 +176,7 @@ final class HomeApps {
             a.cn = new ComponentName(r.activityInfo.packageName, r.activityInfo.name);
             int own = ownLabel(r.activityInfo.name);
             a.label = own != 0 ? h.getString(own) : String.valueOf(r.loadLabel(pm)).trim();
+            if (!seen.add(dupKey(a.cn, a.label))) continue;
             a.upper = a.label.toUpperCase(Lang.locale());
             Drawable d = DzikirActivity.class.getName().equals(r.activityInfo.name)
                     ? h.getDrawable(R.drawable.ic_dzikir_tile).mutate() : r.loadIcon(pm).mutate();
@@ -183,6 +186,28 @@ final class HomeApps {
         }
         Collections.sort(list, (x, y) -> x.label.compareToIgnoreCase(y.label));
         return list;
+    }
+
+    /**
+     * Firmware headunit (mis. FYT/UIS) sering memberi satu paket beberapa aktivitas LAUNCHER berlabel sama (kamera
+     * belakang/depan/DVR, radio); launcher bawaannya menyaringnya. Cukup tampilkan yang pertama, sama dengan
+     * getLaunchIntentForPackage.
+     */
+    static String dupKey(ComponentName cn, String label) {
+        return cn.getPackageName() + '\n' + label.toLowerCase(Locale.ROOT);
+    }
+
+    /**
+     * Aplikasi yang disembunyikan pengguna dari Semua Aplikasi (komponen, flattenToString), mis. sisa entri ganda
+     * yang tidak tertangkap {@link #dupKey}. Ubin home tidak terpengaruh. Dimunculkan lagi di Pengaturan.
+     */
+    static java.util.Set<String> hidden(SharedPreferences p) {
+        return new java.util.HashSet<>(p.getStringSet("hiddenApps", Collections.<String>emptySet()));
+    }
+
+    static void setHidden(SharedPreferences p, String key, boolean hide) {
+        java.util.Set<String> s = hidden(p); // salinan: set dari getStringSet tidak boleh diubah
+        if (hide ? s.add(key) : s.remove(key)) p.edit().putStringSet("hiddenApps", s).apply();
     }
 
     /**

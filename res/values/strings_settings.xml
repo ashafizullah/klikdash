@@ -76,6 +76,17 @@
     <string name="settings_tiles_reset_button">Atur ulang</string>
     <string name="settings_tiles_reset_done">Pintasan dikembalikan ke bawaan</string>
 
+    <string name="settings_hidden_title">APLIKASI TERSEMBUNYI</string>
+    <string name="settings_hidden_none">Belum ada. Tekan lama ikon di Semua Aplikasi untuk menyembunyikannya, mis. ikon yang muncul dobel.</string>
+    <plurals name="settings_hidden_desc">
+        <item quantity="other">%1$d aplikasi disembunyikan dari Semua Aplikasi. Tekan lama ikon di Semua Aplikasi untuk menyembunyikan yang lain.</item>
+    </plurals>
+    <string name="settings_hidden_show">TAMPILKAN</string>
+    <string name="settings_hidden_pick">Ketuk aplikasi untuk menampilkannya lagi</string>
+    <string name="settings_hidden_all">Tampilkan semua</string>
+    <string name="settings_hidden_shown">%1$s tampil lagi di Semua Aplikasi</string>
+    <string name="settings_hidden_all_done">Semua aplikasi tampil lagi</string>
+
     <string name="settings_system_title">PENGATURAN SISTEM</string>
     <string name="settings_system_desc">Wi-Fi, Bluetooth, suara, layar, dan opsi pengembang ada di pengaturan Android headunit.</string>
     <string name="settings_system_open">BUKA</string>

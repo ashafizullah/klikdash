@@ -305,6 +305,11 @@ public class SettingsActivity extends Activity {
         list.addView(row(getString(R.string.settings_tiles_reset_title), getString(R.string.settings_tiles_reset_desc),
                 key(getString(R.string.settings_tiles_reset), false, this::resetTiles)));
 
+        int hid = HomeApps.hidden(prefs).size();
+        list.addView(row(getString(R.string.settings_hidden_title), hid == 0 ? getString(R.string.settings_hidden_none)
+                        : getResources().getQuantityString(R.plurals.settings_hidden_desc, hid, hid),
+                hid == 0 ? new View[0] : new View[]{key(getString(R.string.settings_hidden_show), false, this::showHidden)}));
+
         list.addView(row(getString(R.string.settings_system_title), getString(R.string.settings_system_desc),
                 key(getString(R.string.settings_system_open), false, () -> {
                     try {
@@ -505,6 +510,38 @@ public class SettingsActivity extends Activity {
                     e.apply();
                     Notice.ok(this, getString(R.string.settings_tiles_reset_done));
                 }));
+    }
+
+    /** Aplikasi tersembunyi: ketuk satu untuk memunculkannya lagi di Semua Aplikasi, atau tampilkan semua. */
+    void showHidden() {
+        android.content.pm.PackageManager pm = getPackageManager();
+        java.util.List<String[]> apps = new java.util.ArrayList<>(); // {komponen, nama}
+        for (String k : HomeApps.hidden(prefs)) {
+            android.content.ComponentName cn = android.content.ComponentName.unflattenFromString(k);
+            String name;
+            try {
+                name = pm.getActivityInfo(cn, 0).loadLabel(pm).toString().trim();
+            } catch (Exception e) { // sudah dihapus dari headunit
+                name = cn != null ? cn.getPackageName() : k;
+            }
+            apps.add(new String[]{k, name});
+        }
+        java.util.Collections.sort(apps, (x, y) -> x[1].compareToIgnoreCase(y[1]));
+        String[] names = new String[apps.size()];
+        for (int i = 0; i < names.length; i++) names[i] = apps.get(i)[1];
+        showDark(new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.settings_hidden_pick))
+                .setItems(names, (d, w) -> {
+                    HomeApps.setHidden(prefs, apps.get(w)[0], false);
+                    Notice.ok(this, getString(R.string.settings_hidden_shown, names[w]));
+                    rebuildKeepScroll();
+                })
+                .setNeutralButton(getString(R.string.settings_hidden_all), (d, w) -> {
+                    prefs.edit().remove("hiddenApps").apply();
+                    Notice.ok(this, getString(R.string.settings_hidden_all_done));
+                    rebuildKeepScroll();
+                })
+                .setNegativeButton(getString(R.string.common_close), null));
     }
 
     // ---------------------------------------------------------------- bagian bersama (dipakai PowerPanel & AiPanel)

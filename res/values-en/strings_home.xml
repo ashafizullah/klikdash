@@ -41,6 +41,11 @@
     <string name="home_apps_loading">LOADING APPS…</string>
     <string name="home_no_apps">NO APPS</string>
     <string name="home_no_apps_for">NO APPS MATCH “%1$s”</string>
+    <string name="home_app_menu_tag">APP</string>
+    <string name="home_hide_desc">Hide from All Apps? Handy for icons that show up twice. The app is not removed, and you can bring it back in Settings → Hidden apps.</string>
+    <string name="home_hide">Hide</string>
+    <string name="home_app_info">App info</string>
+    <string name="home_hidden_done">%1$s hidden</string>
 
     <string name="home_default_ok">KlikDash is now the home screen</string>
     <string name="home_need_adb">Not done yet: can\'t reach the headunit\'s ADB. Turn on USB debugging in Developer options, then try again.</string>
