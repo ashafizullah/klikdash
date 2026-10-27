@@ -242,5 +242,5 @@ Kecepatan dari GPS bisa sedikit berbeda dari speedometer mobil; speedometer bias
 tinggi.
 
 **Jadwal sholat berbeda sekitar satu menit dari masjid.**
-Jadwal dihitung dengan metode Kemenag dan bisa selisih sekitar satu menit. Ikuti masjid atau otoritas
-setempat.
+Jadwal dihitung dengan metode Kemenag, atau JAKIM bila zona waktu headunit Malaysia (pilih di
+**⚙ › Launcher › Jadwal sholat**), dan bisa selisih sekitar satu menit. Ikuti masjid atau otoritas setempat.

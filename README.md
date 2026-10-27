@@ -46,7 +46,7 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
 
 - **Home:** large clock, speed from GPS, Gregorian and Hijri date, CPU temperature, and up to 11 shortcuts you can
   rearrange by long-pressing (show 12, 9, 6 or 4 shortcuts: with fewer shortcuts the clock and the shortcuts are bigger and easier to read).
-- **Prayer times:** offline, Kemenag method, location from GPS, live countdown to the next prayer.
+- **Prayer times:** offline, Kemenag method (JAKIM in Malaysia), location from GPS, live countdown to the next prayer.
 - **Al-Qur'an:** all 114 surahs with Kemenag text and translation, verse-by-verse recitation by Mishary Rashid
   Alafasy, readable offline.
 - **Dhikr:** morning and evening readings with a guided counter, and audio that keeps playing in the background while
@@ -142,7 +142,7 @@ The old NWD launcher is **not removed**. Its process stays because it also handl
 - **Security.** Enabled ADB over WiFi gives full access to the headunit. Only connect the headunit to a
   private network (such as your own phone's hotspot), never to public WiFi.
 - **Prayer-time accuracy** is within ±1 minute of the Kemenag schedule (compared for Jakarta,
-  26 October 2026).
+  26 October 2026), and within 1 minute of the JAKIM e-Solat timetable on 92.7% of days (six Malaysian zones, 2026).
 
 ## Disclaimer
 
@@ -190,7 +190,7 @@ KlikDash is free. If it saves you time, **[buy me an AI token on Trakteer](https
 - **Audio** (not included): [everyayah.com](https://everyayah.com) / versebyversequran.com, Mishary Rashid
   Alafasy 128 kbps. Follow the license on that site.
 - **Prayer times:** calculated on the device with the Kemenag RI parameters (Subuh 20°, Isya 18°, Shafi'i Asr,
-  +2 minutes ihtiyath), using the U.S. Naval Observatory's approximate solar coordinates and the Julian day from
+  +2 minutes ihtiyath), or JAKIM in Malaysia (Subuh 18°, Isyak 18°, +1 minute, Zuhur +2), using the U.S. Naval Observatory's approximate solar coordinates and the Julian day from
   Meeus' *Astronomical Algorithms*.
 - **Dhikr** (`assets/dzikir.json`): from [KlikBand](https://github.com/ashafizullah/klikband); order and counts from
   [Almanhaj](https://almanhaj.or.id/11518-dzikir-pagi-dan-petang.html), Latin following Hisnul Muslim, Qur'an

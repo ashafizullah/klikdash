@@ -248,5 +248,5 @@ The GPS has no fix yet, for example in a basement or garage. The number comes ba
 GPS speed can differ slightly from the car's speedometer, which usually reads a little high.
 
 **Prayer times differ from the mosque by about a minute.**
-They are calculated with the Kemenag method and can differ by about a minute. Follow your local mosque or
-authority.
+They are calculated with the Kemenag method, or JAKIM when the headunit's time zone is Malaysia (choose in
+**⚙ › Launcher › Prayer times**), and can differ by about a minute. Follow your local mosque or authority.

@@ -46,7 +46,7 @@ merender animasi 3D (~40% CPU).
 
 - **Home:** jam besar, kecepatan dari GPS, tanggal Masehi dan Hijriah, suhu CPU, serta hingga 11 pintasan yang bisa
   disusun ulang dengan tekan lama (tampilkan 12, 9, 6, atau 4 pintasan: makin sedikit, makin besar jam dan pintasannya, makin mudah dibaca).
-- **Jadwal sholat:** offline, metode Kemenag, lokasi dari GPS, hitung mundur ke waktu sholat berikutnya.
+- **Jadwal sholat:** offline, metode Kemenag (JAKIM di Malaysia), lokasi dari GPS, hitung mundur ke waktu sholat berikutnya.
 - **Al-Qur'an:** 114 surah dengan teks dan terjemahan Kemenag, murattal Mishary Rashid Alafasy per ayat, bisa
   dibaca offline.
 - **Dzikir:** dzikir pagi dan petang dengan penghitung terpandu, dan audio yang tetap diputar di latar sambil
@@ -140,7 +140,7 @@ Launcher NWD lama **tidak dihapus**. Prosesnya tetap ada karena juga menangani i
 - **Keamanan.** ADB WiFi yang aktif memberi akses penuh ke headunit. Hanya sambungkan headunit ke jaringan
   pribadi (misalnya hotspot HP sendiri), jangan ke WiFi publik.
 - **Akurasi jadwal sholat** ±1 menit dibanding jadwal Kemenag (sudah dibandingkan untuk Jakarta,
-  26 Oktober 2026).
+  26 Oktober 2026), dan selisih paling banyak 1 menit dari jadwal e-Solat JAKIM pada 92,7% hari (enam zona Malaysia, 2026).
 
 ## Disclaimer
 
@@ -189,7 +189,7 @@ KlikDash gratis. Kalau aplikasi ini menghemat waktu Anda, **[traktir saya token 
 - **Audio** (tidak disertakan): [everyayah.com](https://everyayah.com) / versebyversequran.com, Mishary
   Rashid Alafasy 128 kbps. Ikuti lisensi di situs tersebut.
 - **Jadwal sholat:** dihitung di perangkat dengan parameter Kemenag RI (Subuh 20°, Isya 18°, Ashar Syafi'i,
-  ihtiyath +2 menit), memakai rumus posisi matahari perkiraan dari U.S. Naval Observatory dan hari Julian dari
+  ihtiyath +2 menit), atau JAKIM di Malaysia (Subuh 18°, Isyak 18°, ihtiyath +1 menit, Zuhur +2), memakai rumus posisi matahari perkiraan dari U.S. Naval Observatory dan hari Julian dari
   *Astronomical Algorithms* karya Meeus.
 - **Dzikir** (`assets/dzikir.json`): dari [KlikBand](https://github.com/ashafizullah/klikband); urutan dan jumlah dari
   [Almanhaj](https://almanhaj.or.id/11518-dzikir-pagi-dan-petang.html), Latin mengikuti Hisnul Muslim, ayat
