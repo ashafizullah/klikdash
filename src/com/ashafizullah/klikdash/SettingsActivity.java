@@ -370,8 +370,8 @@ public class SettingsActivity extends Activity {
      * {@code later}: dijalankan bila pengguna memilih Nanti (boleh null).
      */
     static void offerUpdate(Activity a, Updater.Release rel, Runnable later) {
-        // Catatan rilis utuh; pesan AlertDialog sudah bisa digulir bila panjang.
-        String notes = Updater.plainNotes(rel.notes);
+        // Catatan rilis dalam bahasa antarmuka; pesan AlertDialog sudah bisa digulir bila panjang.
+        String notes = Updater.plainNotes(rel.notes, Lang.en());
         showDark(new AlertDialog.Builder(a)
                 .setTitle(a.getString(R.string.update_available, rel.version))
                 .setMessage(a.getString(R.string.update_installed_size, Updater.installedVersion(a),

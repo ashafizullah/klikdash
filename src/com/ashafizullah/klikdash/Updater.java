@@ -44,11 +44,17 @@ final class Updater {
     private Updater() { }
 
     /**
-     * Catatan rilis (Markdown GitHub) sebagai teks biasa untuk dialog: [teks](url) → teks, "- " → "• ", tanpa
-     * #, **, ` dan garis ---.
+     * Catatan rilis (Markdown GitHub) sebagai teks biasa untuk dialog, hanya bagian berbahasa antarmuka ({@code en}):
+     * catatan rilis ditulis English lalu "**Bahasa Indonesia:**"; tanpa penanda itu (rilis lama) seluruhnya dipakai.
+     * Baris "Update with ⚙ › CEK UPDATE …" untuk pembaca GitHub dibuang (pengguna sedang di dialog update-nya),
+     * [teks](url) → teks, "- " → "• ", tanpa #, **, ` dan garis ---.
      */
-    static String plainNotes(String md) {
-        String s = md.replace("\r", "")
+    static String plainNotes(String md, boolean en) {
+        md = md.replace("\r", "");
+        java.util.regex.Matcher m = java.util.regex.Pattern
+                .compile("(?im)^\\s*\\**\\s*Bahasa Indonesia\\s*:?\\s*\\**\\s*:?\\s*").matcher(md);
+        if (m.find()) md = en ? md.substring(0, m.start()) : md.substring(m.end());
+        String s = md.replaceAll("(?im)^Update with .*CEK UPDATE.*$", "")
                 .replaceAll("\\[([^\\]]*)\\]\\([^)]*\\)", "$1")
                 .replaceAll("(?m)^\\s*-{3,}\\s*$", "")
                 .replaceAll("(?m)^#+\\s*", "")
