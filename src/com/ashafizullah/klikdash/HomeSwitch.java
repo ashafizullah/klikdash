@@ -55,12 +55,19 @@ final class HomeSwitch {
         }
         String cur = getprop(NWD_PROP), me = a.getPackageName();
         if (!cur.isEmpty() && !cur.equals(me)) prefs.edit().putString("nwdPrev", cur).apply();
-        Tweaks.askAsync("setprop " + NWD_PROP + " " + me + "; cmd package set-home-activity " + me + "/.HomeActivity",
+        String cmd = "setprop " + NWD_PROP + " " + me + "; cmd package set-home-activity " + me + "/.HomeActivity";
+        Tweaks.askAsync(cmd,
                 () -> Notice.info(a, a.getString(R.string.home_adb_allow)),
                 r -> a.runOnUiThread(() -> {
                     if (done != null) done.run();
                     if (isDefault(a)) Notice.ok(a, a.getString(R.string.home_default_ok));
-                    else Notice.fail(a, a.getString(failure(a, r)));
+                    // Port 5555 tertutup (Android 11+): coba lewat Wireless debugging, tanpa komputer.
+                    else if (!AdbWifiService.offer(a, r, cmd, false, w -> {
+                        if (done != null) done.run();
+                        if (isDefault(a)) Notice.ok(a, a.getString(R.string.home_default_ok));
+                        else if (w == Tweaks.DONE) Notice.fail(a, a.getString(R.string.home_setprop_failed));
+                        else Notice.fail(a, a.getString(R.string.home_need_adb_port)); // dibatalkan/gagal: cara lewat komputer
+                    })) Notice.fail(a, a.getString(failure(a, r)));
                 }));
     }
 

@@ -87,8 +87,8 @@ audio tetap ada.
 KlikDash butuh **Android 7.0 atau lebih baru** dan dirancang untuk layar **1280×720 landscape**.
 Bagian yang khusus headunit (launcher default, tidur/bangun, Zlink, ksmd) ditujukan untuk firmware NWD. Bagian ini
 berjalan lewat ADB headunit itu sendiri, jadi USB debugging harus aktif; headunit yang bertanya "Allow USB
-debugging?" didukung, dan di Android 11 ke atas ADB biasanya perlu dibuka sekali dari komputer (`adb tcpip 5555`,
-lihat [docs/INSTALL.id.md](docs/INSTALL.id.md)).
+debugging?" didukung, dan di Android 11 ke atas ADB biasanya perlu dibuka sekali: tanpa komputer lewat Wireless
+debugging, atau dari komputer dengan `adb tcpip 5555` (lihat [docs/INSTALL.id.md](docs/INSTALL.id.md)).
 
 | Perangkat | Layar | Android | Status |
 |---|---|---|---|

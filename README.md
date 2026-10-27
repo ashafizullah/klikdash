@@ -89,8 +89,8 @@ Settings and audio are kept.
 KlikDash needs **Android 7.0 or newer** and is designed for a **1280×720 landscape** screen. The
 headunit-specific parts (default launcher, sleep/wake, Zlink, ksmd) target NWD firmware. They run through the
 headunit's own ADB, so USB debugging must be on; headunits that ask "Allow USB debugging?" are supported, and on
-Android 11 and later ADB usually has to be opened once from a computer (`adb tcpip 5555`, see
-[docs/INSTALL.md](docs/INSTALL.md)).
+Android 11 and later ADB usually has to be opened once: without a computer over Wireless debugging, or from a
+computer with `adb tcpip 5555` (see [docs/INSTALL.md](docs/INSTALL.md)).
 
 | Device | Screen | Android | Status |
 |---|---|---|---|

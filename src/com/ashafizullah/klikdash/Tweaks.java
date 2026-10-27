@@ -45,7 +45,7 @@ final class Tweaks {
             + " && input keyevent KEYCODE_HOME";
 
     private static final int CNXN = 0x4e584e43, OPEN = 0x4e45504f, OKAY = 0x59414b4f,
-            WRTE = 0x45545257, CLSE = 0x45534c43, AUTH = 0x48545541;
+            WRTE = 0x45545257, CLSE = 0x45534c43, AUTH = 0x48545541, STLS = 0x534c5453;
     private static final int AUTH_TOKEN = 1, AUTH_SIGNATURE = 2, AUTH_RSAPUBLICKEY = 3;
 
     /** Hasil {@link #askAsync}. */
@@ -64,7 +64,8 @@ final class Tweaks {
 
     /**
      * USB debugging menyala. Bila ya tapi ADB tetap tidak bisa dihubungi, adbd hanya mendengar USB, bukan port 5555
-     * (umum di Android 11 ke atas): perlu {@code adb tcpip 5555} sekali dari komputer, lihat docs/INSTALL.
+     * (umum di Android 11 ke atas): perlu dibuka lewat Wireless debugging ({@link AdbWifiService}) atau
+     * {@code adb tcpip 5555} sekali dari komputer, lihat docs/INSTALL.
      */
     static boolean debuggingOn(Context c) {
         return Settings.Global.getInt(c.getContentResolver(), Settings.Global.ADB_ENABLED, 0) == 1;
@@ -188,17 +189,45 @@ final class Tweaks {
             send(out, CNXN, 0x01000000, 4096, "host::klikdash\0");
             connect(s, in, out, onAsk);
             s.setSoTimeout(timeoutMs);
+            return service(in, out, "shell:" + cmd);
+        }
+    }
 
-            send(out, OPEN, 1, 0, "shell:" + cmd + "\0");
-            java.io.ByteArrayOutputStream output = new java.io.ByteArrayOutputStream();
-            while (true) {
-                int[] m = recv(in, output);
-                if (m[0] == WRTE) {
-                    send(out, OKAY, 1, m[1], "");
-                } else if (m[0] == CLSE) {
-                    send(out, CLSE, 1, m[1], "");
-                    return new String(output.toByteArray(), StandardCharsets.UTF_8);
-                }
+    /**
+     * Seperti {@link #exec}, tapi lewat port Wireless debugging (adbd TLS, Android 11+; lihat {@link AdbWifi}): adbd
+     * menjawab CNXN dengan STLS, lalu koneksinya dilanjutkan di atas TLS dengan sertifikat dari kunci KlikDash, yang harus
+     * sudah di-pair. {@code service} adalah layanan adb, mis. {@code shell:id} atau {@code tcpip:5555}.
+     */
+    static String execTls(int port, String service, int timeoutMs) throws IOException {
+        KeyPair k = key();
+        if (k == null) throw new IOException("kunci ADB tidak tersedia");
+        try (Socket s = new Socket()) {
+            s.connect(new InetSocketAddress("127.0.0.1", port), 3000);
+            s.setSoTimeout(timeoutMs);
+            send(s.getOutputStream(), CNXN, 0x01000001, 4096, "host::klikdash\0");
+            if (recv(new DataInputStream(s.getInputStream()), null)[0] != STLS) throw new IOException("adbd tidak meminta TLS");
+            send(s.getOutputStream(), STLS, 0x01000000, 0, "");
+            try (javax.net.ssl.SSLSocket t = AdbWifi.tls(s, k)) {
+                t.startHandshake();
+                DataInputStream in = new DataInputStream(t.getInputStream());
+                OutputStream out = t.getOutputStream();
+                if (recv(in, null)[0] != CNXN) throw new NotAllowed();
+                return service(in, out, service);
+            }
+        }
+    }
+
+    /** Buka satu layanan adb dan kumpulkan keluarannya sampai adbd menutupnya. */
+    private static String service(DataInputStream in, OutputStream out, String service) throws IOException {
+        send(out, OPEN, 1, 0, service + "\0");
+        java.io.ByteArrayOutputStream output = new java.io.ByteArrayOutputStream();
+        while (true) {
+            int[] m = recv(in, output);
+            if (m[0] == WRTE) {
+                send(out, OKAY, 1, m[1], "");
+            } else if (m[0] == CLSE) {
+                send(out, CLSE, 1, m[1], "");
+                return new String(output.toByteArray(), StandardCharsets.UTF_8);
             }
         }
     }
@@ -238,7 +267,7 @@ final class Tweaks {
     }
 
     /** Kunci RSA 2048-bit milik KlikDash, dibuat sekali lalu disimpan; null bila {@link #init} belum dipanggil. */
-    private static synchronized KeyPair key() {
+    static synchronized KeyPair key() {
         if (key != null || keyDir == null) return key;
         File f = new File(keyDir, "adbkey");
         try {
@@ -286,7 +315,7 @@ final class Tweaks {
     }
 
     /** Format kunci publik adbd (struct RSAPublicKey milik mincrypt, base64) diikuti nama kunci. */
-    private static byte[] publicKey(RSAPublicKey k) {
+    static byte[] publicKey(RSAPublicKey k) {
         BigInteger n = k.getModulus(), r32 = BigInteger.ONE.shiftLeft(32);
         ByteBuffer b = ByteBuffer.allocate(4 + 4 + 256 + 256 + 4).order(ByteOrder.LITTLE_ENDIAN);
         b.putInt(64).putInt(n.mod(r32).modInverse(r32).negate().mod(r32).intValue());

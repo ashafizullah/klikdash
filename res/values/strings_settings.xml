@@ -126,6 +126,7 @@
     <string name="power_restore">KEMBALIKAN</string>
     <string name="power_desc">Larang aplikasi berjalan diam-diam di latar supaya headunit lebih ringan dan dingin. Aplikasinya tetap terpasang dan bisa dibuka seperti biasa. Aplikasi sistem, navigasi, dan Zlink tidak ditampilkan.</string>
     <string name="power_checking">MEMERIKSA APLIKASI…</string>
+    <string name="power_need_adb_port_wifi">ADB BELUM TERBUKA\n\nUSB debugging sudah aktif, tapi port ADB 5555 tertutup.\nKetuk di sini untuk membukanya tanpa komputer\nlewat Wireless debugging.</string>
     <string name="power_need_adb_port">ADB BELUM TERBUKA\n\nUSB debugging sudah aktif, tapi port ADB 5555 tertutup.\nBuka dengan adb tcpip 5555 (lihat panduan pemasangan),\nlalu buka tab Hemat Daya lagi.</string>
     <string name="power_need_adb">BUTUH USB DEBUGGING\n\nAktifkan di Pengaturan › Opsi pengembang › USB debugging,\nlalu buka tab Hemat Daya lagi.</string>
     <string name="power_no_apps">TIDAK ADA APLIKASI PIHAK KETIGA</string>

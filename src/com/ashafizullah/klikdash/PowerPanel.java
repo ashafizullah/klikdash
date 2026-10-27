@@ -136,7 +136,15 @@ final class PowerPanel {
             } catch (Exception e) {
                 a.runOnUiThread(() -> {
                     busy = false;
-                    showMessage(a.getString(Tweaks.debuggingOn(a) ? R.string.power_need_adb_port : R.string.power_need_adb));
+                    if (!Tweaks.debuggingOn(a)) {
+                        showMessage(a.getString(R.string.power_need_adb));
+                    } else if (AdbWifiService.supported()) {
+                        // Android 11+: port 5555 bisa dibuka tanpa komputer lewat Wireless debugging.
+                        showMessage(a.getString(R.string.power_need_adb_port_wifi));
+                        message.setOnClickListener(v -> AdbWifiService.offer(a, Tweaks.NO_ADB, null, true, r -> refresh()));
+                    } else {
+                        showMessage(a.getString(R.string.power_need_adb_port));
+                    }
                 });
                 return;
             }
@@ -206,6 +214,8 @@ final class PowerPanel {
     }
 
     void showMessage(String s) {
+        message.setOnClickListener(null);
+        message.setClickable(false);
         message.setText(s);
         message.setVisibility(View.VISIBLE);
     }

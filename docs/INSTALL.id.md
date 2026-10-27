@@ -54,9 +54,24 @@ Nyalakan dulu:
 **Muncul pertanyaan "Allow USB debugging?"** setelah mengetuk tombol kuning? Itu headunit menanyakan izin
 KlikDash memakai ADB-nya. Centang **Always allow**, lalu ketuk **OK**. Pertanyaan ini hanya muncul sekali.
 
-**USB debugging sudah aktif, tapi muncul pesan "port 5555"?** Umum di headunit Android 11 ke atas: ADB-nya hanya
-mendengar kabel USB, belum terbuka untuk aplikasi di headunit itu sendiri. Bukalah sekali dari komputer yang
-terpasang [Android platform-tools](https://developer.android.com/tools/releases/platform-tools):
+**USB debugging sudah aktif, tapi ADB belum terbuka (port 5555)?** Umum di headunit Android 11 ke atas: ADB-nya
+hanya mendengar kabel USB, belum terbuka untuk aplikasi di headunit itu sendiri. KlikDash bisa membukanya tanpa
+komputer lewat **Wireless debugging**: ketuk **Mulai** pada tawaran *Buka ADB tanpa komputer*, lalu:
+
+1. Sambungkan headunit ke WiFi, misalnya hotspot HP.
+2. Di **Opsi pengembang** (dibuka otomatis), nyalakan **Wireless debugging** dan izinkan jaringannya, lalu
+   ketuk **Pair device with pairing code**.
+3. Biarkan dialog kodenya terbuka. Tarik panel notifikasi, ketuk **KETIK KODE** pada notifikasi KlikDash, lalu
+   masukkan kode 6 angkanya.
+4. Pengaturan tertutup sendiri dan KlikDash tampil lagi. Wireless debugging dimatikan lagi otomatis.
+
+Kalau headunit sudah pernah di-pair (Android mengingatnya hingga 7 hari), langkah 3 dilewati: cukup nyalakan
+Wireless debugging. Bila dialog pairing tidak ditemukan, ketik port dan kodenya sekaligus (misalnya
+`37215 482913`, port tertulis di bawah kode). Untuk **Hemat Daya**, ketuk pesan *ADB belum terbuka* di tab itu:
+port 5555 ikut dibuka sampai headunit dinyalakan ulang.
+
+Headunit tanpa menu Wireless debugging (atau Android 10 ke bawah) perlu komputer yang terpasang
+[Android platform-tools](https://developer.android.com/tools/releases/platform-tools):
 
 1. Sambungkan headunit dan komputer ke WiFi yang sama (misalnya hotspot HP).
 2. Di headunit, buka **Pengaturan › Opsi pengembang › Wireless debugging** (*Debugging nirkabel*), nyalakan,

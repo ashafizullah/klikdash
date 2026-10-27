@@ -58,9 +58,24 @@ developer options are off. Turn them on:
 **Asked "Allow USB debugging?"** after tapping the yellow button? That is the headunit asking whether KlikDash
 may use its ADB. Tick **Always allow** and tap **OK**. It is asked only once.
 
-**USB debugging is on, but the message mentions "port 5555"?** Common on Android 11 and later headunits: ADB
-only listens on the USB cable and is not yet open to apps on the headunit itself. Open it once from a computer
-with [Android platform-tools](https://developer.android.com/tools/releases/platform-tools):
+**USB debugging is on, but ADB is not open yet (port 5555)?** Common on Android 11 and later headunits: ADB
+only listens on the USB cable and is not yet open to apps on the headunit itself. KlikDash can open it without a
+computer over **Wireless debugging**: tap **Start** on the *Open ADB without a computer* offer, then:
+
+1. Connect the headunit to WiFi, for example your phone's hotspot.
+2. In **Developer options** (opened for you), turn on **Wireless debugging** and allow the network, then tap
+   **Pair device with pairing code**.
+3. Leave the code dialog open. Pull down the notification panel, tap **ENTER CODE** on the KlikDash
+   notification, and type the 6-digit code.
+4. Settings closes by itself and KlikDash comes back. Wireless debugging is turned off again automatically.
+
+If the headunit was paired before (Android remembers it for up to 7 days), step 3 is skipped: just turn on
+Wireless debugging. If the pairing dialog isn't found, type the port and the code together (for example
+`37215 482913`, the port is shown below the code). For **Power Saver**, tap the *ADB not open yet* message on that
+tab: port 5555 is opened too, until the headunit restarts.
+
+Headunits without a Wireless debugging menu (or Android 10 and older) need a computer with
+[Android platform-tools](https://developer.android.com/tools/releases/platform-tools):
 
 1. Connect the headunit and the computer to the same WiFi (for example your phone's hotspot).
 2. On the headunit, open **Settings › Developer options › Wireless debugging**, turn it on, then tap

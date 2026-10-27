@@ -118,6 +118,11 @@
             android:name=".BeamService"
             android:exported="false" />
 
+        <!-- Buka ADB tanpa komputer lewat Wireless debugging (Android 11+); kode pairing diketik di notifikasinya -->
+        <service
+            android:name=".AdbWifiService"
+            android:exported="false" />
+
         <service
             android:name=".QuranService"
             android:exported="false" />
