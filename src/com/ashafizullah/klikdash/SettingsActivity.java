@@ -91,7 +91,9 @@ public class SettingsActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         // Kembali dari pengaturan sistem atau Play Store: status tampilan utama atau mesin suara mungkin berubah.
-        if (current == TAB_LAUNCHER || current == TAB_AI) show(current, true);
+        // Tab Launcher tanpa melompat ke atas: baris screensaver di tengah, kembali dari pemilih foto.
+        if (current == TAB_LAUNCHER) rebuildKeepScroll();
+        else if (current == TAB_AI) show(current, true);
     }
 
     @Override protected void onDestroy() {
@@ -267,6 +269,33 @@ public class SettingsActivity extends Activity {
         }
         list.addView(row(getString(R.string.settings_tiles_title), getString(R.string.settings_tiles_desc), counts));
 
+        int sm = Screensaver.minutes(prefs);
+        Key[] mins = new Key[Screensaver.MINUTES.length];
+        for (int i = 0; i < mins.length; i++) {
+            final int m = Screensaver.MINUTES[i];
+            mins[i] = key(m == 0 ? getString(R.string.settings_off) : String.valueOf(m), m == sm, () -> {
+                prefs.edit().putInt("saverMin", m).apply();
+                rebuildKeepScroll();
+            });
+            if (m > 0) mins[i].minWidth = px(56);
+        }
+        list.addView(row(getString(R.string.settings_saver_title), getString(R.string.settings_saver_desc), mins));
+        boolean photo = Screensaver.photo(this, prefs), hasPhoto = Screensaver.file(this).isFile();
+        Key black = key(getString(R.string.settings_saver_black), !photo, () -> {
+            prefs.edit().putInt("saverBg", Screensaver.BG_BLACK).apply();
+            rebuildKeepScroll();
+        });
+        Key pic = key(getString(R.string.settings_saver_photo), photo, () -> {
+            if (!hasPhoto) { pickPhoto(); return; }
+            prefs.edit().putInt("saverBg", Screensaver.BG_PHOTO).apply();
+            rebuildKeepScroll();
+        });
+        Key preview = key(getString(R.string.settings_saver_preview), false, this::previewSaver);
+        list.addView(row(getString(R.string.settings_saver_bg_title), getString(photo ? R.string.settings_saver_bg_photo_desc
+                : R.string.settings_saver_bg_black_desc), hasPhoto ? new View[]{black, pic,
+                key(getString(R.string.settings_saver_change), false, this::pickPhoto), preview}
+                : new View[]{black, pic, preview}));
+
         int wm = Welcome.mode(prefs);
         list.addView(row(getString(R.string.settings_welcome_title), getString(R.string.settings_welcome_desc,
                 getString(wm == Welcome.MODE_OFF ? R.string.settings_welcome_now_off
@@ -348,6 +377,55 @@ public class SettingsActivity extends Activity {
             }
         }
         return b.toString();
+    }
+
+    static final int PICK_PHOTO = 1;
+
+    /** Pemilih foto bawaan; headunit tanpa DocumentsUI biasanya masih punya galeri (ACTION_PICK). */
+    void pickPhoto() {
+        Intent[] tries = {new Intent(Intent.ACTION_GET_CONTENT).setType("image/*").addCategory(Intent.CATEGORY_OPENABLE),
+                new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)};
+        for (Intent i : tries) {
+            try {
+                startActivityForResult(i, PICK_PHOTO);
+                return;
+            } catch (android.content.ActivityNotFoundException ignored) { }
+        }
+        Notice.info(this, getString(R.string.settings_saver_no_picker));
+    }
+
+    @Override protected void onActivityResult(int req, int res, Intent data) {
+        super.onActivityResult(req, res, data);
+        if (req != PICK_PHOTO || res != RESULT_OK || data == null || data.getData() == null) return;
+        android.net.Uri uri = data.getData();
+        new Thread(() -> {
+            boolean ok;
+            try {
+                Screensaver.importPhoto(this, uri);
+                ok = true;
+            } catch (Exception | OutOfMemoryError e) {
+                ok = false;
+            }
+            final boolean saved = ok;
+            runOnUiThread(() -> {
+                if (isFinishing()) return;
+                if (!saved) { Notice.fail(this, getString(R.string.settings_saver_failed)); return; }
+                prefs.edit().putInt("saverBg", Screensaver.BG_PHOTO).apply();
+                if (current == TAB_LAUNCHER) rebuildKeepScroll();
+                Notice.ok(this, getString(R.string.settings_saver_saved));
+            });
+        }, "saver-import").start();
+    }
+
+    /** Screensaver layar penuh seperti di home; ketuk untuk menutup. */
+    void previewSaver() {
+        android.app.Dialog d = new android.app.Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        Screensaver.Face f = new Screensaver.Face(this, fHeavy, fMono);
+        f.setOnClickListener(v -> d.dismiss());
+        d.setContentView(f);
+        d.setOnDismissListener(x -> f.stop());
+        d.show();
+        f.start(prefs);
     }
 
     Key updateKey;

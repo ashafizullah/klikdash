@@ -10,7 +10,7 @@ klikdash/
 ├── build.sh                  build + pasang ke headunit
 ├── klikdash.keystore         kunci tanda tangan APK (jangan hilang, lihat Catatan)
 ├── src/com/ashafizullah/klikdash/   dikelompokkan per fitur; tiap kelas diawali komentar penjelasan
-│   ├── Home*.java, Hijri, Welcome, ScreenLock   launcher: ubin, laci, panel jam, tanggal Hijriah, sambutan, kunci PIN
+│   ├── Home*.java, Hijri, Welcome, ScreenLock, Screensaver   launcher: ubin, laci, panel jam, tanggal Hijriah, sambutan, kunci PIN, screensaver
 │   ├── Prayer*.java, Clock      jadwal sholat (parameter Kemenag RI), pengingat sholat, jam dari GPS
 │   ├── Quran*.java              mushaf, pemutar murattal di latar
 │   ├── MediaNotch, MediaListener   notch pemutar di home: murattal, dzikir, musik aplikasi lain (MediaSession)

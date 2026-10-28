@@ -60,6 +60,8 @@ merender animasi 3D (~40% CPU).
   TinyFish yang gratis untuk penyedia mana pun). ▶️ **[Video cara mengaturnya](https://youtu.be/v9Bm6FzUKm8)** (6 menit, dengan subtitle).
 - **Kunci layar:** PIN 4 angka (**⚙ › Launcher › KUNCI LAYAR**) dan ikon gembok di home, supaya anak-anak tidak
   membuka aplikasi atau mengubah pengaturan. Jam dan jadwal sholat tetap tampil.
+- **Screensaver:** jam dan tanggal di atas latar hitam atau foto sendiri, muncul bila home tidak disentuh 1–10 menit
+  (**⚙ › Launcher › SCREENSAVER**). Tidak pernah menutupi aplikasi lain dan tidak muncul selama mobil bergerak.
 - **Pengaturan & pembaruan:** tombol ⚙ di home; empat tema (AMBER, ZAMRUD, SIANG, dan KILAP berpanel kaca);
   **CEK UPDATE** memasang versi baru tanpa komputer, dan **CEK UPDATE OTOMATIS** (opsional, bawaan mati)
   menawarkannya sendiri saat headunit menyala.

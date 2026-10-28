@@ -47,6 +47,19 @@
     <string name="settings_tiles_title">JUMLAH PINTASAN</string>
     <string name="settings_tiles_desc">Pintasan di home, termasuk SEMUA. Makin sedikit, makin besar jam dan jadwal sholat di kiri, juga pintasan, ikon, dan tulisannya. Pintasan yang tidak tampil tetap tersimpan dan muncul lagi bila jumlahnya ditambah.</string>
 
+    <string name="settings_saver_title">SCREENSAVER</string>
+    <string name="settings_saver_desc">Jam dan tanggal saja, muncul bila home tidak disentuh selama sekian menit. Tidak muncul di atas aplikasi lain seperti Maps, dan baru muncul sekian menit sesudah mobil berhenti. Ketuk layar untuk kembali.</string>
+    <string name="settings_saver_bg_title">LATAR SCREENSAVER</string>
+    <string name="settings_saver_bg_black_desc">Hitam polos, paling nyaman di malam hari.</string>
+    <string name="settings_saver_bg_photo_desc">Foto pilihan sendiri, diredupkan sedikit supaya jam tetap terbaca.</string>
+    <string name="settings_saver_black">HITAM</string>
+    <string name="settings_saver_photo">FOTO</string>
+    <string name="settings_saver_change">GANTI FOTO</string>
+    <string name="settings_saver_preview">COBA</string>
+    <string name="settings_saver_no_picker">Headunit ini tidak punya aplikasi untuk memilih foto</string>
+    <string name="settings_saver_saved">Foto screensaver disimpan</string>
+    <string name="settings_saver_failed">Foto tidak bisa dibuka. Coba foto lain.</string>
+
     <string name="settings_welcome_title">SAMBUTAN</string>
     <string name="settings_welcome_desc">Tampil di home saat headunit menyala. %1$s</string>
     <string name="settings_welcome_now_off">Sekarang dimatikan.</string>

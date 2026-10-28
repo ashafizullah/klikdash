@@ -10,7 +10,7 @@ klikdash/
 ├── build.sh                  build + install on the headunit
 ├── klikdash.keystore         APK signing key (do not lose it, see Notes)
 ├── src/com/ashafizullah/klikdash/   grouped by feature; each class starts with a comment explaining it
-│   ├── Home*.java, Hijri, Welcome, ScreenLock   launcher: tiles, drawer, clock panel, Hijri date, welcome card, PIN lock
+│   ├── Home*.java, Hijri, Welcome, ScreenLock, Screensaver   launcher: tiles, drawer, clock panel, Hijri date, welcome card, PIN lock, screensaver
 │   ├── Prayer*.java, Clock      prayer times (Kemenag RI parameters), prayer alerts, clock set from GPS
 │   ├── Quran*.java              mushaf, background recitation player
 │   ├── MediaNotch, MediaListener   home player notch: recitation, dhikr, other apps' music (MediaSession)

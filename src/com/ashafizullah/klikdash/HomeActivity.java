@@ -171,6 +171,9 @@ public class HomeActivity extends Activity {
         notch = new MediaNotch(this, fBold, fMonoBold);
         root.addView(notch, MediaNotch.params(dp)); // di bawah laci aplikasi, yang menutupinya saat dibuka
         root.addView(drawerView, MATCH, MATCH);
+        saver = new Screensaver.Face(this, fHeavy, fMono);
+        saver.setVisibility(View.GONE);
+        root.addView(saver, MATCH, MATCH); // paling atas: menutupi laci dan notch juga
         setContentView(root);
         // Keyboard hanya untuk kolom cari di laci: tidak muncul sendiri, dan laci menyusut di atasnya.
         getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
@@ -278,6 +281,7 @@ public class HomeActivity extends Activity {
         refreshDefaultHome();
         loc.startSpeed();
         resumed = true;
+        poke();
         update.resume();
     }
 
@@ -320,8 +324,56 @@ public class HomeActivity extends Activity {
         });
     }
 
+    // ---------------------------------------------------------------- screensaver
+
+    Screensaver.Face saver;
+    /** Gestur yang menutup screensaver: seluruhnya diabaikan, supaya ketukan itu tidak membuka ubin di bawahnya. */
+    boolean saverSwallow;
+
+    boolean saverShown() { return saver != null && saver.getVisibility() == View.VISIBLE; }
+
+    /**
+     * Ada aktivitas (sentuhan, tombol, mobil bergerak, home tampil lagi): tutup screensaver dan mulai hitung ulang
+     * menit tanpa sentuhan. Dipanggil tiap fix GPS selama bergerak, jadi screensaver baru muncul sekian menit sesudah
+     * mobil berhenti, bukan di setiap lampu merah.
+     */
+    void poke() {
+        if (home == null) return;
+        home.removeCallbacks(idle);
+        hideSaver();
+        int m = Screensaver.minutes(prefs);
+        if (m > 0 && resumed) home.postDelayed(idle, m * 60_000L);
+    }
+
+    void hideSaver() {
+        if (!saverShown()) return;
+        saver.setVisibility(View.GONE);
+        saver.stop();
+    }
+
+    final Runnable idle = new Runnable() {
+        @Override public void run() {
+            if (!resumed || Screensaver.minutes(prefs) == 0) return;
+            // Dialog (PIN, pembaruan), laci aplikasi, atau sambutan sedang tampil; atau fix GPS terakhir masih bergerak
+            // (GPS hilang di terowongan): coba lagi nanti, jangan menutupinya.
+            boolean moving = HomeLocation.lastKmh > 0 && SystemClock.elapsedRealtime() - HomeLocation.lastKmhAt < 10_000;
+            if (!hasWindowFocus() || drawer.isOpen() || moving
+                    || getWindow().getDecorView().findViewWithTag(Welcome.class) != null) {
+                home.postDelayed(this, 30_000);
+                return;
+            }
+            saver.setVisibility(View.VISIBLE);
+            saver.start(prefs);
+        }
+    };
+
     /** Terkunci: hanya gembok (dan sambutan, yang menutup sendiri) yang menerima sentuhan. */
     @Override public boolean dispatchTouchEvent(MotionEvent e) {
+        if (e.getActionMasked() == MotionEvent.ACTION_DOWN) {
+            saverSwallow = saverShown();
+            poke();
+        }
+        if (saverSwallow) return true;
         if (!locked) return super.dispatchTouchEvent(e);
         if (e.getActionMasked() == MotionEvent.ACTION_DOWN) {
             int[] at = new int[2];
@@ -341,6 +393,7 @@ public class HomeActivity extends Activity {
 
     /** Tombol arah/OK (remote, keyboard) juga diabaikan saat terkunci; tombol media tetap jalan. */
     @Override public boolean dispatchKeyEvent(KeyEvent e) {
+        if (e.getAction() == KeyEvent.ACTION_DOWN) poke(); // tombol setir/remote juga membangunkan; tetap diteruskan
         if (locked) {
             switch (e.getKeyCode()) {
                 case KeyEvent.KEYCODE_DPAD_UP: case KeyEvent.KEYCODE_DPAD_DOWN: case KeyEvent.KEYCODE_DPAD_LEFT:
@@ -394,6 +447,8 @@ public class HomeActivity extends Activity {
 
     @Override protected void onPause() {
         resumed = false;
+        home.removeCallbacks(idle);
+        hideSaver(); // kembali ke home berarti home, bukan screensaver
         loc.stopSpeed();
         prayerView.stopTicking();
         status.stop();
@@ -416,6 +471,7 @@ public class HomeActivity extends Activity {
             reloadPrefs();
             refreshTiles();
             updateTime();
+            poke();
             Welcome.maybeShow(HomeActivity.this, prefs);
             home.removeCallbacks(warmVoice);
             home.postDelayed(warmVoice, 10_000);
@@ -549,6 +605,7 @@ public class HomeActivity extends Activity {
                 now.get(Calendar.YEAR)));
         show(hijri, Hijri.today(now.getTimeInMillis(), prefs.getInt("hijriOffset", 0)));
         gauge.invalidate();
+        if (saverShown()) saver.tick();
         int dz = loc.dzikirPagi() ? 1 : 0; // ubin Dzikir berganti PAGI → PETANG saat Ashar, walau home terus tampil
         if (dz != dzikirState) {
             dzikirState = dz;
