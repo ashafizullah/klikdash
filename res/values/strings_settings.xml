@@ -8,12 +8,14 @@
         <item>HEMAT DAYA</item>
         <item>ASISTEN AI</item>
         <item>KLIKBEAM</item>
+        <item>PEMBARUAN</item>
     </string-array>
     <string-array name="settings_tab_captions">
         <item>TAMPILAN &amp; PINTASAN</item>
         <item>APLIKASI DI LATAR</item>
         <item>PROFIL &amp; SUARA</item>
         <item>MIRROR HP · BETA</item>
+        <item formatted="false">VERSI %1$s</item>
     </string-array>
 
     <string name="settings_on">NYALA</string>
@@ -54,7 +56,7 @@
     <string name="settings_tiles_desc">Pintasan di home, termasuk SEMUA. Makin sedikit, makin besar jam dan jadwal sholat di kiri, juga pintasan, ikon, dan tulisannya. Pintasan yang tidak tampil tetap tersimpan dan muncul lagi bila jumlahnya ditambah.</string>
 
     <string name="settings_saver_title">SCREENSAVER</string>
-    <string name="settings_saver_desc">Jam dan tanggal saja, muncul bila home tidak disentuh selama sekian menit. Tidak muncul di atas aplikasi lain seperti Maps, dan baru muncul sekian menit sesudah mobil berhenti. Ketuk layar untuk kembali.</string>
+    <string name="settings_saver_desc">Jam dan tanggal, muncul bila home tidak disentuh sekian menit. Tidak menutupi aplikasi lain seperti Maps dan tidak muncul saat mobil berjalan. Ketuk layar untuk kembali.</string>
     <string name="settings_saver_bg_title">LATAR SCREENSAVER</string>
     <string name="settings_saver_bg_black_desc">Hitam polos, paling nyaman di malam hari.</string>
     <string name="settings_saver_bg_photo_desc">Foto pilihan sendiri, diredupkan sedikit supaya jam tetap terbaca.</string>

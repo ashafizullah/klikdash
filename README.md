@@ -83,7 +83,7 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
 4. With internet on, open **Al-Qur'an** once and tap **UNDUH TEKS / DOWNLOAD**.
 5. Go through the [test-before-you-drive checklist](#disclaimer) with the car parked.
 
-Updating: **⚙ › Launcher › CEK UPDATE / CHECK UPDATE** (from 1.3.0), or install the new APK over the old one.
+Updating: **⚙ › PEMBARUAN / UPDATES › CEK UPDATE / CHECK UPDATE** (before 1.8.9 under **⚙ › Launcher**), or install the new APK over the old one.
 Settings and audio are kept.
 
 ## Supported devices

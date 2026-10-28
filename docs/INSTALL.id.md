@@ -200,7 +200,7 @@ Anda sendiri.
 
 ## Pembaruan
 
-Buka **⚙ › LAUNCHER** lalu ketuk **CEK UPDATE**. Bila ada versi baru, ketuk **Unduh & pasang**: KlikDash
+Buka **⚙ › PEMBARUAN** lalu ketuk **CEK UPDATE**; sebelum 1.8.9 tombolnya ada di **⚙ › LAUNCHER**. Bila ada versi baru, ketuk **Unduh & pasang**: KlikDash
 memastikan unduhannya ditandatangani kunci yang sama, memasangnya, lalu terbuka lagi. Pengaturan dan audio yang
 sudah diunduh tetap ada.
 

@@ -82,7 +82,7 @@ merender animasi 3D (~40% CPU).
 4. Saat ada internet, buka **Al-Qur'an** sekali dan ketuk **UNDUH TEKS**.
 5. Jalankan [daftar uji sebelum berkendara](#disclaimer) dalam keadaan mobil diam.
 
-Memperbarui: **⚙ › Launcher › CEK UPDATE** (mulai 1.3.0), atau pasang APK baru di atas yang lama. Pengaturan dan
+Memperbarui: **⚙ › PEMBARUAN › CEK UPDATE** (sebelum 1.8.9 di **⚙ › Launcher**), atau pasang APK baru di atas yang lama. Pengaturan dan
 audio tetap ada.
 
 ## Perangkat yang didukung

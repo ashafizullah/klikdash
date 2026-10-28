@@ -40,8 +40,8 @@ public class SettingsActivity extends Activity {
 
     static final int MATCH = ViewGroup.LayoutParams.MATCH_PARENT, WRAP = ViewGroup.LayoutParams.WRAP_CONTENT;
     static final String EXTRA_TAB = "tab";
-    static final int TAB_LAUNCHER = 0, TAB_POWER = 1, TAB_AI = 2, TAB_BEAM = 3;
-    static final int TAB_COUNT = 4;
+    static final int TAB_LAUNCHER = 0, TAB_POWER = 1, TAB_AI = 2, TAB_BEAM = 3, TAB_UPDATE = 4;
+    static final int TAB_COUNT = 5;
 
     float dp, sp, wDp, hDp, railDp;
     boolean portrait, narrow;
@@ -132,11 +132,14 @@ public class SettingsActivity extends Activity {
         rail.setOrientation(portrait ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
         String[] names = getResources().getStringArray(R.array.settings_tab_names),
                 captions = getResources().getStringArray(R.array.settings_tab_captions);
+        captions[TAB_UPDATE] = String.format(captions[TAB_UPDATE], Updater.installedVersion(this));
+        // Headunit 1024×600: tab 88 dp tidak muat lima-limanya di bawah judul, jadi dipendekkan.
+        int tabDp = Math.max(64, Math.min(88, Math.round((hDp - 140) / TAB_COUNT)));
         for (int i = 0; i < TAB_COUNT; i++) {
             final int idx = i;
             tabs[i] = new Tab(names[i], captions[i], () -> show(idx));
             rail.addView(tabs[i], portrait ? new LinearLayout.LayoutParams(0, px(76), 1f)
-                    : new LinearLayout.LayoutParams(MATCH, px(88)));
+                    : new LinearLayout.LayoutParams(MATCH, px(tabDp)));
         }
         if (portrait) {
             body.addView(rail, new LinearLayout.LayoutParams(MATCH, WRAP));
@@ -174,6 +177,8 @@ public class SettingsActivity extends Activity {
             v = ai.view;
         } else if (tab == TAB_BEAM) {
             v = beamPanel();
+        } else if (tab == TAB_UPDATE) {
+            v = updatePanel();
         } else {
             v = launcherPanel();
         }
@@ -274,8 +279,9 @@ public class SettingsActivity extends Activity {
         list.addView(row(getString(R.string.settings_tiles_title), getString(R.string.settings_tiles_desc), counts));
 
         int sm = Screensaver.minutes(prefs);
-        Key[] mins = new Key[Screensaver.MINUTES.length];
-        for (int i = 0; i < mins.length; i++) {
+        // Pilihan menit lalu COBA: tombol uji ada di baris yang pertama dicari pengguna.
+        Key[] mins = new Key[Screensaver.MINUTES.length + 1];
+        for (int i = 0; i < Screensaver.MINUTES.length; i++) {
             final int m = Screensaver.MINUTES[i];
             mins[i] = key(m == 0 ? getString(R.string.settings_off) : String.valueOf(m), m == sm, () -> {
                 prefs.edit().putInt("saverMin", m).apply();
@@ -283,6 +289,7 @@ public class SettingsActivity extends Activity {
             });
             if (m > 0) mins[i].minWidth = px(56);
         }
+        mins[mins.length - 1] = key(getString(R.string.settings_saver_preview), false, this::previewSaver);
         list.addView(row(getString(R.string.settings_saver_title), getString(R.string.settings_saver_desc), mins));
         boolean photo = Screensaver.photo(this, prefs), hasPhoto = Screensaver.file(this).isFile();
         Key black = key(getString(R.string.settings_saver_black), !photo, () -> {
@@ -294,11 +301,10 @@ public class SettingsActivity extends Activity {
             prefs.edit().putInt("saverBg", Screensaver.BG_PHOTO).apply();
             rebuildKeepScroll();
         });
-        Key preview = key(getString(R.string.settings_saver_preview), false, this::previewSaver);
         list.addView(row(getString(R.string.settings_saver_bg_title), getString(photo ? R.string.settings_saver_bg_photo_desc
                 : R.string.settings_saver_bg_black_desc), hasPhoto ? new View[]{black, pic,
-                key(getString(R.string.settings_saver_change), false, this::pickPhoto), preview}
-                : new View[]{black, pic, preview}));
+                key(getString(R.string.settings_saver_change), false, this::pickPhoto)}
+                : new View[]{black, pic}));
 
         int wm = Welcome.mode(prefs);
         list.addView(row(getString(R.string.settings_welcome_title), getString(R.string.settings_welcome_desc,
@@ -349,7 +355,13 @@ public class SettingsActivity extends Activity {
                         startActivity(new Intent(Settings.ACTION_SETTINGS));
                     } catch (Exception ignored) { }
                 })));
+        return scroll(list);
+    }
 
+    // ---------------------------------------------------------------- tab Pembaruan
+
+    View updatePanel() {
+        LinearLayout list = column();
         String ver = Updater.installedVersion(this);
         long checked = prefs.getLong("updateChecked", 0);
         updateKey = key(getString(R.string.update_check), false, this::checkUpdate);
@@ -498,7 +510,7 @@ public class SettingsActivity extends Activity {
                     updateKey.setLabel(getString(R.string.update_check));
                     Notice.show(this, Notice.FAIL, getString(R.string.update_check_title), e);
                 } else if (rel == null || Updater.compare(rel.version, cur) <= 0) {
-                    show(TAB_LAUNCHER, true);
+                    show(TAB_UPDATE, true);
                     Notice.ok(this, getString(R.string.update_latest, cur));
                 } else {
                     updateKey.setLabel(getString(R.string.update_check));
@@ -548,7 +560,7 @@ public class SettingsActivity extends Activity {
 
     void setAutoUpdate(boolean on) {
         prefs.edit().putBoolean("autoUpdate", on).apply();
-        show(TAB_LAUNCHER, true);
+        show(TAB_UPDATE, true);
     }
 
     void setPrayerAlert(boolean on) {

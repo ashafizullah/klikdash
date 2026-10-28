@@ -7,12 +7,14 @@
         <item>POWER SAVER</item>
         <item>AI ASSISTANT</item>
         <item>KLIKBEAM</item>
+        <item>UPDATES</item>
     </string-array>
     <string-array name="settings_tab_captions">
         <item>DISPLAY &amp; SHORTCUTS</item>
         <item>BACKGROUND APPS</item>
         <item>PROFILES &amp; VOICE</item>
         <item>PHONE MIRROR · BETA</item>
+        <item formatted="false">VERSION %1$s</item>
     </string-array>
 
     <string name="settings_on">ON</string>
@@ -53,7 +55,7 @@
     <string name="settings_tiles_desc">Shortcuts on the home screen, including ALL. Fewer shortcuts make the clock, prayer times, shortcuts, icons and labels bigger. Hidden shortcuts are kept and come back when you raise the number.</string>
 
     <string name="settings_saver_title">SCREENSAVER</string>
-    <string name="settings_saver_desc">Just the clock and date, shown when the home screen has not been touched for the chosen minutes. Never covers other apps such as Maps, and only appears that many minutes after the car stops. Tap the screen to go back.</string>
+    <string name="settings_saver_desc">The clock and date, shown when the home screen has not been touched for the chosen minutes. Never covers other apps such as Maps and never appears while driving. Tap the screen to go back.</string>
     <string name="settings_saver_bg_title">SCREENSAVER BACKGROUND</string>
     <string name="settings_saver_bg_black_desc">Plain black, easiest on the eyes at night.</string>
     <string name="settings_saver_bg_photo_desc">A photo of your choice, dimmed a little so the clock stays readable.</string>

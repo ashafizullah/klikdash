@@ -207,7 +207,7 @@ accounts.
 
 ## Updates
 
-Open **⚙ › LAUNCHER** and tap **CEK UPDATE**. If there is a new version, tap **Unduh & pasang**: KlikDash checks
+Open **⚙ › PEMBARUAN** (UPDATES) and tap **CEK UPDATE**; before 1.8.9 the button is under **⚙ › LAUNCHER**. If there is a new version, tap **Unduh & pasang**: KlikDash checks
 that the download is signed by the same key, installs it and opens again. Settings and downloaded audio are kept.
 
 ![The Launcher tab in Settings](img/settings.png)
