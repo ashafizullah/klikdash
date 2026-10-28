@@ -214,7 +214,7 @@ that the download is signed by the same key, installs it and opens again. Settin
 
 ## Switch back to the stock launcher
 
-Open **⚙ › LAUNCHER**, tap **LAUNCHER BAWAAN** ("stock launcher") and confirm. KlikDash stays installed and can
+Open **⚙ › LAUNCHER › SISTEM** (SYSTEM), tap **LAUNCHER BAWAAN** ("stock launcher") and confirm. KlikDash stays installed and can
 be made the home screen again at any time.
 
 To remove KlikDash completely, open **Settings › Apps › KlikDash › Uninstall**. Downloaded recitation audio

@@ -38,7 +38,7 @@
 ## Tentang
 
 KlikDash menggantikan launcher bawaan headunit dengan home statis bergaya panel instrumen (~0–1% CPU, ~30 MB RAM).
-Ditulis dengan Java murni tanpa library. Tampilan berbahasa Indonesia atau Inggris (**⚙ › Launcher › BAHASA**),
+Ditulis dengan Java murni tanpa library. Tampilan berbahasa Indonesia atau Inggris (**⚙ › Launcher › TAMPILAN › BAHASA**),
 dan asisten suara punya pengaturan bahasanya sendiri. Di NWD K2401 tempat KlikDash dikembangkan, launcher bawaannya terus
 merender animasi 3D (~40% CPU).
 
@@ -58,7 +58,7 @@ merender animasi 3D (~40% CPU).
   atau *"buka Zlink"*. Pakai key Claude atau OpenAI-compatible sendiri; mendengar dan berbicara dengan suara
   Android headunit (gratis) atau ElevenLabs, dan mencari info terkini di web (pencarian Claude, atau pencarian
   TinyFish yang gratis untuk penyedia mana pun). ▶️ **[Video cara mengaturnya](https://youtu.be/v9Bm6FzUKm8)** (6 menit, dengan subtitle).
-- **Kunci layar:** PIN 4 angka (**⚙ › Launcher › KUNCI LAYAR**) dan ikon gembok di home, supaya anak-anak tidak
+- **Kunci layar:** PIN 4 angka (**⚙ › Launcher › HOME › KUNCI LAYAR**) dan ikon gembok di home, supaya anak-anak tidak
   membuka aplikasi atau mengubah pengaturan. Jam dan jadwal sholat tetap tampil.
 - **Screensaver:** jam dan tanggal di atas latar hitam atau foto sendiri, muncul bila home tidak disentuh 1–10 menit
   (**⚙ › Launcher › SCREENSAVER**). Tidak pernah menutupi aplikasi lain dan tidak muncul selama mobil bergerak.
@@ -115,7 +115,7 @@ di latar.
 
 | Perubahan | Kapan | Cara mengembalikan |
 |---|---|---|
-| Launcher default `persist.nwd.launcher.default=com.ashafizullah.klikdash` (NWD) dan preferensi HOME | Saat Anda mengetuk **JADIKAN TAMPILAN UTAMA** | **Pengaturan › Launcher › LAUNCHER BAWAAN**, atau `adb shell setprop persist.nwd.launcher.default com.android.launcher` |
+| Launcher default `persist.nwd.launcher.default=com.ashafizullah.klikdash` (NWD) dan preferensi HOME | Saat Anda mengetuk **JADIKAN TAMPILAN UTAMA** | **Pengaturan › Launcher › SISTEM › LAUNCHER BAWAAN**, atau `adb shell setprop persist.nwd.launcher.default com.android.launcher` |
 | ksmd dimatikan | Setiap boot, selama KlikDash jadi tampilan home (butuh ADB aktif) | Kembali ke launcher bawaan atau uninstall KlikDash, lalu reboot |
 | Zlink dikembalikan ke home bila terbuka sendiri | 3 menit pertama setelah boot atau bangun dari tidur | Sama seperti di atas |
 | Aplikasi dilarang jalan di latar (`appops RUN_ANY_IN_BACKGROUND/RUN_IN_BACKGROUND ignore`) | Hanya untuk aplikasi yang Anda nyalakan di **HEMAT DAYA**, atau atas permintaan ke TANYA AI | Ketuk aplikasinya lagi, atau **KEMBALIKAN SEMUA** |

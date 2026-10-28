@@ -18,6 +18,19 @@
         <item formatted="false">VERSI %1$s</item>
     </string-array>
 
+    <!-- Kelompok tab Launcher: judul dan ringkasan setelan -->
+    <string name="settings_group_look">TAMPILAN</string>
+    <string name="settings_group_prayer">SHOLAT</string>
+    <string name="settings_group_home">HOME</string>
+    <string name="settings_group_system">SISTEM</string>
+    <string name="settings_group_theme_auto">TEMA OTOMATIS</string>
+    <string name="settings_group_tiles">%1$d PINTASAN</string>
+    <string name="settings_group_alert">PENGINGAT %1$s</string>
+    <string name="settings_group_saver">%1$d MENIT · %2$s</string>
+    <string name="settings_group_welcome">SAMBUTAN %1$s</string>
+    <string name="settings_group_pin">PIN AKTIF</string>
+    <string name="settings_group_hidden">%1$d DISEMBUNYIKAN</string>
+
     <string name="settings_on">NYALA</string>
     <string name="settings_off">MATI</string>
 

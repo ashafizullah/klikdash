@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -18,7 +19,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
-import java.util.Random;
 
 /**
  * Screensaver home: jam besar dan tanggal di atas latar hitam atau foto pilihan pengguna, setelah home tidak disentuh
@@ -95,19 +95,17 @@ final class Screensaver {
     }
 
     /**
-     * Isi layar screensaver. Selalu gelap, juga di tema Siang: dipakai saat mobil diam, sering malam hari. Posisi jam
-     * bergeser sedikit tiap menit ({@link #tick}) supaya layar tidak berbayang.
+     * Isi layar screensaver. Selalu gelap, juga di tema Siang: dipakai saat mobil diam, sering malam hari. Jam dan
+     * tanggal tepat di tengah layar, diukur dari bentuk huruf yang tergambar (bukan metrik font) supaya tidak miring.
      */
     static final class Face extends View {
         final Paint clock = new Paint(Paint.ANTI_ALIAS_FLAG), small = new Paint(Paint.ANTI_ALIAS_FLAG),
                 image = new Paint(Paint.FILTER_BITMAP_FLAG);
         final Matrix fit = new Matrix();
-        final Random rnd = new Random();
+        final Rect cb = new Rect(), ab = new Rect(), db = new Rect();
         final float dp;
         SharedPreferences prefs;
         Bitmap bg;
-        /** Pergeseran jam, sebagian dari lebar/tinggi layar. */
-        float dx, dy;
         /** Menaikkan nilai ini membatalkan pemuatan foto yang belum selesai (stop, atau start lagi). */
         int loadGen;
 
@@ -124,7 +122,7 @@ final class Screensaver {
 
         void start(SharedPreferences p) {
             prefs = p;
-            tick();
+            invalidate();
             int gen = ++loadGen;
             if (!photo(getContext(), p)) return;
             File f = file(getContext());
@@ -144,11 +142,8 @@ final class Screensaver {
             if (bg != null) { bg.recycle(); bg = null; }
         }
 
-        void tick() {
-            dx = (rnd.nextFloat() * 2 - 1) * 0.05f;
-            dy = (rnd.nextFloat() * 2 - 1) * 0.06f;
-            invalidate();
-        }
+        /** Tiap menit: gambar ulang jamnya. */
+        void tick() { invalidate(); }
 
         @Override protected void onDraw(Canvas c) {
             int w = getWidth(), h = getHeight();
@@ -182,19 +177,19 @@ final class Screensaver {
                 clock.clearShadowLayer();
                 small.clearShadowLayer();
             }
-            Paint.FontMetrics fm = clock.getFontMetrics();
-            float capH = -fm.ascent * 0.72f; // tinggi angka, kira-kira
-            float gap = small.getTextSize() * 1.6f;
-            float block = capH + gap + small.getTextSize();
-            float cx = w / 2f + dx * w, top = (h - block) / 2f + dy * h;
-
-            float tw = clock.measureText(hm);
             String ap = twelve ? Clock.ampm(min) : "";
-            float aw = ap.isEmpty() ? 0 : small.measureText(ap) + small.getTextSize() * 0.6f;
-            float x = cx - (tw + aw) / 2f, base = top + capH;
-            c.drawText(hm, x, base, clock);
-            if (!ap.isEmpty()) c.drawText(ap, x + tw + small.getTextSize() * 0.6f, base, small);
-            c.drawText(date, cx - small.measureText(date) / 2f, base + gap + small.getTextSize() * 0.8f, small);
+            clock.getTextBounds(hm, 0, hm.length(), cb);
+            small.getTextBounds(date, 0, date.length(), db);
+            float apGap = small.getTextSize() * 0.6f;
+            if (ap.isEmpty()) ab.setEmpty(); else small.getTextBounds(ap, 0, ap.length(), ab);
+            float rowW = cb.width() + (ap.isEmpty() ? 0 : apGap + ab.width());
+            float gap = small.getTextSize() * 1.4f;
+            float top = (h - (cb.height() + gap + db.height())) / 2f;
+
+            float x = (w - rowW) / 2f, base = top - cb.top;
+            c.drawText(hm, x - cb.left, base, clock);
+            if (!ap.isEmpty()) c.drawText(ap, x + cb.width() + apGap - ab.left, base, small);
+            c.drawText(date, (w - db.width()) / 2f - db.left, top + cb.height() + gap - db.top, small);
         }
     }
 }

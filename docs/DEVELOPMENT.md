@@ -120,7 +120,7 @@ python3 -I tools/build_quran.py --en assets/quran-en.txt
 ## Translations
 
 The interface is in Indonesian (`res/values/strings_*.xml`, the default) and English
-(`res/values-en/strings_*.xml`), chosen in **⚙ › Launcher › BAHASA** and not from the system language (`Lang.java`).
+(`res/values-en/strings_*.xml`), chosen in **⚙ › Launcher › TAMPILAN › BAHASA** and not from the system language (`Lang.java`).
 - Every new piece of UI text goes into **both** folders under the same name. Use positional arguments
   (`%1$s`) and `<plurals>` for counts. Never compare or save displayed text: keep a separate key.
 - Activities and `QuranService` wrap their context in `attachBaseContext`. Receivers and the application context

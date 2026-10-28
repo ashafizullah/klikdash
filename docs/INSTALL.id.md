@@ -208,7 +208,7 @@ sudah diunduh tetap ada.
 
 ## Kembali ke launcher bawaan
 
-Buka **⚙ › LAUNCHER**, ketuk **LAUNCHER BAWAAN**, lalu konfirmasi. KlikDash tetap terpasang dan bisa dijadikan
+Buka **⚙ › LAUNCHER › SISTEM**, ketuk **LAUNCHER BAWAAN**, lalu konfirmasi. KlikDash tetap terpasang dan bisa dijadikan
 tampilan utama lagi kapan saja.
 
 Mau menghapus KlikDash sepenuhnya? Buka **Pengaturan › Aplikasi › KlikDash › Uninstall**. Audio murattal

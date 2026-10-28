@@ -119,7 +119,7 @@ python3 -I tools/build_quran.py --en assets/quran-en.txt
 ## Terjemahan antarmuka
 
 Tampilan berbahasa Indonesia (`res/values/strings_*.xml`, bawaan) dan Inggris (`res/values-en/strings_*.xml`),
-dipilih di **⚙ › Launcher › BAHASA**, tidak mengikuti bahasa sistem (`Lang.java`).
+dipilih di **⚙ › Launcher › TAMPILAN › BAHASA**, tidak mengikuti bahasa sistem (`Lang.java`).
 - Setiap teks UI baru masuk ke **kedua** folder dengan nama yang sama. Pakai argumen posisional (`%1$s`) dan
   `<plurals>` untuk bilangan. Jangan membandingkan atau menyimpan teks tampilan: simpan kunci terpisah.
 - Aktivitas dan `QuranService` membungkus context di `attachBaseContext`. Receiver dan context aplikasi

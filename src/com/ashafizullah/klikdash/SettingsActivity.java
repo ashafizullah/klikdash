@@ -8,10 +8,13 @@ import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -22,6 +25,8 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import static com.ashafizullah.klikdash.HomeActivity.AMBER;
@@ -33,7 +38,8 @@ import static com.ashafizullah.klikdash.HomeActivity.PANEL;
 import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 
 /**
- * Pengaturan KlikDash dalam tab: Launcher (tampilan utama, Hijriah, ubin), Hemat Daya, Asisten AI, dan KlikBeam.
+ * Pengaturan KlikDash dalam tab: Launcher (dikelompokkan: tampilan, sholat, screensaver, home, sistem), Hemat Daya,
+ * Asisten AI, KlikBeam, dan Pembaruan.
  * Tab di kiri pada layar mendatar, di atas pada layar tegak.
  */
 public class SettingsActivity extends Activity {
@@ -70,12 +76,14 @@ public class SettingsActivity extends Activity {
         // Sama dengan HomeActivity: pengaturan launcher di penyimpanan DE (bisa dibaca saat direct boot).
         prefs = createDeviceProtectedStorageContext().getSharedPreferences("klikdash", MODE_PRIVATE);
         Tweaks.init(this);
+        if (b != null) openGroup = b.getInt("group", -1); // tetap terbuka setelah ganti tema/bahasa
         build(b != null ? b.getInt(EXTRA_TAB, 0) : getIntent().getIntExtra(EXTRA_TAB, TAB_LAUNCHER));
     }
 
     @Override protected void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
         out.putInt(EXTRA_TAB, Math.max(current, 0));
+        out.putInt("group", openGroup);
     }
 
     @Override public void onConfigurationChanged(android.content.res.Configuration c) {
@@ -187,56 +195,25 @@ public class SettingsActivity extends Activity {
 
     // ---------------------------------------------------------------- tab Launcher
 
+    /** Kelompok accordion tab Launcher; hanya satu yang terbuka (openGroup, -1 = semua tertutup). */
+    static final int GROUP_LOOK = 0, GROUP_PRAYER = 1, GROUP_SAVER = 2, GROUP_HOME = 3, GROUP_SYSTEM = 4;
+    int openGroup = -1;
+    final View[] groupViews = new View[5];
+
     View launcherPanel() {
         LinearLayout list = column();
 
         boolean def = HomeSwitch.isDefault(this);
-        list.addView(row(getString(R.string.settings_home_title),
+        View home = row(getString(R.string.settings_home_title),
                 getString(def ? R.string.settings_home_on : R.string.settings_home_off),
                 def ? key(getString(R.string.settings_home_restore), false, () -> HomeSwitch.restore(this, prefs))
                         : key(getString(R.string.settings_home_make), true, () -> HomeSwitch.makeDefault(this, prefs,
-                        () -> show(TAB_LAUNCHER, true)))));
+                        () -> rebuildKeepScroll())));
 
-        boolean twelve = Clock.twelve(prefs);
-        Key[] fmt = new Key[2];
-        for (int i = 0; i < 2; i++) {
-            final boolean v = i == 1;
-            fmt[i] = key(getString(v ? R.string.settings_clock_12 : R.string.settings_clock_24), v == twelve, () -> {
-                prefs.edit().putBoolean("clock12", v).apply();
-                show(TAB_LAUNCHER, true);
-            });
-        }
-        list.addView(row(getString(R.string.settings_clock_title), getString(R.string.settings_clock_desc), fmt));
+        // Belum jadi tampilan utama: tombolnya paling atas, di luar kelompok.
+        if (!def) list.addView(home);
 
-        int pm = prefs.getInt("prayerMethod", PrayerTimes.AUTO);
-        int[] pmValue = {PrayerTimes.AUTO, PrayerTimes.KEMENAG, PrayerTimes.JAKIM};
-        int[] pmLabel = {R.string.settings_method_auto, R.string.settings_method_kemenag, R.string.settings_method_jakim};
-        Key[] methods = new Key[pmValue.length];
-        for (int i = 0; i < methods.length; i++) {
-            final int v = pmValue[i];
-            methods[i] = key(getString(pmLabel[i]), v == pm, () -> {
-                prefs.edit().putInt("prayerMethod", v).apply();
-                PrayerAlarm.schedule(this); // pengingat ikut jadwal metode baru
-                show(TAB_LAUNCHER, true);
-            });
-        }
-        list.addView(row(getString(R.string.settings_method_title), getString(R.string.settings_method_desc,
-                getString(PrayerTimes.method(prefs) == PrayerTimes.JAKIM ? R.string.settings_method_jakim_name
-                        : R.string.settings_method_kemenag_name)), methods));
-
-        int off = prefs.getInt("hijriOffset", 0);
-        Key[] shift = new Key[5];
-        for (int i = 0; i < 5; i++) {
-            final int v = i - 2;
-            shift[i] = key(v == 0 ? "0" : v > 0 ? "+" + v : "−" + (-v), v == off, () -> {
-                prefs.edit().putInt("hijriOffset", v).apply();
-                show(TAB_LAUNCHER, true);
-            });
-            shift[i].minWidth = px(56);
-        }
-        list.addView(row(getString(R.string.settings_hijri_title), getString(R.string.settings_hijri_desc,
-                titleCase(Hijri.text(System.currentTimeMillis(), off))), shift));
-
+        List<View> look = new ArrayList<>();
         Key[] langs = new Key[Lang.CODES.length];
         for (int i = 0; i < langs.length; i++) {
             final String code = Lang.CODES[i];
@@ -246,25 +223,39 @@ public class SettingsActivity extends Activity {
                 recreate(); // seperti tema: home dan layar lain menyusul saat tampil lagi (Theme.stale)
             });
         }
-        list.addView(row(getString(R.string.settings_lang_title), getString(R.string.settings_lang_desc), langs));
+        look.add(row(getString(R.string.settings_lang_title), getString(R.string.settings_lang_desc), langs));
+
+
+        boolean twelve = Clock.twelve(prefs);
+        Key[] fmt = new Key[2];
+        for (int i = 0; i < 2; i++) {
+            final boolean v = i == 1;
+            fmt[i] = key(getString(v ? R.string.settings_clock_12 : R.string.settings_clock_24), v == twelve, () -> {
+                prefs.edit().putBoolean("clock12", v).apply();
+                rebuildKeepScroll();
+            });
+        }
+        look.add(row(getString(R.string.settings_clock_title), getString(R.string.settings_clock_desc), fmt));
+
 
         // Satu tema, atau tema siang dan malam yang berganti sendiri mengikuti matahari (Theme.saved).
         boolean autoTheme = Theme.auto(this);
         int[] sun = Theme.sun(this);
         boolean tw = Clock.twelve(prefs);
         String rise = Clock.hm(tw, sun[0]), set = Clock.hm(tw, sun[1]);
-        list.addView(row(getString(R.string.settings_theme_auto_title), getString(R.string.settings_theme_auto_desc, rise, set),
+        look.add(row(getString(R.string.settings_theme_auto_title), getString(R.string.settings_theme_auto_desc, rise, set),
                 key(getString(R.string.settings_on), autoTheme, () -> setThemeAuto(true)),
                 key(getString(R.string.settings_off), !autoTheme, () -> setThemeAuto(false))));
         if (autoTheme) {
-            list.addView(themeRow("themeDay", getString(R.string.settings_theme_day_title),
+            look.add(themeRow("themeDay", getString(R.string.settings_theme_day_title),
                     getString(R.string.settings_theme_day_desc, rise, set)));
-            list.addView(themeRow("themeNight", getString(R.string.settings_theme_night_title),
+            look.add(themeRow("themeNight", getString(R.string.settings_theme_night_title),
                     getString(R.string.settings_theme_night_desc, set, rise)));
         } else {
-            list.addView(themeRow("theme", getString(R.string.settings_theme_title),
+            look.add(themeRow("theme", getString(R.string.settings_theme_title),
                     getResources().getStringArray(R.array.theme_desc)[Theme.chosen(this, "theme")]));
         }
+
 
         int tc = HomeApps.tileCount(prefs);
         Key[] counts = new Key[HomeApps.TILE_COUNTS.length];
@@ -272,12 +263,65 @@ public class SettingsActivity extends Activity {
             final int n = HomeApps.TILE_COUNTS[i];
             counts[i] = key(String.valueOf(n), n == tc, () -> {
                 prefs.edit().putInt("tiles", n).apply();
-                show(TAB_LAUNCHER, true); // home dibangun ulang saat tampil lagi
+                rebuildKeepScroll(); // home dibangun ulang saat tampil lagi
             });
             counts[i].minWidth = px(56);
         }
-        list.addView(row(getString(R.string.settings_tiles_title), getString(R.string.settings_tiles_desc), counts));
+        look.add(row(getString(R.string.settings_tiles_title), getString(R.string.settings_tiles_desc), counts));
 
+
+        list.addView(group(GROUP_LOOK, getString(R.string.settings_group_look), dots(
+                autoTheme ? getString(R.string.settings_group_theme_auto)
+                        : getResources().getStringArray(R.array.theme_names)[Theme.chosen(this, "theme")],
+                getString(Lang.EN.equals(Lang.code) ? R.string.lang_en : R.string.lang_id),
+                getString(twelve ? R.string.settings_clock_12 : R.string.settings_clock_24),
+                getString(R.string.settings_group_tiles, tc)), look));
+
+        List<View> prayer = new ArrayList<>();
+        int pm = prefs.getInt("prayerMethod", PrayerTimes.AUTO);
+        int[] pmValue = {PrayerTimes.AUTO, PrayerTimes.KEMENAG, PrayerTimes.JAKIM};
+        int[] pmLabel = {R.string.settings_method_auto, R.string.settings_method_kemenag, R.string.settings_method_jakim};
+        Key[] methods = new Key[pmValue.length];
+        for (int i = 0; i < methods.length; i++) {
+            final int v = pmValue[i];
+            methods[i] = key(getString(pmLabel[i]), v == pm, () -> {
+                prefs.edit().putInt("prayerMethod", v).apply();
+                PrayerAlarm.schedule(this); // pengingat ikut jadwal metode baru
+                rebuildKeepScroll();
+            });
+        }
+        prayer.add(row(getString(R.string.settings_method_title), getString(R.string.settings_method_desc,
+                getString(PrayerTimes.method(prefs) == PrayerTimes.JAKIM ? R.string.settings_method_jakim_name
+                        : R.string.settings_method_kemenag_name)), methods));
+
+
+        int off = prefs.getInt("hijriOffset", 0);
+        Key[] shift = new Key[5];
+        for (int i = 0; i < 5; i++) {
+            final int v = i - 2;
+            shift[i] = key(v == 0 ? "0" : v > 0 ? "+" + v : "−" + (-v), v == off, () -> {
+                prefs.edit().putInt("hijriOffset", v).apply();
+                rebuildKeepScroll();
+            });
+            shift[i].minWidth = px(56);
+        }
+        prayer.add(row(getString(R.string.settings_hijri_title), getString(R.string.settings_hijri_desc,
+                titleCase(Hijri.text(System.currentTimeMillis(), off))), shift));
+
+
+        boolean pa = PrayerAlarm.enabled(prefs);
+        prayer.add(row(getString(R.string.settings_prayer_title), getString(R.string.settings_prayer_desc),
+                key(getString(R.string.settings_on), pa, () -> setPrayerAlert(true)),
+                key(getString(R.string.settings_off), !pa, () -> setPrayerAlert(false)),
+                key(getString(R.string.settings_prayer_test), false, () -> PrayerAlarm.notify(this, 3, System.currentTimeMillis()))));
+
+
+        list.addView(group(GROUP_PRAYER, getString(R.string.settings_group_prayer), dots(
+                getString(PrayerTimes.method(prefs) == PrayerTimes.JAKIM ? R.string.settings_method_jakim
+                        : R.string.settings_method_kemenag),
+                getString(R.string.settings_group_alert, getString(pa ? R.string.settings_on : R.string.settings_off))), prayer));
+
+        List<View> saverRows = new ArrayList<>();
         int sm = Screensaver.minutes(prefs);
         // Pilihan menit lalu COBA: tombol uji ada di baris yang pertama dicari pengguna.
         Key[] mins = new Key[Screensaver.MINUTES.length + 1];
@@ -290,7 +334,7 @@ public class SettingsActivity extends Activity {
             if (m > 0) mins[i].minWidth = px(56);
         }
         mins[mins.length - 1] = key(getString(R.string.settings_saver_preview), false, this::previewSaver);
-        list.addView(row(getString(R.string.settings_saver_title), getString(R.string.settings_saver_desc), mins));
+        saverRows.add(row(getString(R.string.settings_saver_title), getString(R.string.settings_saver_desc), mins));
         boolean photo = Screensaver.photo(this, prefs), hasPhoto = Screensaver.file(this).isFile();
         Key black = key(getString(R.string.settings_saver_black), !photo, () -> {
             prefs.edit().putInt("saverBg", Screensaver.BG_BLACK).apply();
@@ -301,13 +345,19 @@ public class SettingsActivity extends Activity {
             prefs.edit().putInt("saverBg", Screensaver.BG_PHOTO).apply();
             rebuildKeepScroll();
         });
-        list.addView(row(getString(R.string.settings_saver_bg_title), getString(photo ? R.string.settings_saver_bg_photo_desc
+        saverRows.add(row(getString(R.string.settings_saver_bg_title), getString(photo ? R.string.settings_saver_bg_photo_desc
                 : R.string.settings_saver_bg_black_desc), hasPhoto ? new View[]{black, pic,
                 key(getString(R.string.settings_saver_change), false, this::pickPhoto)}
                 : new View[]{black, pic}));
 
+
+        list.addView(group(GROUP_SAVER, getString(R.string.settings_saver_title), sm == 0 ? getString(R.string.settings_off)
+                : getString(R.string.settings_group_saver, sm, getString(photo ? R.string.settings_saver_photo
+                : R.string.settings_saver_black)), saverRows));
+
+        List<View> homeRows = new ArrayList<>();
         int wm = Welcome.mode(prefs);
-        list.addView(row(getString(R.string.settings_welcome_title), getString(R.string.settings_welcome_desc,
+        homeRows.add(row(getString(R.string.settings_welcome_title), getString(R.string.settings_welcome_desc,
                 getString(wm == Welcome.MODE_OFF ? R.string.settings_welcome_now_off
                         : wm == Welcome.MODE_CUSTOM ? R.string.settings_welcome_now_custom
                         : R.string.settings_welcome_now_default)),
@@ -321,15 +371,10 @@ public class SettingsActivity extends Activity {
                     else Welcome.show(this, c);
                 })));
 
-        boolean pa = PrayerAlarm.enabled(prefs);
-        list.addView(row(getString(R.string.settings_prayer_title), getString(R.string.settings_prayer_desc),
-                key(getString(R.string.settings_on), pa, () -> setPrayerAlert(true)),
-                key(getString(R.string.settings_off), !pa, () -> setPrayerAlert(false)),
-                key(getString(R.string.settings_prayer_test), false, () -> PrayerAlarm.notify(this, 3, System.currentTimeMillis()))));
 
         // Kunci layar: PIN 4 angka, gembok di home (ScreenLock). Ubah/hapus minta PIN lama.
         if (ScreenLock.hasPin(prefs)) {
-            list.addView(row(getString(R.string.settings_lock_title), getString(R.string.settings_lock_desc_on),
+            homeRows.add(row(getString(R.string.settings_lock_title), getString(R.string.settings_lock_desc_on),
                     key(getString(R.string.settings_lock_change), false, () -> ScreenLock.verify(this, prefs,
                             this::newPin, this::pinRemoved)),
                     key(getString(R.string.settings_lock_remove), false, () -> ScreenLock.verify(this, prefs, () -> {
@@ -337,25 +382,98 @@ public class SettingsActivity extends Activity {
                         pinRemoved();
                     }, this::pinRemoved))));
         } else {
-            list.addView(row(getString(R.string.settings_lock_title), getString(R.string.settings_lock_desc_off),
+            homeRows.add(row(getString(R.string.settings_lock_title), getString(R.string.settings_lock_desc_off),
                     key(getString(R.string.settings_lock_set), false, this::newPin)));
         }
 
-        list.addView(row(getString(R.string.settings_tiles_reset_title), getString(R.string.settings_tiles_reset_desc),
+
+        homeRows.add(row(getString(R.string.settings_tiles_reset_title), getString(R.string.settings_tiles_reset_desc),
                 key(getString(R.string.settings_tiles_reset), false, this::resetTiles)));
 
+
         int hid = HomeApps.hidden(prefs).size();
-        list.addView(row(getString(R.string.settings_hidden_title), hid == 0 ? getString(R.string.settings_hidden_none)
+        homeRows.add(row(getString(R.string.settings_hidden_title), hid == 0 ? getString(R.string.settings_hidden_none)
                         : getResources().getQuantityString(R.plurals.settings_hidden_desc, hid, hid),
                 hid == 0 ? new View[0] : new View[]{key(getString(R.string.settings_hidden_show), false, this::showHidden)}));
 
-        list.addView(row(getString(R.string.settings_system_title), getString(R.string.settings_system_desc),
+
+        list.addView(group(GROUP_HOME, getString(R.string.settings_group_home), dots(
+                getString(R.string.settings_group_welcome, getString(wm == Welcome.MODE_OFF ? R.string.settings_off
+                        : wm == Welcome.MODE_CUSTOM ? R.string.settings_welcome_custom : R.string.settings_welcome_default)),
+                ScreenLock.hasPin(prefs) ? getString(R.string.settings_group_pin) : null,
+                hid > 0 ? getString(R.string.settings_group_hidden, hid) : null), homeRows));
+
+        List<View> sys = new ArrayList<>();
+        if (def) sys.add(home);
+        sys.add(row(getString(R.string.settings_system_title), getString(R.string.settings_system_desc),
                 key(getString(R.string.settings_system_open), false, () -> {
                     try {
                         startActivity(new Intent(Settings.ACTION_SETTINGS));
                     } catch (Exception ignored) { }
                 })));
+
+        list.addView(group(GROUP_SYSTEM, getString(R.string.settings_group_system), dots(
+                def ? getString(R.string.settings_home_title) : null, getString(R.string.settings_system_title)), sys));
         return scroll(list);
+    }
+
+    /** "A · B · C", tanpa bagian yang null. */
+    static String dots(String... parts) {
+        StringBuilder b = new StringBuilder();
+        for (String p : parts) {
+            if (p == null) continue;
+            if (b.length() > 0) b.append(" · ");
+            b.append(p);
+        }
+        return b.toString();
+    }
+
+    /** Kepala kelompok: judul dan ringkasan setelan saat ini, lalu isinya bila terbuka. */
+    View group(int id, String title, String summary, List<View> rows) {
+        boolean open = id == openGroup;
+        LinearLayout g = column();
+        LinearLayout head = new LinearLayout(this);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        head.setPadding(0, px(22), 0, px(22));
+        StateListDrawable press = new StateListDrawable();
+        press.addState(new int[]{android.R.attr.state_pressed}, new ColorDrawable(PANEL));
+        head.setBackground(press);
+        LinearLayout t = column();
+        TextView h = text(title, fHeavy, 30, TEXT);
+        h.setLetterSpacing(0.02f);
+        t.addView(h);
+        TextView sum = text(summary, fMono, 12, open ? AMBER : DIM);
+        sum.setLetterSpacing(0.2f);
+        sum.setEllipsize(TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams sl = new LinearLayout.LayoutParams(MATCH, WRAP);
+        sl.topMargin = px(8);
+        t.addView(sum, sl);
+        head.addView(t, new LinearLayout.LayoutParams(0, WRAP, 1f));
+        TextView sign = text(open ? "−" : "+", fMonoBold, 28, open ? AMBER : DIM);
+        LinearLayout.LayoutParams gl = new LinearLayout.LayoutParams(WRAP, WRAP);
+        gl.leftMargin = gl.rightMargin = px(16);
+        head.addView(sign, gl);
+        head.setContentDescription(title);
+        head.setOnClickListener(v -> toggleGroup(id));
+        g.addView(head, new LinearLayout.LayoutParams(MATCH, WRAP));
+        g.addView(rule(), ruleParams(true, 0, 0));
+        if (open) {
+            LinearLayout body = column();
+            body.setPadding(px(24), 0, 0, 0);
+            for (View r : rows) body.addView(r);
+            g.addView(body, new LinearLayout.LayoutParams(MATCH, WRAP));
+        }
+        groupViews[id] = g;
+        return g;
+    }
+
+    /** Buka satu kelompok (yang lain menutup) dan gulir supaya kepalanya di atas. */
+    void toggleGroup(int id) {
+        openGroup = openGroup == id ? -1 : id;
+        show(TAB_LAUNCHER, true);
+        View now = content.getChildAt(0), g = openGroup < 0 ? null : groupViews[openGroup];
+        if (now instanceof ScrollView && g != null) now.post(() -> now.scrollTo(0, g.getTop()));
     }
 
     // ---------------------------------------------------------------- tab Pembaruan
@@ -567,12 +685,12 @@ public class SettingsActivity extends Activity {
         prefs.edit().putBoolean("prayerAlert", on).apply();
         PrayerAlarm.schedule(this);
         PrayerAlarm.allowOverlay(this);
-        show(TAB_LAUNCHER, true);
+        rebuildKeepScroll();
     }
 
     void setWelcome(int mode) {
         prefs.edit().putInt("welcome", mode).apply();
-        show(TAB_LAUNCHER, true);
+        rebuildKeepScroll();
     }
 
     /** Teks sambutan sendiri: judul, teks Arab, bacaan Latin, arti/pesan; minimal Arab atau pesan. */
@@ -600,7 +718,7 @@ public class SettingsActivity extends Activity {
                     .putString("wLatin", latin.getText().toString().trim()).putString("wText", t)
                     .putInt("welcome", Welcome.MODE_CUSTOM).apply();
             d.dismiss();
-            show(TAB_LAUNCHER, true);
+            rebuildKeepScroll();
             Welcome.show(this, Welcome.content(prefs));
         });
     }

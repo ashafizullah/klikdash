@@ -38,7 +38,7 @@
 ## About
 
 KlikDash replaces the headunit's stock launcher with a static instrument-panel home screen (~0–1% CPU,
-~30 MB RAM). Plain Java, no libraries. The interface is in Indonesian or English (**⚙ › Launcher › BAHASA / LANGUAGE**), and the
+~30 MB RAM). Plain Java, no libraries. The interface is in Indonesian or English (**⚙ › Launcher › TAMPILAN / DISPLAY › BAHASA / LANGUAGE**), and the
 voice assistant has its own language setting. On the NWD K2401 it was built on, the
 stock launcher renders a 3D animation nonstop (~40% CPU).
 
@@ -59,7 +59,7 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
   headunit's free Android voice or with ElevenLabs, and looks up current information on the web (Claude's web
   search, or free TinyFish search for any provider). ▶️ **[Setup video](https://youtu.be/v9Bm6FzUKm8)** (6 minutes,
   Indonesian with subtitles).
-- **Screen lock:** a 4-digit PIN (**⚙ › Launcher › KUNCI LAYAR / SCREEN LOCK**) and a padlock on the home screen,
+- **Screen lock:** a 4-digit PIN (**⚙ › Launcher › HOME › KUNCI LAYAR / SCREEN LOCK**) and a padlock on the home screen,
   so children cannot open apps or change settings. The clock and prayer times stay visible.
 - **Screensaver:** the clock and date on black or your own photo, shown after the home screen has been untouched for
   1–10 minutes (**⚙ › Launcher › SCREENSAVER**). Never covers other apps and never appears while the car is moving.
@@ -115,7 +115,7 @@ replaces the home screen, and the optional power saver only stops apps you pick 
 
 | Change | When | How to undo it |
 |---|---|---|
-| Default launcher `persist.nwd.launcher.default=com.ashafizullah.klikdash` (NWD) and HOME preference | When you tap **JADIKAN TAMPILAN UTAMA / SET AS HOME SCREEN** | **Settings › Launcher › LAUNCHER BAWAAN / STOCK LAUNCHER**, or `adb shell setprop persist.nwd.launcher.default com.android.launcher` |
+| Default launcher `persist.nwd.launcher.default=com.ashafizullah.klikdash` (NWD) and HOME preference | When you tap **JADIKAN TAMPILAN UTAMA / SET AS HOME SCREEN** | **Settings › Launcher › SISTEM / SYSTEM › LAUNCHER BAWAAN / STOCK LAUNCHER**, or `adb shell setprop persist.nwd.launcher.default com.android.launcher` |
 | ksmd turned off | Every boot, while KlikDash is the home screen (needs ADB on) | Switch back to the stock launcher or uninstall KlikDash, then reboot |
 | Zlink sent back to home when it opens by itself | First 3 minutes after boot or wake-up | Same as above |
 | Apps blocked from running in the background (`appops RUN_ANY_IN_BACKGROUND/RUN_IN_BACKGROUND ignore`) | Only for apps you switch on in **HEMAT DAYA / POWER SAVER**, or ask TANYA AI / ASK AI to | Tap the app again, or **KEMBALIKAN SEMUA / RESTORE ALL** |
