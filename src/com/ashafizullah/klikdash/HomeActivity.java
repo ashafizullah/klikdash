@@ -106,6 +106,9 @@ public class HomeActivity extends Activity {
                 loc.watchClock(); // mis. diatur ke tanggal yang jelas salah
             }
             if (!Intent.ACTION_TIME_TICK.equals(i.getAction())) PrayerAlarm.schedule(c); // jam/zona waktu diubah
+            // Tema otomatis: matahari terbit/terbenam → bangun ulang home dengan tema lain, tapi jangan di tengah dialog,
+            // laci, atau screensaver; menit berikutnya dicoba lagi, atau saat home tampil lagi (onResume).
+            if (resumed && !overlaid() && !saverShown()) Theme.stale(HomeActivity.this, themeBuilt);
         }
     };
 
@@ -351,14 +354,18 @@ public class HomeActivity extends Activity {
         saver.stop();
     }
 
+    /** Dialog (PIN, pembaruan), laci aplikasi, atau sambutan sedang tampil di atas home. */
+    boolean overlaid() {
+        return !hasWindowFocus() || drawer.isOpen() || getWindow().getDecorView().findViewWithTag(Welcome.class) != null;
+    }
+
     final Runnable idle = new Runnable() {
         @Override public void run() {
             if (!resumed || Screensaver.minutes(prefs) == 0) return;
-            // Dialog (PIN, pembaruan), laci aplikasi, atau sambutan sedang tampil; atau fix GPS terakhir masih bergerak
-            // (GPS hilang di terowongan): coba lagi nanti, jangan menutupinya.
+            // Ada yang tampil di atas home, atau fix GPS terakhir masih bergerak (GPS hilang di terowongan): coba lagi
+            // nanti, jangan menutupinya.
             boolean moving = HomeLocation.lastKmh > 0 && SystemClock.elapsedRealtime() - HomeLocation.lastKmhAt < 10_000;
-            if (!hasWindowFocus() || drawer.isOpen() || moving
-                    || getWindow().getDecorView().findViewWithTag(Welcome.class) != null) {
+            if (overlaid() || moving) {
                 home.postDelayed(this, 30_000);
                 return;
             }

@@ -21,11 +21,14 @@ import android.view.Window;
 /**
  * Tema launcher: mengisi palet di {@link HomeActivity} (BG, PANEL, …, AMBER = warna aksen). Tiap aktivitas memanggil
  * {@link #apply} sebelum super.onCreate, lalu {@link #stale} di onResume untuk membangun ulang tampilannya bila tema
- * diganti saat ia di latar. Disimpan di prefs DE "klikdash" (bisa dibaca saat direct boot).
+ * diganti saat ia di latar. Disimpan di prefs DE "klikdash" (bisa dibaca saat direct boot): "theme" (pilihan biasa), atau
+ * bila "themeAuto" menyala, "themeDay" dari matahari terbit sampai terbenam dan "themeNight" sesudahnya, dihitung dari
+ * lokasi terakhir home (lat/lon). Home memeriksanya tiap menit; aktivitas lain menyusul di onResume.
  */
 final class Theme {
     /** Jumlah tema; nama dan penjelasannya di resource (theme_names, theme_desc). */
     static final int COUNT = 4;
+    static final int AMBER = 0, DAY = 2;
 
     //                        BG          PANEL       LINE        TEXT        DIM         FAINT       AKSEN       INK
     //                        HOT         SOFT        ACTIVE      WARN
@@ -56,14 +59,65 @@ final class Theme {
     /** Tema kilap: panel kaca bersudut bulat di atas latar gradasi, bukan kotak datar. */
     static boolean gloss() { return current == 3; }
 
+    /** Tema yang berlaku sekarang: pilihan biasa, atau tema siang/malam bila otomatis. */
     static int saved(Context c) {
-        int t = prefs(c).getInt("theme", 0);
-        return t >= 0 && t < COUNT ? t : 0;
+        android.content.SharedPreferences p = prefs(c);
+        if (!p.getBoolean("themeAuto", false)) return valid(p.getInt("theme", AMBER), AMBER);
+        return daytime(p) ? valid(p.getInt("themeDay", DAY), DAY) : valid(p.getInt("themeNight", AMBER), AMBER);
     }
 
-    static void save(Context c, int t) {
-        prefs(c).edit().putInt("theme", t).apply();
-        set(t);
+    private static int valid(int t, int def) { return t >= 0 && t < COUNT ? t : def; }
+
+    static boolean auto(Context c) { return prefs(c).getBoolean("themeAuto", false); }
+
+    /** Pilihan tersimpan untuk "theme", "themeDay", atau "themeNight" (lihat {@link #saved} untuk bawaannya). */
+    static int chosen(Context c, String key) {
+        int def = key.equals("themeDay") ? DAY : AMBER;
+        return valid(prefs(c).getInt(key, def), def);
+    }
+
+    /** Simpan pilihan untuk {@code key} lalu pasang tema yang berlaku sekarang. */
+    static void save(Context c, String key, int t) {
+        prefs(c).edit().putInt(key, t).apply();
+        refresh(c);
+    }
+
+    /**
+     * Nyalakan/matikan tema otomatis. Pertama kali menyala: tema malam = tema gelap yang sedang dipakai (selain itu
+     * AMBER), tema siang = SIANG.
+     */
+    static void setAuto(Context c, boolean on) {
+        android.content.SharedPreferences p = prefs(c);
+        android.content.SharedPreferences.Editor e = p.edit().putBoolean("themeAuto", on);
+        if (on && !p.contains("themeNight")) {
+            int t = valid(p.getInt("theme", AMBER), AMBER);
+            e.putInt("themeNight", t == DAY ? AMBER : t);
+        }
+        e.apply();
+        refresh(c);
+    }
+
+    /** Pasang tema yang berlaku sekarang (mis. matahari baru terbenam); {@link #version} naik bila berganti. */
+    static void refresh(Context c) { set(saved(c)); }
+
+    /** Menit matahari terbit dan terbenam hari ini di lokasi terakhir home (tanpa GPS: kota dari zona waktu). */
+    static int[] sun(Context c) { return sun(prefs(c), java.util.Calendar.getInstance()); }
+
+    private static int[] sun(android.content.SharedPreferences p, java.util.Calendar now) {
+        double[] at = PrayerTimes.guess(java.util.TimeZone.getDefault().getID());
+        try {
+            String la = p.getString("lat", null), lo = p.getString("lon", null);
+            if (la != null && lo != null) at = new double[]{Double.parseDouble(la), Double.parseDouble(lo)};
+        } catch (NumberFormatException ignored) { }
+        return PrayerTimes.sun(now, at[0], at[1]);
+    }
+
+    private static boolean daytime(android.content.SharedPreferences p) {
+        java.util.Calendar now = java.util.Calendar.getInstance();
+        int m = now.get(java.util.Calendar.HOUR_OF_DAY) * 60 + now.get(java.util.Calendar.MINUTE);
+        int[] s = sun(p, now);
+        // Lokasi jauh dari zona waktunya: terbenam bisa jatuh sesudah tengah malam (lebih kecil dari terbit).
+        return s[0] <= s[1] ? m >= s[0] && m < s[1] : m >= s[0] || m < s[1];
     }
 
     /** Palet saja, tanpa aktivitas (mis. notifikasi melayang dari BroadcastReceiver). */
@@ -87,8 +141,9 @@ final class Theme {
         return version;
     }
 
-    /** Di onResume: tema berganti sejak aktivitas dibangun → recreate(). */
+    /** Di onResume: tema berganti sejak aktivitas dibangun (juga tema otomatis yang sudah waktunya) → recreate(). */
     static boolean stale(Activity a, int builtVersion) {
+        refresh(a);
         if (builtVersion == version) return false;
         a.recreate();
         return true;

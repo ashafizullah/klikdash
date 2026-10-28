@@ -62,7 +62,8 @@ merender animasi 3D (~40% CPU).
   membuka aplikasi atau mengubah pengaturan. Jam dan jadwal sholat tetap tampil.
 - **Screensaver:** jam dan tanggal di atas latar hitam atau foto sendiri, muncul bila home tidak disentuh 1–10 menit
   (**⚙ › Launcher › SCREENSAVER**). Tidak pernah menutupi aplikasi lain dan tidak muncul selama mobil bergerak.
-- **Pengaturan & pembaruan:** tombol ⚙ di home; empat tema (AMBER, ZAMRUD, SIANG, dan KILAP berpanel kaca);
+- **Pengaturan & pembaruan:** tombol ⚙ di home; empat tema (AMBER, ZAMRUD, SIANG, dan KILAP berpanel kaca),
+  yang bisa berganti sendiri antara tema siang dan malam mengikuti matahari (opsional);
   **CEK UPDATE** memasang versi baru tanpa komputer, dan **CEK UPDATE OTOMATIS** (opsional, bawaan mati)
   menawarkannya sendiri saat headunit menyala.
 

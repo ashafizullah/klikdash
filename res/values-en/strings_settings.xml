@@ -42,6 +42,12 @@
     <string name="settings_lang_desc">KlikDash display language. The AI assistant has its own language setting in the AI Assistant tab.</string>
 
     <string name="settings_theme_title">THEME</string>
+    <string name="settings_theme_auto_title">AUTOMATIC THEME</string>
+    <string name="settings_theme_auto_desc">Switches between a day theme and a night theme with the sun at the headunit\'s location. Today, day runs from %1$s to %2$s.</string>
+    <string name="settings_theme_day_title">DAY THEME</string>
+    <string name="settings_theme_day_desc">Used from sunrise (%1$s) to sunset (%2$s).</string>
+    <string name="settings_theme_night_title">NIGHT THEME</string>
+    <string name="settings_theme_night_desc">Used from sunset (%1$s) until sunrise (%2$s).</string>
 
     <string name="settings_tiles_title">NUMBER OF SHORTCUTS</string>
     <string name="settings_tiles_desc">Shortcuts on the home screen, including ALL. Fewer shortcuts make the clock, prayer times, shortcuts, icons and labels bigger. Hidden shortcuts are kept and come back when you raise the number.</string>

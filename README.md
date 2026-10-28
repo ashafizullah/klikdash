@@ -64,7 +64,7 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
 - **Screensaver:** the clock and date on black or your own photo, shown after the home screen has been untouched for
   1–10 minutes (**⚙ › Launcher › SCREENSAVER**). Never covers other apps and never appears while the car is moving.
 - **Settings & updates:** the ⚙ button on the home screen; four themes (AMBER, EMERALD, DAY, and GLOSSY with glass
-  panels); **CEK UPDATE / CHECK UPDATE** installs new versions without a computer, and the optional automatic check
+  panels), optionally switching between a day and a night theme with the sun; **CEK UPDATE / CHECK UPDATE** installs new versions without a computer, and the optional automatic check
   (off by default) offers them by itself when the headunit turns on.
 
 ## Install

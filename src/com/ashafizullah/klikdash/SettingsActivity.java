@@ -243,19 +243,23 @@ public class SettingsActivity extends Activity {
         }
         list.addView(row(getString(R.string.settings_lang_title), getString(R.string.settings_lang_desc), langs));
 
-        String[] themeNames = getResources().getStringArray(R.array.theme_names);
-        Key[] themes = new Key[Theme.COUNT];
-        int cur = Theme.saved(this);
-        for (int i = 0; i < themes.length; i++) {
-            final int t = i;
-            themes[i] = key(themeNames[i], t == cur, () -> {
-                if (t == Theme.saved(this)) return;
-                Theme.save(this, t);
-                recreate(); // home dan layar lain menyusul saat tampil lagi (Theme.stale)
-            });
+        // Satu tema, atau tema siang dan malam yang berganti sendiri mengikuti matahari (Theme.saved).
+        boolean autoTheme = Theme.auto(this);
+        int[] sun = Theme.sun(this);
+        boolean tw = Clock.twelve(prefs);
+        String rise = Clock.hm(tw, sun[0]), set = Clock.hm(tw, sun[1]);
+        list.addView(row(getString(R.string.settings_theme_auto_title), getString(R.string.settings_theme_auto_desc, rise, set),
+                key(getString(R.string.settings_on), autoTheme, () -> setThemeAuto(true)),
+                key(getString(R.string.settings_off), !autoTheme, () -> setThemeAuto(false))));
+        if (autoTheme) {
+            list.addView(themeRow("themeDay", getString(R.string.settings_theme_day_title),
+                    getString(R.string.settings_theme_day_desc, rise, set)));
+            list.addView(themeRow("themeNight", getString(R.string.settings_theme_night_title),
+                    getString(R.string.settings_theme_night_desc, set, rise)));
+        } else {
+            list.addView(themeRow("theme", getString(R.string.settings_theme_title),
+                    getResources().getStringArray(R.array.theme_desc)[Theme.chosen(this, "theme")]));
         }
-        list.addView(row(getString(R.string.settings_theme_title),
-                getResources().getStringArray(R.array.theme_desc)[cur], themes));
 
         int tc = HomeApps.tileCount(prefs);
         Key[] counts = new Key[HomeApps.TILE_COUNTS.length];
@@ -377,6 +381,36 @@ public class SettingsActivity extends Activity {
             }
         }
         return b.toString();
+    }
+
+    /** Pilihan tema untuk "theme", "themeDay", atau "themeNight". */
+    View themeRow(String pref, String title, String desc) {
+        String[] names = getResources().getStringArray(R.array.theme_names);
+        int cur = Theme.chosen(this, pref);
+        Key[] keys = new Key[Theme.COUNT];
+        for (int i = 0; i < keys.length; i++) {
+            final int t = i;
+            keys[i] = key(names[i], t == cur, () -> {
+                if (t == Theme.chosen(this, pref)) return;
+                int was = Theme.current;
+                Theme.save(this, pref, t);
+                themeChanged(was);
+            });
+        }
+        return row(title, desc, keys);
+    }
+
+    void setThemeAuto(boolean on) {
+        if (on == Theme.auto(this)) return;
+        int was = Theme.current;
+        Theme.setAuto(this, on);
+        themeChanged(was);
+    }
+
+    /** Tema yang berlaku berganti: bangun ulang dengan palet baru; home dan layar lain menyusul lewat Theme.stale. */
+    void themeChanged(int was) {
+        if (Theme.current != was) recreate();
+        else rebuildKeepScroll();
     }
 
     static final int PICK_PHOTO = 1;

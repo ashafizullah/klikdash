@@ -43,6 +43,12 @@
     <string name="settings_lang_desc">Bahasa tampilan KlikDash. Asisten AI punya pengaturan bahasa sendiri di tab Asisten AI.</string>
 
     <string name="settings_theme_title">TEMA</string>
+    <string name="settings_theme_auto_title">TEMA OTOMATIS</string>
+    <string name="settings_theme_auto_desc">Berganti sendiri antara tema siang dan tema malam mengikuti matahari di lokasi headunit. Hari ini siang dari %1$s sampai %2$s.</string>
+    <string name="settings_theme_day_title">TEMA SIANG</string>
+    <string name="settings_theme_day_desc">Dipakai dari matahari terbit (%1$s) sampai terbenam (%2$s).</string>
+    <string name="settings_theme_night_title">TEMA MALAM</string>
+    <string name="settings_theme_night_desc">Dipakai dari matahari terbenam (%1$s) sampai terbit lagi (%2$s).</string>
 
     <string name="settings_tiles_title">JUMLAH PINTASAN</string>
     <string name="settings_tiles_desc">Pintasan di home, termasuk SEMUA. Makin sedikit, makin besar jam dan jadwal sholat di kiri, juga pintasan, ikon, dan tulisannya. Pintasan yang tidak tampil tetap tersimpan dan muncul lagi bila jumlahnya ditambah.</string>

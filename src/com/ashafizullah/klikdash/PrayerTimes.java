@@ -59,6 +59,27 @@ final class PrayerTimes {
         return minutes;
     }
 
+    /** Menit sejak tengah malam saat matahari terbit dan terbenam pada hari {@code day}, tanpa ihtiyath: {terbit, terbenam}. */
+    static int[] sun(Calendar day, double lat, double lon) {
+        double jd0 = julianDayAt0hUT(day.get(Calendar.YEAR), day.get(Calendar.MONTH) + 1,
+                day.get(Calendar.DAY_OF_MONTH));
+        double zone = day.getTimeZone().getOffset(day.getTimeInMillis()) / 3600000.0;
+        double phi = Math.toRadians(lat);
+        int[] minutes = new int[2];
+        for (int i = 0; i < 2; i++) {
+            double ut = 12 - lon / 15;
+            for (int pass = 0; pass < PASSES; pass++) {
+                double[] sun = solarCoordinates(jd0 + ut / 24);
+                double transit = 12 - lon / 15 - sun[1], h = hoursFromTransit(SUNSET_ALT, phi, sun[0]);
+                ut = i == 0 ? transit - h : transit + h;
+            }
+            double local = ut + zone;
+            local -= 24 * Math.floor(local / 24);
+            minutes[i] = (int) Math.round(local * 60);
+        }
+        return minutes;
+    }
+
     /** Belum pernah dapat lokasi GPS: ibu kota zona waktu, {lat, lon}. Nama lewat {@link #guessCity}. */
     static double[] guess(String tz) {
         if (tz.equals("Asia/Kuala_Lumpur")) return new double[]{3.1390, 101.6869};
