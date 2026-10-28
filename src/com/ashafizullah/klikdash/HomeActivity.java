@@ -574,6 +574,8 @@ public class HomeActivity extends Activity {
     }
 
     static final float SPEED_RATIO = 0.43f; // ukuran angka kecepatan terhadap jam
+    /** Jarak terkecil jam–kecepatan (dp): garis pemisah 1dp dengan 12dp di tiap sisinya; ikut dihitung saat jam diukur. */
+    static final int SPEED_GAP = 25;
 
     View buildHome() {
         int n = HomeApps.tileCount(prefs);
@@ -624,8 +626,8 @@ public class HomeActivity extends Activity {
         // Portrait: panel jam di atas, ubin di bawah.
         float leftDp = portrait ? wDp - 48 : big == 0 ? Math.max(260, Math.min(480, wDp * 0.34f))
                 : Math.max(260, Math.min(wDp * 0.55f,
-                        Math.max(wDp * 0.34f, Math.min(150 + 40 * big, clockFit) * per100 / 100 + 64 + 2 * inset)));
-        float clockSp = Math.min(150 + 40 * big, (leftDp - 24 - 2 * inset) / per100 * 100);
+                        Math.max(wDp * 0.34f, Math.min(150 + 40 * big, clockFit) * per100 / 100 + 64 + SPEED_GAP + 2 * inset)));
+        float clockSp = Math.min(150 + 40 * big, (leftDp - 24 - SPEED_GAP - 2 * inset) / per100 * 100);
         if (big == 0) clockSp = Math.min(clockSp, panelH * 0.21f);
         clockSp = Math.max(56, Math.min(clockSp, clockFit));
 
@@ -695,7 +697,8 @@ public class HomeActivity extends Activity {
         left.addView(makeDefault, ml);
         left.addView(new View(this), new LinearLayout.LayoutParams(1, 0, 1f));
 
-        // Jam di kiri, kecepatan (GPS) di kanan pada garis dasar yang sama, seperti panel instrumen.
+        // Jam di kiri, kecepatan (GPS) di kanan pada garis dasar yang sama, seperti panel instrumen. Garis pemisah tipis
+        // dan warna DIM (aksen di atas 100, lihat HomeLocation) supaya kecepatan tidak terbaca sebagai bagian dari jam.
         LinearLayout clockRow = new LinearLayout(this);
         clockRow.setOrientation(LinearLayout.HORIZONTAL);
         clockRow.setGravity(Gravity.BOTTOM);
@@ -711,19 +714,32 @@ public class HomeActivity extends Activity {
         clockRow.addView(ampm, al);
         clockRow.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1f));
         LinearLayout speedBox = new LinearLayout(this);
-        speedBox.setOrientation(LinearLayout.VERTICAL);
-        speedBox.setGravity(Gravity.END);
-        speed = text("--", fHeavy, clockSp * SPEED_RATIO, TEXT);
-        // WRAP, bukan bawaan MATCH_PARENT: hanya lebar WRAP yang diukur ulang saat angkanya berubah. Dengan MATCH_PARENT
-        // lebarnya tetap selebar "0" atau "--" saat pertama tampil, sehingga angka 2–3 digit terpotong di kanan.
-        speedBox.addView(speed, new LinearLayout.LayoutParams(WRAP, WRAP));
+        speedBox.setOrientation(LinearLayout.HORIZONTAL);
+        // Pemisah setinggi kolom kecepatan, tepat di kirinya; ruang sisa tetap di antara jam dan pemisah.
+        View rule = new View(this);
+        rule.setBackgroundColor(LINE);
+        speedBox.addView(rule, new LinearLayout.LayoutParams(px(1), MATCH));
+        LinearLayout speedCol = new LinearLayout(this);
+        speedCol.setOrientation(LinearLayout.VERTICAL);
+        speedCol.setGravity(Gravity.END);
+        speed = text("--", fHeavy, clockSp * SPEED_RATIO, DIM);
+        speed.setGravity(Gravity.END);
+        // Selebar 3 digit terlebar (sudah dihitung di per100): pemisah tidak bergeser saat angkanya berubah. Lebar tetap
+        // ini juga menggantikan WRAP yang dulu perlu supaya angka 2–3 digit tidak terpotong di kanan.
+        speed.setMinWidth(Math.round(3 * digit * clockSp * SPEED_RATIO / 100));
+        speedCol.addView(speed, new LinearLayout.LayoutParams(WRAP, WRAP));
         TextView unit = text(getString(R.string.home_speed_unit), fMono, 10 * k, DIM);
         unit.setLetterSpacing(0.25f);
         LinearLayout.LayoutParams ul = new LinearLayout.LayoutParams(WRAP, WRAP);
         ul.topMargin = px(4);
-        ul.bottomMargin = px(10);
-        speedBox.addView(unit, ul);
-        clockRow.addView(speedBox);
+        speedCol.addView(unit, ul);
+        LinearLayout.LayoutParams cl = new LinearLayout.LayoutParams(WRAP, WRAP);
+        cl.leftMargin = px(12);
+        speedBox.addView(speedCol, cl);
+        LinearLayout.LayoutParams sbl = new LinearLayout.LayoutParams(WRAP, WRAP);
+        sbl.leftMargin = px(12);
+        sbl.bottomMargin = px(10);
+        clockRow.addView(speedBox, sbl);
         left.addView(clockRow, new LinearLayout.LayoutParams(MATCH, WRAP));
 
         View bar = new View(this);
