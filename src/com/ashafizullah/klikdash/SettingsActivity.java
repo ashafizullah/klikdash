@@ -489,7 +489,7 @@ public class SettingsActivity extends Activity {
         openGroup = openGroup == id ? -1 : id;
         show(TAB_LAUNCHER, true);
         View now = content.getChildAt(0), g = openGroup < 0 ? null : groupViews[openGroup];
-        if (now instanceof ScrollView && g != null) now.post(() -> now.scrollTo(0, g.getTop()));
+        if (now instanceof ScrollView && g != null) scrollBeforeDraw(now, g::getTop);
     }
 
     // ---------------------------------------------------------------- tab Pembaruan
@@ -1001,7 +1001,22 @@ public class SettingsActivity extends Activity {
         int y = old instanceof ScrollView ? old.getScrollY() : 0;
         show(TAB_LAUNCHER, true);
         View now = content.getChildAt(0);
-        if (now instanceof ScrollView) now.post(() -> now.scrollTo(0, y));
+        if (now instanceof ScrollView) scrollBeforeDraw(now, () -> y);
+    }
+
+    /**
+     * Gulir tab yang baru dibangun ke {@code y} sebelum frame pertamanya digambar. Dengan post() frame pertama tergambar
+     * di posisi atas lalu melompat (berkedip tiap pilihan diganti); frame itu dilewati, layar tetap menampilkan yang lama.
+     * {@code y} dibaca saat itu: tata letak baru sudah diukur (posisi grup accordion).
+     */
+    static void scrollBeforeDraw(View v, java.util.function.IntSupplier y) {
+        v.getViewTreeObserver().addOnPreDrawListener(new android.view.ViewTreeObserver.OnPreDrawListener() {
+            @Override public boolean onPreDraw() {
+                v.getViewTreeObserver().removeOnPreDrawListener(this);
+                v.scrollTo(0, y.getAsInt());
+                return false;
+            }
+        });
     }
 
     /** Dialog bergaya KlikDash: panel gelap bergaris tipis, tombol amber. Panggil sebagai ganti show(). */
