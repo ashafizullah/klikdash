@@ -36,12 +36,14 @@ import static com.ashafizullah.klikdash.HomeActivity.WRAP;
 /**
  * Jendela melayang KlikBeam di atas aplikasi lain (izin "tampil di atas aplikasi lain", seperti {@link Notice}):
  * video HP dalam kotak kecil yang bisa digeser ke mana saja. Ketuk sekali untuk tombol (LAYAR PENUH di tengah, ✕ tutup
- * di pojok kanan atas), ketuk dua kali untuk layar penuh. Sentuhan di luar kotak tetap ke aplikasi di
- * belakangnya. Posisi dan ukuran disimpan di prefs "beam" (floatX, floatY, floatSize).
+ * di pojok kanan atas), ketuk dua kali untuk layar penuh, cubit dua jari untuk mengubah ukuran. Sentuhan di luar
+ * kotak tetap ke aplikasi di belakangnya. Posisi dan ukuran disimpan di prefs "beam" (floatX, floatY, floatScale).
  */
 final class BeamFloat implements BeamHub.Listener {
-    /** Lebar kotak sebagai bagian dari lebar layar: kecil, sedang, besar. */
-    private static final float[] SIZES = {.3f, .42f, .56f};
+    /** Batas cubit: lebar kotak sebagai bagian dari lebar layar. */
+    private static final float MIN_SCALE = .22f, MAX_SCALE = .9f;
+    /** Ukuran lama dari tombol UKURAN (prefs floatSize: kecil, sedang, besar), jadi ukuran awal bila belum dicubit. */
+    private static final float[] OLD_SIZES = {.3f, .42f, .56f};
     private static final long CONTROLS_MS = 3500;
 
     private final Context c;
@@ -54,7 +56,8 @@ final class BeamFloat implements BeamHub.Listener {
     private final FrameLayout controls;
     private final Point screen = new Point();
     private Surface surface;
-    private int size;
+    /** Lebar kotak sebagai bagian dari lebar layar. */
+    private float scale;
 
     /**
      * Layar headunit berputar atau berubah ukuran: hitung ulang kotak supaya tetap di dalam layar. Lewat aplikasi,
@@ -86,7 +89,8 @@ final class BeamFloat implements BeamHub.Listener {
         c = Lang.wrap(app); // context aplikasi tidak ikut bahasa KlikDash
         wm = (WindowManager) app.getSystemService(Context.WINDOW_SERVICE);
         prefs = app.getSharedPreferences("beam", Context.MODE_PRIVATE);
-        size = Math.max(0, Math.min(SIZES.length - 1, prefs.getInt("floatSize", 1)));
+        int old = Math.max(0, Math.min(OLD_SIZES.length - 1, prefs.getInt("floatSize", 1)));
+        scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, prefs.getFloat("floatScale", OLD_SIZES[old])));
 
         box = new FrameLayout(c);
         GradientDrawable frame = new GradientDrawable();
@@ -192,10 +196,10 @@ final class BeamFloat implements BeamHub.Listener {
         wm.getDefaultDisplay().getSize(screen); // tanpa bilah navigasi, supaya kotak tidak tertutup
     }
 
-    /** Ukuran kotak dari pilihan ukuran dan rasio video; true bila berubah. */
+    /** Ukuran kotak dari {@link #scale} dan rasio video; true bila berubah. */
     private boolean layout() {
         float vw = BeamHub.videoW, vh = BeamHub.videoH;
-        int w = Math.round(screen.x * SIZES[size]);
+        int w = Math.round(screen.x * scale);
         int h = Math.round(w * vh / vw);
         int maxH = Math.round(screen.y * .85f);
         if (h > maxH) { // video portrait: batasi tinggi
@@ -277,8 +281,33 @@ final class BeamFloat implements BeamHub.Listener {
         return Math.round(v * c.getResources().getDisplayMetrics().density);
     }
 
-    /** Geser kotak; ketukan diteruskan ke GestureDetector (sekali = tombol, dua kali = layar penuh). */
+    /**
+     * Geser kotak; cubit dua jari untuk ukuran (titik tengah kotak tetap di tempat); ketukan diteruskan ke
+     * GestureDetector (sekali = tombol, dua kali = layar penuh). Kedua jari harus di dalam kotak: di luarnya sentuhan
+     * milik aplikasi di belakang.
+     */
     private final class Drag implements View.OnTouchListener {
+        /** Sedang dicubit; berlaku sampai semua jari diangkat supaya jari yang tersisa tidak menggeser kotak. */
+        private boolean pinching;
+        /**
+         * Jarak dua jari dan ukuran saat cubit mulai. Dihitung sendiri: ScaleGestureDetector baru bekerja bila jarak jari
+         * ±27 mm, padahal kotak kecil hanya selebar itu, jadi melebarkannya dengan dua jari di dalam kotak tidak jalan.
+         */
+        private float pinchStart, scaleStart;
+
+        private float span(MotionEvent e) { return (float) Math.hypot(e.getX(0) - e.getX(1), e.getY(0) - e.getY(1)); }
+
+        private void pinchTo(float s) {
+            s = Math.max(MIN_SCALE, Math.min(MAX_SCALE, s));
+            if (s == scale) return;
+            int cx = lp.x + lp.width / 2, cy = lp.y + lp.height / 2; // titik tengah kotak tetap di tempat
+            scale = s;
+            if (layout()) {
+                lp.x = cx - lp.width / 2;
+                lp.y = cy - lp.height / 2;
+                update();
+            }
+        }
         private final int slop = ViewConfiguration.get(c).getScaledTouchSlop();
         private final GestureDetector taps = new GestureDetector(c, new GestureDetector.SimpleOnGestureListener() {
             @Override public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -304,9 +333,31 @@ final class BeamFloat implements BeamHub.Listener {
                     downY = e.getRawY();
                     startX = lp.x;
                     startY = lp.y;
-                    dragging = false;
+                    dragging = pinching = false;
+                    break;
+                case MotionEvent.ACTION_POINTER_DOWN: // jari kedua: cubit, bukan geser atau ketuk
+                    pinchStart = e.getPointerCount() >= 2 ? span(e) : 0;
+                    scaleStart = scale;
+                    if (!pinching) {
+                        pinching = true;
+                        dragging = false;
+                        MotionEvent cancel = MotionEvent.obtain(e);
+                        cancel.setAction(MotionEvent.ACTION_CANCEL);
+                        taps.onTouchEvent(cancel);
+                        cancel.recycle();
+                    }
+                    break;
+                case MotionEvent.ACTION_POINTER_UP: // jari yang tersisa bisa jadi pasangan baru: mulai dari ukuran sekarang
+                    pinchStart = 0;
                     break;
                 case MotionEvent.ACTION_MOVE:
+                    if (pinching) {
+                        if (e.getPointerCount() >= 2) {
+                            if (pinchStart < 1) { pinchStart = span(e); scaleStart = scale; }
+                            else pinchTo(scaleStart * span(e) / pinchStart);
+                        }
+                        break;
+                    }
                     float dx = e.getRawX() - downX, dy = e.getRawY() - downY;
                     if (!dragging && Math.hypot(dx, dy) > slop) {
                         dragging = true;
@@ -323,10 +374,11 @@ final class BeamFloat implements BeamHub.Listener {
                     break;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
-                    if (dragging) prefs.edit().putInt("floatX", lp.x).putInt("floatY", lp.y).apply();
+                    if (pinching) prefs.edit().putFloat("floatScale", scale).putInt("floatX", lp.x).putInt("floatY", lp.y).apply();
+                    else if (dragging) prefs.edit().putInt("floatX", lp.x).putInt("floatY", lp.y).apply();
                     break;
             }
-            if (!dragging) taps.onTouchEvent(e);
+            if (!dragging && !pinching) taps.onTouchEvent(e);
             return true;
         }
     }
