@@ -41,7 +41,7 @@ final class QuickPanel extends FrameLayout {
     final AudioManager audio;
     final LinearLayout panel;
     final Level volume, brightness;
-    final Key mute, splitLast;
+    final Key mute;
     private final Runnable idleClose = this::close;
 
     /** Volume diubah dari luar (tombol setir, aplikasi lain): batang ikut. Terdaftar hanya selama panel terbuka. */
@@ -103,17 +103,11 @@ final class QuickPanel extends FrameLayout {
         section(R.string.quick_brightness, row(key("−", false, () -> step(brightness, -1)), brightness,
                 key("+", false, () -> step(brightness, 1))));
 
-        // Layar terbagi: pilih dua aplikasi di laci, atau buka lagi pasangan terakhir.
-        splitLast = key("", false, () -> {
-            android.content.ComponentName[] pair = SplitScreen.last(h);
-            if (pair == null) return;
-            close();
-            SplitScreen.open(h, pair[0], pair[1]);
-        });
+        // Layar terbagi: pilih dua aplikasi di laci.
         section(R.string.quick_split, key(h.getString(R.string.quick_split_pick), false, () -> {
             close();
             h.drawer.openSplit();
-        }), splitLast);
+        }));
 
         section(R.string.quick_screen, key(h.getString(R.string.quick_saver), false, () -> {
             close();
@@ -205,15 +199,6 @@ final class QuickPanel extends FrameLayout {
         mute.setOn(muted);
         int raw = Settings.System.getInt(h.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 128);
         brightness.set(Math.round(toGamma(raw) * BRIGHT_STEPS), BRIGHT_STEPS);
-        android.content.ComponentName[] pair = SplitScreen.last(h);
-        splitLast.setVisibility(pair == null ? GONE : VISIBLE);
-        if (pair != null) splitLast.setLabel(appLabel(pair[0]) + "  │  " + appLabel(pair[1]));
-    }
-
-    private String appLabel(android.content.ComponentName cn) {
-        HomeApps.App a = h.apps.byKey.get(cn.flattenToString());
-        if (a == null) a = h.apps.byPkg.get(cn.getPackageName());
-        return a != null ? a.upper : cn.getPackageName();
     }
 
     private void step(Level l, int d) {

@@ -178,14 +178,6 @@ final class SplitScreen {
 
     static SharedPreferences prefs(Context c) { return c.getSharedPreferences("split", Context.MODE_PRIVATE); }
 
-    /** Pasangan terakhir {kiri, kanan} untuk dibuka lagi dari panel cepat, atau null. */
-    static ComponentName[] last(Context c) {
-        SharedPreferences p = prefs(c);
-        ComponentName l = ComponentName.unflattenFromString(p.getString("left", "")),
-                r = ComponentName.unflattenFromString(p.getString("right", ""));
-        return l == null || r == null ? null : new ComponentName[]{l, r};
-    }
-
     /** Home tampil (onResume) atau ditinggalkan (onPause). */
     static void home(boolean front) {
         homeFront = front;
@@ -202,7 +194,6 @@ final class SplitScreen {
     static void open(Activity a, ComponentName left, ComponentName right) {
         init(a);
         owner = new java.lang.ref.WeakReference<>(a);
-        prefs(a).edit().putString("left", left.flattenToString()).putString("right", right.flattenToString()).apply();
         measure(a);
         // Sekali saja tidak apa-apa diulang: aplikasi yang menolak split tetap bisa dibagi, izin pembatas di atas aplikasi lain.
         String prep = "settings put global force_resizable_activities 1; cmd appops set " + a.getPackageName()
