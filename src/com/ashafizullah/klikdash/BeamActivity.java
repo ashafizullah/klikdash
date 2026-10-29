@@ -39,7 +39,7 @@ import static com.ashafizullah.klikdash.HomeActivity.WRAP;
 
 /**
  * Penerima KlikBeam (BETA) layar penuh: mirror layar HP lewat WiFi, pengirimnya aplikasi KlikBeam (Android di Play Store
- * uji tertutup; iOS belum rilis). Dibuka dari Pengaturan › KLIKBEAM, yang juga menampilkan cara menyambung, kode pairing 6 digit,
+ * uji tertutup; iOS di App Store). Dibuka dari Pengaturan › KLIKBEAM, yang juga menampilkan cara menyambung, kode pairing 6 digit,
  * dan IP headunit. Video di tengah dengan letterbox sesuai rasio CONFIG; selama belum ada gambar tampil panel status.
  *
  * Server dan decoder ada di {@link BeamHub}, jadi siaran tidak putus saat berpindah ke jendela melayang

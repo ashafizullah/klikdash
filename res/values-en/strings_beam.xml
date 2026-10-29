@@ -22,8 +22,8 @@
     <string name="settings_beam_step2">Open the testing page and tap \"Become a tester\".</string>
     <string name="settings_beam_step3">Install KlikBeam from the Play Store, using the same Google account as in step 1.</string>
     <string name="settings_beam_scan">SCAN WITH YOUR PHONE</string>
-    <string name="settings_beam_ios_tag">COMING SOON</string>
-    <string name="settings_beam_ios_text">KlikBeam for iPhone is on its way. It will be announced in the KlikDash release notes.</string>
+    <string name="settings_beam_ios_tag">AVAILABLE ON THE APP STORE</string>
+    <string name="settings_beam_ios_text">Install KlikBeam from the App Store: scan this QR code with your iPhone camera, then tap Get.</string>
     <string name="settings_beam_new_code">NEW CODE</string>
     <string name="settings_beam_open">OPEN RECEIVER</string>
     <string name="beam_minimize">MINIMIZE</string>

@@ -1,5 +1,5 @@
 # Bangun res/drawable/qr_*.xml: QR code (vector drawable) untuk HelpVideo (video tutorial saat ADB gagal) dan
-# Pengaturan › KlikBeam (ikut uji tertutup). Dibuat sekali di sini supaya aplikasi tidak butuh pembuat QR:
+# Pengaturan › KlikBeam (uji tertutup Android, App Store iPhone). Dibuat sekali di sini supaya aplikasi tidak butuh pembuat QR:
 #   python3 -I tools/build_qr.py      (butuh: pip install segno)
 # URL di sini harus sama dengan HelpVideo.URL.
 import segno
@@ -12,6 +12,8 @@ VIDEOS = {
     # Pengaturan › KlikBeam › Android: ikut uji tertutup
     'qr_beam_group': 'https://groups.google.com/g/klikbeam-testers',
     'qr_beam_testing': 'https://play.google.com/apps/testing/com.ashafizullah.klikbeam',
+    # Pengaturan › KlikBeam › iPhone: App Store
+    'qr_beam_appstore': 'https://apps.apple.com/id/app/klikbeam/id6826742960',
 }
 QUIET = 2  # tepi putih (modul); kartu putih di HelpVideo menambah tepinya sendiri
 

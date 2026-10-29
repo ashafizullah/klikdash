@@ -23,8 +23,8 @@
     <string name="settings_beam_step2">Buka halaman penguji, lalu ketuk \"Jadi penguji\".</string>
     <string name="settings_beam_step3">Pasang KlikBeam dari Play Store. Pakai akun Google yang sama dengan langkah 1.</string>
     <string name="settings_beam_scan">PINDAI DENGAN HP</string>
-    <string name="settings_beam_ios_tag">SEGERA HADIR</string>
-    <string name="settings_beam_ios_text">KlikBeam untuk iPhone sedang disiapkan. Kabarnya akan diumumkan di catatan rilis KlikDash.</string>
+    <string name="settings_beam_ios_tag">TERSEDIA DI APP STORE</string>
+    <string name="settings_beam_ios_text">Pasang KlikBeam dari App Store: pindai QR ini dengan kamera iPhone, lalu ketuk Dapatkan.</string>
     <string name="settings_beam_new_code">GANTI KODE</string>
     <string name="settings_beam_open">BUKA PENERIMA</string>
     <string name="beam_minimize">KECILKAN</string>

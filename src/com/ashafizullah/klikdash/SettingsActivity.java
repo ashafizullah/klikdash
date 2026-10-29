@@ -915,7 +915,7 @@ public class SettingsActivity extends Activity {
 
     // ---------------------------------------------------------------- tab KlikBeam
 
-    /** Tab aplikasi KlikBeam di HP: 0 = Android (uji tertutup Play Store), 1 = iPhone (segera hadir). */
+    /** Tab aplikasi KlikBeam di HP: 0 = Android (uji tertutup Play Store), 1 = iPhone (App Store). */
     int beamApp;
 
     /** KlikBeam (BETA): cara menyambung, kode pairing, dan alamat; penerimanya BeamActivity. */
@@ -978,6 +978,7 @@ public class SettingsActivity extends Activity {
         return box;
     }
 
+    /** Pasang dari App Store: QR halaman KlikBeam untuk dipindai iPhone. */
     View beamIos() {
         LinearLayout box = column();
         box.addView(label(getString(R.string.settings_beam_ios_tag)));
@@ -987,6 +988,10 @@ public class SettingsActivity extends Activity {
         LinearLayout.LayoutParams tl = new LinearLayout.LayoutParams(MATCH, WRAP);
         tl.topMargin = px(10);
         box.addView(t, tl);
+        LinearLayout.LayoutParams ql = new LinearLayout.LayoutParams(WRAP, WRAP);
+        ql.topMargin = px(16);
+        box.addView(HelpVideo.qrCard(this, R.drawable.qr_beam_appstore, getString(R.string.settings_beam_scan),
+                "apps.apple.com/id/app/klikbeam/id6826742960"), ql);
         return box;
     }
 
