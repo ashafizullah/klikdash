@@ -209,8 +209,20 @@ public final class BeamActivity extends Activity implements BeamHub.Listener {
         state.setPadding(0, dp(18), 0, dp(24));
         p.addView(state);
 
-        // Cara menyambung, kode, dan alamat ada di Pengaturan › KLIKBEAM.
-        TextView hint = text(getString(R.string.beam_receiver_hint, codeText(this)), null, 17, TEXT);
+        // Kode pairing besar (diketik di HP sambil melihat layar ini), alamat di bawahnya; cara menyambung di Pengaturan.
+        TextView codeLabel = text(getString(R.string.settings_beam_code_label), monoBold, 12, AMBER);
+        codeLabel.setLetterSpacing(.25f);
+        p.addView(codeLabel);
+        TextView code = text(codeText(this), heavy, 72, TEXT);
+        code.setLetterSpacing(.06f);
+        p.addView(code);
+        String addr = addressText();
+        if (addr != null) {
+            TextView a = text(addr, monoBold, 20, DIM);
+            a.setPadding(0, dp(4), 0, dp(24));
+            p.addView(a);
+        }
+        TextView hint = text(getString(R.string.beam_receiver_hint), null, 17, TEXT);
         hint.setMaxWidth(dp(560));
         p.addView(hint);
         return p;

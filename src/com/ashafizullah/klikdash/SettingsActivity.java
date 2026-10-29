@@ -921,9 +921,8 @@ public class SettingsActivity extends Activity {
     /** KlikBeam (BETA): cara menyambung, kode pairing, dan alamat; penerimanya BeamActivity. */
     View beamPanel() {
         LinearLayout list = column();
-        String beamAddr = BeamActivity.addressText();
-        list.addView(row(getString(R.string.settings_beam_title), getString(R.string.settings_beam_desc,
-                        BeamActivity.codeText(this), beamAddr != null ? beamAddr : getString(R.string.beam_no_network)),
+        list.addView(beamPairing()); // paling atas: yang dicari saat menyambung
+        list.addView(row(getString(R.string.settings_beam_title), getString(R.string.settings_beam_desc),
                 key(getString(R.string.settings_beam_new_code), false, () -> {
                     BeamActivity.newCode(this);
                     show(TAB_BEAM, true);
@@ -938,6 +937,44 @@ public class SettingsActivity extends Activity {
         al.bottomMargin = px(28);
         list.addView(beamApp == 0 ? beamAndroid() : beamIos(), al);
         return scroll(list);
+    }
+
+    /**
+     * Kode pairing dan alamat, besar: pengguna mengetiknya di HP sambil melihat headunit, dan di dalam paragraf
+     * keduanya sulit ditemukan. Satu alamat per baris (wlan0, dan ap0 bila headunit jadi hotspot).
+     */
+    View beamPairing() {
+        LinearLayout r = new LinearLayout(this);
+        r.setOrientation(narrow ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
+        r.setPadding(0, px(20), 0, px(24));
+        LinearLayout code = column();
+        code.addView(label(getString(R.string.settings_beam_code_label)));
+        TextView c = text(BeamActivity.codeText(this), fHeavy, 64, AMBER);
+        c.setLetterSpacing(0.06f);
+        LinearLayout.LayoutParams vl = new LinearLayout.LayoutParams(WRAP, WRAP);
+        vl.topMargin = px(6);
+        code.addView(c, vl);
+        r.addView(code, narrow ? new LinearLayout.LayoutParams(MATCH, WRAP) : new LinearLayout.LayoutParams(0, WRAP, 1f));
+
+        LinearLayout addr = column();
+        addr.addView(label(getString(R.string.settings_beam_addr_label)));
+        String a = BeamActivity.addressText();
+        TextView at = a != null ? text(a.replace("   ", "\n"), fMonoBold, 26, TEXT)
+                : text(getString(R.string.beam_no_network), fBold, 18, DIM);
+        at.setSingleLine(false);
+        at.setLineSpacing(0, 1.2f);
+        LinearLayout.LayoutParams tl = new LinearLayout.LayoutParams(WRAP, WRAP);
+        tl.topMargin = px(a != null ? 12 : 8);
+        addr.addView(at, tl);
+        LinearLayout.LayoutParams al = narrow ? new LinearLayout.LayoutParams(MATCH, WRAP)
+                : new LinearLayout.LayoutParams(0, WRAP, 1f);
+        if (narrow) al.topMargin = px(20); else al.leftMargin = px(28);
+        r.addView(addr, al);
+
+        LinearLayout wrap = column();
+        wrap.addView(r, new LinearLayout.LayoutParams(MATCH, WRAP));
+        wrap.addView(rule(), ruleParams(true, 0, 0));
+        return wrap;
     }
 
     /** Ikut uji tertutup di Play Store: tiga langkah, dua di antaranya dengan QR untuk dibuka di HP. */

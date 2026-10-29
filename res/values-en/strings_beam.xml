@@ -10,9 +10,11 @@
     <string name="beam_error">SERVER FAILED: %1$s</string>
     <string name="beam_decoder_error">Video decoder failed: %1$s</string>
     <string name="beam_beta">BETA</string>
-    <string name="beam_receiver_hint">Open KlikBeam on your Android phone, pick this headunit, then enter pairing code %1$s. How to connect is in Settings › KLIKBEAM.</string>
+    <string name="beam_receiver_hint">Open KlikBeam on your phone, pick this headunit, then enter the pairing code above. How to connect is in Settings › KLIKBEAM.</string>
     <string name="settings_beam_title">KLIKBEAM · BETA</string>
-    <string name="settings_beam_desc">Mirror your phone screen to the headunit over WiFi. First install the KlikBeam app on your phone (see below).\n\nHow to connect: join the headunit to your phone\'s hotspot, tap OPEN RECEIVER, then in KlikBeam pick this headunit and enter pairing code %1$s. If the headunit does not show up, type the address: %2$s.\n\nNote: mirroring works the phone hard (screen recording, video encoding, WiFi), so it can get hot and drain the battery quickly, especially in a car parked in the sun. Place the phone where the AC reaches it, and stop the broadcast if it feels hot.</string>
+    <string name="settings_beam_desc">Mirror your phone screen to the headunit over WiFi. First install the KlikBeam app on your phone (see below).\n\nHow to connect: join the headunit to your phone\'s hotspot, tap OPEN RECEIVER, then in KlikBeam pick this headunit and enter the pairing code above. If the headunit does not show up, type its address.\n\nNote: mirroring works the phone hard (screen recording, video encoding, WiFi), so it can get hot and drain the battery quickly, especially in a car parked in the sun. Place the phone where the AC reaches it, and stop the broadcast if it feels hot.</string>
+    <string name="settings_beam_code_label">PAIRING CODE</string>
+    <string name="settings_beam_addr_label">ADDRESS · IF THE HEADUNIT DOES NOT SHOW UP</string>
     <string name="settings_beam_app_title">KLIKBEAM APP ON YOUR PHONE</string>
     <string name="settings_beam_app_desc">First install the KlikBeam app on the phone you want to mirror. Pick your phone.</string>
     <string name="settings_beam_android">ANDROID</string>

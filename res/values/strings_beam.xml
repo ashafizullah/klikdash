@@ -11,9 +11,11 @@
     <string name="beam_error">SERVER GAGAL: %1$s</string>
     <string name="beam_decoder_error">Decoder video gagal: %1$s</string>
     <string name="beam_beta">BETA</string>
-    <string name="beam_receiver_hint">Buka KlikBeam di HP Android, pilih headunit ini, lalu masukkan kode pairing %1$s. Cara menyambung ada di Pengaturan › KLIKBEAM.</string>
+    <string name="beam_receiver_hint">Buka KlikBeam di HP, pilih headunit ini, lalu masukkan kode pairing di atas. Cara menyambung ada di Pengaturan › KLIKBEAM.</string>
     <string name="settings_beam_title">KLIKBEAM · BETA</string>
-    <string name="settings_beam_desc">Mirror layar HP ke headunit lewat WiFi. Pasang dulu aplikasi KlikBeam di HP (lihat di bawah).\n\nCara menyambung: sambungkan headunit ke hotspot HP, ketuk BUKA PENERIMA, lalu di aplikasi KlikBeam pilih headunit ini dan masukkan kode pairing %1$s. Bila headunit tidak muncul, ketik alamat: %2$s.\n\nPerhatian: mirror membuat HP bekerja keras (merekam layar, encode video, WiFi), sehingga HP bisa cepat panas dan baterai cepat habis, apalagi di mobil yang terkena terik. Letakkan HP di tempat yang terkena AC, dan hentikan siaran bila HP terasa panas.</string>
+    <string name="settings_beam_desc">Mirror layar HP ke headunit lewat WiFi. Pasang dulu aplikasi KlikBeam di HP (lihat di bawah).\n\nCara menyambung: sambungkan headunit ke hotspot HP, ketuk BUKA PENERIMA, lalu di aplikasi KlikBeam pilih headunit ini dan masukkan kode pairing di atas. Bila headunit tidak muncul, ketik alamatnya.\n\nPerhatian: mirror membuat HP bekerja keras (merekam layar, encode video, WiFi), sehingga HP bisa cepat panas dan baterai cepat habis, apalagi di mobil yang terkena terik. Letakkan HP di tempat yang terkena AC, dan hentikan siaran bila HP terasa panas.</string>
+    <string name="settings_beam_code_label">KODE PAIRING</string>
+    <string name="settings_beam_addr_label">ALAMAT · BILA HEADUNIT TIDAK MUNCUL</string>
     <string name="settings_beam_app_title">APLIKASI KLIKBEAM DI HP</string>
     <string name="settings_beam_app_desc">Pasang dulu aplikasi KlikBeam di HP yang akan di-mirror. Pilih jenis HP Anda.</string>
     <string name="settings_beam_android">ANDROID</string>
