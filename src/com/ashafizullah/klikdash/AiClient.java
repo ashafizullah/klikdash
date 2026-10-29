@@ -76,8 +76,7 @@ final class AiClient {
      */
     JSONObject anthropicSearchTool() throws Exception {
         JSONObject loc = new JSONObject().put("type", "approximate").put("timezone", java.util.TimeZone.getDefault().getID());
-        String city = activity.createDeviceProtectedStorageContext()
-                .getSharedPreferences("klikdash", Activity.MODE_PRIVATE).getString("city", null);
+        String city = Prefs.of(activity).getString("city", null);
         if (city != null && !city.isEmpty()) loc.put("city", PrayerAlarm.titleCase(city));
         if (loc.getString("timezone").matches("Asia/(Jakarta|Pontianak|Makassar|Jayapura)")) loc.put("country", "ID");
         return new JSONObject().put("type", "web_search_20250305").put("name", "web_search").put("max_uses", 2)

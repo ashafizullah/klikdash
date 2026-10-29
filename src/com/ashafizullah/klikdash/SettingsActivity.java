@@ -74,7 +74,7 @@ public class SettingsActivity extends Activity {
         fMonoBold = font("mono.ttf", "'wdth' 100, 'wght' 700");
         fSerif = font("serif.ttf", null);
         // Sama dengan HomeActivity: pengaturan launcher di penyimpanan DE (bisa dibaca saat direct boot).
-        prefs = createDeviceProtectedStorageContext().getSharedPreferences("klikdash", MODE_PRIVATE);
+        prefs = Prefs.of(this);
         Tweaks.init(this);
         if (b != null) openGroup = b.getInt("group", -1); // tetap terbuka setelah ganti tema/bahasa
         build(b != null ? b.getInt(EXTRA_TAB, 0) : getIntent().getIntExtra(EXTRA_TAB, TAB_LAUNCHER));
@@ -98,6 +98,7 @@ public class SettingsActivity extends Activity {
 
     @Override protected void onResume() {
         super.onResume();
+        prefs = Prefs.of(this); // baca ulang bila file berubah di disk (lihat Prefs)
         // Kembali dari pengaturan sistem atau Play Store: status tampilan utama atau mesin suara mungkin berubah.
         // Tab Launcher tanpa melompat ke atas: baris screensaver di tengah, kembali dari pemilih foto.
         if (current == TAB_LAUNCHER) rebuildKeepScroll();

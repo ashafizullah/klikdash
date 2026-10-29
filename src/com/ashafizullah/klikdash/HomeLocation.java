@@ -89,7 +89,7 @@ final class HomeLocation {
         lon = lo;
         city = name;
         locApprox = false;
-        SharedPreferences.Editor e = h.prefs.edit().putString("lat", String.valueOf(la)).putString("lon", String.valueOf(lo));
+        SharedPreferences.Editor e = Prefs.of(h).edit().putString("lat", String.valueOf(la)).putString("lon", String.valueOf(lo));
         if (name != null) e.putString("city", name); else e.remove("city");
         e.apply();
         prayDayKey = -1;

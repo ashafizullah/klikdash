@@ -127,8 +127,7 @@ final class AiTools {
     static List<App> apps(Activity a) {
         List<App> out = new ArrayList<>();
         java.util.Set<String> seen = new java.util.HashSet<>();
-        java.util.Set<String> hidden = HomeApps.hidden(
-                a.createDeviceProtectedStorageContext().getSharedPreferences("klikdash", Activity.MODE_PRIVATE));
+        java.util.Set<String> hidden = HomeApps.hidden(Prefs.of(a));
         PackageManager pm = a.getPackageManager();
         for (ResolveInfo r : pm.queryIntentActivities(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0)) {
             if (HomeActivity.class.getName().equals(r.activityInfo.name)) continue;
@@ -323,7 +322,7 @@ final class AiTools {
     }
 
     static double[] location(Activity a) {
-        SharedPreferences hp = a.createDeviceProtectedStorageContext().getSharedPreferences("klikdash", Activity.MODE_PRIVATE);
+        SharedPreferences hp = Prefs.of(a);
         try {
             return new double[]{Double.parseDouble(hp.getString("lat", "-6.2088")), Double.parseDouble(hp.getString("lon", "106.8456"))};
         } catch (NumberFormatException e) {
@@ -332,16 +331,14 @@ final class AiTools {
     }
 
     static String city(Activity a) {
-        String c = a.createDeviceProtectedStorageContext().getSharedPreferences("klikdash", Activity.MODE_PRIVATE)
-                .getString("city", null);
+        String c = Prefs.of(a).getString("city", null);
         return c != null ? c : AiStore.inLang(a).getString(R.string.as_res_gps);
     }
 
     static String prayerTimes(Activity a) {
         double[] l = location(a);
         Calendar now = Calendar.getInstance();
-        int[] t = PrayerTimes.compute(now, l[0], l[1], PrayerTimes.method(
-                a.createDeviceProtectedStorageContext().getSharedPreferences("klikdash", Context.MODE_PRIVATE)));
+        int[] t = PrayerTimes.compute(now, l[0], l[1], PrayerTimes.method(Prefs.of(a)));
         int min = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
         Context c = AiStore.inLang(a);
         Locale loc = locale(a);

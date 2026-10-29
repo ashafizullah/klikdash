@@ -51,7 +51,7 @@ final class HomeUpdate {
                     return;
                 }
                 h.runOnUiThread(() -> {
-                    h.prefs.edit().putLong("updateChecked", System.currentTimeMillis()).apply();
+                    Prefs.of(h).edit().putLong("updateChecked", System.currentTimeMillis()).apply();
                     if (r == null || Updater.compare(r.version, Updater.installedVersion(h)) <= 0) return;
                     if (r.version.equals(h.prefs.getString("updateSkipped", null))) return; // sudah dijawab Nanti
                     pending = r;
@@ -78,7 +78,7 @@ final class HomeUpdate {
                 return;
             }
             pending = null;
-            SettingsActivity.offerUpdate(h, r, () -> h.prefs.edit().putString("updateSkipped", r.version).apply());
+            SettingsActivity.offerUpdate(h, r, () -> Prefs.of(h).edit().putString("updateSkipped", r.version).apply());
         }
     };
 }

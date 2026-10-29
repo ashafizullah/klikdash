@@ -318,6 +318,6 @@ final class Theme {
     }
 
     private static android.content.SharedPreferences prefs(Context c) {
-        return c.createDeviceProtectedStorageContext().getSharedPreferences("klikdash", Context.MODE_PRIVATE);
+        return Prefs.of(c);
     }
 }

@@ -111,7 +111,7 @@ final class HomeApps {
     void saveSlot(int i, ComponentName cn, String label) {
         slotCn[i] = cn;
         slotLabel[i] = label;
-        SharedPreferences.Editor e = h.prefs.edit().putString("s" + i, cn != null ? cn.flattenToString() : "");
+        SharedPreferences.Editor e = Prefs.of(h).edit().putString("s" + i, cn != null ? cn.flattenToString() : "");
         if (label != null) e.putString("l" + i, label); else e.remove("l" + i);
         e.apply();
     }

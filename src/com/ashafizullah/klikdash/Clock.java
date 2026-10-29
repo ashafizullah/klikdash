@@ -103,6 +103,6 @@ final class Clock {
     }
 
     private static SharedPreferences prefs(Context c) {
-        return c.createDeviceProtectedStorageContext().getSharedPreferences("klikdash", Context.MODE_PRIVATE);
+        return Prefs.of(c);
     }
 }

@@ -149,7 +149,7 @@ public class DzikirActivity extends Activity {
 
     /** Pagi sebelum Ashar, petang sejak Ashar (lokasi dari pengaturan home; tanpa lokasi: Jakarta). */
     static String currentPeriod(android.content.Context c) {
-        SharedPreferences hp = c.createDeviceProtectedStorageContext().getSharedPreferences("klikdash", MODE_PRIVATE);
+        SharedPreferences hp = Prefs.of(c);
         double lat = -6.2088, lon = 106.8456;
         try {
             String la = hp.getString("lat", null), lo = hp.getString("lon", null);

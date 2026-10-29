@@ -561,12 +561,7 @@ public class HomeActivity extends Activity {
         }, "orientation").start();
     }
 
-    /**
-     * Prefs di penyimpanan DE; pindahkan sekali dari CE (versi lama) begitu CE sudah terbuka.
-     * MODE_MULTI_PROCESS: baca ulang dari disk bila filenya berubah. Headunit dengan fast boot memulihkan isi RAM
-     * lama saat ACC on; tanpa ini susunan ubin lama di memori tampil lagi, lalu tertulis menimpa yang tersimpan.
-     */
-    @SuppressWarnings("deprecation")
+    /** Prefs di penyimpanan DE (lihat Prefs); pindahkan sekali dari CE (versi lama) begitu CE sudah terbuka. */
     SharedPreferences openPrefs() {
         Context de = createDeviceProtectedStorageContext();
         // Pindah sekali per proses: moveSharedPreferencesFrom membaca isi folder di disk tiap dipanggil.
@@ -574,7 +569,7 @@ public class HomeActivity extends Activity {
             de.moveSharedPreferencesFrom(this, "klikdash");
             prefsMoved = true;
         }
-        return de.getSharedPreferences("klikdash", MODE_MULTI_PROCESS);
+        return Prefs.of(this);
     }
 
     private static boolean prefsMoved;
