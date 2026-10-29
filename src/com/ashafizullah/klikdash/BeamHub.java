@@ -73,7 +73,7 @@ final class BeamHub {
     /** Penerima tampil (layar penuh atau melayang); bukan sekadar siaga. */
     static boolean running() { return server != null && !standby; }
 
-    static boolean autoOpen(Context c) { return Prefs.of(c).getBoolean("beamAuto", true); }
+    static boolean autoOpen(Context c) { return Prefs.of(c).getBoolean("beamAuto", false); }
 
     static void setAutoOpen(Context c, boolean on) {
         Prefs.of(c).edit().putBoolean("beamAuto", on).apply();

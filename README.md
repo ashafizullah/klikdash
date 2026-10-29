@@ -57,8 +57,8 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
   ([Android](https://play.google.com/store/apps/details?id=com.ashafizullah.klikbeam),
   [iPhone](https://apps.apple.com/id/app/klikbeam/id6826742960)). Pair by scanning the QR code or typing the 6-digit
   code (**⚙ › KLIKBEAM**). Full screen, or a floating window over Maps that you move with a finger and resize with two.
-  With **BUKA OTOMATIS / OPEN AUTOMATICALLY** (on by default) the receiver opens by itself when the phone starts
-  mirroring; closing it stops mirroring on the phone.
+  Turn on **BUKA OTOMATIS / OPEN AUTOMATICALLY** (off by default) and the receiver opens by itself when the phone
+  starts mirroring; closing it stops mirroring on the phone.
 - **Quick panel:** tap **☰** at the top left of the home screen, or swipe in from the left edge: media volume,
   screen brightness, split screen, screensaver now, and **⚙ SETTINGS**.
 - **Split screen:** two apps side by side, for example YouTube and Maps (**☰ › SPLIT SCREEN**). Drag the handle in

@@ -57,8 +57,8 @@ merender animasi 3D (~40% CPU).
   ([Android](https://play.google.com/store/apps/details?id=com.ashafizullah.klikbeam),
   [iPhone](https://apps.apple.com/id/app/klikbeam/id6826742960)). Pairing dengan memindai QR atau mengetik kode 6 angka
   (**⚙ › KLIKBEAM**). Layar penuh, atau jendela melayang di atas Maps yang bisa digeser dan diubah ukurannya dengan dua
-  jari. Dengan **BUKA OTOMATIS** (bawaan menyala) penerima terbuka sendiri saat HP mulai mirror; menutupnya
-  menghentikan mirror di HP.
+  jari. Nyalakan **BUKA OTOMATIS** (bawaan mati) supaya penerima terbuka sendiri saat HP mulai
+  mirror; menutupnya menghentikan mirror di HP.
 - **Panel cepat:** ketuk **☰** di kiri atas home, atau geser dari tepi kiri layar: volume media, kecerahan layar,
   layar terbagi, screensaver sekarang, dan **⚙ PENGATURAN**.
 - **Layar terbagi:** dua aplikasi berdampingan, misalnya YouTube dan Maps (**☰ › LAYAR TERBAGI**). Geser pegangan
