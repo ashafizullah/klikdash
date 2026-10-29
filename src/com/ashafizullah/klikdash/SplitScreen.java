@@ -240,9 +240,10 @@ final class SplitScreen {
         List<Stack> s = list();
         Task tl = find(s, l.getPackageName());
         sh(tl != null ? "am stack movetask " + tl.id + " " + DOCKED_N + " true" : "am start --stack " + DOCKED_N + " " + intent(l));
-        // Android 7 membuka layar Terbaru di sisi kanan sesaat setelah split dimulai; aplikasi kanan dibuka sesudahnya
-        // supaya tidak tertutup olehnya.
-        pause(600);
+        // Android 7 membuka layar Terbaru di sisi kanan sesaat setelah split dimulai (±0,3 dtk, lebih lama pada pemakaian
+        // pertama setelah boot); aplikasi kanan dibuka setelah layar itu tampil supaya tidak tertutup olehnya. Paling lama 2 dtk.
+        sh("i=0; while [ $i -lt 20 ]; do dumpsys activity activities | grep mFocusedActivity | grep -q recents && break;"
+                + " sleep 0.1; i=$((i+1)); done; sleep 0.15");
         s = list();
         if (docked(s) == null) return R.string.split_unsupported;
         Task tr = find(s, r.getPackageName());
