@@ -94,4 +94,13 @@
     <string name="quick_saver">SCREENSAVER NOW</string>
     <string name="quick_brightness_allow">Allow KlikDash to modify system settings, then come back to change the brightness.</string>
     <string name="quick_settings">SETTINGS</string>
+    <string name="quick_split">SPLIT SCREEN</string>
+    <string name="quick_split_pick">PICK 2 APPS</string>
+    <string name="home_split_left">SPLIT SCREEN · LEFT APP</string>
+    <string name="home_split_right">SPLIT SCREEN · RIGHT APP</string>
+    <string name="split_same">Pick a different app for the right side.</string>
+    <string name="split_swap">⇄  SWAP</string>
+    <string name="split_unsupported">This headunit does not allow two apps on one screen.</string>
+    <string name="split_need_reboot">Side-by-side windows work after the headunit restarts. Restart it once, then try again.</string>
+    <string name="split_hint">Tap the handle in the middle to close one app or swap sides. Drag it to resize, or to the edge to close.</string>
 </resources>

@@ -101,6 +101,16 @@
             android:excludeFromRecents="true"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden|navigation|uiMode|density|locale|layoutDirection|fontScale" />
 
+        <!-- Layar terbagi Android 9-11 (SplitScreen): jangkar sesaat yang dibuka dari shell ADB -->
+        <activity
+            android:name=".SplitAnchor"
+            android:exported="true"
+            android:taskAffinity="com.ashafizullah.klikdash.split"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:resizeableActivity="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
         <receiver
             android:name=".PrayerAlarm"
             android:exported="false" />

@@ -273,6 +273,7 @@ final class HomeApps {
 
     void launch(ComponentName cn) {
         h.userLaunch = true;
+        if (SplitScreen.reopen(cn)) return;
         Intent i = new Intent(Intent.ACTION_MAIN)
                 .addCategory(Intent.CATEGORY_LAUNCHER)
                 .setComponent(cn)

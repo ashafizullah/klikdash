@@ -298,6 +298,7 @@ public class HomeActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         BeamHub.homeFront = !safe;
+        if (android.os.Build.VERSION.SDK_INT < 29) SplitScreen.home(true); // Android 10+: onTopResumedActivityChanged
         if (safe || Theme.stale(this, themeBuilt)) return;
         reloadPrefs();
         if (HomeApps.tileCount(prefs) != shown + 1) { recreate(); return; } // jumlah ubin diganti di Pengaturan
@@ -559,8 +560,18 @@ public class HomeActivity extends Activity {
         if (shown) hideSaver(); else poke();
     };
 
+    /**
+     * Android 10+: home tetap "resumed" selama terlihat di belakang jendela freeform layar terbagi, jadi yang dipakai
+     * untuk pembatas {@link SplitScreen} adalah apakah home yang paling depan.
+     */
+    @Override public void onTopResumedActivityChanged(boolean top) {
+        super.onTopResumedActivityChanged(top);
+        SplitScreen.home(top);
+    }
+
     @Override protected void onPause() {
         BeamHub.homeFront = false;
+        SplitScreen.home(false);
         if (safe) {
             super.onPause();
             return;

@@ -42,6 +42,9 @@ final class HomeDrawer {
     int cols = 7;
     /** Ubin yang sedang dipilihkan aplikasinya; -1 = laci dibuka untuk membuka aplikasi. */
     int pickSlot = -1;
+    /** Layar terbagi ({@link SplitScreen}): 1 = memilih aplikasi kiri, 2 = kanan; 0 = tidak. */
+    int splitStep;
+    android.content.ComponentName splitLeft;
     /** Aplikasi yang tampil di laci: semua, atau yang cocok dengan pencarian (lihat filter). */
     final List<HomeApps.App> shown = new ArrayList<>();
 
@@ -206,8 +209,16 @@ final class HomeDrawer {
         view.requestFocus();
     }
 
+    /** Pilih dua aplikasi untuk layar terbagi: kiri, lalu kanan. */
+    void openSplit() {
+        open(-1);
+        splitStep = 1;
+        title.setText(h.getString(R.string.home_split_left));
+    }
+
     void open(int slot) {
         pickSlot = slot;
+        splitStep = 0;
         title.setText(slot >= 0
                 ? h.getString(R.string.home_pick_for_slot, slot + 1)
                 : h.getString(R.string.home_all_apps));
@@ -221,6 +232,7 @@ final class HomeDrawer {
 
     void close() {
         pickSlot = -1;
+        splitStep = 0;
         hideKeyboard();
         search.setText("");
         view.setVisibility(View.GONE);
@@ -228,6 +240,24 @@ final class HomeDrawer {
     }
 
     void onPick(HomeApps.App a) {
+        if (splitStep == 1) {
+            splitLeft = a.cn;
+            splitStep = 2;
+            title.setText(h.getString(R.string.home_split_right));
+            search.setText("");
+            grid.setSelection(0);
+            return;
+        }
+        if (splitStep == 2) {
+            if (a.cn.getPackageName().equals(splitLeft.getPackageName())) {
+                Notice.info(h, h.getString(R.string.split_same));
+                return;
+            }
+            android.content.ComponentName left = splitLeft;
+            close();
+            SplitScreen.open(h, left, a.cn);
+            return;
+        }
         if (pickSlot >= 0) {
             h.apps.saveSlot(pickSlot, a.cn, null);
             h.tiles[pickSlot].invalidate();

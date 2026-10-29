@@ -95,4 +95,13 @@
     <string name="quick_saver">SCREENSAVER SEKARANG</string>
     <string name="quick_brightness_allow">Izinkan KlikDash mengubah setelan sistem, lalu kembali untuk mengatur kecerahan.</string>
     <string name="quick_settings">PENGATURAN</string>
+    <string name="quick_split">LAYAR TERBAGI</string>
+    <string name="quick_split_pick">PILIH 2 APLIKASI</string>
+    <string name="home_split_left">LAYAR TERBAGI · APLIKASI KIRI</string>
+    <string name="home_split_right">LAYAR TERBAGI · APLIKASI KANAN</string>
+    <string name="split_same">Pilih aplikasi lain untuk sisi kanan.</string>
+    <string name="split_swap">⇄  TUKAR</string>
+    <string name="split_unsupported">Headunit ini tidak mengizinkan dua aplikasi dalam satu layar.</string>
+    <string name="split_need_reboot">Jendela berdampingan baru aktif setelah headunit dinyalakan ulang. Nyalakan ulang sekali, lalu coba lagi.</string>
+    <string name="split_hint">Ketuk pegangan di tengah untuk menutup salah satu aplikasi atau menukar sisi. Geser untuk mengubah ukuran, ke tepi untuk menutup.</string>
 </resources>
