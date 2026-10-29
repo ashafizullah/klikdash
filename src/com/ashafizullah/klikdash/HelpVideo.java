@@ -57,12 +57,17 @@ final class HelpVideo {
 
     /** Kartu putih berisi QR, ajakan memindai, dan link pendeknya (untuk yang tidak bisa memindai). */
     static LinearLayout qrCard(Context c, int qrRes, String caption, String shortUrl) {
+        return qrCard(c, c.getDrawable(qrRes), caption, shortUrl);
+    }
+
+    /** Seperti di atas, untuk QR yang dibuat saat itu juga ({@link QrCode.QrDrawable}); {@code shortUrl} null: tanpa alamat. */
+    static LinearLayout qrCard(Context c, android.graphics.drawable.Drawable code, String caption, String shortUrl) {
         float dp = c.getResources().getDisplayMetrics().density;
         LinearLayout col = new LinearLayout(c);
         col.setOrientation(LinearLayout.VERTICAL);
         col.setGravity(Gravity.CENTER_HORIZONTAL);
         ImageView qr = new ImageView(c);
-        qr.setImageResource(qrRes);
+        qr.setImageDrawable(code);
         int pad = Math.round(10 * dp), size = Math.round(168 * dp);
         qr.setPadding(pad, pad, pad, pad);
         GradientDrawable bg = new GradientDrawable();
@@ -81,6 +86,7 @@ final class HelpVideo {
         scan.setGravity(Gravity.CENTER);
         scan.setPadding(0, Math.round(12 * dp), 0, 0);
         col.addView(scan, new LinearLayout.LayoutParams(size, LinearLayout.LayoutParams.WRAP_CONTENT));
+        if (shortUrl == null) return col;
         TextView url = new TextView(c);
         url.setText(shortUrl);
         url.setTypeface(mono);

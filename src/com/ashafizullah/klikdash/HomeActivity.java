@@ -240,6 +240,7 @@ public class HomeActivity extends Activity {
         if (SystemClock.elapsedRealtime() < 5 * 60_000L) update.schedule();
         Context app = getApplicationContext();
         home.postDelayed(() -> Guard.ok(app), 60_000);
+        BeamHub.standby(this); // KlikBeam: HP yang mulai mirror membuka penerima sendiri
     }
 
     @Override public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
@@ -285,6 +286,7 @@ public class HomeActivity extends Activity {
 
     @Override protected void onResume() {
         super.onResume();
+        BeamHub.homeFront = !safe;
         if (safe || Theme.stale(this, themeBuilt)) return;
         reloadPrefs();
         if (HomeApps.tileCount(prefs) != shown + 1) { recreate(); return; } // jumlah ubin diganti di Pengaturan
@@ -471,6 +473,7 @@ public class HomeActivity extends Activity {
     boolean resumed;
 
     @Override protected void onPause() {
+        BeamHub.homeFront = false;
         if (safe) {
             super.onPause();
             return;

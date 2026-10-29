@@ -11,9 +11,9 @@
     <string name="beam_error">SERVER GAGAL: %1$s</string>
     <string name="beam_decoder_error">Decoder video gagal: %1$s</string>
     <string name="beam_beta">BETA</string>
-    <string name="beam_receiver_hint">Buka KlikBeam di HP, pilih headunit ini, lalu masukkan kode pairing di atas. Cara menyambung ada di Pengaturan › KLIKBEAM.</string>
+    <string name="beam_receiver_hint">Pindai QR dengan kamera HP, atau buka KlikBeam di HP, pilih headunit ini, lalu masukkan kode pairing di atas. Cara menyambung ada di Pengaturan › KLIKBEAM.</string>
     <string name="settings_beam_title">KLIKBEAM · BETA</string>
-    <string name="settings_beam_desc">Mirror layar HP ke headunit lewat WiFi. Pasang dulu aplikasi KlikBeam di HP (lihat di bawah).\n\nCara menyambung: sambungkan headunit ke hotspot HP, ketuk BUKA PENERIMA, lalu di aplikasi KlikBeam pilih headunit ini dan masukkan kode pairing di atas. Bila headunit tidak muncul, ketik alamatnya.\n\nPerhatian: mirror membuat HP bekerja keras (merekam layar, encode video, WiFi), sehingga HP bisa cepat panas dan baterai cepat habis, apalagi di mobil yang terkena terik. Letakkan HP di tempat yang terkena AC, dan hentikan siaran bila HP terasa panas.</string>
+    <string name="settings_beam_desc">Mirror layar HP ke headunit lewat WiFi. Pasang dulu aplikasi KlikBeam di HP (lihat di bawah).\n\nCara menyambung: sambungkan headunit ke hotspot HP, ketuk BUKA PENERIMA, lalu di aplikasi KlikBeam pilih headunit ini dan masukkan kode pairing di atas, atau pindai QR-nya dengan kamera HP supaya langsung terisi. Bila headunit tidak muncul, ketik alamatnya.\n\nPerhatian: mirror membuat HP bekerja keras (merekam layar, encode video, WiFi), sehingga HP bisa cepat panas dan baterai cepat habis, apalagi di mobil yang terkena terik. Letakkan HP di tempat yang terkena AC, dan hentikan siaran bila HP terasa panas.</string>
     <string name="settings_beam_code_label">KODE PAIRING</string>
     <string name="settings_beam_addr_label">ALAMAT · BILA HEADUNIT TIDAK MUNCUL</string>
     <string name="settings_beam_app_title">APLIKASI KLIKBEAM DI HP</string>
@@ -35,4 +35,7 @@
     <string name="beam_no_overlay">Mode melayang butuh izin tampil di atas aplikasi lain. Aktifkan USB debugging (Pengaturan Android › Opsi pengembang), lalu coba lagi.</string>
     <string name="beam_channel">KlikBeam</string>
     <string name="beam_notification">Mirror HP aktif. Ketuk untuk layar penuh.</string>
+    <string name="settings_beam_auto_title">BUKA OTOMATIS</string>
+    <string name="settings_beam_auto_desc">Penerima terbuka sendiri saat HP mulai mirror dengan kode pairing ini: layar penuh di home, jendela melayang di atas aplikasi lain seperti Maps.</string>
+    <string name="settings_beam_scan_pair">PINDAI DENGAN KAMERA HP: KLIKBEAM LANGSUNG TERISI</string>
 </resources>

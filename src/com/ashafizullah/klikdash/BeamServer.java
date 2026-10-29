@@ -24,6 +24,11 @@ import java.net.SocketTimeoutException;
  * ikut berhenti (tanpa itu HP menganggapnya putus dan mencoba menyambung ulang hingga 60 detik).
  */
 final class BeamServer {
+    /** Dipanggil setelah kode pairing cocok; false: tutup tanpa jawaban (pengirim menganggapnya putus, bukan kode salah). */
+    interface Gate {
+        boolean admit();
+    }
+
     interface Listener {
         void onWaiting();
         void onConnected(String from);
@@ -48,6 +53,7 @@ final class BeamServer {
     private final int code;
     private final BeamDecoder decoder;
     private final Listener listener;
+    private final Gate gate;
     private volatile ServerSocket server;
     private volatile boolean stopped;
     private Thread acceptThread;
@@ -55,11 +61,12 @@ final class BeamServer {
     private NsdManager nsd;
     private NsdManager.RegistrationListener nsdListener;
 
-    BeamServer(Context context, int code, BeamDecoder decoder, Listener listener) {
+    BeamServer(Context context, int code, BeamDecoder decoder, Listener listener, Gate gate) {
         this.context = context.getApplicationContext();
         this.code = code;
         this.decoder = decoder;
         this.listener = listener;
+        this.gate = gate;
     }
 
     void start() {
@@ -140,6 +147,10 @@ final class BeamServer {
                 out.flush();
                 Log.w(TAG, "ditolak: " + from);
                 listener.onRejected(from);
+                return;
+            }
+            if (!gate.admit()) {
+                Log.i(TAG, "ditunda (penerima baru ditutup): " + from);
                 return;
             }
             out.write(1);

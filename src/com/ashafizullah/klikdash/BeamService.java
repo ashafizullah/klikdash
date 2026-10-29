@@ -47,7 +47,7 @@ public final class BeamService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         startForeground(NOTIFICATION_ID, notification()); // Android 8+: wajib segera setelah startForegroundService
         if (intent != null && ACTION_STOP.equals(intent.getAction()) || !BeamHub.running()) {
-            BeamHub.stop();
+            BeamHub.close();
             stop();
         }
         return START_NOT_STICKY; // tanpa BeamHub (proses mati) tidak ada yang perlu dilanjutkan

@@ -929,6 +929,10 @@ public class SettingsActivity extends Activity {
                 }),
                 key(getString(R.string.settings_beam_open), false,
                         () -> startActivity(new Intent(this, BeamActivity.class)))));
+        boolean auto = BeamHub.autoOpen(this);
+        list.addView(row(getString(R.string.settings_beam_auto_title), getString(R.string.settings_beam_auto_desc),
+                key(getString(R.string.settings_on), auto, () -> { BeamHub.setAutoOpen(this, true); rebuildKeepScroll(TAB_BEAM); }),
+                key(getString(R.string.settings_off), !auto, () -> { BeamHub.setAutoOpen(this, false); rebuildKeepScroll(TAB_BEAM); })));
         list.addView(row(getString(R.string.settings_beam_app_title), getString(R.string.settings_beam_app_desc),
                 key(getString(R.string.settings_beam_android), beamApp == 0, () -> { beamApp = 0; show(TAB_BEAM, true); }),
                 key(getString(R.string.settings_beam_ios), beamApp == 1, () -> { beamApp = 1; show(TAB_BEAM, true); })));
@@ -941,13 +945,20 @@ public class SettingsActivity extends Activity {
 
     /**
      * Kode pairing dan alamat, besar: pengguna mengetiknya di HP sambil melihat headunit, dan di dalam paragraf
-     * keduanya sulit ditemukan. Satu alamat per baris (wlan0, dan ap0 bila headunit jadi hotspot).
+     * keduanya sulit ditemukan. Satu alamat per baris (wlan0, dan ap0 bila headunit jadi hotspot). Di atas kode, QR
+     * berisi keduanya: dipindai kamera HP, aplikasi KlikBeam langsung terisi (BeamActivity.pairUrl).
      */
     View beamPairing() {
         LinearLayout r = new LinearLayout(this);
         r.setOrientation(narrow ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
         r.setPadding(0, px(20), 0, px(24));
         LinearLayout code = column();
+        android.graphics.drawable.Drawable qr = BeamActivity.pairQr(this);
+        if (qr != null) { // di atas kode: dipindai kamera HP, aplikasi KlikBeam langsung terisi
+            LinearLayout.LayoutParams ql = new LinearLayout.LayoutParams(WRAP, WRAP);
+            ql.bottomMargin = px(20);
+            code.addView(HelpVideo.qrCard(this, qr, getString(R.string.settings_beam_scan_pair), null), ql);
+        }
         code.addView(label(getString(R.string.settings_beam_code_label)));
         TextView c = text(BeamActivity.codeText(this), fHeavy, 64, AMBER);
         c.setLetterSpacing(0.06f);
@@ -1033,10 +1044,12 @@ public class SettingsActivity extends Activity {
     }
 
     /** Bangun ulang tab Launcher tanpa melompat ke atas (baris kunci layar ada di bawah). */
-    void rebuildKeepScroll() {
+    void rebuildKeepScroll() { rebuildKeepScroll(TAB_LAUNCHER); }
+
+    void rebuildKeepScroll(int tab) {
         View old = content.getChildAt(0);
         int y = old instanceof ScrollView ? old.getScrollY() : 0;
-        show(TAB_LAUNCHER, true);
+        show(tab, true);
         View now = content.getChildAt(0);
         if (now instanceof ScrollView) scrollBeforeDraw(now, () -> y);
     }

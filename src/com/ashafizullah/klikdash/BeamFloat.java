@@ -269,7 +269,7 @@ final class BeamFloat implements BeamHub.Listener {
         t.setTextColor(TEXT);
         t.setGravity(Gravity.CENTER);
         t.setContentDescription(c.getString(R.string.beam_close));
-        t.setOnClickListener(v -> BeamHub.stop());
+        t.setOnClickListener(v -> BeamHub.close());
         return t;
     }
 

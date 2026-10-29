@@ -10,9 +10,9 @@
     <string name="beam_error">SERVER FAILED: %1$s</string>
     <string name="beam_decoder_error">Video decoder failed: %1$s</string>
     <string name="beam_beta">BETA</string>
-    <string name="beam_receiver_hint">Open KlikBeam on your phone, pick this headunit, then enter the pairing code above. How to connect is in Settings › KLIKBEAM.</string>
+    <string name="beam_receiver_hint">Scan the QR code with your phone camera, or open KlikBeam on your phone, pick this headunit, then enter the pairing code above. How to connect is in Settings › KLIKBEAM.</string>
     <string name="settings_beam_title">KLIKBEAM · BETA</string>
-    <string name="settings_beam_desc">Mirror your phone screen to the headunit over WiFi. First install the KlikBeam app on your phone (see below).\n\nHow to connect: join the headunit to your phone\'s hotspot, tap OPEN RECEIVER, then in KlikBeam pick this headunit and enter the pairing code above. If the headunit does not show up, type its address.\n\nNote: mirroring works the phone hard (screen recording, video encoding, WiFi), so it can get hot and drain the battery quickly, especially in a car parked in the sun. Place the phone where the AC reaches it, and stop the broadcast if it feels hot.</string>
+    <string name="settings_beam_desc">Mirror your phone screen to the headunit over WiFi. First install the KlikBeam app on your phone (see below).\n\nHow to connect: join the headunit to your phone\'s hotspot, tap OPEN RECEIVER, then in KlikBeam pick this headunit and enter the pairing code above, or scan its QR code with your phone camera to fill it in. If the headunit does not show up, type its address.\n\nNote: mirroring works the phone hard (screen recording, video encoding, WiFi), so it can get hot and drain the battery quickly, especially in a car parked in the sun. Place the phone where the AC reaches it, and stop the broadcast if it feels hot.</string>
     <string name="settings_beam_code_label">PAIRING CODE</string>
     <string name="settings_beam_addr_label">ADDRESS · IF THE HEADUNIT DOES NOT SHOW UP</string>
     <string name="settings_beam_app_title">KLIKBEAM APP ON YOUR PHONE</string>
@@ -34,4 +34,7 @@
     <string name="beam_no_overlay">Floating mode needs permission to show over other apps. Turn on USB debugging (Android Settings › Developer options), then try again.</string>
     <string name="beam_channel">KlikBeam</string>
     <string name="beam_notification">Phone mirror is on. Tap for full screen.</string>
+    <string name="settings_beam_auto_title">OPEN AUTOMATICALLY</string>
+    <string name="settings_beam_auto_desc">The receiver opens by itself when a phone starts mirroring with this pairing code: full screen on the home screen, a floating window over other apps such as Maps.</string>
+    <string name="settings_beam_scan_pair">SCAN WITH YOUR PHONE CAMERA: KLIKBEAM FILLS ITSELF IN</string>
 </resources>
