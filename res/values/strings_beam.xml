@@ -32,7 +32,6 @@
     <string name="beam_minimize">KECILKAN</string>
     <string name="beam_close">TUTUP</string>
     <string name="beam_fullscreen">LAYAR PENUH</string>
-    <string name="beam_size">UKURAN</string>
     <string name="beam_no_overlay">Mode melayang butuh izin tampil di atas aplikasi lain. Aktifkan USB debugging (Pengaturan Android › Opsi pengembang), lalu coba lagi.</string>
     <string name="beam_channel">KlikBeam</string>
     <string name="beam_notification">Mirror HP aktif. Ketuk untuk layar penuh.</string>

@@ -35,8 +35,8 @@ import static com.ashafizullah.klikdash.HomeActivity.WRAP;
 
 /**
  * Jendela melayang KlikBeam di atas aplikasi lain (izin "tampil di atas aplikasi lain", seperti {@link Notice}):
- * video HP dalam kotak kecil yang bisa digeser ke mana saja. Ketuk sekali untuk tombol (LAYAR PENUH dan UKURAN di
- * tengah, ✕ tutup di pojok kanan atas), ketuk dua kali untuk layar penuh. Sentuhan di luar kotak tetap ke aplikasi di
+ * video HP dalam kotak kecil yang bisa digeser ke mana saja. Ketuk sekali untuk tombol (LAYAR PENUH di tengah, ✕ tutup
+ * di pojok kanan atas), ketuk dua kali untuk layar penuh. Sentuhan di luar kotak tetap ke aplikasi di
  * belakangnya. Posisi dan ukuran disimpan di prefs "beam" (floatX, floatY, floatSize).
  */
 final class BeamFloat implements BeamHub.Listener {
@@ -129,7 +129,6 @@ final class BeamFloat implements BeamHub.Listener {
         LinearLayout row = new LinearLayout(c);
         row.setGravity(Gravity.CENTER);
         row.addView(button(R.string.beam_fullscreen, mono, v -> expand()));
-        row.addView(button(R.string.beam_size, mono, v -> cycleSize()));
         controls.addView(row, new FrameLayout.LayoutParams(WRAP, WRAP, Gravity.CENTER));
         controls.addView(closeButton(), new FrameLayout.LayoutParams(dp(44), dp(44), Gravity.TOP | Gravity.END));
         controls.setVisibility(View.GONE);
@@ -221,14 +220,6 @@ final class BeamFloat implements BeamHub.Listener {
         try {
             if (box.isAttachedToWindow()) wm.updateViewLayout(box, lp);
         } catch (RuntimeException ignored) { }
-    }
-
-    private void cycleSize() {
-        size = (size + 1) % SIZES.length;
-        prefs.edit().putInt("floatSize", size).apply();
-        layout();
-        update();
-        showControls();
     }
 
     private void expand() {

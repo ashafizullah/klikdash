@@ -31,7 +31,6 @@
     <string name="beam_minimize">MINIMIZE</string>
     <string name="beam_close">CLOSE</string>
     <string name="beam_fullscreen">FULL SCREEN</string>
-    <string name="beam_size">SIZE</string>
     <string name="beam_no_overlay">Floating mode needs permission to show over other apps. Turn on USB debugging (Android Settings › Developer options), then try again.</string>
     <string name="beam_channel">KlikBeam</string>
     <string name="beam_notification">Phone mirror is on. Tap for full screen.</string>
