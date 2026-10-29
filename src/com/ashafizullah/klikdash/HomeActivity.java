@@ -303,6 +303,8 @@ public class HomeActivity extends Activity {
         updateTime();
         prayerView.startTicking();
         status.start();
+        beamShown = BeamHub.running();
+        BeamHub.addListener(beamRx);
         refreshDefaultHome();
         loc.startSpeed();
         resumed = true;
@@ -384,8 +386,9 @@ public class HomeActivity extends Activity {
     final Runnable idle = new Runnable() {
         @Override public void run() {
             if (!resumed || Screensaver.seconds(prefs) == 0) return;
-            // Ada yang tampil di atas home (dialog, laci, sambutan): coba lagi nanti, jangan menutupinya.
-            if (overlaid()) {
+            // Ada yang tampil di atas home (dialog, laci, sambutan, atau KlikBeam melayang yang sedang ditonton; sentuhan di
+            // jendela itu tidak sampai ke home): coba lagi nanti, jangan menutupinya.
+            if (overlaid() || BeamHub.running()) {
                 home.postDelayed(this, 30_000);
                 return;
             }
@@ -472,6 +475,18 @@ public class HomeActivity extends Activity {
     /** Di antara onResume dan onPause. */
     boolean resumed;
 
+    /**
+     * KlikBeam mulai tampil (mis. melayang di atas home): screensaver ditutup. Selesai: waktu tanpa sentuhan dihitung
+     * ulang dari awal, bukan langsung muncul.
+     */
+    boolean beamShown;
+    final BeamHub.Listener beamRx = () -> {
+        boolean shown = BeamHub.running();
+        if (shown == beamShown) return;
+        beamShown = shown;
+        if (shown) hideSaver(); else poke();
+    };
+
     @Override protected void onPause() {
         BeamHub.homeFront = false;
         if (safe) {
@@ -484,6 +499,7 @@ public class HomeActivity extends Activity {
         loc.stopSpeed();
         prayerView.stopTicking();
         status.stop();
+        BeamHub.removeListener(beamRx);
         QuranService.listeners.remove(onQuran);
         DzikirService.listeners.remove(onDzikir);
         MediaListener.listeners.remove(onMedia);
