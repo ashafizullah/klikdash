@@ -16,6 +16,7 @@ import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -57,6 +58,12 @@ final class PowerPanel {
     final ListView list;
     final Adapter adapter;
     final TextView count, message;
+    /**
+     * Menutupi daftar: pesan, dan bila ADB gagal juga QR video tutorialnya di bawahnya (serta tombol, lihat
+     * {@link #showHelp}). Bisa digulir: layar headunit 720p yang pendek tidak selalu muat pesan, tombol, dan QR.
+     */
+    final ScrollView cover;
+    final LinearLayout help;
     boolean busy;
 
     PowerPanel(SettingsActivity a) {
@@ -92,12 +99,27 @@ final class PowerPanel {
         list.setAdapter(adapter);
         list.setOnItemClickListener((p, v, pos, id) -> toggle(items.get(pos)));
         body.addView(list, MATCH, MATCH);
+        cover = new ScrollView(a);
+        cover.setFillViewport(true);
+        cover.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        cover.setVerticalScrollBarEnabled(false);
+        Theme.fill(cover); // menutupi daftar
+        LinearLayout box = a.column();
+        box.setGravity(Gravity.CENTER);
+        int pad = a.px(20);
+        box.setPadding(0, pad, 0, pad);
         message = a.text("", a.fMonoBold, 14, AMBER);
         message.setLetterSpacing(0.25f);
         message.setGravity(Gravity.CENTER);
         message.setSingleLine(false);
-        Theme.fill(message); // menutupi daftar
-        body.addView(message, MATCH, MATCH);
+        box.addView(message, new LinearLayout.LayoutParams(MATCH, WRAP));
+        help = a.column();
+        help.setGravity(Gravity.CENTER_HORIZONTAL);
+        LinearLayout.LayoutParams ql = new LinearLayout.LayoutParams(WRAP, WRAP);
+        ql.topMargin = a.px(24);
+        box.addView(help, ql);
+        cover.addView(box, new FrameLayout.LayoutParams(MATCH, WRAP));
+        body.addView(cover, MATCH, MATCH);
         root.addView(body, new LinearLayout.LayoutParams(MATCH, 0, 1f));
         view = root;
 
@@ -137,17 +159,15 @@ final class PowerPanel {
                 a.runOnUiThread(() -> {
                     busy = false;
                     if (!Tweaks.debuggingOn(a)) {
-                        showMessage(a.getString(R.string.power_need_adb) + a.getString(R.string.power_help_video));
-                        message.setOnClickListener(v -> HelpVideo.fail(a, a.getString(R.string.home_need_adb), HelpVideo.USB));
+                        showHelp(a.getString(R.string.power_need_adb), HelpVideo.USB, null);
                     } else if (AdbWifiService.supported()) {
                         // Android 11+: port 5555 bisa dibuka tanpa komputer lewat Wireless debugging.
-                        showMessage(a.getString(R.string.power_need_adb_port_wifi));
-                        message.setOnClickListener(v -> AdbWifiService.offer(a, Tweaks.NO_ADB, null, true, r -> refresh()));
+                        showHelp(a.getString(R.string.power_need_adb_port_wifi), HelpVideo.WIRELESS,
+                                a.key(a.getString(R.string.power_open_adb), true,
+                                        () -> AdbWifiService.offer(a, Tweaks.NO_ADB, null, true, r -> refresh())));
                     } else {
                         // Android 10 ke bawah: tanpa Wireless debugging, dibuka sekali dari laptop (klikapps.pages.dev/adb).
-                        showMessage(a.getString(R.string.power_need_adb_port) + a.getString(R.string.power_help_video));
-                        message.setOnClickListener(v -> HelpVideo.fail(a, a.getString(R.string.home_need_adb_port_laptop),
-                                HelpVideo.LAPTOP));
+                        showHelp(a.getString(R.string.power_need_adb_port), HelpVideo.LAPTOP, null);
                     }
                 });
                 return;
@@ -172,7 +192,7 @@ final class PowerPanel {
                 items.addAll(found);
                 adapter.notifyDataSetChanged();
                 updateCount();
-                if (items.isEmpty()) showMessage(a.getString(R.string.power_no_apps)); else message.setVisibility(View.GONE);
+                if (items.isEmpty()) showMessage(a.getString(R.string.power_no_apps)); else cover.setVisibility(View.GONE);
             });
         }, "power-refresh").start();
     }
@@ -218,10 +238,22 @@ final class PowerPanel {
     }
 
     void showMessage(String s) {
-        message.setOnClickListener(null);
-        message.setClickable(false);
         message.setText(s);
-        message.setVisibility(View.VISIBLE);
+        help.removeAllViews();
+        help.setVisibility(View.GONE);
+        cover.setVisibility(View.VISIBLE);
+    }
+
+    /** ADB gagal: pesan, QR video tutorialnya langsung di sini (tanpa diketuk dulu), dan {@code action} di atas QR bila ada. */
+    void showHelp(String s, int video, View action) {
+        showMessage(s);
+        if (action != null) {
+            LinearLayout.LayoutParams kl = new LinearLayout.LayoutParams(WRAP, a.px(52));
+            kl.bottomMargin = a.px(18);
+            help.addView(action, kl);
+        }
+        help.addView(HelpVideo.card(a, video), new LinearLayout.LayoutParams(WRAP, WRAP)); // bukan selebar tombol
+        help.setVisibility(View.VISIBLE);
     }
 
     /** Satu baris aplikasi: ikon, nama, status, dan sakelar di kanan. Ketuk di mana saja untuk mengubah. */
