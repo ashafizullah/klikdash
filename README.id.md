@@ -53,6 +53,17 @@ merender animasi 3D (~40% CPU).
   menyetir (tiap bacaan diulang sebanyak hitungannya dan penghitung ikut bertambah).
 - **Notch pemutar:** selama murattal, dzikir, atau musik aplikasi lain (Spotify, YouTube Music, ...) diputar, bilah
   kecil di atas home menampilkan yang diputar, dengan tombol jeda dan berikutnya.
+- **KlikBeam (mirror HP):** tampilkan layar HP di headunit lewat Wi-Fi dengan aplikasi KlikBeam
+  ([Android](https://play.google.com/store/apps/details?id=com.ashafizullah.klikbeam),
+  [iPhone](https://apps.apple.com/id/app/klikbeam/id6826742960)). Pairing dengan memindai QR atau mengetik kode 6 angka
+  (**⚙ › KLIKBEAM**). Layar penuh, atau jendela melayang di atas Maps yang bisa digeser dan diubah ukurannya dengan dua
+  jari. Dengan **BUKA OTOMATIS** (bawaan menyala) penerima terbuka sendiri saat HP mulai mirror; menutupnya
+  menghentikan mirror di HP.
+- **Panel cepat:** ketuk **☰** di kiri atas home, atau geser dari tepi kiri layar: volume media, kecerahan layar,
+  layar terbagi, screensaver sekarang, dan **⚙ PENGATURAN**.
+- **Layar terbagi:** dua aplikasi berdampingan, misalnya YouTube dan Maps (**☰ › LAYAR TERBAGI**). Geser pegangan
+  di tengah untuk mengubah ukuran; ketuk untuk menutup salah satu, menukar sisi, atau menutup keduanya. Butuh USB
+  debugging headunit.
 - **Hemat Daya:** larang aplikasi seperti Netflix atau Spotify berjalan di latar.
 - **Asisten suara TANYA AI (opsional):** ucapkan *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai Waze"*,
   atau *"buka Zlink"*. Pakai key Claude atau OpenAI-compatible sendiri; mendengar dan berbicara dengan suara
@@ -60,9 +71,10 @@ merender animasi 3D (~40% CPU).
   TinyFish yang gratis untuk penyedia mana pun). ▶️ **[Video cara mengaturnya](https://youtu.be/v9Bm6FzUKm8)** (6 menit, dengan subtitle).
 - **Kunci layar:** PIN 4 angka (**⚙ › Launcher › HOME › KUNCI LAYAR**) dan ikon gembok di home, supaya anak-anak tidak
   membuka aplikasi atau mengubah pengaturan. Jam dan jadwal sholat tetap tampil.
-- **Screensaver:** jam dan tanggal di atas latar hitam atau foto sendiri, muncul bila home tidak disentuh 1–10 menit
-  (**⚙ › Launcher › SCREENSAVER**). Tidak pernah menutupi aplikasi lain dan tidak muncul selama mobil bergerak.
-- **Pengaturan & pembaruan:** tombol ⚙ di home; empat tema (AMBER, ZAMRUD, SIANG, dan KILAP berpanel kaca),
+- **Screensaver:** jam dan tanggal di atas latar hitam atau foto sendiri, muncul bila home tidak disentuh 30 detik
+  sampai 10 menit (**⚙ › Launcher › SCREENSAVER**). Tidak pernah menutupi aplikasi lain seperti Maps atau CarPlay.
+- **Pengaturan & pembaruan:** **⚙ PENGATURAN** di panel cepat (**☰**; sebelum 1.9.8 tombol ⚙ di home), ditulis
+  **⚙ › …** di panduan ini; empat tema (AMBER, ZAMRUD, SIANG, dan KILAP berpanel kaca),
   yang bisa berganti sendiri antara tema siang dan malam mengikuti matahari (opsional);
   **CEK UPDATE** memasang versi baru tanpa komputer, dan **CEK UPDATE OTOMATIS** (opsional, bawaan mati)
   menawarkannya sendiri saat headunit menyala.

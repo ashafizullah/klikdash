@@ -53,6 +53,16 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
   you drive (each reading repeats as many times as its count and the counter follows along).
 - **Player notch:** while the recitation, the dhikr or music from another app (Spotify, YouTube Music, ...) plays, a
   small bar at the top of the home shows what is playing, with pause and next.
+- **KlikBeam phone mirroring:** show your phone's screen on the headunit over Wi-Fi with the KlikBeam app
+  ([Android](https://play.google.com/store/apps/details?id=com.ashafizullah.klikbeam),
+  [iPhone](https://apps.apple.com/id/app/klikbeam/id6826742960)). Pair by scanning the QR code or typing the 6-digit
+  code (**⚙ › KLIKBEAM**). Full screen, or a floating window over Maps that you move with a finger and resize with two.
+  With **BUKA OTOMATIS / OPEN AUTOMATICALLY** (on by default) the receiver opens by itself when the phone starts
+  mirroring; closing it stops mirroring on the phone.
+- **Quick panel:** tap **☰** at the top left of the home screen, or swipe in from the left edge: media volume,
+  screen brightness, split screen, screensaver now, and **⚙ SETTINGS**.
+- **Split screen:** two apps side by side, for example YouTube and Maps (**☰ › SPLIT SCREEN**). Drag the handle in
+  the middle to resize; tap it to close one app, swap sides, or close both. Needs the headunit's USB debugging.
 - **Power saver:** stop apps such as Netflix or Spotify from running in the background.
 - **Voice assistant TANYA AI / ASK AI (optional):** say *"putar surat Yasin"*, *"navigasi ke masjid terdekat pakai
   Waze"* or *"buka Zlink"*. Bring your own Claude or OpenAI-compatible key; it listens and speaks with the
@@ -62,8 +72,9 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
 - **Screen lock:** a 4-digit PIN (**⚙ › Launcher › HOME › KUNCI LAYAR / SCREEN LOCK**) and a padlock on the home screen,
   so children cannot open apps or change settings. The clock and prayer times stay visible.
 - **Screensaver:** the clock and date on black or your own photo, shown after the home screen has been untouched for
-  1–10 minutes (**⚙ › Launcher › SCREENSAVER**). Never covers other apps and never appears while the car is moving.
-- **Settings & updates:** the ⚙ button on the home screen; four themes (AMBER, EMERALD, DAY, and GLOSSY with glass
+  30 seconds to 10 minutes (**⚙ › Launcher › SCREENSAVER**). Never covers other apps such as Maps or CarPlay.
+- **Settings & updates:** **⚙ SETTINGS** in the quick panel (**☰**; before 1.9.8 a ⚙ button on the home screen), written
+  **⚙ › …** in this guide; four themes (AMBER, EMERALD, DAY, and GLOSSY with glass
   panels), optionally switching between a day and a night theme with the sun; **CEK UPDATE / CHECK UPDATE** installs new versions without a computer, and the optional automatic check
   (off by default) offers them by itself when the headunit turns on.
 
