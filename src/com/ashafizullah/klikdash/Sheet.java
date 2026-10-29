@@ -2,8 +2,14 @@ package com.ashafizullah.klikdash;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PixelFormat;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
 import android.view.View;
@@ -32,7 +38,7 @@ final class Sheet {
     private final LinearLayout content;
     private final Typeface fMono, fMonoBold, fHeavy, fBold;
     private Runnable onCancel;
-    private boolean done;
+    private boolean done, checked;
 
     Sheet(Activity a, int accent, String tag, String title, int video) {
         this.a = a;
@@ -144,6 +150,62 @@ final class Sheet {
         kl.leftMargin = px(12);
         keys.addView(k, kl);
         return this;
+    }
+
+    /** Kotak centang di kiri baris tombol (mis. JANGAN INGATKAN LAGI); dibaca lewat {@link #checked()}. */
+    Sheet check(String label) {
+        TextView v = text(label, fMonoBold, 13, SOFT);
+        v.setLetterSpacing(0.12f);
+        v.setGravity(Gravity.CENTER_VERTICAL);
+        v.setCompoundDrawablePadding(px(12));
+        Tick box = new Tick();
+        v.setCompoundDrawablesRelative(box, null, null, null);
+        v.setFocusable(true);
+        v.setOnClickListener(x -> {
+            checked = !checked;
+            box.invalidateSelf();
+            v.setTextColor(checked ? TEXT : SOFT);
+        });
+        keys.addView(v, 0, new LinearLayout.LayoutParams(0, px(52), 1f));
+        return this;
+    }
+
+    boolean checked() { return checked; }
+
+    /** Kotak 22 dp: garis tipis, atau penuh aksen dengan tanda centang. */
+    private final class Tick extends Drawable {
+        private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Path tick = new Path();
+
+        Tick() { setBounds(0, 0, px(22), px(22)); }
+
+        @Override public void draw(Canvas c) {
+            float s = px(22), r = px(4), w = dp * 1.5f;
+            if (checked) {
+                p.setStyle(Paint.Style.FILL);
+                p.setColor(AMBER);
+                c.drawRoundRect(0, 0, s, s, r, r, p);
+                tick.reset();
+                tick.moveTo(s * .24f, s * .52f);
+                tick.lineTo(s * .43f, s * .7f);
+                tick.lineTo(s * .77f, s * .32f);
+                p.setStyle(Paint.Style.STROKE);
+                p.setStrokeWidth(dp * 2.4f);
+                p.setStrokeCap(Paint.Cap.ROUND);
+                p.setStrokeJoin(Paint.Join.ROUND);
+                p.setColor(PANEL);
+                c.drawPath(tick, p);
+            } else {
+                p.setStyle(Paint.Style.STROKE);
+                p.setStrokeWidth(w);
+                p.setColor(SOFT);
+                c.drawRoundRect(w / 2, w / 2, s - w / 2, s - w / 2, r, r, p);
+            }
+        }
+
+        @Override public void setAlpha(int a) { }
+        @Override public void setColorFilter(ColorFilter f) { }
+        @Override public int getOpacity() { return PixelFormat.TRANSLUCENT; }
     }
 
     /** Ditutup dengan tombol kembali (atau Batal yang memanggilnya). */

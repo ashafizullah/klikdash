@@ -106,7 +106,7 @@ final class QuickPanel extends FrameLayout {
         // Layar terbagi: pilih dua aplikasi di laci.
         section(R.string.quick_split, key(h.getString(R.string.quick_split_pick), false, () -> {
             close();
-            h.drawer.openSplit();
+            SplitScreen.warn(h, h.drawer::openSplit);
         }));
 
         section(R.string.quick_screen, key(h.getString(R.string.quick_saver), false, () -> {

@@ -188,6 +188,29 @@ final class SplitScreen {
     // ---------------------------------------------------------------- buka
 
     /**
+     * Sebelum memilih dua aplikasi: ingatkan bahwa headunit yang lemah bisa jadi lambat. {@code go} langsung dijalankan
+     * bila sebelumnya dicentang JANGAN INGATKAN LAGI.
+     */
+    static void warn(Activity a, Runnable go) {
+        SharedPreferences p = prefs(a);
+        if (p.getBoolean("noWarn", false)) {
+            go.run();
+            return;
+        }
+        java.util.Locale l = Lang.locale();
+        Sheet s = new Sheet(a, HomeActivity.AMBER, a.getString(R.string.quick_split), a.getString(R.string.split_warn_title),
+                HelpVideo.NONE)
+                .text(a.getString(R.string.split_warn_text), 0)
+                .check(a.getString(R.string.split_warn_never));
+        s.key(a.getString(R.string.common_cancel).toUpperCase(l), false, null)
+                .key(a.getString(R.string.split_warn_go), true, () -> {
+                    if (s.checked()) p.edit().putBoolean("noWarn", true).apply();
+                    go.run();
+                })
+                .show();
+    }
+
+    /**
      * Buka {@code left} dan {@code right} berdampingan. Perintah pertama boleh memunculkan dialog izin ADB; tanpa ADB,
      * pesan yang sama dengan fitur ADB lain.
      */

@@ -105,4 +105,8 @@
     <string name="split_need_reboot">Jendela berdampingan baru aktif setelah headunit dinyalakan ulang. Nyalakan ulang sekali, lalu coba lagi.</string>
     <string name="split_hint">Ketuk pegangan di tengah untuk menutup salah satu aplikasi atau menukar sisi. Geser untuk mengubah ukuran, ke tepi untuk menutup.</string>
     <string name="split_close_all">✕  TUTUP SEMUA</string>
+    <string name="split_warn_title">Dua aplikasi sekaligus bisa bikin lambat</string>
+    <string name="split_warn_text">Menjalankan dua aplikasi bersamaan butuh RAM dan prosesor lebih. Di sebagian headunit, terutama yang RAM-nya kecil, layar bisa tersendat atau salah satu aplikasi tertutup sendiri. Hasilnya tergantung spesifikasi headunit masing-masing. Lanjutkan?</string>
+    <string name="split_warn_go">LANJUTKAN</string>
+    <string name="split_warn_never">JANGAN INGATKAN LAGI</string>
 </resources>

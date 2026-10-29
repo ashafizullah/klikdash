@@ -104,4 +104,8 @@
     <string name="split_need_reboot">Side-by-side windows work after the headunit restarts. Restart it once, then try again.</string>
     <string name="split_hint">Tap the handle in the middle to close one app or swap sides. Drag it to resize, or to the edge to close.</string>
     <string name="split_close_all">✕  CLOSE ALL</string>
+    <string name="split_warn_title">Two apps at once can slow things down</string>
+    <string name="split_warn_text">Running two apps together needs more memory and processing power. On some headunits, especially those with little RAM, the screen may stutter or one of the apps may close by itself. How well it works depends on each headunit\'s specs. Continue?</string>
+    <string name="split_warn_go">CONTINUE</string>
+    <string name="split_warn_never">DON\'T REMIND ME AGAIN</string>
 </resources>
