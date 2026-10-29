@@ -78,7 +78,10 @@ final class HomeSwitch {
      */
     static int failure(Context c, int adbResult) {
         if (adbResult == Tweaks.NOT_ALLOWED) return R.string.home_adb_denied;
-        if (adbResult == Tweaks.NO_ADB) return Tweaks.debuggingOn(c) ? R.string.home_need_adb_port : R.string.home_need_adb;
+        if (adbResult == Tweaks.NO_ADB) {
+            if (!Tweaks.debuggingOn(c)) return R.string.home_need_adb;
+            return AdbWifiService.supported() ? R.string.home_need_adb_port : R.string.home_need_adb_port_laptop;
+        }
         return R.string.home_setprop_failed;
     }
 

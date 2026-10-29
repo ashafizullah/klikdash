@@ -75,6 +75,18 @@ Wireless debugging. If the pairing dialog isn't found, type the port and the cod
 `37215 482913`, the port is shown below the code). For **Power Saver**, tap the *ADB not open yet* message on that
 tab: port 5555 is opened too, until the headunit restarts.
 
+**Android 10 and older, with a Windows laptop** (▶️ **[video tutorial](https://youtu.be/fZOYDMW89rU)**, in Indonesian,
+3 minutes): no commands to type.
+
+1. On the laptop, download **[klikapps.pages.dev/adb](https://klikapps.pages.dev/adb)** (`buka-adb-klikdash.bat`). If
+   the browser warns you, choose **Keep**.
+2. Double-click the file. If *Windows protected your PC* appears, click **More info**, then **Run anyway**.
+3. Connect the headunit to the laptop with a USB cable, then allow **Allow USB debugging?** on the headunit.
+4. When it says **BERHASIL** (done), unplug the cable.
+
+The file downloads Google's official ADB once, then opens port 5555 and (where the firmware allows it) keeps it open
+after the headunit restarts. The manual way:
+
 Headunits without a Wireless debugging menu (or Android 10 and older) need a computer with
 [Android platform-tools](https://developer.android.com/tools/releases/platform-tools):
 

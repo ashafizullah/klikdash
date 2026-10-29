@@ -71,6 +71,18 @@ Wireless debugging. Bila dialog pairing tidak ditemukan, ketik port dan kodenya 
 `37215 482913`, port tertulis di bawah kode). Untuk **Hemat Daya**, ketuk pesan *ADB belum terbuka* di tab itu:
 port 5555 ikut dibuka sampai headunit dinyalakan ulang.
 
+**Android 10 ke bawah, dengan laptop Windows** (▶️ **[video tutorialnya](https://youtu.be/fZOYDMW89rU)**, 3 menit):
+tanpa mengetik perintah.
+
+1. Di laptop, unduh **[klikapps.pages.dev/adb](https://klikapps.pages.dev/adb)** (`buka-adb-klikdash.bat`). Kalau
+   browser memperingatkan, pilih **Keep**.
+2. Klik dua kali file-nya. Muncul *Windows protected your PC*? Klik **More info**, lalu **Run anyway**.
+3. Sambungkan headunit ke laptop dengan kabel USB, lalu izinkan **Allow USB debugging?** di headunit.
+4. Setelah tertulis **BERHASIL**, cabut kabelnya.
+
+File itu mengunduh ADB resmi Google sekali, lalu membuka port 5555 dan (bila firmware mengizinkan) membuatnya tetap
+terbuka setelah headunit dinyalakan ulang. Cara manualnya:
+
 Headunit tanpa menu Wireless debugging (atau Android 10 ke bawah) perlu komputer yang terpasang
 [Android platform-tools](https://developer.android.com/tools/releases/platform-tools):
 

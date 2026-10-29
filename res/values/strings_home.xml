@@ -52,6 +52,7 @@
     <string name="home_default_ok">KlikDash sekarang tampilan utama</string>
     <string name="home_need_adb">Belum berhasil: ADB headunit tidak bisa dihubungi. Aktifkan USB debugging di Opsi pengembang, lalu coba lagi.</string>
     <string name="home_need_adb_port">Belum berhasil: USB debugging sudah aktif, tapi headunit ini belum membuka ADB untuk aplikasi (port 5555, umum di Android 11 ke atas). Buka sekali dari komputer dengan adb tcpip 5555 (langkahnya di panduan pemasangan), lalu coba lagi.</string>
+    <string name="home_need_adb_port_laptop">Belum berhasil: USB debugging sudah aktif, tapi port ADB 5555 tertutup. Di Android 10 ke bawah, buka sekali dari laptop Windows: unduh klikapps.pages.dev/adb, klik dua kali file-nya, sambungkan kabel USB, lalu izinkan di headunit.</string>
     <string name="home_adb_allow">Muncul pertanyaan \"Allow USB debugging?\": centang \"Always allow\", lalu ketuk OK.</string>
     <string name="home_adb_denied">Belum diizinkan. Ketuk tombolnya lagi, centang \"Always allow\" pada pertanyaan \"Allow USB debugging?\", lalu ketuk OK.</string>
     <string name="home_setprop_failed">Belum berhasil: headunit ini menolak mengganti tampilan utama lewat ADB.</string>
