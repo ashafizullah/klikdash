@@ -73,7 +73,7 @@
     <string name="settings_tiles_desc">Shortcuts on the home screen, including ALL. Fewer shortcuts make the clock, prayer times, shortcuts, icons and labels bigger. Hidden shortcuts are kept and come back when you raise the number.</string>
 
     <string name="settings_saver_title">SCREENSAVER</string>
-    <string name="settings_saver_desc">The clock and date, shown when the home screen has not been touched for 30 seconds or the chosen minutes. Never covers other apps such as Maps and never appears while driving. Tap the screen to go back.</string>
+    <string name="settings_saver_desc">The clock and date, shown when the home screen has not been touched for 30 seconds or the chosen minutes. Only on the home screen: it never covers other apps such as Maps or CarPlay. Tap the screen to go back.</string>
     <string name="settings_saver_sec">%1$d SEC</string>
     <string name="settings_saver_sec_long">%1$d SEC</string>
     <string name="settings_saver_min_long">%1$d MIN</string>

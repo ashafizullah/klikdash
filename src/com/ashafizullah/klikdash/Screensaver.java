@@ -25,7 +25,7 @@ import java.util.Calendar;
 /**
  * Screensaver home: jam besar dan tanggal di atas latar hitam atau foto pilihan pengguna, setelah home tidak disentuh
  * selama saverSec detik (Pengaturan › Launcher; 0 = mati). Hanya di home KlikDash, jadi tidak pernah menutupi aplikasi
- * lain seperti Maps, dan ditahan selama mobil bergerak (lihat HomeActivity.poke). Ketuk sekali untuk kembali; ketukan
+ * lain seperti Maps atau CarPlay; juga muncul saat mobil berjalan (lihat HomeActivity.poke). Ketuk sekali untuk kembali; ketukan
  * itu tidak diteruskan ke ubin. Foto disalin dan diperkecil ke penyimpanan DE (saver.jpg): izin baca URI dari pemilih
  * foto bisa hilang setelah reboot, dan home harus bisa membacanya saat direct boot.
  */

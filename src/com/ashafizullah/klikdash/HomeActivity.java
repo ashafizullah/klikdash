@@ -356,9 +356,9 @@ public class HomeActivity extends Activity {
     boolean saverShown() { return saver != null && saver.getVisibility() == View.VISIBLE; }
 
     /**
-     * Ada aktivitas (sentuhan, tombol, mobil bergerak, home tampil lagi): tutup screensaver dan mulai hitung ulang
-     * menit tanpa sentuhan. Dipanggil tiap fix GPS selama bergerak, jadi screensaver baru muncul sekian menit sesudah
-     * mobil berhenti, bukan di setiap lampu merah.
+     * Ada aktivitas (sentuhan, tombol, home tampil lagi, bangun dari tidur): tutup screensaver dan mulai hitung ulang
+     * waktu tanpa sentuhan (Pengaturan › Screensaver). Mobil berjalan tidak menahannya: screensaver hanya ada di home,
+     * jadi Maps, CarPlay, dan aplikasi lain di depan tidak pernah tertutup.
      */
     void poke() {
         if (home == null) return;
@@ -382,10 +382,8 @@ public class HomeActivity extends Activity {
     final Runnable idle = new Runnable() {
         @Override public void run() {
             if (!resumed || Screensaver.seconds(prefs) == 0) return;
-            // Ada yang tampil di atas home, atau fix GPS terakhir masih bergerak (GPS hilang di terowongan): coba lagi
-            // nanti, jangan menutupinya.
-            boolean moving = HomeLocation.lastKmh > 0 && SystemClock.elapsedRealtime() - HomeLocation.lastKmhAt < 10_000;
-            if (overlaid() || moving) {
+            // Ada yang tampil di atas home (dialog, laci, sambutan): coba lagi nanti, jangan menutupinya.
+            if (overlaid()) {
                 home.postDelayed(this, 30_000);
                 return;
             }

@@ -218,7 +218,6 @@ final class HomeLocation {
             lastKmh = kmh;
             lastKmhAt = speedAt;
             show(h.speed, String.valueOf(kmh), kmh > 100 ? WARN : DIM); // di atas batas tol
-            if (kmh > 0) h.poke(); // bergerak: tanpa screensaver, hitung ulang menit diam
         }
         @Override public void onStatusChanged(String p, int s, Bundle b) { }
         @Override public void onProviderEnabled(String p) { }
