@@ -86,4 +86,12 @@
     <string name="prayer_alert_title">Prayer time</string>
     <string name="prayer_alert_message">Time for %1$s · %2$s</string>
     <string name="prayer_alert_notification">%1$s time</string>
+    <string name="quick_title">QUICK PANEL</string>
+    <string name="quick_volume">VOLUME</string>
+    <string name="quick_mute">MUTE</string>
+    <string name="quick_brightness">BRIGHTNESS</string>
+    <string name="quick_screen">SCREEN</string>
+    <string name="quick_saver">SCREENSAVER NOW</string>
+    <string name="quick_brightness_allow">Allow KlikDash to modify system settings, then come back to change the brightness.</string>
+    <string name="quick_settings">SETTINGS</string>
 </resources>

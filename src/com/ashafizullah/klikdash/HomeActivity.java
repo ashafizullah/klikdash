@@ -186,7 +186,9 @@ public class HomeActivity extends Activity {
         root.addView(home, MATCH, MATCH);
         notch = new MediaNotch(this, fBold, fMonoBold);
         root.addView(notch, MediaNotch.params(dp)); // di bawah laci aplikasi, yang menutupinya saat dibuka
+        quick = new QuickPanel(this);
         root.addView(drawerView, MATCH, MATCH);
+        root.addView(quick, MATCH, MATCH);
         saver = new Screensaver.Face(this, fHeavy, fMono);
         saver.setVisibility(View.GONE);
         // Paling atas, menutupi laci dan notch juga. Di luar root (yang memberi jarak untuk bilah sistem), supaya saat
@@ -329,7 +331,8 @@ public class HomeActivity extends Activity {
     // ---------------------------------------------------------------- kunci layar (ScreenLock)
 
     ScreenLock.Icon lockIcon;
-    TextView gear;
+    /** Menu ☰ di kiri atas panel jam: membuka panel cepat (⚙ Pengaturan kini di dalamnya). */
+    View gear;
     boolean locked;
     /** Gestur yang dimulai di luar gembok saat terkunci: seluruhnya diabaikan sampai jari diangkat. */
     boolean swallow;
@@ -410,7 +413,8 @@ public class HomeActivity extends Activity {
 
     /** Dialog (PIN, pembaruan), laci aplikasi, atau sambutan sedang tampil di atas home. */
     boolean overlaid() {
-        return !hasWindowFocus() || drawer.isOpen() || getWindow().getDecorView().findViewWithTag(Welcome.class) != null;
+        return !hasWindowFocus() || drawer.isOpen() || quick.isOpen()
+                || getWindow().getDecorView().findViewWithTag(Welcome.class) != null;
     }
 
     final Runnable idle = new Runnable() {
@@ -433,6 +437,7 @@ public class HomeActivity extends Activity {
             poke();
         }
         if (saverSwallow) return true;
+        if (!locked && edgeSwipe(e)) return true;
         if (!locked) return super.dispatchTouchEvent(e);
         if (e.getActionMasked() == MotionEvent.ACTION_DOWN) {
             int[] at = new int[2];
@@ -448,6 +453,38 @@ public class HomeActivity extends Activity {
         }
         if (swallow) return true;
         return super.dispatchTouchEvent(e);
+    }
+
+    /**
+     * Geser dari tepi kiri (QuickPanel.EDGE_DP) ke kanan membuka panel cepat, seperti launcher bawaan sebagian headunit.
+     * Sentuhan yang sudah diteruskan ke ubin di bawahnya dibatalkan. true: kejadian ini milik gestur.
+     */
+    boolean edgeSwipe(MotionEvent e) {
+        switch (e.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                edgeTracking = quick != null && !quick.isOpen() && !drawer.isOpen() && e.getX() < px(QuickPanel.EDGE_DP);
+                edgeX = e.getX();
+                edgeY = e.getY();
+                return false;
+            case MotionEvent.ACTION_MOVE:
+                if (!edgeTracking) return false;
+                float dx = e.getX() - edgeX, dy = Math.abs(e.getY() - edgeY);
+                if (dx > px(QuickPanel.SWIPE_DP) && dx > dy) {
+                    edgeTracking = false;
+                    MotionEvent cancel = MotionEvent.obtain(e);
+                    cancel.setAction(MotionEvent.ACTION_CANCEL);
+                    super.dispatchTouchEvent(cancel);
+                    cancel.recycle();
+                    quick.open();
+                    return true;
+                }
+                return false;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                edgeTracking = false;
+                return false;
+        }
+        return false;
     }
 
     /** Tombol arah/OK (remote, keyboard) juga diabaikan saat terkunci; tombol media tetap jalan. */
@@ -504,6 +541,12 @@ public class HomeActivity extends Activity {
     /** Di antara onResume dan onPause. */
     boolean resumed;
 
+    /** Panel cepat tepi kiri (volume, kecerahan, ...). */
+    QuickPanel quick;
+    /** Sentuhan dimulai di tepi kiri home: digeser ke kanan membuka panel cepat. */
+    boolean edgeTracking;
+    float edgeX, edgeY;
+
     /**
      * KlikBeam mulai tampil (mis. melayang di atas home): screensaver ditutup. Selesai: waktu tanpa sentuhan dihitung
      * ulang dari awal, bukan langsung muncul.
@@ -523,6 +566,7 @@ public class HomeActivity extends Activity {
             return;
         }
         resumed = false;
+        quick.close();
         home.removeCallbacks(idle);
         hideSaver(); // kembali ke home berarti home, bukan screensaver
         loc.stopSpeed();
@@ -583,7 +627,9 @@ public class HomeActivity extends Activity {
     }
 
     @Override public void onBackPressed() {
-        if (!safe && drawer.isOpen()) drawer.close();
+        if (safe) return;
+        if (quick.isOpen()) quick.close();
+        else if (drawer.isOpen()) drawer.close();
     }
 
     /** RAM sistem menipis saat home di latar: lepas ikon laci (lihat HomeApps.trim). */
@@ -796,19 +842,19 @@ public class HomeActivity extends Activity {
         top.setOrientation(LinearLayout.HORIZONTAL);
         // Model dari sistem (mis. "K2401/K2401P/k2401M" → K2401), bukan ditulis mati.
         String model = android.os.Build.MODEL.split("[/ ]")[0].toUpperCase(Locale.US);
+        // Menu ☰ di kiri: panel cepat (volume, kecerahan, Pengaturan KlikDash), yang juga keluar dari kiri dan bisa
+        // digeser dari tepi kiri. Garisnya rata dengan tepi kiri jam; kotak sentuh 48dp walau ikonnya kecil.
+        gear = new QuickPanel.Icon(this);
+        gear.setContentDescription(getString(R.string.quick_title));
+        gear.setOnClickListener(v -> quick.open());
+        top.addView(gear, new LinearLayout.LayoutParams(px(40), px(48)));
         TextView tag = text("KLIKDASH  ·  " + model, fMono, 12, DIM);
         tag.setLetterSpacing(0.25f);
         top.addView(tag, new LinearLayout.LayoutParams(0, WRAP, 1f));
-        // Pengaturan KlikDash (tampilan, Hemat Daya, asisten AI). Kotak sentuh 48dp walau ikonnya kecil.
         // Kunci layar (PIN di Pengaturan): gembok muncul hanya bila PIN sudah diatur, lihat refreshLock.
         lockIcon = new ScreenLock.Icon(this);
         lockIcon.setOnClickListener(v -> toggleLock());
         top.addView(lockIcon, new LinearLayout.LayoutParams(px(48), px(48)));
-        gear = text("⚙", fMonoBold, 18, DIM);
-        gear.setGravity(Gravity.CENTER);
-        gear.setContentDescription(getString(R.string.app_settings));
-        gear.setOnClickListener(v -> openSettings());
-        top.addView(gear, new LinearLayout.LayoutParams(px(48), px(48)));
         top.setGravity(Gravity.CENTER_VERTICAL);
         left.addView(top);
 

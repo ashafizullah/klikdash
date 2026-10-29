@@ -87,4 +87,12 @@
     <string name="prayer_alert_title">Waktu sholat</string>
     <string name="prayer_alert_message">Masuk waktu %1$s · %2$s</string>
     <string name="prayer_alert_notification">Waktu %1$s</string>
+    <string name="quick_title">PANEL CEPAT</string>
+    <string name="quick_volume">VOLUME</string>
+    <string name="quick_mute">MUTE</string>
+    <string name="quick_brightness">KECERAHAN</string>
+    <string name="quick_screen">LAYAR</string>
+    <string name="quick_saver">SCREENSAVER SEKARANG</string>
+    <string name="quick_brightness_allow">Izinkan KlikDash mengubah setelan sistem, lalu kembali untuk mengatur kecerahan.</string>
+    <string name="quick_settings">PENGATURAN</string>
 </resources>
