@@ -104,4 +104,5 @@
     <string name="split_unsupported">Headunit ini tidak mengizinkan dua aplikasi dalam satu layar.</string>
     <string name="split_need_reboot">Jendela berdampingan baru aktif setelah headunit dinyalakan ulang. Nyalakan ulang sekali, lalu coba lagi.</string>
     <string name="split_hint">Ketuk pegangan di tengah untuk menutup salah satu aplikasi atau menukar sisi. Geser untuk mengubah ukuran, ke tepi untuk menutup.</string>
+    <string name="split_close_all">✕  TUTUP SEMUA</string>
 </resources>

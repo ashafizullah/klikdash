@@ -40,7 +40,7 @@ final class SplitBar {
     private final float dp;
     private final Strip strip;
     private final WindowManager.LayoutParams lp, menuLp;
-    private final LinearLayout menu;
+    private final LinearLayout menu, row;
     private final Key closeFirst, swap, closeSecond;
     private final Map<String, String> labels = new HashMap<>();
     private final Runnable hideMenu = this::hideMenu;
@@ -59,8 +59,13 @@ final class SplitBar {
         strip.setOnTouchListener(new Drag());
 
         Typeface mono = Compat.font(c.getAssets(), "mono.ttf", "'wdth' 100, 'wght' 700", Typeface.MONOSPACE);
+        // Baris atas: ✕ kiri, ⇄, ✕ kanan (urutannya sama dengan sisi layar); di bawahnya TUTUP SEMUA.
         menu = new LinearLayout(c);
-        menu.setGravity(Gravity.CENTER_VERTICAL);
+        menu.setOrientation(LinearLayout.VERTICAL);
+        menu.setGravity(Gravity.CENTER_HORIZONTAL);
+        row = new LinearLayout(c);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        menu.addView(row, new LinearLayout.LayoutParams(WRAP, WRAP));
         GradientDrawable bg = new GradientDrawable();
         bg.setColor(PANEL);
         bg.setStroke(Math.round(dp), LINE);
@@ -71,6 +76,11 @@ final class SplitBar {
         closeFirst = key(mono, "", () -> SplitScreen.close(false));
         swap = key(mono, c.getString(R.string.split_swap), SplitScreen::swap);
         closeSecond = key(mono, "", () -> SplitScreen.close(true));
+        Key all = key(mono, c.getString(R.string.split_close_all), SplitScreen::closeAll);
+        row.removeView(all);
+        LinearLayout.LayoutParams al = new LinearLayout.LayoutParams(WRAP, px(48));
+        al.topMargin = px(8);
+        menu.addView(all, al);
         menuLp = params(WRAP, WRAP);
         menuLp.flags |= WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH;
         menu.setOnTouchListener((v, e) -> {
@@ -98,7 +108,7 @@ final class SplitBar {
         });
         LinearLayout.LayoutParams l = new LinearLayout.LayoutParams(WRAP, px(48));
         l.setMargins(px(4), 0, px(4), 0);
-        menu.addView(k, l);
+        row.addView(k, l);
         return k;
     }
 
@@ -118,11 +128,12 @@ final class SplitBar {
             lp.width = all.width();
             lp.height = t;
             lp.x = all.left;
-            lp.y = (p.a.bottom + p.b.top) / 2 - t / 2;
+            lp.y = p.a.bottom + Math.max(0, p.b.top - p.a.bottom) / 2 - t / 2;
         } else {
             lp.width = t;
             lp.height = all.height();
-            lp.x = (p.a.right + p.b.left) / 2 - t / 2;
+            // Dari tepi sisi pertama: sesaat setelah dibuka, sisi kedua bisa masih selebar layar.
+            lp.x = p.a.right + Math.max(0, p.b.left - p.a.right) / 2 - t / 2;
             lp.y = all.top;
         }
         strip.invalidate();

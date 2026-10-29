@@ -103,4 +103,5 @@
     <string name="split_unsupported">This headunit does not allow two apps on one screen.</string>
     <string name="split_need_reboot">Side-by-side windows work after the headunit restarts. Restart it once, then try again.</string>
     <string name="split_hint">Tap the handle in the middle to close one app or swap sides. Drag it to resize, or to the edge to close.</string>
+    <string name="split_close_all">✕  CLOSE ALL</string>
 </resources>

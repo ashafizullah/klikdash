@@ -216,7 +216,7 @@ final class SplitScreen {
                 }
                 active = true;
                 hintOnce();
-                pollSoon();
+                settle(); // pembatas langsung tampil
             });
         });
     }
@@ -240,6 +240,8 @@ final class SplitScreen {
         List<Stack> s = list();
         Task tl = find(s, l.getPackageName());
         sh(tl != null ? "am stack movetask " + tl.id + " " + DOCKED_N + " true" : "am start --stack " + DOCKED_N + " " + intent(l));
+        // Android 7 membuka layar Terbaru di sisi kanan sesaat setelah split dimulai; aplikasi kanan dibuka sesudahnya
+        // supaya tidak tertutup olehnya.
         pause(600);
         s = list();
         if (docked(s) == null) return R.string.split_unsupported;
@@ -250,21 +252,23 @@ final class SplitScreen {
         return 0;
     }
 
+    /**
+     * Perintah {@code am} selesai setelah keadaan task berubah, jadi tiap langkah langsung disusul langkah berikutnya
+     * tanpa jeda; daftar stack dibaca dalam koneksi ADB yang sama ({@link #then}).
+     */
     private static int openDockP(ComponentName l, ComponentName r) throws IOException {
         List<Stack> s = list();
         Stack p = docked(s);
         Task tl = find(s, l.getPackageName());
         if (tl == null) {
-            sh("am start --windowingMode 3 " + intent(l));
+            s = then("am start --windowingMode 3 " + intent(l));
         } else if (p == null) {
             p = anchor(3);
             if (p == null) return R.string.split_unsupported;
-            sh("am stack move-task " + tl.id + " " + p.id + " true");
+            s = then("am stack move-task " + tl.id + " " + p.id + " true");
         } else if (p.top() != tl) {
-            sh("am stack move-task " + tl.id + " " + p.id + " true");
+            s = then("am stack move-task " + tl.id + " " + p.id + " true");
         }
-        pause(500);
-        s = list();
         p = docked(s);
         if (p == null) return R.string.split_unsupported;
         Task tr = find(s, r.getPackageName());
@@ -286,29 +290,31 @@ final class SplitScreen {
      */
     private static Stack anchor(int windowingMode) throws IOException {
         String cn = app.getPackageName() + "/" + SplitAnchor.class.getName();
-        sh("am start --windowingMode " + windowingMode + " -n " + cn);
-        for (int i = 0; i < 15; i++) {
-            pause(200);
-            for (Stack s : list()) for (Task t : s.tasks) if (t.cn.equals(cn) || t.cn.endsWith("/.SplitAnchor")) return s;
+        List<Stack> s = then("am start --windowingMode " + windowingMode + " -n " + cn);
+        for (int i = 0; i < 20; i++) {
+            for (Stack st : s) for (Task t : st.tasks) if (t.cn.equals(cn)) return st;
+            pause(100);
+            s = list();
         }
         return null;
     }
 
+    /** Freeform: tiap jendela langsung diberi ukurannya begitu dibuka, supaya tidak tampil dulu di ukuran bawaan. */
     private static int openFreeform(ComponentName l, ComponentName r) throws IOException {
-        sh("am start --windowingMode 5 " + intent(l));
-        pause(400);
-        sh("am start --windowingMode 5 " + intent(r));
-        pause(800);
-        List<Stack> s = list();
-        Task tl = find(s, l.getPackageName()), tr = find(s, r.getPackageName());
-        if (tl == null || tr == null) return R.string.split_unsupported;
-        if (!tl.stack.mode.equals("freeform") || !tr.stack.mode.equals("freeform")) return R.string.split_need_reboot;
+        float ratio = prefs(app).getFloat("ratio", .5f);
+        boolean side = area.width() >= area.height();
+        Task tl = find(then("am start --windowingMode 5 " + intent(l)), l.getPackageName());
+        if (tl == null) return R.string.split_unsupported;
+        if (!tl.stack.mode.equals("freeform")) return R.string.split_need_reboot;
+        sh("am task resize " + tl.id + " " + bounds(ratio, side, true));
+        Task tr = find(then("am start --windowingMode 5 " + intent(r)), r.getPackageName());
+        if (tr == null) return R.string.split_unsupported;
+        if (!tr.stack.mode.equals("freeform")) return R.string.split_need_reboot;
+        sh("am task resize " + tr.id + " " + bounds(ratio, side, false));
         firstTask = tl.id;
         secondTask = tr.id;
         firstCn = l.flattenToString();
         secondCn = r.flattenToString();
-        float ratio = prefs(app).getFloat("ratio", .5f);
-        resizeFreeform(ratio, area.width() >= area.height());
         return 0;
     }
 
@@ -358,16 +364,22 @@ final class SplitScreen {
                     sh("am stack resize-docked-stack " + b + " " + b);
                 }
             } catch (IOException ignored) { }
-            pollNow();
+            settle();
         });
     }
 
     private static void resizeFreeform(float r, boolean sideBySide) throws IOException {
-        Rect a = new Rect(area), b = new Rect(area);
-        if (sideBySide) a.right = b.left = area.left + Math.round(area.width() * r);
-        else a.bottom = b.top = area.top + Math.round(area.height() * r);
-        sh("am task resize " + firstTask + " " + a.left + " " + a.top + " " + a.right + " " + a.bottom
-                + "; am task resize " + secondTask + " " + b.left + " " + b.top + " " + b.right + " " + b.bottom);
+        sh("am task resize " + firstTask + " " + bounds(r, sideBySide, true) + "; am task resize " + secondTask + " "
+                + bounds(r, sideBySide, false));
+    }
+
+    /** Batas jendela freeform sisi pertama atau kedua, "kiri atas kanan bawah". */
+    private static String bounds(float r, boolean sideBySide, boolean first) {
+        Rect b = new Rect(area);
+        int cut = sideBySide ? area.left + Math.round(area.width() * r) : area.top + Math.round(area.height() * r);
+        if (sideBySide) { if (first) b.right = cut; else b.left = cut; }
+        else { if (first) b.bottom = cut; else b.top = cut; }
+        return b.left + " " + b.top + " " + b.right + " " + b.bottom;
     }
 
     /** Tombol ✕: tutup sisi pertama ({@code keepFirst} false) atau kedua. */
@@ -405,6 +417,28 @@ final class SplitScreen {
         } catch (IOException ignored) { }
     }
 
+    /**
+     * Tombol TUTUP SEMUA: akhiri layar terbagi dan kembali ke home. Split bawaan: seperti menutup sisi kiri (keduanya
+     * tetap berjalan di belakang, seperti tombol Home); freeform: kedua task dihapus.
+     */
+    static void closeAll() {
+        if (!active) return;
+        worker.post(() -> {
+            Pair p = read();
+            if (p == null) return;
+            try {
+                if (MODE == FREEFORM) {
+                    active = false;
+                    main.post(() -> { if (bar != null) bar.hide(); });
+                    sh("am stack remove " + p.first.stack.id + "; am stack remove " + p.second.stack.id);
+                } else {
+                    close(p, false);
+                }
+                sh("am start -a android.intent.action.MAIN -c android.intent.category.HOME"); // input keyevent memulai VM, lambat
+            } catch (IOException ignored) { }
+        });
+    }
+
     /** Tombol ⇄: tukar sisi. */
     static void swap() {
         if (!active) return;
@@ -429,7 +463,7 @@ final class SplitScreen {
                             + p.first.id + " " + a.id + " true");
                 }
             } catch (IOException ignored) { }
-            pollNow();
+            settle();
         });
     }
 
@@ -437,9 +471,20 @@ final class SplitScreen {
 
     private static final Runnable poll = SplitScreen::pollNow;
 
+    /**
+     * Setelah membuka, menukar, atau mengubah ukuran: pembatas langsung tampil, lalu dibaca lagi sebentar kemudian karena
+     * Android masih menyelesaikan ukuran sisi kedua.
+     */
+    private static void settle() {
+        pollNow();
+        if (!active) return;
+        worker.removeCallbacks(poll);
+        worker.postDelayed(poll, 500);
+    }
+
     private static void pollSoon() {
         worker.removeCallbacks(poll);
-        worker.postDelayed(poll, 400);
+        worker.postDelayed(poll, 150);
     }
 
     /** Di thread split: baca keadaan, tampilkan atau sembunyikan pembatas, jadwalkan pembacaan berikutnya. */
@@ -522,6 +567,9 @@ final class SplitScreen {
     // ---------------------------------------------------------------- pembantu
 
     private static List<Stack> list() throws IOException { return parse(sh("am stack list")); }
+
+    /** Jalankan {@code cmd} lalu baca daftar stack, dalam satu koneksi ADB. */
+    private static List<Stack> then(String cmd) throws IOException { return parse(sh(cmd + "; am stack list")); }
 
     private static String sh(String cmd) throws IOException { return Tweaks.exec(cmd); }
 
