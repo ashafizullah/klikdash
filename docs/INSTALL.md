@@ -159,7 +159,17 @@ working.**
 - **All apps:** tap the **SEMUA** tile. Tap **CARI APLIKASI** ("search apps") and type part of a name to filter;
   when one app is left, the keyboard's search key opens it. Long-press an app there to open its info (for example to
   uninstall).
-- **Bigger tiles:** tap **⚙**, then under **JUMLAH PINTASAN** (number of shortcuts) pick 9, 6 or 4 (default 12,
+- **Quick panel:** tap **☰** at the top left of the home screen, or swipe in from the left edge: media volume (with
+  **MUTE**), screen brightness, **LAYAR TERBAGI** (split screen), **SCREENSAVER SEKARANG** (screensaver now) and
+  **⚙ PENGATURAN** (Settings). In this guide **⚙ › …** means Settings opened from here; before 1.9.8 it was the ⚙
+  button on the home screen.
+- **Two apps on one screen:** **☰ › LAYAR TERBAGI › PILIH 2 APLIKASI**, pick the left app, then the right one (for
+  example YouTube and Maps). Drag the handle in the middle to resize, or to the edge to close that side. Tap the
+  handle for **✕** on each app (the other one goes full screen), **⇄ TUKAR** (swap sides) and **✕ TUTUP SEMUA**
+  (close both and go home). Needs USB debugging, like Power saver. Android 12 and newer use side-by-side windows,
+  which some headunits allow only after one restart; an app that is not made to be resized may close when the
+  divider is moved.
+- **Bigger tiles:** open **⚙**, then under **JUMLAH PINTASAN** (number of shortcuts) pick 9, 6 or 4 (default 12,
   including SEMUA). Fewer tiles means a bigger clock, speed, date and prayer
   times on the left, and bigger tiles, icons and text. Hidden shortcuts are kept and come back when you
   raise the number again.
@@ -170,7 +180,7 @@ working.**
 Headunit running hot or slow? Some apps, such as Netflix or Spotify, can keep running in the background even
 when you are not using them. To stop that:
 
-1. Tap the **⚙** button at the top of the home screen (next to the CPU temperature), then the **HEMAT DAYA** tab.
+1. Open **⚙** (☰ at the top left of the home screen, then **⚙ PENGATURAN**), then the **HEMAT DAYA** tab.
 2. Tap **BATASI** ("restrict") on any app that does not need to run in the background. It changes to
    **DIBATASI** ("restricted"). Apps that are *SEDANG BERJALAN DI LATAR* (running in the background now) are
    listed first.
