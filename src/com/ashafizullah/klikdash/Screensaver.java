@@ -22,19 +22,33 @@ import java.util.Calendar;
 
 /**
  * Screensaver home: jam besar dan tanggal di atas latar hitam atau foto pilihan pengguna, setelah home tidak disentuh
- * selama saverMin menit (Pengaturan › Launcher; 0 = mati). Hanya di home KlikDash, jadi tidak pernah menutupi aplikasi
+ * selama saverSec detik (Pengaturan › Launcher; 0 = mati). Hanya di home KlikDash, jadi tidak pernah menutupi aplikasi
  * lain seperti Maps, dan ditahan selama mobil bergerak (lihat HomeActivity.poke). Ketuk sekali untuk kembali; ketukan
  * itu tidak diteruskan ke ubin. Foto disalin dan diperkecil ke penyimpanan DE (saver.jpg): izin baca URI dari pemilih
  * foto bisa hilang setelah reboot, dan home harus bisa membacanya saat direct boot.
  */
 final class Screensaver {
-    /** Pilihan di Pengaturan, dalam menit; 0 = mati. */
-    static final int[] MINUTES = {0, 1, 3, 5, 10};
+    /** Pilihan di Pengaturan, dalam detik; 0 = mati. */
+    static final int[] SECONDS = {0, 30, 60, 180, 300, 600};
     static final int BG_BLACK = 0, BG_PHOTO = 1;
 
     private Screensaver() { }
 
-    static int minutes(SharedPreferences p) { return p.getInt("saverMin", 0); }
+    /** Detik tanpa sentuhan sebelum screensaver muncul; 0 = mati. Versi 1.9.4 ke bawah menyimpan menit (saverMin). */
+    static int seconds(SharedPreferences p) {
+        return p.contains("saverSec") ? p.getInt("saverSec", 0) : p.getInt("saverMin", 0) * 60;
+    }
+
+    static void setSeconds(SharedPreferences p, int s) { p.edit().putInt("saverSec", s).remove("saverMin").apply(); }
+
+    /**
+     * Tombol pilihan: "30 DTK", menit cukup angkanya ("3", seperti sebelum ada pilihan detik, supaya baris tombolnya
+     * tidak mendesak penjelasan); {@code full}: "30 DETIK", "3 MENIT" (ringkasan grup).
+     */
+    static String label(Context c, int s, boolean full) {
+        if (s < 60) return c.getString(full ? R.string.settings_saver_sec_long : R.string.settings_saver_sec, s);
+        return full ? c.getString(R.string.settings_saver_min_long, s / 60) : String.valueOf(s / 60);
+    }
 
     /** Latar foto dipilih dan filenya ada. */
     static boolean photo(Context c, SharedPreferences p) {

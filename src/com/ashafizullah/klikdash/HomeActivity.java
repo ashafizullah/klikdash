@@ -359,8 +359,8 @@ public class HomeActivity extends Activity {
         if (home == null) return;
         home.removeCallbacks(idle);
         hideSaver();
-        int m = Screensaver.minutes(prefs);
-        if (m > 0 && resumed) home.postDelayed(idle, m * 60_000L);
+        int s = Screensaver.seconds(prefs);
+        if (s > 0 && resumed) home.postDelayed(idle, s * 1000L);
     }
 
     void hideSaver() {
@@ -376,7 +376,7 @@ public class HomeActivity extends Activity {
 
     final Runnable idle = new Runnable() {
         @Override public void run() {
-            if (!resumed || Screensaver.minutes(prefs) == 0) return;
+            if (!resumed || Screensaver.seconds(prefs) == 0) return;
             // Ada yang tampil di atas home, atau fix GPS terakhir masih bergerak (GPS hilang di terowongan): coba lagi
             // nanti, jangan menutupinya.
             boolean moving = HomeLocation.lastKmh > 0 && SystemClock.elapsedRealtime() - HomeLocation.lastKmhAt < 10_000;

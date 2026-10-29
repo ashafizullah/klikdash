@@ -338,16 +338,16 @@ public class SettingsActivity extends Activity {
                 getString(R.string.settings_group_alert, getString(pa ? R.string.settings_on : R.string.settings_off))), prayer));
 
         List<View> saverRows = new ArrayList<>();
-        int sm = Screensaver.minutes(prefs);
-        // Pilihan menit lalu COBA: tombol uji ada di baris yang pertama dicari pengguna.
-        Key[] mins = new Key[Screensaver.MINUTES.length + 1];
-        for (int i = 0; i < Screensaver.MINUTES.length; i++) {
-            final int m = Screensaver.MINUTES[i];
-            mins[i] = key(m == 0 ? getString(R.string.settings_off) : String.valueOf(m), m == sm, () -> {
-                prefs.edit().putInt("saverMin", m).apply();
+        int ss = Screensaver.seconds(prefs);
+        // Pilihan waktu lalu COBA: tombol uji ada di baris yang pertama dicari pengguna.
+        Key[] mins = new Key[Screensaver.SECONDS.length + 1];
+        for (int i = 0; i < Screensaver.SECONDS.length; i++) {
+            final int s = Screensaver.SECONDS[i];
+            mins[i] = key(s == 0 ? getString(R.string.settings_off) : Screensaver.label(this, s, false), s == ss, () -> {
+                Screensaver.setSeconds(prefs, s);
                 rebuildKeepScroll();
             });
-            if (m > 0) mins[i].minWidth = px(56);
+            if (s > 0) mins[i].minWidth = px(56);
         }
         mins[mins.length - 1] = key(getString(R.string.settings_saver_preview), false, this::previewSaver);
         saverRows.add(row(getString(R.string.settings_saver_title), getString(R.string.settings_saver_desc), mins));
@@ -367,8 +367,8 @@ public class SettingsActivity extends Activity {
                 : new View[]{black, pic}));
 
 
-        list.addView(group(GROUP_SAVER, getString(R.string.settings_saver_title), sm == 0 ? getString(R.string.settings_off)
-                : getString(R.string.settings_group_saver, sm, getString(photo ? R.string.settings_saver_photo
+        list.addView(group(GROUP_SAVER, getString(R.string.settings_saver_title), ss == 0 ? getString(R.string.settings_off)
+                : getString(R.string.settings_group_saver, Screensaver.label(this, ss, true), getString(photo ? R.string.settings_saver_photo
                 : R.string.settings_saver_black)), saverRows));
 
         List<View> homeRows = new ArrayList<>();
