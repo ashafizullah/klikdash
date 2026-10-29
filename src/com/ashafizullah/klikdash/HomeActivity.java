@@ -189,8 +189,17 @@ public class HomeActivity extends Activity {
         root.addView(drawerView, MATCH, MATCH);
         saver = new Screensaver.Face(this, fHeavy, fMono);
         saver.setVisibility(View.GONE);
-        root.addView(saver, MATCH, MATCH); // paling atas: menutupi laci dan notch juga
-        setContentView(root);
+        // Paling atas, menutupi laci dan notch juga. Di luar root (yang memberi jarak untuk bilah sistem), supaya saat
+        // bilah status dan navigasi disembunyikan (showSaver) screensaver memenuhi seluruh layar.
+        FrameLayout outer = new FrameLayout(this);
+        outer.addView(root, MATCH, MATCH);
+        outer.addView(saver, MATCH, MATCH);
+        setContentView(outer);
+        // Selalu digambar di belakang bilah sistem dengan jarak stabil (root memberi jaraknya): menyembunyikan bilah
+        // untuk screensaver hanya mengubah tampil/tidaknya, tata letak home tidak dihitung ulang dan tidak bergeser.
+        View decor = getWindow().getDecorView();
+        decor.setSystemUiVisibility(decor.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         // Keyboard hanya untuk kolom cari di laci: tidak muncul sendiri, dan laci menyusut di atasnya.
         getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
                 | android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -376,6 +385,27 @@ public class HomeActivity extends Activity {
         if (!saverShown()) return;
         saver.setVisibility(View.GONE);
         saver.stop();
+        setBarsHidden(false); // bilah sistem kembali
+    }
+
+    static final int HIDE_BARS = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+
+    /** Hanya bendera tampil/sembunyi; bendera lain (tata letak, ikon gelap tema Siang dari Theme.apply) tetap. */
+    void setBarsHidden(boolean hidden) {
+        View d = getWindow().getDecorView();
+        int f = d.getSystemUiVisibility();
+        d.setSystemUiVisibility(hidden ? f | HIDE_BARS : f & ~HIDE_BARS);
+    }
+
+    /**
+     * Screensaver layar penuh: bilah status dan navigasi headunit disembunyikan (imersif; geser dari tepi menampilkannya
+     * sebentar). Ketuk sekali untuk kembali ke home dengan bilah sistem.
+     */
+    void showSaver() {
+        setBarsHidden(true);
+        saver.setVisibility(View.VISIBLE);
+        saver.start(prefs);
     }
 
     /** Dialog (PIN, pembaruan), laci aplikasi, atau sambutan sedang tampil di atas home. */
@@ -392,8 +422,7 @@ public class HomeActivity extends Activity {
                 home.postDelayed(this, 30_000);
                 return;
             }
-            saver.setVisibility(View.VISIBLE);
-            saver.start(prefs);
+            showSaver();
         }
     };
 
