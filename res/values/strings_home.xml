@@ -58,6 +58,12 @@
     <string name="home_restore_message">Kembali ke launcher bawaan? KlikDash tetap terpasang dan bisa dijadikan tampilan utama lagi dari tombol di home-nya.</string>
     <string name="home_restore_confirm">Kembali</string>
 
+    <!-- Mode aman setelah home crash berulang (lihat Guard) -->
+    <string name="guard_title">KlikDash berhenti beberapa kali saat dibuka</string>
+    <string name="guard_message">Supaya headunit tetap bisa dipakai, home dibuka dalam mode aman. Ketuk COBA LAGI, atau kembali ke launcher bawaan. Bila terus berulang, kirim foto layar ini ke pengembang.</string>
+    <string name="guard_retry">COBA LAGI</string>
+    <string name="guard_stock">LAUNCHER BAWAAN</string>
+
     <string name="home_notch_surah">SURAH %1$d</string>
     <string name="home_notch_dzikir">DZIKIR</string>
     <string name="home_notch_paused">JEDA</string>

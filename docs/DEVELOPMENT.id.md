@@ -19,7 +19,7 @@ klikdash/
 │   ├── Ask*, Ai*.java           TANYA AI: suara, perintah mobil, profil & kunci API terenkripsi, tab pengaturan
 │   ├── Beam*.java               KlikBeam (beta): mirror layar HP lewat WiFi
 │   ├── Theme, Lang, Key, Notice   palet tema, bahasa antarmuka, tombol, notifikasi
-│   └── Updater, UpdatedReceiver, HomeSwitch, Tweaks, Compat   update, tampilan utama, ADB lokal, Android 7–8
+│   └── Updater, UpdatedReceiver, HomeSwitch, Guard, Tweaks, Compat   update, tampilan utama, mode aman saat crash berulang, ADB lokal, Android 7–8
 ├── res/                      tema, ikon vektor, sertifikat root ISRG untuk Android 7.0 (network_security.xml)
 ├── assets/
 │   ├── dzikir.json           dzikir pagi & petang, dibangun dari KlikBand (tools/build_dzikir.mjs)

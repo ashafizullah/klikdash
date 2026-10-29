@@ -56,6 +56,12 @@
     <string name="home_restore_message">Go back to the stock launcher? KlikDash stays installed and can be made the home screen again from the button on its home screen.</string>
     <string name="home_restore_confirm">Go back</string>
 
+    <!-- Safe mode after the home screen crashes repeatedly (see Guard) -->
+    <string name="guard_title">KlikDash stopped several times while opening</string>
+    <string name="guard_message">To keep the headunit usable, the home screen opened in safe mode. Tap TRY AGAIN, or go back to the stock launcher. If it keeps happening, send a photo of this screen to the developer.</string>
+    <string name="guard_retry">TRY AGAIN</string>
+    <string name="guard_stock">STOCK LAUNCHER</string>
+
     <string name="home_notch_surah">SURAH %1$d</string>
     <string name="home_notch_dzikir">DHIKR</string>
     <string name="home_notch_paused">PAUSED</string>

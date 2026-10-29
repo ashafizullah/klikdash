@@ -19,7 +19,7 @@ klikdash/
 │   ├── Ask*, Ai*.java           TANYA AI: voice, car commands, profiles & encrypted API keys, settings tab
 │   ├── Beam*.java               KlikBeam (beta): phone screen mirroring over WiFi
 │   ├── Theme, Lang, Key, Notice   theme palette, interface language, buttons, notices
-│   └── Updater, UpdatedReceiver, HomeSwitch, Tweaks, Compat   updates, home screen switch, local ADB, Android 7–8
+│   └── Updater, UpdatedReceiver, HomeSwitch, Guard, Tweaks, Compat   updates, home screen switch, safe mode on repeated crashes, local ADB, Android 7–8
 ├── res/                      theme, vector icons, ISRG root certificates for Android 7.0 (network_security.xml)
 ├── assets/
 │   ├── dzikir.json           morning & evening dhikr, built from KlikBand (tools/build_dzikir.mjs)

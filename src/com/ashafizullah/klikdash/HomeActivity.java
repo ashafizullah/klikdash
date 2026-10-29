@@ -121,9 +121,21 @@ public class HomeActivity extends Activity {
 
     int themeBuilt;
 
-    @Override protected void attachBaseContext(Context base) { super.attachBaseContext(Lang.wrap(base)); }
+    /** Mode aman setelah crash berulang (lihat Guard): hanya tampilan polos, bagian home lain tidak dibuat. */
+    boolean safe;
+
+    @Override protected void attachBaseContext(Context base) {
+        Guard.install(base);
+        safe = Guard.safe(base);
+        super.attachBaseContext(safe ? Guard.lang(base) : Lang.wrap(base));
+    }
 
     @Override protected void onCreate(Bundle b) {
+        if (safe) {
+            super.onCreate(b);
+            setContentView(Guard.view(this));
+            return;
+        }
         themeBuilt = Theme.apply(this);
         super.onCreate(b);
         dp = getResources().getDisplayMetrics().density;
@@ -226,6 +238,8 @@ public class HomeActivity extends Activity {
         }
         welcomeAgain = false;
         if (SystemClock.elapsedRealtime() < 5 * 60_000L) update.schedule();
+        Context app = getApplicationContext();
+        home.postDelayed(() -> Guard.ok(app), 60_000);
     }
 
     @Override public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
@@ -266,7 +280,7 @@ public class HomeActivity extends Activity {
 
     @Override protected void onResume() {
         super.onResume();
-        if (Theme.stale(this, themeBuilt)) return;
+        if (safe || Theme.stale(this, themeBuilt)) return;
         reloadPrefs();
         if (HomeApps.tileCount(prefs) != shown + 1) { recreate(); return; } // jumlah ubin diganti di Pengaturan
         refreshLock(); // PIN bisa diatur atau dihapus di Pengaturan
@@ -454,6 +468,10 @@ public class HomeActivity extends Activity {
     boolean resumed;
 
     @Override protected void onPause() {
+        if (safe) {
+            super.onPause();
+            return;
+        }
         resumed = false;
         home.removeCallbacks(idle);
         hideSaver(); // kembali ke home berarti home, bukan screensaver
@@ -497,6 +515,7 @@ public class HomeActivity extends Activity {
 
     @Override protected void onStop() {
         super.onStop();
+        if (safe) return;
         // Zlink membuka tampilannya sendiri saat CarPlay nirkabel tersambung setelah headunit menyala. Dalam
         // 3 menit pertama, kembalikan ke home; sesi CarPlay tetap jalan di latar dan bisa dibuka dari ubin Zlink.
         if (!userLaunch && SystemClock.elapsedRealtime() - wakeAt < 180_000) {
@@ -507,27 +526,30 @@ public class HomeActivity extends Activity {
 
     @Override protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        if (safe) return;
         loc.applyExtras(intent);
         if (drawer.isOpen()) drawer.close();
     }
 
     @Override public void onBackPressed() {
-        if (drawer.isOpen()) drawer.close();
+        if (!safe && drawer.isOpen()) drawer.close();
     }
 
     /** RAM sistem menipis saat home di latar: lepas ikon laci (lihat HomeApps.trim). */
     @Override public void onTrimMemory(int level) {
         super.onTrimMemory(level);
-        if (level >= TRIM_MEMORY_BACKGROUND) apps.trim();
+        if (!safe && level >= TRIM_MEMORY_BACKGROUND) apps.trim();
     }
 
     @Override protected void onDestroy() {
-        update.cancel();
-        loc.stop();
-        unregisterReceiver(timeRx);
-        unregisterReceiver(pkgRx);
-        unregisterReceiver(wakeRx);
-        try { unregisterReceiver(unlockRx); } catch (IllegalArgumentException ignored) { }
+        if (!safe) {
+            update.cancel();
+            loc.stop();
+            unregisterReceiver(timeRx);
+            unregisterReceiver(pkgRx);
+            unregisterReceiver(wakeRx);
+            try { unregisterReceiver(unlockRx); } catch (IllegalArgumentException ignored) { }
+        }
         super.onDestroy();
     }
 

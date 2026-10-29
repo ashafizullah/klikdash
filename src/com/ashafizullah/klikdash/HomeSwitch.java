@@ -90,18 +90,21 @@ final class HomeSwitch {
         new AlertDialog.Builder(a)
                 .setMessage(R.string.home_restore_message)
                 .setNegativeButton(R.string.common_cancel, null)
-                .setPositiveButton(R.string.home_restore_confirm, (dlg, w) -> {
-                    String prev = prefs.getString("nwdPrev", "com.android.launcher");
-                    ComponentName stock = stockHome(a, prev);
-                    Tweaks.askAsync("setprop " + NWD_PROP + " " + prev
-                                    + (stock != null ? "; cmd package set-home-activity " + stock.flattenToShortString() : "")
-                                    + "; input keyevent KEYCODE_HOME",
-                            () -> Notice.info(a, a.getString(R.string.home_adb_allow)),
-                            r -> {
-                                if (r != Tweaks.DONE) HelpVideo.fail(a, a.getString(failure(a, r)), HelpVideo.forAdb(a, r));
-                            });
-                })
+                .setPositiveButton(R.string.home_restore_confirm, (dlg, w) -> Tweaks.askAsync(restoreCmd(a, prefs),
+                        () -> Notice.info(a, a.getString(R.string.home_adb_allow)),
+                        r -> {
+                            if (r != Tweaks.DONE) HelpVideo.fail(a, a.getString(failure(a, r)), HelpVideo.forAdb(a, r));
+                        }))
                 .show();
+    }
+
+    /** Perintah ADB kembali ke launcher bawaan NWD; {@code prefs} null: launcher bawaan yang umum (lihat Guard). */
+    static String restoreCmd(Context c, SharedPreferences prefs) {
+        String prev = prefs != null ? prefs.getString("nwdPrev", "com.android.launcher") : "com.android.launcher";
+        ComponentName stock = stockHome(c, prev);
+        return "setprop " + NWD_PROP + " " + prev
+                + (stock != null ? "; cmd package set-home-activity " + stock.flattenToShortString() : "")
+                + "; input keyevent KEYCODE_HOME";
     }
 
     /** Activity HOME bawaan: milik paket {@code pkg}, atau launcher lain selain KlikDash. */
