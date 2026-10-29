@@ -74,7 +74,9 @@ public class MediaListener extends NotificationListenerService {
             msm = m;
             watch(m.getActiveSessions(me));
         } catch (SecurityException e) {
-            android.content.SharedPreferences p = app.getSharedPreferences("media", Context.MODE_PRIVATE);
+            // Penyimpanan DE: home berjalan saat direct boot, sebelum CE terbuka (prefs CE di sini membuat home crash).
+            android.content.SharedPreferences p = app.createDeviceProtectedStorageContext()
+                    .getSharedPreferences("media", Context.MODE_PRIVATE);
             if (granting || p.getBoolean("granted", false)) return;
             granting = true;
             String comp = me.flattenToString();
