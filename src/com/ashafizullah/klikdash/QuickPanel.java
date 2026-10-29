@@ -4,9 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.ContentObserver;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.media.AudioManager;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -29,8 +32,8 @@ import static com.ashafizullah.klikdash.HomeActivity.WRAP;
  * bagian-bagian yang bisa ditambah ({@link #section}): volume media, kecerahan layar, screensaver sekarang. Hanya di home KlikDash, tidak di atas aplikasi lain. Tanpa animasi, seperti
  * home; menutup saat diketuk di luar panel, Kembali, atau setelah {@link #IDLE_MS} tanpa sentuhan.
  *
- * Volume lewat AudioManager (STREAM_MUSIC) dan kecerahan lewat Settings.System: headunit yang volume/lampu layarnya
- * diatur MCU firmware sendiri bisa tidak ikut.
+ * Volume lewat AudioManager (STREAM_MUSIC), kecuali headunit NWD: volume yang terdengar diatur MCU (volume media
+ * Android dikunci maksimum), jadi lewat siaran ke layanan setelan NWD ({@link #mcu}). Kecerahan lewat Settings.System.
  */
 final class QuickPanel extends FrameLayout {
     static final long IDLE_MS = 8000;
@@ -42,6 +45,14 @@ final class QuickPanel extends FrameLayout {
     final LinearLayout panel;
     final Level volume, brightness;
     final Key mute;
+    /**
+     * Headunit NWD: volume MCU {@code mcu_system_volume} (0..{@code mcu_max_volume}) dan {@code mcu_mute_state}, diubah
+     * lewat siaran yang didengarkan com.nwd.setting.service (tanpa izin khusus).
+     */
+    final boolean mcu;
+    private final ContentObserver mcuRx = new ContentObserver(new Handler(Looper.getMainLooper())) {
+        @Override public void onChange(boolean self) { refresh(); }
+    };
     private final Runnable idleClose = this::close;
 
     /** Volume diubah dari luar (tombol setir, aplikasi lain): batang ikut. Terdaftar hanya selama panel terbuka. */
@@ -53,6 +64,8 @@ final class QuickPanel extends FrameLayout {
         super(h);
         this.h = h;
         audio = (AudioManager) h.getSystemService(Context.AUDIO_SERVICE);
+        mcu = Settings.System.getInt(h.getContentResolver(), MCU_MAX, 0) > 0;
+        loadRange(h);
         setBackgroundColor(0x99000000); // redupkan home; ketuk di luar panel menutup
         setOnClickListener(v -> close());
         setVisibility(GONE);
@@ -92,10 +105,7 @@ final class QuickPanel extends FrameLayout {
         panel.addView(settings, sl);
 
         volume = new Level(h, v -> setVolume(v));
-        mute = key(h.getString(R.string.quick_mute), false, () -> {
-            audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_TOGGLE_MUTE, 0);
-            refresh();
-        });
+        mute = key(h.getString(R.string.quick_mute), false, this::toggleMute);
         section(R.string.quick_volume, row(key("−", false, () -> step(volume, -1)), volume, key("+", false, () -> step(volume, 1))),
                 mute);
 
@@ -169,6 +179,10 @@ final class QuickPanel extends FrameLayout {
         refresh();
         setVisibility(VISIBLE);
         h.registerReceiver(volumeRx, new IntentFilter("android.media.VOLUME_CHANGED_ACTION"));
+        if (mcu) {
+            h.getContentResolver().registerContentObserver(Settings.System.getUriFor(MCU_VOLUME), false, mcuRx);
+            h.getContentResolver().registerContentObserver(Settings.System.getUriFor(MCU_MUTE), false, mcuRx);
+        }
         touched();
     }
 
@@ -177,6 +191,7 @@ final class QuickPanel extends FrameLayout {
         setVisibility(GONE);
         removeCallbacks(idleClose);
         try { h.unregisterReceiver(volumeRx); } catch (IllegalArgumentException ignored) { }
+        if (mcu) h.getContentResolver().unregisterContentObserver(mcuRx);
     }
 
     /** Ada sentuhan di panel: hitung ulang waktu tutup sendiri. */
@@ -192,13 +207,26 @@ final class QuickPanel extends FrameLayout {
 
     // ---------------------------------------------------------------- volume & kecerahan
 
+    private static final String MCU_VOLUME = "mcu_system_volume", MCU_MAX = "mcu_max_volume", MCU_MUTE = "mcu_mute_state",
+            NWD_VOLUME = "com.nwd.action.ACTION_REQUEST_SET_SYSTEM_VOLUME", NWD_MUTE = "com.nwd.action.ACTION_SET_MUTE";
+
+    private boolean mcuMuted() { return Settings.System.getInt(h.getContentResolver(), MCU_MUTE, 0) == 1; }
+
     void refresh() {
-        int max = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        boolean muted = audio.isStreamMute(AudioManager.STREAM_MUSIC);
-        volume.set(muted ? 0 : audio.getStreamVolume(AudioManager.STREAM_MUSIC), max);
-        mute.setOn(muted);
+        if (mcu) {
+            boolean muted = mcuMuted();
+            volume.set(muted ? 0 : Settings.System.getInt(h.getContentResolver(), MCU_VOLUME, 0),
+                    Settings.System.getInt(h.getContentResolver(), MCU_MAX, 40));
+            mute.setOn(muted);
+        } else {
+            int max = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            boolean muted = audio.isStreamMute(AudioManager.STREAM_MUSIC);
+            volume.set(muted ? 0 : audio.getStreamVolume(AudioManager.STREAM_MUSIC), max);
+            mute.setOn(muted);
+        }
         int raw = Settings.System.getInt(h.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 128);
-        brightness.set(Math.round(toGamma(raw) * BRIGHT_STEPS), BRIGHT_STEPS);
+        float g = (toGamma(raw) - floorGamma) / (1 - floorGamma);
+        brightness.set(Math.max(0, Math.round(g * BRIGHT_STEPS)), BRIGHT_STEPS);
     }
 
     private void step(Level l, int d) {
@@ -206,7 +234,24 @@ final class QuickPanel extends FrameLayout {
         if (l == volume) setVolume(v); else setBrightness(v);
     }
 
+    private void toggleMute() {
+        if (mcu) {
+            boolean on = !mcuMuted();
+            h.sendBroadcast(new Intent(NWD_MUTE).putExtra("extra_mute", on));
+            mute.setOn(on); // batang menyusul saat MCU melapor (mcuRx)
+            return;
+        }
+        audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_TOGGLE_MUTE, 0);
+        refresh();
+    }
+
     private void setVolume(int v) {
+        if (mcu) {
+            if (v > 0 && mcuMuted()) h.sendBroadcast(new Intent(NWD_MUTE).putExtra("extra_mute", false));
+            h.sendBroadcast(new Intent(NWD_VOLUME).putExtra("extra_volume", v));
+            volume.set(v, volume.max); // tanpa menunggu laporan MCU (mcuRx), supaya batang tidak meloncat balik
+            return;
+        }
         if (audio.isStreamMute(AudioManager.STREAM_MUSIC) && v > 0) {
             audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0);
         }
@@ -217,11 +262,23 @@ final class QuickPanel extends FrameLayout {
     static final int BRIGHT_STEPS = 10;
 
     // Kurva slider kecerahan Android (SystemUI BrightnessUtils, Android 9+): posisi slider tidak linear terhadap nilai
-    // screen_brightness. Dipakai juga di sini supaya batang panel cepat sejajar dengan slider di panel notifikasi.
+    // screen_brightness. Dipakai juga di sini supaya langkahnya terasa rata seperti slider di panel notifikasi.
     private static final float GR = 0.5f, GA = 0.17883277f, GB = 0.28466892f, GC = 0.55991073f;
     private static int minBright = -1, maxBright;
+    /** Posisi slider untuk langkah 0: batas bawah aman (lihat {@link #loadRange}). */
+    private static float floorGamma;
 
-    /** Batas kecerahan yang boleh dipilih pengguna (config_screenBrightnessSetting*), seperti slider sistem. */
+    /**
+     * Batas kecerahan yang boleh dipilih pengguna (config_screenBrightnessSetting*), seperti slider sistem, dan batas
+     * bawah panel ini: layar yang terlalu gelap sulit dibaca untuk menaikkannya lagi, apalagi siang hari di mobil. NWD
+     * punya batasnya sendiri (key_system_min_backlight); selain itu 15% rentang.
+     */
+    private static void loadRange(Context c) {
+        loadRange();
+        int nwd = Settings.System.getInt(c.getContentResolver(), "key_system_min_backlight", -1);
+        floorGamma = toGamma(nwd > minBright && nwd < maxBright ? nwd : minBright + (maxBright - minBright) * 15 / 100);
+    }
+
     private static void loadRange() {
         if (minBright >= 0) return;
         android.content.res.Resources r = android.content.res.Resources.getSystem();
@@ -247,12 +304,13 @@ final class QuickPanel extends FrameLayout {
     }
 
     /**
-     * Kecerahan sistem dalam 10 langkah posisi slider Android (langkah 0 = batas bawah sistem, layar tidak gelap total). Izin WRITE_SETTINGS
+     * Kecerahan sistem dalam 10 langkah posisi slider Android dari batas bawah aman ({@link #floorGamma}, langkah 0)
+     * sampai paling terang, jadi layar tidak bisa dibuat terlalu gelap dari sini. Izin WRITE_SETTINGS
      * tidak bisa diminta tanpa membuka Pengaturan, jadi tanpa izin itu lewat ADB lokal (seperti penyetelan lain), yang
      * sekaligus memberi izinnya untuk berikutnya. Tanpa ADB: halaman izin "Ubah setelan sistem" dibuka sekali.
      */
     private void setBrightness(int step) {
-        int v = fromGamma(step / (float) BRIGHT_STEPS);
+        int v = fromGamma(floorGamma + (1 - floorGamma) * step / BRIGHT_STEPS);
         brightness.set(step, BRIGHT_STEPS);
         if (Settings.System.canWrite(h)) {
             Settings.System.putInt(h.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE,
