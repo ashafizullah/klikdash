@@ -169,17 +169,29 @@ final class MediaNotch extends LinearLayout {
     private static boolean tracking;
     private final Runnable hideLater = this::refresh;
 
-    void refresh() {
-        removeCallbacks(hideLater);
+    /** Indeks di {@link #SOURCES} yang ditampilkan, -1 = tidak ada (lihat kelas). */
+    private static int pick(long now) {
         TRACK.run();
-        long now = android.os.SystemClock.elapsedRealtime();
         int pick = -1;
         for (int i = 0; i < SOURCES.length; i++) {
             Source s = SOURCES[i];
             if (!s.active() || (pausedSince[i] != 0 && now - pausedSince[i] >= IDLE_HIDE_MS)) continue;
-            if (s.playing()) { pick = i; break; }
+            if (s.playing()) return i;
             if (pick < 0 || pausedSince[i] > pausedSince[pick]) pick = i; // yang terakhir dijeda
         }
+        return pick;
+    }
+
+    /** Yang sedang diputar, dengan aturan yang sama seperti notch (dipakai juga screensaver); null = tidak ada. */
+    static Source current() {
+        int i = pick(android.os.SystemClock.elapsedRealtime());
+        return i < 0 ? null : SOURCES[i];
+    }
+
+    void refresh() {
+        removeCallbacks(hideLater);
+        long now = android.os.SystemClock.elapsedRealtime();
+        int pick = pick(now);
         if (pick < 0) {
             shown = null;
             setVisibility(GONE);

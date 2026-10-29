@@ -11,6 +11,8 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.text.TextPaint;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.View;
 
@@ -111,12 +113,15 @@ final class Screensaver {
     /**
      * Isi layar screensaver. Selalu gelap, juga di tema Siang: dipakai saat mobil diam, sering malam hari. Jam dan
      * tanggal tepat di tengah layar, diukur dari bentuk huruf yang tergambar (bukan metrik font) supaya tidak miring.
+     * Di bawahnya, bila ada: yang sedang diputar (murattal, dzikir, musik/radio), sama seperti notch home
+     * ({@link MediaNotch#current}); home menggambar ulang saat sumbernya berganti.
      */
     static final class Face extends View {
         final Paint clock = new Paint(Paint.ANTI_ALIAS_FLAG), small = new Paint(Paint.ANTI_ALIAS_FLAG),
                 image = new Paint(Paint.FILTER_BITMAP_FLAG);
         final Matrix fit = new Matrix();
-        final Rect cb = new Rect(), ab = new Rect(), db = new Rect();
+        final TextPaint media = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        final Rect cb = new Rect(), ab = new Rect(), db = new Rect(), mb = new Rect();
         final float dp;
         SharedPreferences prefs;
         Bitmap bg;
@@ -132,6 +137,16 @@ final class Screensaver {
             small.setTypeface(mono);
             small.setColor(0xCCF4F1EA);
             small.setLetterSpacing(0.3f);
+            media.setTypeface(mono);
+            media.setLetterSpacing(0.2f);
+        }
+
+        /** "MURATTAL  ·  AL-KAHFI  ·  10/110", "JEDA  ·  …"; null bila tidak ada yang diputar. */
+        String nowPlaying() {
+            MediaNotch.Source m = MediaNotch.current();
+            if (m == null) return null;
+            Context c = getContext();
+            return (m.playing() ? m.state(c) : c.getString(R.string.home_notch_paused)) + "  ·  " + m.title(c);
         }
 
         void start(SharedPreferences p) {
@@ -184,12 +199,16 @@ final class Screensaver {
             float size = Math.min(h * 0.40f, 100 * w * 0.55f / clock.measureText("00:00"));
             clock.setTextSize(size);
             small.setTextSize(Math.max(14 * dp, size * 0.11f));
+            media.setTextSize(small.getTextSize() * 0.9f);
+            media.setColor(HomeActivity.AMBER);
             if (shade) {
                 clock.setShadowLayer(16 * dp, 0, 0, 0x99000000);
                 small.setShadowLayer(8 * dp, 0, 0, 0x99000000);
+                media.setShadowLayer(8 * dp, 0, 0, 0x99000000);
             } else {
                 clock.clearShadowLayer();
                 small.clearShadowLayer();
+                media.clearShadowLayer();
             }
             String ap = twelve ? Clock.ampm(min) : "";
             clock.getTextBounds(hm, 0, hm.length(), cb);
@@ -198,12 +217,22 @@ final class Screensaver {
             if (ap.isEmpty()) ab.setEmpty(); else small.getTextBounds(ap, 0, ap.length(), ab);
             float rowW = cb.width() + (ap.isEmpty() ? 0 : apGap + ab.width());
             float gap = small.getTextSize() * 1.4f;
-            float top = (h - (cb.height() + gap + db.height())) / 2f;
+            String np = nowPlaying();
+            float mGap = 0;
+            if (np != null) {
+                np = TextUtils.ellipsize(np, media, w * 0.8f, TextUtils.TruncateAt.END).toString(); // judul lagu bisa panjang
+                media.getTextBounds(np, 0, np.length(), mb);
+                mGap = small.getTextSize() * 1.6f;
+            }
+            float top = (h - (cb.height() + gap + db.height() + (np == null ? 0 : mGap + mb.height()))) / 2f;
 
             float x = (w - rowW) / 2f, base = top - cb.top;
             c.drawText(hm, x - cb.left, base, clock);
             if (!ap.isEmpty()) c.drawText(ap, x + cb.width() + apGap - ab.left, base, small);
             c.drawText(date, (w - db.width()) / 2f - db.left, top + cb.height() + gap - db.top, small);
+            if (np != null) {
+                c.drawText(np, (w - mb.width()) / 2f - mb.left, top + cb.height() + gap + db.height() + mGap - mb.top, media);
+            }
         }
     }
 }

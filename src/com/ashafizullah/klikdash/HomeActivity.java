@@ -247,13 +247,18 @@ public class HomeActivity extends Activity {
     }
 
     MediaNotch notch;
-    /** Musik aplikasi lain berganti lagu atau status: hanya notch. */
-    final Runnable onMedia = () -> notch.refresh();
+    /** Musik aplikasi lain berganti lagu atau status: hanya notch (dan baris "sedang diputar" screensaver). */
+    final Runnable onMedia = this::mediaChanged;
     /** Murattal berganti ayat atau status: hanya ubin Al-Qur'an ("▶ surah : ayat") dan notch yang berubah. */
     final Runnable onQuran = () -> {
         for (HomeViews.Tile t : tiles) if (t != null && t.quran()) t.invalidate();
-        notch.refresh();
+        mediaChanged();
     };
+
+    void mediaChanged() {
+        notch.refresh();
+        if (saverShown()) saver.invalidate();
+    }
 
     /**
      * Dzikir berganti bacaan/putaran atau status: notch selalu, ubin Dzikir ("▶ PAGI/PETANG") hanya bila yang
@@ -261,7 +266,7 @@ public class HomeActivity extends Activity {
      */
     String dzikirShown = "";
     final Runnable onDzikir = () -> {
-        notch.refresh();
+        mediaChanged();
         String now = DzikirService.playing + DzikirService.period;
         if (now.equals(dzikirShown)) return;
         dzikirShown = now;
