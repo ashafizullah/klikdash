@@ -44,6 +44,11 @@
     <string name="settings_clock_desc">Jam di home, jadwal sholat, dan pengingat sholat. Format 12 jam menampilkan AM/PM di samping jam.</string>
     <string name="settings_clock_24">24 JAM</string>
     <string name="settings_clock_12">12 JAM</string>
+    <string name="settings_orient_title">ORIENTASI LAYAR</string>
+    <string name="settings_orient_desc">Otomatis mengikuti rotasi headunit. Pilih MENDATAR bila layar jadi tegak setelah KlikDash dijadikan tampilan utama: panel headunit itu aslinya tegak dan launcher bawaannya yang memaksa mendatar. Berlaku untuk semua layar KlikDash.</string>
+    <string name="settings_orient_auto">OTOMATIS</string>
+    <string name="settings_orient_landscape">MENDATAR</string>
+    <string name="settings_orient_portrait">TEGAK</string>
     <string name="settings_method_title">JADWAL SHOLAT</string>
     <string name="settings_method_desc">Otomatis: JAKIM bila zona waktu headunit Malaysia, selain itu Kemenag RI. Sekarang dihitung dengan %1$s.</string>
     <string name="settings_method_auto">OTOMATIS</string>

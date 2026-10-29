@@ -138,11 +138,16 @@ final class Theme {
             if (light()) f |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
         }
         w.getDecorView().setSystemUiVisibility(f);
+        Orientation.apply(a);
         return version;
     }
 
-    /** Di onResume: tema berganti sejak aktivitas dibangun (juga tema otomatis yang sudah waktunya) → recreate(). */
+    /**
+     * Di onResume: tema berganti sejak aktivitas dibangun (juga tema otomatis yang sudah waktunya) → recreate().
+     * Orientasi pilihan di Pengaturan juga dipasang ulang di sini.
+     */
     static boolean stale(Activity a, int builtVersion) {
+        Orientation.apply(a);
         refresh(a);
         if (builtVersion == version) return false;
         a.recreate();

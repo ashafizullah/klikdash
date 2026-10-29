@@ -136,8 +136,9 @@ public class HomeActivity extends Activity {
         drawer = new HomeDrawer(this);
         status = new HomeStatus(this);
         update = new HomeUpdate(this);
-        // Baru menyala: rotasi sekarang adalah bawaan firmware, catat untuk keepOrientation.
-        if (SystemClock.elapsedRealtime() < 5 * 60_000L) {
+        // Baru menyala: rotasi sekarang adalah bawaan firmware, catat untuk keepOrientation. Orientasi dipilih di
+        // Pengaturan: rotasi sekarang bisa hasil pilihan itu, bukan bawaan firmware.
+        if (SystemClock.elapsedRealtime() < 5 * 60_000L && Orientation.mode(prefs) == Orientation.AUTO) {
             prefs.edit().putInt("homeRotation", getWindowManager().getDefaultDisplay().getRotation()).apply();
         }
 
@@ -539,6 +540,8 @@ public class HomeActivity extends Activity {
      * sensor putar membiarkannya begitu setelah aplikasi itu ditutup. Firmware NWD mengabaikan setRequestedOrientation
      * dari home, jadi rotasinya dikembalikan lewat pengaturan sistem (ADB lokal, seperti Tweaks). Rotasi bawaan dicatat
      * saat headunit baru menyala; NWD: ro.boot.nwd.rotation. Belum diketahui: dibiarkan (mis. headunit tegak).
+     * Orientasi dipilih di Pengaturan (lihat Orientation): di NWD diputar ke sana dengan cara yang sama, di headunit
+     * lain setRequestedOrientation dari Theme.apply sudah cukup.
      */
     void keepOrientation() {
         // Di thread latar: getprop pertama menjalankan 2–3 proses, ±50–70 ms di onResume saat cold start (atrace).
@@ -551,7 +554,11 @@ public class HomeActivity extends Activity {
                 }
                 nwdRotation = r;
             }
-            int want = p.getInt("homeRotation", nwdRotation);
+            int mode = Orientation.mode(p), want = p.getInt("homeRotation", nwdRotation);
+            if (mode != Orientation.AUTO) {
+                if (!HomeSwitch.isNwd()) return;
+                want = Orientation.rotation(mode, getWindowManager().getDefaultDisplay(), want);
+            }
             if (want < 0 || want > 3 || getWindowManager().getDefaultDisplay().getRotation() == want) return;
             boolean free = android.provider.Settings.System.getInt(getContentResolver(),
                     android.provider.Settings.System.ACCELEROMETER_ROTATION, 0) == 1;

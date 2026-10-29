@@ -239,6 +239,20 @@ public class SettingsActivity extends Activity {
         look.add(row(getString(R.string.settings_clock_title), getString(R.string.settings_clock_desc), fmt));
 
 
+        int om = Orientation.mode(prefs);
+        int[] omValue = {Orientation.AUTO, Orientation.LANDSCAPE, Orientation.PORTRAIT};
+        int[] omLabel = {R.string.settings_orient_auto, R.string.settings_orient_landscape, R.string.settings_orient_portrait};
+        Key[] orients = new Key[omValue.length];
+        for (int i = 0; i < orients.length; i++) {
+            final int v = omValue[i];
+            orients[i] = key(getString(omLabel[i]), v == om, () -> {
+                prefs.edit().putInt("orientation", v).apply();
+                Orientation.apply(this); // home dan layar lain menyusul saat tampil lagi (Theme.stale)
+                rebuildKeepScroll();
+            });
+        }
+        look.add(row(getString(R.string.settings_orient_title), getString(R.string.settings_orient_desc), orients));
+
         // Satu tema, atau tema siang dan malam yang berganti sendiri mengikuti matahari (Theme.saved).
         boolean autoTheme = Theme.auto(this);
         int[] sun = Theme.sun(this);
@@ -276,6 +290,7 @@ public class SettingsActivity extends Activity {
                         : getResources().getStringArray(R.array.theme_names)[Theme.chosen(this, "theme")],
                 getString(Lang.EN.equals(Lang.code) ? R.string.lang_en : R.string.lang_id),
                 getString(twelve ? R.string.settings_clock_12 : R.string.settings_clock_24),
+                om == Orientation.AUTO ? null : getString(omLabel[om]),
                 getString(R.string.settings_group_tiles, tc)), look));
 
         List<View> prayer = new ArrayList<>();
