@@ -251,7 +251,9 @@ public class HomeActivity extends Activity {
         if (SystemClock.elapsedRealtime() < 5 * 60_000L) update.schedule();
         Context app = getApplicationContext();
         home.postDelayed(() -> Guard.ok(app), 60_000);
-        BeamHub.standby(this); // KlikBeam: HP yang mulai mirror membuka penerima sendiri
+        // KlikBeam: HP yang mulai mirror membuka penerima sendiri. Kode pairing ada di prefs CE, jadi saat direct boot
+        // (headunit berkunci layar, sebelum dibuka) baru dinyalakan setelah buka kunci (unlockRx).
+        if (getSystemService(UserManager.class).isUserUnlocked()) BeamHub.standby(this);
     }
 
     @Override public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
@@ -724,6 +726,7 @@ public class HomeActivity extends Activity {
             reloadPrefs();
             apps.load();
             updateTime();
+            BeamHub.standby(HomeActivity.this);
         }
     };
 
