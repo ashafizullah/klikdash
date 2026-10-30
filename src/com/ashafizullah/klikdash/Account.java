@@ -28,7 +28,7 @@ import java.util.concurrent.Executors;
  */
 final class Account {
     static final String API = "https://klikbeam.ashafizullah.com";
-    static final String LINK_PAGE = "klikapps.pages.dev/link";
+    static final String LINK_PAGE = "klikbeam.ashafizullah.com/link";
 
     private static final String K_TOKEN = "acctToken", K_CAR = "acctCar", K_API = "acctApi", K_TRIPS = "acctTrips";
 
