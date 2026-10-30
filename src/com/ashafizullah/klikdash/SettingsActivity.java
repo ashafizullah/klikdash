@@ -39,15 +39,15 @@ import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 
 /**
  * Pengaturan KlikDash dalam tab: Launcher (dikelompokkan: tampilan, sholat, screensaver, home, sistem), Hemat Daya,
- * Asisten AI, KlikBeam, dan Pembaruan.
+ * Asisten AI, KlikBeam, Akun (riwayat perjalanan, {@link Account}), dan Pembaruan.
  * Tab di kiri pada layar mendatar, di atas pada layar tegak.
  */
 public class SettingsActivity extends Activity {
 
     static final int MATCH = ViewGroup.LayoutParams.MATCH_PARENT, WRAP = ViewGroup.LayoutParams.WRAP_CONTENT;
     static final String EXTRA_TAB = "tab";
-    static final int TAB_LAUNCHER = 0, TAB_POWER = 1, TAB_AI = 2, TAB_BEAM = 3, TAB_UPDATE = 4;
-    static final int TAB_COUNT = 5;
+    static final int TAB_LAUNCHER = 0, TAB_POWER = 1, TAB_AI = 2, TAB_BEAM = 3, TAB_ACCOUNT = 4, TAB_UPDATE = 5;
+    static final int TAB_COUNT = 6;
 
     float dp, sp, wDp, hDp, railDp;
     boolean portrait, narrow;
@@ -103,6 +103,16 @@ public class SettingsActivity extends Activity {
         // Tab Launcher tanpa melompat ke atas: baris screensaver di tengah, kembali dari pemilih foto.
         if (current == TAB_LAUNCHER) rebuildKeepScroll();
         else if (current == TAB_AI) show(current, true);
+        else if (current == TAB_ACCOUNT) {
+            show(current, true);
+            Account.refresh(this);
+        }
+        Account.listeners.add(accountRx);
+    }
+
+    @Override protected void onPause() {
+        Account.listeners.remove(accountRx);
+        super.onPause();
     }
 
     @Override protected void onDestroy() {
@@ -171,6 +181,7 @@ public class SettingsActivity extends Activity {
     void show(int tab, boolean force) {
         tab = Math.max(0, Math.min(TAB_COUNT - 1, tab));
         if (tab == current && !force) return;
+        if (tab == TAB_ACCOUNT && tab != current) Account.refresh(this);
         current = tab;
         for (int i = 0; i < tabs.length; i++) tabs[i].setSelected(i == tab);
         content.removeAllViews();
@@ -186,6 +197,8 @@ public class SettingsActivity extends Activity {
             v = ai.view;
         } else if (tab == TAB_BEAM) {
             v = beamPanel();
+        } else if (tab == TAB_ACCOUNT) {
+            v = accountPanel();
         } else if (tab == TAB_UPDATE) {
             v = updatePanel();
         } else {
@@ -992,6 +1005,121 @@ public class SettingsActivity extends Activity {
         return wrap;
     }
 
+    // ---------------------------------------------------------------- tab Akun
+
+    /** Pairing, unggahan atau trip berganti: tab Akun dibangun ulang bila sedang tampil. */
+    final Runnable accountRx = () -> {
+        if (current == TAB_ACCOUNT && !isFinishing()) rebuildKeepScroll(TAB_ACCOUNT);
+    };
+
+    View accountPanel() {
+        LinearLayout list = column();
+        if (Account.linked(this)) {
+            list.addView(row(getString(R.string.account_linked_title), getString(R.string.account_linked_desc, Account.carName(this)),
+                    key(getString(R.string.account_unlink), false, this::confirmUnlink)));
+            boolean on = Account.tripsOn(this);
+            list.addView(row(getString(R.string.account_trips_title), tripsStatus(on),
+                    key(getString(R.string.settings_on), on, () -> { Account.setTripsOn(this, true); rebuildKeepScroll(TAB_ACCOUNT); }),
+                    key(getString(R.string.settings_off), !on, () -> { Account.setTripsOn(this, false); rebuildKeepScroll(TAB_ACCOUNT); })));
+        } else {
+            Account.Pairing p = Account.pairing;
+            if (p == null) {
+                list.addView(row(getString(R.string.account_title), getString(R.string.account_desc),
+                        key(getString(R.string.account_link), true, () -> {
+                            Account.startPairing(this);
+                            show(TAB_ACCOUNT, true);
+                        })));
+            } else {
+                list.addView(accountPairing(p));
+            }
+        }
+        list.addView(row(getString(R.string.account_privacy_title), getString(R.string.account_privacy_desc)));
+        return scroll(list);
+    }
+
+    String tripsStatus(boolean on) {
+        if (!on) return getString(R.string.account_trips_off);
+        int n = Account.pending(this);
+        String now = TripService.recording() ? getString(R.string.account_trips_recording)
+                : n > 0 ? getResources().getQuantityString(R.plurals.account_trips_pending, n, n)
+                : getString(R.string.account_trips_sent);
+        return getString(R.string.account_trips_desc) + " " + now;
+    }
+
+    /** QR dan kode di kiri (seperti pairing KlikBeam), langkah dan status di kanan. */
+    View accountPairing(Account.Pairing p) {
+        LinearLayout r = new LinearLayout(this);
+        r.setOrientation(narrow ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
+        r.setPadding(0, px(20), 0, px(24));
+        if (p.state == Account.Pairing.SHOWING) {
+            LinearLayout code = column();
+            QrCode q = QrCode.encode(p.url());
+            if (q != null) {
+                LinearLayout.LayoutParams ql = new LinearLayout.LayoutParams(WRAP, WRAP);
+                ql.bottomMargin = px(20);
+                code.addView(HelpVideo.qrCard(this, new QrCode.QrDrawable(q), getString(R.string.account_scan), null), ql);
+            }
+            code.addView(label(getString(R.string.account_code_label)));
+            TextView c = text(p.codeText(), fHeavy, 40, AMBER);
+            c.setLetterSpacing(0.04f);
+            LinearLayout.LayoutParams vl = new LinearLayout.LayoutParams(WRAP, WRAP);
+            vl.topMargin = px(6);
+            code.addView(c, vl);
+            r.addView(code, narrow ? new LinearLayout.LayoutParams(MATCH, WRAP) : new LinearLayout.LayoutParams(WRAP, WRAP));
+        }
+        LinearLayout side = column();
+        side.addView(text(getString(R.string.account_title), fBold, 24, TEXT));
+        String msg;
+        if (p.state == Account.Pairing.SHOWING) {
+            java.util.Calendar e = java.util.Calendar.getInstance();
+            e.setTimeInMillis(p.expiresAt);
+            msg = getString(R.string.account_pair_steps, Clock.hm(Clock.twelve(prefs),
+                    e.get(java.util.Calendar.HOUR_OF_DAY) * 60 + e.get(java.util.Calendar.MINUTE)));
+        } else if (p.state == Account.Pairing.FAILED) {
+            msg = p.error != null ? p.error : getString(R.string.account_pair_offline);
+        } else {
+            msg = getString(R.string.account_pair_wait);
+        }
+        TextView d = paragraph(msg);
+        LinearLayout.LayoutParams dl = new LinearLayout.LayoutParams(MATCH, WRAP);
+        dl.topMargin = px(8);
+        side.addView(d, dl);
+        LinearLayout keys = new LinearLayout(this);
+        if (p.state == Account.Pairing.FAILED) {
+            keys.addView(key(getString(R.string.account_retry), true, () -> {
+                Account.startPairing(this);
+                show(TAB_ACCOUNT, true);
+            }), new LinearLayout.LayoutParams(WRAP, px(52)));
+        }
+        LinearLayout.LayoutParams cl = new LinearLayout.LayoutParams(WRAP, px(52));
+        if (keys.getChildCount() > 0) cl.leftMargin = px(8);
+        keys.addView(key(getString(R.string.common_cancel).toUpperCase(Lang.locale()), false, () -> {
+            Account.cancelPairing();
+            show(TAB_ACCOUNT, true);
+        }), cl);
+        LinearLayout.LayoutParams kl = new LinearLayout.LayoutParams(WRAP, WRAP);
+        kl.topMargin = px(20);
+        side.addView(keys, kl);
+        LinearLayout.LayoutParams sl = narrow ? new LinearLayout.LayoutParams(MATCH, WRAP) : new LinearLayout.LayoutParams(0, WRAP, 1f);
+        if (p.state == Account.Pairing.SHOWING) { if (narrow) sl.topMargin = px(20); else sl.leftMargin = px(32); }
+        r.addView(side, sl);
+
+        LinearLayout wrap = column();
+        wrap.addView(r, new LinearLayout.LayoutParams(MATCH, WRAP));
+        wrap.addView(rule(), ruleParams(true, 0, 0));
+        return wrap;
+    }
+
+    void confirmUnlink() {
+        Sheet s = new Sheet(this, AMBER, getString(R.string.account_title), getString(R.string.account_unlink_title), HelpVideo.NONE)
+                .text(getString(R.string.account_unlink_text), 0);
+        s.key(getString(R.string.common_cancel).toUpperCase(Lang.locale()), false, null)
+                .key(getString(R.string.account_unlink), true, () -> {
+                    Account.unlink(this);
+                    rebuildKeepScroll(TAB_ACCOUNT);
+                }).show();
+    }
+
     /** Ikut uji tertutup di Play Store: tiga langkah, dua di antaranya dengan QR untuk dibuka di HP. */
     View beamAndroid() {
         LinearLayout box = column();
@@ -1064,9 +1192,13 @@ public class SettingsActivity extends Activity {
      * {@code y} dibaca saat itu: tata letak baru sudah diukur (posisi grup accordion).
      */
     static void scrollBeforeDraw(View v, java.util.function.IntSupplier y) {
-        v.getViewTreeObserver().addOnPreDrawListener(new android.view.ViewTreeObserver.OnPreDrawListener() {
+        // Lepas dari observer tempat ia dipasang: bila tab dibangun ulang lagi sebelum frame ini, v sudah terlepas dan
+        // v.getViewTreeObserver() memberi observer lain, sehingga listener tertinggal dan melewatkan setiap frame.
+        android.view.ViewTreeObserver o = v.getViewTreeObserver();
+        o.addOnPreDrawListener(new android.view.ViewTreeObserver.OnPreDrawListener() {
             @Override public boolean onPreDraw() {
-                v.getViewTreeObserver().removeOnPreDrawListener(this);
+                if (o.isAlive()) o.removeOnPreDrawListener(this);
+                else v.getViewTreeObserver().removeOnPreDrawListener(this);
                 v.scrollTo(0, y.getAsInt());
                 return false;
             }

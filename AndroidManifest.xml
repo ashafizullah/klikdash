@@ -133,6 +133,13 @@
             android:name=".AdbWifiService"
             android:exported="false" />
 
+        <!-- Akun KlikBeam: riwayat perjalanan dan lokasi parkir (TripService), hanya selama headunit terhubung ke akun -->
+        <service
+            android:name=".TripService"
+            android:directBootAware="true"
+            android:foregroundServiceType="location"
+            android:exported="false" />
+
         <service
             android:name=".QuranService"
             android:exported="false" />

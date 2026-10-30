@@ -8,6 +8,7 @@
         <item>HEMAT DAYA</item>
         <item>ASISTEN AI</item>
         <item>KLIKBEAM</item>
+        <item>AKUN</item>
         <item>PEMBARUAN</item>
     </string-array>
     <string-array name="settings_tab_captions">
@@ -15,6 +16,7 @@
         <item>APLIKASI DI LATAR</item>
         <item>PROFIL &amp; SUARA</item>
         <item>MIRROR HP · BETA</item>
+        <item>PARKIR &amp; PERJALANAN</item>
         <item formatted="false">VERSI %1$s</item>
     </string-array>
 

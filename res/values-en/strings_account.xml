@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="account_title">KLIKBEAM ACCOUNT</string>
+    <string name="account_desc">Link this headunit to the KlikBeam account on your phone. See where this car is parked and its trip history in the KlikBeam app. Optional: everything else in KlikDash works without an account.</string>
+    <string name="account_link">LINK</string>
+    <string name="account_privacy_title">WHAT IS SENT</string>
+    <string name="account_privacy_desc">Only while linked: the route, distance, time and speed of each trip, and where the car was last parked. It is sent when the headunit is online (for example through your phone\'s hotspot) and only your account can see it. Free accounts keep 7 days of history.</string>
+
+    <string name="account_scan">SCAN WITH\nKLIKBEAM</string>
+    <string name="account_code_label">CODE</string>
+    <string name="account_pair_steps">On your phone, open KlikBeam › ACCOUNT › ADD CAR and scan this QR code. The code is valid until %1$s.</string>
+    <string name="account_pair_wait">Creating a code…</string>
+    <string name="account_pair_offline">Can\'t reach the KlikBeam server. Make sure the headunit is online, for example through your phone\'s hotspot, then try again.</string>
+    <string name="account_expired">The code has expired. Create a new one.</string>
+    <string name="account_retry">TRY AGAIN</string>
+
+    <string name="account_linked_title">LINKED</string>
+    <string name="account_linked_desc">This car is saved as %1$s in your KlikBeam account. Rename or remove it in the KlikBeam app.</string>
+    <string name="account_unlink">UNLINK</string>
+    <string name="account_unlink_title">Unlink this headunit?</string>
+    <string name="account_unlink_text">This car and its trip history are removed from your KlikBeam account, and trips not sent yet are discarded. Link again any time with a new QR code.</string>
+
+    <string name="account_trips_title">TRIP HISTORY</string>
+    <string name="account_trips_desc">Records the route, distance and speed while the car moves, and sends it when the headunit is online.</string>
+    <string name="account_trips_recording">Recording a trip now.</string>
+    <plurals name="account_trips_pending">
+        <item quantity="one">%1$d trip waiting for internet.</item>
+        <item quantity="other">%1$d trips waiting for internet.</item>
+    </plurals>
+    <string name="account_trips_sent">All trips have been sent.</string>
+    <string name="account_trips_off">Off: trips are not recorded and the parking spot is not updated.</string>
+
+    <string name="account_channel">Trip history</string>
+    <string name="account_notification_title">Recording trips</string>
+    <string name="account_notification_text">%1$s · linked to KlikBeam account</string>
+</resources>

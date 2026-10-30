@@ -235,6 +235,7 @@ public class HomeActivity extends Activity {
 
         refreshLock();
         loc.applyExtras(getIntent());
+        Account.applyExtras(this, getIntent());
         updateTime();
         loc.start();
         Tweaks.init(this);
@@ -312,6 +313,7 @@ public class HomeActivity extends Activity {
         MediaListener.start(this);
         PrayerAlarm.home = new java.lang.ref.WeakReference<>(this);
         PrayerAlarm.schedule(this);
+        TripService.sync(this); // akun KlikBeam: proses dimulai ulang atau izin lokasi baru diberikan
         apps.untrim();
         refreshTiles();
         updateTime();
@@ -636,6 +638,7 @@ public class HomeActivity extends Activity {
         super.onNewIntent(intent);
         if (safe) return;
         loc.applyExtras(intent);
+        Account.applyExtras(this, intent);
         if (drawer.isOpen()) drawer.close();
     }
 

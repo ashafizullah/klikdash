@@ -9,4 +9,8 @@
             <certificates src="@raw/isrg_root_x2" />
         </trust-anchors>
     </base-config>
+    <!-- Uji akun KlikBeam di emulator: server di Mac lewat http://10.0.2.2:3110 (Account.applyExtras). -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.2.2</domain>
+    </domain-config>
 </network-security-config>

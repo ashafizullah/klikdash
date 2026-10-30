@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tab AKUN: akun KlikBeam, lokasi parkir dan riwayat perjalanan (Account, TripService). -->
+<resources>
+    <string name="account_title">AKUN KLIKBEAM</string>
+    <string name="account_desc">Hubungkan headunit ke akun KlikBeam di HP. Lokasi parkir terakhir dan riwayat perjalanan mobil ini bisa dilihat dari aplikasi KlikBeam. Opsional: semua fitur KlikDash tetap jalan tanpa akun.</string>
+    <string name="account_link">HUBUNGKAN</string>
+    <string name="account_privacy_title">DATA YANG DIKIRIM</string>
+    <string name="account_privacy_desc">Hanya selama terhubung: rute, jarak, waktu dan kecepatan perjalanan, serta lokasi parkir terakhir. Data dikirim saat headunit online (misalnya lewat hotspot HP) dan hanya bisa dilihat dari akunmu. Akun gratis menyimpan riwayat 7 hari.</string>
+
+    <string name="account_scan">PINDAI DARI\nKLIKBEAM DI HP</string>
+    <string name="account_code_label">KODE</string>
+    <string name="account_pair_steps">Di HP, buka KlikBeam › AKUN › TAMBAH MOBIL, lalu pindai QR ini. Kode berlaku sampai %1$s.</string>
+    <string name="account_pair_wait">Membuat kode…</string>
+    <string name="account_pair_offline">Server KlikBeam tidak terjangkau. Pastikan headunit tersambung ke internet, misalnya lewat hotspot HP, lalu coba lagi.</string>
+    <string name="account_expired">Kode sudah kedaluwarsa. Buat kode baru.</string>
+    <string name="account_retry">COBA LAGI</string>
+
+    <string name="account_linked_title">TERHUBUNG</string>
+    <string name="account_linked_desc">Mobil ini tersimpan sebagai %1$s di akun KlikBeam. Ganti nama atau hapus mobil dari aplikasi KlikBeam.</string>
+    <string name="account_unlink">PUTUSKAN</string>
+    <string name="account_unlink_title">Putuskan headunit dari akun?</string>
+    <string name="account_unlink_text">Mobil ini dihapus dari akun KlikBeam beserta riwayat perjalanannya, dan perjalanan yang belum terkirim ikut dibuang. Hubungkan lagi kapan saja dengan QR baru.</string>
+
+    <string name="account_trips_title">RIWAYAT PERJALANAN</string>
+    <string name="account_trips_desc">Mencatat rute, jarak dan kecepatan selama mobil bergerak, lalu mengirimnya saat headunit online.</string>
+    <string name="account_trips_recording">Sedang mencatat perjalanan.</string>
+    <plurals name="account_trips_pending">
+        <item quantity="other">%1$d perjalanan menunggu internet.</item>
+    </plurals>
+    <string name="account_trips_sent">Semua perjalanan sudah terkirim.</string>
+    <string name="account_trips_off">Mati: perjalanan tidak dicatat dan lokasi parkir tidak diperbarui.</string>
+
+    <string name="account_channel">Riwayat perjalanan</string>
+    <string name="account_notification_title">Mencatat perjalanan</string>
+    <string name="account_notification_text">%1$s · terhubung ke akun KlikBeam</string>
+</resources>
