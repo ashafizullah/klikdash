@@ -27,8 +27,7 @@ import java.util.concurrent.Executors;
  * ({@code --es api ""} kembali ke bawaan).
  */
 final class Account {
-    /** TODO: domain final API KlikBeam (lihat klikbeam/server/deploy/nginx.conf). */
-    static final String API = "https://api.klikbeam.example";
+    static final String API = "https://klikbeam.ashafizullah.com";
     static final String LINK_PAGE = "klikapps.pages.dev/link";
 
     private static final String K_TOKEN = "acctToken", K_CAR = "acctCar", K_API = "acctApi", K_TRIPS = "acctTrips";
