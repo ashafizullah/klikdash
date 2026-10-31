@@ -58,6 +58,9 @@ final class Account {
     }
 
     static void applyExtras(Context c, Intent i) {
+        // Hanya build debuggable (DEBUGGABLE=1 ./build.sh): HomeActivity bisa dibuka aplikasi lain, jadi di APK rilis
+        // aplikasi lain bisa mengalihkan token perangkat dan perjalanan ke server mereka.
+        if ((c.getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) == 0) return;
         if (i == null || !i.hasExtra("api")) return;
         String a = i.getStringExtra("api");
         SharedPreferences.Editor e = Prefs.of(c).edit();
