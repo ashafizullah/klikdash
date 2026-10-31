@@ -1015,7 +1015,10 @@ public class SettingsActivity extends Activity {
     View accountPanel() {
         LinearLayout list = column();
         if (Account.linked(this)) {
-            list.addView(row(getString(R.string.account_linked_title), getString(R.string.account_linked_desc, Account.carName(this)),
+            String acct = Account.account(this);
+            String linkedDesc = acct.isEmpty() ? getString(R.string.account_linked_desc, Account.carName(this))
+                    : getString(R.string.account_linked_desc_account, Account.carName(this), acct);
+            list.addView(row(getString(R.string.account_linked_title), linkedDesc,
                     key(getString(R.string.account_unlink), false, this::confirmUnlink)));
             boolean on = Account.tripsOn(this);
             list.addView(row(getString(R.string.account_trips_title), tripsStatus(on),
@@ -1068,6 +1071,32 @@ public class SettingsActivity extends Activity {
             r.addView(code, narrow ? new LinearLayout.LayoutParams(MATCH, WRAP) : new LinearLayout.LayoutParams(WRAP, WRAP));
         }
         LinearLayout side = column();
+        if (p.state == Account.Pairing.CONFIRM) {
+            // Kode sudah dipakai dari HP: tampilkan akunnya besar-besar, pemilik headunit yang memutuskan.
+            side.addView(text(getString(R.string.account_confirm_title), fBold, 24, TEXT));
+            TextView who = text(p.account == null || p.account.isEmpty() ? "?" : p.account, fHeavy, 30, AMBER);
+            LinearLayout.LayoutParams wl = new LinearLayout.LayoutParams(MATCH, WRAP);
+            wl.topMargin = px(10);
+            side.addView(who, wl);
+            TextView cd = paragraph(getString(R.string.account_confirm_desc, p.car == null ? "" : p.car));
+            LinearLayout.LayoutParams cdl = new LinearLayout.LayoutParams(MATCH, WRAP);
+            cdl.topMargin = px(8);
+            side.addView(cd, cdl);
+            LinearLayout answer = new LinearLayout(this);
+            answer.addView(key(getString(R.string.account_reject), false, () -> Account.confirm(this, p, false)),
+                    new LinearLayout.LayoutParams(WRAP, px(52)));
+            LinearLayout.LayoutParams al = new LinearLayout.LayoutParams(WRAP, px(52));
+            al.leftMargin = px(8);
+            answer.addView(key(getString(R.string.account_approve), true, () -> Account.confirm(this, p, true)), al);
+            LinearLayout.LayoutParams ansl = new LinearLayout.LayoutParams(WRAP, WRAP);
+            ansl.topMargin = px(20);
+            side.addView(answer, ansl);
+            r.addView(side, new LinearLayout.LayoutParams(MATCH, WRAP));
+            LinearLayout wrap = column();
+            wrap.addView(r, new LinearLayout.LayoutParams(MATCH, WRAP));
+            wrap.addView(rule(), ruleParams(true, 0, 0));
+            return wrap;
+        }
         side.addView(text(getString(R.string.account_title), fBold, 24, TEXT));
         String msg;
         if (p.state == Account.Pairing.SHOWING) {

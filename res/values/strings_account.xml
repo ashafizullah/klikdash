@@ -33,4 +33,11 @@
     <string name="account_channel">Riwayat perjalanan</string>
     <string name="account_notification_title">Mencatat perjalanan</string>
     <string name="account_notification_text">%1$s · terhubung ke akun KlikBeam</string>
+
+    <string name="account_confirm_title">SETUJUI AKUN INI?</string>
+    <string name="account_confirm_desc">Kode di layar ini baru dipakai oleh akun di atas. Setujui hanya kalau itu akunmu: lokasi parkir dan riwayat perjalanan mobil ini akan terlihat dari akun tersebut. Mobil disimpan sebagai %1$s.</string>
+    <string name="account_approve">SETUJU</string>
+    <string name="account_reject">TOLAK</string>
+    <string name="account_rejected">Ditolak. Mobil ini tidak dihubungkan ke akun itu. Buat kode baru kalau ingin menghubungkan ke akunmu.</string>
+    <string name="account_linked_desc_account">Mobil ini tersimpan sebagai %1$s di akun KlikBeam %2$s. Ganti nama atau hapus mobil dari aplikasi KlikBeam.</string>
 </resources>

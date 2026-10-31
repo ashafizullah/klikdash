@@ -33,4 +33,11 @@
     <string name="account_channel">Trip history</string>
     <string name="account_notification_title">Recording trips</string>
     <string name="account_notification_text">%1$s · linked to KlikBeam account</string>
+
+    <string name="account_confirm_title">APPROVE THIS ACCOUNT?</string>
+    <string name="account_confirm_desc">The code on this screen was just used by the account above. Approve only if it is yours: this car\'s parking spot and trip history will be visible to that account. The car is saved as %1$s.</string>
+    <string name="account_approve">APPROVE</string>
+    <string name="account_reject">REJECT</string>
+    <string name="account_rejected">Rejected. This car was not linked to that account. Create a new code to link it to yours.</string>
+    <string name="account_linked_desc_account">This car is saved as %1$s in the KlikBeam account %2$s. Rename or remove it in the KlikBeam app.</string>
 </resources>

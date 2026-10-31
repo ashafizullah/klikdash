@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
  * riwayat perjalanan dan lokasi parkir. Headunit tidak pernah login; ia memegang token perangkat dari pairing
  * ({@code Authorization: Device …}). API: klikbeam/server/README.md.
  *
- * Alamat server bisa diganti untuk uji (emulator ke server di Mac):
+ * Alamat server bisa diganti untuk uji (emulator ke server di Mac), hanya di build debuggable (DEBUGGABLE=1 ./build.sh):
  * {@code am start -n com.ashafizullah.klikdash/.HomeActivity --es api http://10.0.2.2:3110}
  * ({@code --es api ""} kembali ke bawaan).
  */
@@ -30,7 +30,8 @@ final class Account {
     static final String API = "https://klikbeam.ashafizullah.com";
     static final String LINK_PAGE = "klikbeam.ashafizullah.com/link";
 
-    private static final String K_TOKEN = "acctToken", K_CAR = "acctCar", K_API = "acctApi", K_TRIPS = "acctTrips";
+    private static final String K_TOKEN = "acctToken", K_CAR = "acctCar", K_API = "acctApi", K_TRIPS = "acctTrips",
+            K_ACCOUNT = "acctAccount";
 
     /** Satu antrean jaringan untuk pairing dan unggah: urut, tidak pernah dua sekaligus. */
     static final ExecutorService NET = Executors.newSingleThreadExecutor(r -> new Thread(r, "klikbeam-api"));
@@ -43,6 +44,9 @@ final class Account {
     static boolean linked(Context c) { return Prefs.of(c).getString(K_TOKEN, null) != null; }
 
     static String carName(Context c) { return Prefs.of(c).getString(K_CAR, ""); }
+
+    /** Email (atau nama) akun KlikBeam yang terhubung; kosong untuk sambungan dari KlikDash 1.9.14. */
+    static String account(Context c) { return Prefs.of(c).getString(K_ACCOUNT, ""); }
 
     /** Riwayat perjalanan dicatat (bawaan nyala setelah terhubung; bisa dimatikan tanpa memutus akun). */
     static boolean tripsOn(Context c) { return Prefs.of(c).getBoolean(K_TRIPS, true); }
@@ -132,10 +136,15 @@ final class Account {
 
     /** Pairing yang sedang tampil di tab AKUN: satu sekaligus, bertahan walau Pengaturan ditutup sampai kodenya habis. */
     static final class Pairing {
-        static final int WAITING = 0, SHOWING = 1, FAILED = 2;
+        /** CONFIRM: kode sudah dipakai dari HP; menunggu pemilik menekan SETUJU atau TOLAK di headunit. */
+        static final int WAITING = 0, SHOWING = 1, FAILED = 2, CONFIRM = 3;
 
         volatile int state = WAITING;
         volatile String code, error;
+        /** Akun yang memakai kode dan nama mobil yang akan disimpan (state CONFIRM). */
+        volatile String account, car;
+        /** SETUJU/TOLAK sudah ditekan: polling tidak lagi memunculkan pertanyaan yang sama. */
+        volatile boolean answered;
         volatile long expiresAt;
         private String poll;
         private volatile boolean cancelled;
@@ -156,7 +165,9 @@ final class Account {
         NET.execute(() -> {
             try {
                 String model = android.os.Build.MANUFACTURER + " " + android.os.Build.MODEL;
-                JSONObject d = call(c, "POST", "/v1/pair/start", null, new JSONObject().put("model", model.trim()).toString())
+                // confirm: server menunggu persetujuan di headunit sebelum menyerahkan token (lihat confirm()).
+                JSONObject d = call(c, "POST", "/v1/pair/start", null,
+                        new JSONObject().put("model", model.trim()).put("confirm", true).toString())
                         .getJSONObject("data");
                 p.code = d.getString("code");
                 p.poll = d.getString("pollToken");
@@ -188,28 +199,70 @@ final class Account {
     private static void poll(Context c, Pairing p) {
         if (p.cancelled || pairing != p) return;
         if (System.currentTimeMillis() > p.expiresAt + 30_000) {
-            fail(p, new ApiError(410, "PAIR_EXPIRED", c.getString(R.string.account_expired)));
+            fail(p, new ApiError(410, "PAIR_EXPIRED", Lang.wrap(c).getString(R.string.account_expired)));
             return;
         }
         NET.execute(() -> {
             if (p.cancelled) return;
             try {
                 JSONObject d = call(c, "GET", "/v1/pair/status", "Pair " + p.poll, null).getJSONObject("data");
-                if ("linked".equals(d.optString("status"))) {
-                    Prefs.of(c).edit()
-                            .putString(K_TOKEN, d.getString("deviceToken"))
-                            .putString(K_CAR, d.getJSONObject("device").optString("name"))
-                            .putBoolean(K_TRIPS, true)
-                            .apply();
-                    pairing = null;
-                    changed();
-                    MAIN.post(() -> TripService.sync(c));
+                String status = d.optString("status");
+                if ("linked".equals(status)) {
+                    linked(c, p, d);
                     return;
+                }
+                if ("confirm".equals(status)) {
+                    if (p.state != Pairing.CONFIRM && !p.answered) {
+                        p.account = d.optString("account");
+                        p.car = d.getJSONObject("device").optString("name");
+                        p.expiresAt = System.currentTimeMillis() + 10 * 60_000;
+                        p.state = Pairing.CONFIRM;
+                        changed();
+                    }
                 }
             } catch (ApiError e) {
                 if (e.status == 410) { fail(p, e); return; }
             } catch (Exception ignored) { } // jaringan: coba lagi
             MAIN.postDelayed(() -> poll(c, p), 2000);
+        });
+    }
+
+    private static void linked(Context c, Pairing p, JSONObject d) throws org.json.JSONException {
+        Prefs.of(c).edit()
+                .putString(K_TOKEN, d.getString("deviceToken"))
+                .putString(K_CAR, d.getJSONObject("device").optString("name"))
+                .putString(K_ACCOUNT, d.optString("account"))
+                .putBoolean(K_TRIPS, true)
+                .apply();
+        if (pairing == p) pairing = null;
+        changed();
+        MAIN.post(() -> TripService.sync(c));
+    }
+
+    /**
+     * Jawaban pemilik atas akun yang memakai kode. SETUJU: token perangkat diterima dan headunit terhubung. TOLAK: server
+     * menghapus mobil dari akun itu, dan pairing berakhir dengan pesan (bisa buat kode baru).
+     */
+    static void confirm(Context app, Pairing p, boolean approve) {
+        Context c = app.getApplicationContext();
+        if (p.state != Pairing.CONFIRM) return;
+        p.answered = true;
+        p.state = Pairing.WAITING;
+        changed();
+        NET.execute(() -> {
+            try {
+                JSONObject d = call(c, "POST", "/v1/pair/confirm", "Pair " + p.poll,
+                        new JSONObject().put("approve", approve).toString()).getJSONObject("data");
+                if ("linked".equals(d.optString("status"))) {
+                    linked(c, p, d);
+                } else {
+                    p.cancelled = true;
+                    fail(p, new ApiError(200, "PAIR_REJECTED", Lang.wrap(c).getString(R.string.account_rejected)));
+                }
+            } catch (Exception e) {
+                if (!approve) p.cancelled = true;
+                fail(p, e);
+            }
         });
     }
 
@@ -223,9 +276,13 @@ final class Account {
         if (auth == null) return;
         NET.execute(() -> {
             try {
-                String name = call(c, "GET", "/v1/device", auth, null).getJSONObject("data").optString("name");
-                if (!name.isEmpty() && !name.equals(carName(c)) && auth.equals(deviceAuth(c))) {
-                    Prefs.of(c).edit().putString(K_CAR, name).apply();
+                JSONObject d = call(c, "GET", "/v1/device", auth, null).getJSONObject("data");
+                String name = d.optString("name"), account = d.optString("account");
+                if (!auth.equals(deviceAuth(c))) return;
+                if ((!name.isEmpty() && !name.equals(carName(c))) || !account.equals(account(c))) {
+                    SharedPreferences.Editor e = Prefs.of(c).edit().putString(K_ACCOUNT, account);
+                    if (!name.isEmpty()) e.putString(K_CAR, name);
+                    e.apply();
                     changed();
                 }
             } catch (Exception ignored) { } // offline; DEVICE_UNLINKED sudah ditangani call()
@@ -248,7 +305,7 @@ final class Account {
 
     /** Token tidak berlaku lagi (diputus dari HP atau akun dihapus): kembali ke keadaan tanpa akun. */
     static void forget(Context c) {
-        Prefs.of(c).edit().remove(K_TOKEN).remove(K_CAR).remove(K_TRIPS).apply();
+        Prefs.of(c).edit().remove(K_TOKEN).remove(K_CAR).remove(K_ACCOUNT).remove(K_TRIPS).apply();
         deleteTree(dir(c));
         MAIN.post(() -> TripService.sync(c));
         changed();
