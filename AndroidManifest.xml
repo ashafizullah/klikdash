@@ -17,6 +17,7 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
+        android:name=".App"
         android:label="KlikDash"
         android:icon="@drawable/ic_launcher"
         android:theme="@style/KlikDash"

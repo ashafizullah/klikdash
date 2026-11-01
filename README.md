@@ -137,6 +137,9 @@ The old NWD launcher is **not removed**. Its process stays because it also handl
 
 ## Notes
 
+- **Crash reports.** When KlikDash closes because of an error, it sends the error message, stack trace, version and
+  headunit model to the developer the next time it is online (no location or personal data; linked to a KlikBeam
+  account only if the headunit is linked). Kept 30 days. Turn it off under **SETTINGS › UPDATES › CRASH REPORTS**.
 - **Voice assistant privacy and cost.** What you say is transcribed by the recognizer chosen under
   **PENGENALAN SUARA / SPEECH RECOGNITION**: Android (the Google app, processed by Google) or ElevenLabs Scribe.
   The text, with the list of installed app names, the current time and, when a command needs it, the location,

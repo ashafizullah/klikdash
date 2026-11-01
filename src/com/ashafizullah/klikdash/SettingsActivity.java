@@ -519,6 +519,10 @@ public class SettingsActivity extends Activity {
         list.addView(row(getString(R.string.update_auto_title), getString(R.string.update_auto_desc),
                 key(getString(R.string.settings_on), au, () -> setAutoUpdate(true)),
                 key(getString(R.string.settings_off), !au, () -> setAutoUpdate(false))));
+        boolean cr = ErrorLog.enabled(this);
+        list.addView(row(getString(R.string.update_crash_title), getString(R.string.update_crash_desc),
+                key(getString(R.string.settings_on), cr, () -> { ErrorLog.setEnabled(this, true); show(TAB_UPDATE, true); }),
+                key(getString(R.string.settings_off), !cr, () -> { ErrorLog.setEnabled(this, false); show(TAB_UPDATE, true); })));
 
         list.addView(row(getString(R.string.settings_about_title), getString(R.string.settings_about_desc, ver)));
         return scroll(list);
@@ -1149,41 +1153,20 @@ public class SettingsActivity extends Activity {
                 }).show();
     }
 
-    /** Ikut uji tertutup di Play Store: tiga langkah, dua di antaranya dengan QR untuk dibuka di HP. */
+    /** Ikut uji tertutup di Play Store: satu QR ke halaman langkah-langkahnya (klikbeam.ashafizullah.com/beta). */
     View beamAndroid() {
         LinearLayout box = column();
         box.addView(label(getString(R.string.settings_beam_android_tag)));
-        LinearLayout steps = new LinearLayout(this);
-        steps.setOrientation(narrow ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
-        String[] text = {getString(R.string.settings_beam_step1), getString(R.string.settings_beam_step2),
-                getString(R.string.settings_beam_step3)};
-        int[] qr = {R.drawable.qr_beam_group, R.drawable.qr_beam_testing, 0};
-        String[] url = {"groups.google.com/g/klikbeam-testers", "play.google.com/apps/testing/com.ashafizullah.klikbeam", null};
-        for (int i = 0; i < text.length; i++) {
-            LinearLayout col = column();
-            TextView num = label(String.format(java.util.Locale.ROOT, "%02d", i + 1));
-            num.setTextSize(14);
-            col.addView(num);
-            TextView t = text(text[i], fBold, 18, TEXT);
-            t.setSingleLine(false);
-            t.setLineSpacing(0, 1.25f);
-            if (!narrow) t.setMinLines(2); // QR langkah 1 dan 2 sejajar
-            LinearLayout.LayoutParams tl = new LinearLayout.LayoutParams(MATCH, WRAP);
-            tl.topMargin = px(8);
-            col.addView(t, tl);
-            if (qr[i] != 0) {
-                LinearLayout.LayoutParams ql = new LinearLayout.LayoutParams(WRAP, WRAP);
-                ql.topMargin = px(16);
-                col.addView(HelpVideo.qrCard(this, qr[i], getString(R.string.settings_beam_scan), url[i]), ql);
-            }
-            LinearLayout.LayoutParams cl = narrow ? new LinearLayout.LayoutParams(MATCH, WRAP)
-                    : new LinearLayout.LayoutParams(0, WRAP, 1f);
-            if (i > 0) { if (narrow) cl.topMargin = px(28); else cl.leftMargin = px(28); }
-            steps.addView(col, cl);
-        }
-        LinearLayout.LayoutParams sl = new LinearLayout.LayoutParams(MATCH, WRAP);
-        sl.topMargin = px(18);
-        box.addView(steps, sl);
+        TextView t = text(getString(R.string.settings_beam_android_text), fBold, 18, TEXT);
+        t.setSingleLine(false);
+        t.setLineSpacing(0, 1.25f);
+        LinearLayout.LayoutParams tl = new LinearLayout.LayoutParams(MATCH, WRAP);
+        tl.topMargin = px(10);
+        box.addView(t, tl);
+        LinearLayout.LayoutParams ql = new LinearLayout.LayoutParams(WRAP, WRAP);
+        ql.topMargin = px(16);
+        box.addView(HelpVideo.qrCard(this, R.drawable.qr_beam_beta, getString(R.string.settings_beam_scan),
+                "klikbeam.ashafizullah.com/beta"), ql);
         return box;
     }
 

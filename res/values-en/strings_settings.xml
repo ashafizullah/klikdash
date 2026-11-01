@@ -153,6 +153,8 @@
 
     <string name="update_title_row">UPDATES</string>
     <string name="update_desc">Installed version %1$s. %2$s Updates come from the official releases on GitHub and are only installed when the signature matches.</string>
+    <string name="update_crash_title">CRASH REPORTS</string>
+    <string name="update_crash_desc">When KlikDash closes because of an error, a report (error message, stack trace, version, headunit model) is sent to the developer the next time the headunit is online, so it can be fixed. No location or personal data; linked to a KlikBeam account only if the headunit is linked. Reports are kept for 30 days.</string>
     <string name="update_auto_title">AUTOMATIC UPDATE CHECK</string>
     <string name="update_auto_desc">Once each time the headunit turns on, after the internet connects (at most every 6 hours). When a new version is out, the offer appears while the car is stopped; nothing downloads until you tap. Choose Later to skip that version.</string>
     <string name="update_never_checked">Never checked.</string>

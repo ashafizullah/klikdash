@@ -20,9 +20,7 @@
     <string name="settings_beam_android">ANDROID</string>
     <string name="settings_beam_ios">IPHONE</string>
     <string name="settings_beam_android_tag">CLOSED TEST ON THE PLAY STORE</string>
-    <string name="settings_beam_step1">Join the KlikBeam testers group.</string>
-    <string name="settings_beam_step2">Open the testing page and tap \"Become a tester\".</string>
-    <string name="settings_beam_step3">Install KlikBeam from the Play Store, using the same Google account as in step 1.</string>
+    <string name="settings_beam_android_text">Scan this QR code with your Android phone: the page walks you through the three steps to join the beta (join the testers group, become a tester, install from the Play Store), with a video.</string>
     <string name="settings_beam_scan">SCAN WITH YOUR PHONE</string>
     <string name="settings_beam_ios_tag">AVAILABLE ON THE APP STORE</string>
     <string name="settings_beam_ios_text">Install KlikBeam from the App Store: scan this QR code with your iPhone camera, then tap Get.</string>

@@ -153,6 +153,8 @@
 
     <string name="update_title_row">PEMBARUAN</string>
     <string name="update_desc">Versi terpasang %1$s. %2$s Pembaruan diambil dari rilis resmi di GitHub dan hanya dipasang bila tanda tangannya cocok.</string>
+    <string name="update_crash_title">LAPORAN CRASH</string>
+    <string name="update_crash_desc">Bila KlikDash tertutup karena error, laporannya (pesan error, jejak kode, versi, model headunit) dikirim ke pengembang saat online berikutnya, supaya bisa diperbaiki. Tanpa lokasi atau data pribadi; dikaitkan ke akun KlikBeam hanya bila headunit terhubung. Laporan disimpan 30 hari.</string>
     <string name="update_auto_title">CEK UPDATE OTOMATIS</string>
     <string name="update_auto_desc">Sekali tiap headunit menyala, setelah internet tersambung (paling sering 6 jam sekali). Bila ada versi baru, tawarannya muncul saat mobil berhenti; unduhan tetap menunggu ketukan Anda. Pilih Nanti agar versi itu tidak ditawarkan lagi.</string>
     <string name="update_never_checked">Belum pernah dicek.</string>

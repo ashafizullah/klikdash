@@ -138,6 +138,9 @@ Launcher NWD lama **tidak dihapus**. Prosesnya tetap ada karena juga menangani i
 
 ## Catatan
 
+- **Laporan crash.** Bila KlikDash tertutup karena error, pesan error, jejak kode, versi, dan model headunit dikirim
+  ke pengembang saat online berikutnya (tanpa lokasi atau data pribadi; dikaitkan ke akun KlikBeam hanya bila
+  headunit terhubung). Disimpan 30 hari. Matikan lewat **PENGATURAN › PEMBARUAN › LAPORAN CRASH**.
 - **Privasi dan biaya asisten suara.** Ucapan Anda ditranskripsi oleh pengenal yang dipilih di **Pengenalan
   suara**: Android (aplikasi Google, diproses Google) atau ElevenLabs Scribe. Teksnya, beserta
   daftar nama aplikasi terpasang, jam sekarang, dan lokasi bila perintahnya butuh, dikirim ke penyedia AI profil

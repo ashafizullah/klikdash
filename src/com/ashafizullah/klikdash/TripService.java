@@ -154,6 +154,7 @@ public final class TripService extends Service {
                 if (done) {
                     retryMs = RETRY_MIN_MS;
                     nextTry = 0;
+                    ErrorLog.flush(c); // sedang online dan jam benar: sekalian kirim laporan crash
                 } else {
                     nextTry = SystemClock.elapsedRealtime() + retryMs;
                     retryMs = Math.min(RETRY_MAX_MS, retryMs * 2);
