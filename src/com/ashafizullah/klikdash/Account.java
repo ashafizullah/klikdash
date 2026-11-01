@@ -362,6 +362,7 @@ final class Account {
             uploadFailed = false;
             return true;
         } catch (Exception e) {
+            android.util.Log.w("KlikDash", "unggah trip gagal: " + e);
             uploadFailed = true;
             return false;
         } finally {

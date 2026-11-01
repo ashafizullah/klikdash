@@ -3,8 +3,10 @@ package com.ashafizullah.klikdash;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -13,6 +15,7 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 
 /**
  * Riwayat perjalanan untuk akun KlikBeam ({@link Account}): fix GPS tiap detik ke {@link TripRecorder}, lalu unggah
@@ -23,13 +26,14 @@ import android.os.IBinder;
 public final class TripService extends Service {
     static final String CHANNEL = "trips";
     private static final int NOTIFICATION_ID = 5; // 1 = murattal, 2 = pengingat sholat, 3 = KlikBeam, 4 = ADB/dzikir
-    private static final long TICK_MS = 60_000, RETRY_MIN_MS = 30_000, RETRY_MAX_MS = 15 * 60_000;
+    private static final long TICK_MS = 60_000, RETRY_MIN_MS = 30_000, RETRY_MAX_MS = 5 * 60_000;
 
     private static TripService instance;
 
     private TripRecorder recorder;
     private LocationManager lm;
     private ConnectivityManager cm;
+    /** {@link SystemClock#elapsedRealtime}: jam sistem melompat 2 tahun saat dibetulkan (lihat {@link Clock}). */
     private long retryMs = RETRY_MIN_MS, nextTry;
     private boolean flushing;
     /** Waktu GPS fix terakhir dan jam monotonik saat itu: jam sistem headunit bisa salah sebelum {@link Clock} membetulkannya. */
@@ -66,6 +70,7 @@ public final class TripService extends Service {
         try {
             cm.registerDefaultNetworkCallback(online);
         } catch (RuntimeException ignored) { }
+        registerReceiver(timeSet, new IntentFilter(Intent.ACTION_TIME_CHANGED));
         Account.MAIN.postDelayed(tick, 5000);
     }
 
@@ -76,6 +81,7 @@ public final class TripService extends Service {
         try {
             cm.unregisterNetworkCallback(online);
         } catch (RuntimeException ignored) { }
+        unregisterReceiver(timeSet);
         super.onDestroy();
     }
 
@@ -112,12 +118,17 @@ public final class TripService extends Service {
         @Override public void onAvailable(Network n) { Account.MAIN.postDelayed(TripService.this::flushSoon, 3000); }
     };
 
+    /** Jam baru dibetulkan (NTP atau GPS): unggahan yang gagal karena jam salah langsung dicoba lagi. */
+    private final BroadcastReceiver timeSet = new BroadcastReceiver() {
+        @Override public void onReceive(Context c, Intent i) { flushSoon(); }
+    };
+
     private final Runnable tick = new Runnable() {
         @Override public void run() {
             boolean was = recorder.active();
             if (fixElapsed > 0) recorder.tick(fixTime + android.os.SystemClock.elapsedRealtime() - fixElapsed);
             if (was != recorder.active()) Account.changed();
-            if (System.currentTimeMillis() >= nextTry) flush();
+            if (SystemClock.elapsedRealtime() >= nextTry) flush();
             Account.MAIN.postDelayed(this, TICK_MS);
         }
     };
@@ -128,9 +139,12 @@ public final class TripService extends Service {
         flush();
     }
 
-    /** Satu unggahan sekaligus; gagal: coba lagi dengan jeda yang makin panjang (30 detik sampai 15 menit). */
+    /**
+     * Satu unggahan sekaligus; gagal: coba lagi dengan jeda yang makin panjang (30 detik sampai 5 menit). Selama jam
+     * masih tanggal build firmware, HTTPS pasti gagal (sertifikat server "belum berlaku"): tunggu {@link #timeSet}.
+     */
     private void flush() {
-        if (flushing || !hasWork()) return;
+        if (flushing || !hasWork() || System.currentTimeMillis() < Built.TIME) return;
         flushing = true;
         Context c = getApplicationContext();
         Account.NET.execute(() -> {
@@ -141,7 +155,7 @@ public final class TripService extends Service {
                     retryMs = RETRY_MIN_MS;
                     nextTry = 0;
                 } else {
-                    nextTry = System.currentTimeMillis() + retryMs;
+                    nextTry = SystemClock.elapsedRealtime() + retryMs;
                     retryMs = Math.min(RETRY_MAX_MS, retryMs * 2);
                 }
             });
