@@ -149,9 +149,15 @@ public class HomeActivity extends Activity {
         status = new HomeStatus(this);
         update = new HomeUpdate(this);
         // Baru menyala: rotasi sekarang adalah bawaan firmware, catat untuk keepOrientation. Orientasi dipilih di
-        // Pengaturan: rotasi sekarang bisa hasil pilihan itu, bukan bawaan firmware.
-        if (SystemClock.elapsedRealtime() < 5 * 60_000L && Orientation.mode(prefs) == Orientation.AUTO) {
-            prefs.edit().putInt("homeRotation", getWindowManager().getDefaultDisplay().getRotation()).apply();
+        // Pengaturan: rotasi sekarang bisa hasil pilihan itu, bukan bawaan firmware. Hanya home pertama tiap boot:
+        // recreate() (mis. onConfigurationChanged setelah Maps memutar layar ke potret) akan mencatat rotasi aplikasi
+        // itu, lalu keepOrientation menyimpannya ke user_rotation dan boot berikutnya mencatatnya lagi; layar terkunci miring.
+        int boot = android.provider.Settings.Global.getInt(getContentResolver(),
+                android.provider.Settings.Global.BOOT_COUNT, -1);
+        if (b == null && SystemClock.elapsedRealtime() < 5 * 60_000L && Orientation.mode(prefs) == Orientation.AUTO
+                && (boot < 0 || prefs.getInt("homeRotationBoot", -2) != boot)) {
+            prefs.edit().putInt("homeRotation", getWindowManager().getDefaultDisplay().getRotation())
+                    .putInt("homeRotationBoot", boot).apply();
         }
 
         fHeavy = font("display.ttf", "'opsz' 72, 'wght' 800");
