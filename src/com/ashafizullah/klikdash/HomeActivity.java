@@ -692,11 +692,14 @@ public class HomeActivity extends Activity {
             if (nwdRotation == null) { // getprop menjalankan proses: sekali saja
                 int r = -1;
                 if (HomeSwitch.isNwd()) {
-                    try { r = Integer.parseInt(HomeSwitch.getprop("ro.boot.nwd.rotation")); } catch (NumberFormatException ignored) { }
+                    try { r = Integer.parseInt(HomeSwitch.getprop("ro.boot.nwd.rotation").trim()); } catch (NumberFormatException ignored) { }
+                    if (r >= 90 && r % 90 == 0) r /= 90; // derajat (90/180/270) → Surface.ROTATION_*
                 }
-                nwdRotation = r;
+                nwdRotation = r >= 0 && r <= 3 ? r : -1;
             }
-            int mode = Orientation.mode(p), want = p.getInt("homeRotation", nwdRotation);
+            // NWD: rotasi bawaan dari firmware, bukan yang dicatat saat boot. Catatan itu bisa salah (home pertama dibuat
+            // sebelum firmware memutar layar, atau rotasi aplikasi lain) dan lalu terkunci lewat user_rotation.
+            int mode = Orientation.mode(p), want = nwdRotation >= 0 ? nwdRotation : p.getInt("homeRotation", -1);
             if (mode != Orientation.AUTO) {
                 if (!HomeSwitch.isNwd()) return;
                 want = Orientation.rotation(mode, getWindowManager().getDefaultDisplay(), want);
