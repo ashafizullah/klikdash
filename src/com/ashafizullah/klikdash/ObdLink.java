@@ -75,6 +75,9 @@ final class ObdLink {
     private volatile String detail = "";
     private volatile int[] shownIds;
     private volatile float[] shownValues;
+    /** Kecepatan dari OBD, selalu dibaca walau kartunya tidak tampil: dipakai angka di sebelah jam. */
+    private volatile float speedVal = Float.NaN;
+    private volatile long speedMs;
 
     // Hanya dipakai thread kerja yang sedang hidup.
     /** Protokol yang terakhir menjawab (ATDPN); null = cari otomatis. */
@@ -90,6 +93,11 @@ final class ObdLink {
 
     void configure(int[] ids) {
         metricIds = ids == null || ids.length == 0 ? ObdPrefs.enabled(null) : ids.clone();
+    }
+
+    /** Kecepatan (km/jam) dari OBD bila tersambung dan datanya baru; NaN bila tidak, supaya pemanggil memakai GPS. */
+    float speed() {
+        return linked && SystemClock.elapsedRealtime() - speedMs < 3000 ? speedVal : Float.NaN;
     }
 
     int state() { return state; }
@@ -390,7 +398,7 @@ final class ObdLink {
 
             int[] ids = metricIds;
             int asked = 0, got = 0;
-            for (int id : ids) {
+            for (int id : withSpeed(ids)) {
                 if (!alive(g)) return;
                 if (miss[id] >= 3 && cycle % 10 != 0) continue; // PID yang tidak didukung ECU: jarang dicoba lagi
                 asked++;
@@ -402,6 +410,10 @@ final class ObdLink {
                     miss[id] = 0;
                     last[id] = v;
                     lastAt[id] = SystemClock.elapsedRealtime();
+                    if (id == ObdPrefs.SPEED) {
+                        speedVal = v;
+                        speedMs = lastAt[id];
+                    }
                     got++;
                 }
             }
@@ -430,6 +442,14 @@ final class ObdLink {
         float v = id == ObdPrefs.VOLTAGE ? volts(r) : decode(id, mode01(r, ObdPrefs.pid(id)));
         if (Float.isNaN(v) && verbose && r != null) log(cmd + " → " + clip(r));
         return v;
+    }
+
+    /** Metrik yang tampil ditambah kecepatan, yang selalu dibaca. */
+    private static int[] withSpeed(int[] ids) {
+        for (int id : ids) if (id == ObdPrefs.SPEED) return ids;
+        int[] out = Arrays.copyOf(ids, ids.length + 1);
+        out[ids.length] = ObdPrefs.SPEED;
+        return out;
     }
 
     private static float[] nan(int n) {

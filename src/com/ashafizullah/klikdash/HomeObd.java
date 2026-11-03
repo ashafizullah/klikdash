@@ -117,6 +117,7 @@ final class HomeObd implements ObdLink.Listener {
     }
 
     @Override public void onValues(int[] ids, float[] values) {
+        h.loc.updateSpeed(); // kecepatan di sebelah jam ikut sumber OBD
         if (vals == null || !Arrays.equals(ids, metricIds)) return;
         for (int i = 0; i < ids.length; i++) {
             int id = ids[i];
@@ -154,6 +155,7 @@ final class HomeObd implements ObdLink.Listener {
     static final int COOL_DANGER = 110;
 
     @Override public void onLink(boolean connected) {
+        h.loc.updateSpeed();
         if (scrim == null) return;
         if (connected) {
             scrim.setVisibility(View.GONE);
