@@ -4,6 +4,7 @@
     <string name="settings_close">CLOSE  ✕</string>
     <string-array name="settings_tab_names">
         <item>LAUNCHER</item>
+        <item>OBD</item>
         <item>POWER SAVER</item>
         <item>AI ASSISTANT</item>
         <item>KLIKBEAM</item>
@@ -12,6 +13,7 @@
     </string-array>
     <string-array name="settings_tab_captions">
         <item>DISPLAY &amp; SHORTCUTS</item>
+        <item>ADAPTER &amp; HOME</item>
         <item>BACKGROUND APPS</item>
         <item>PROFILES &amp; VOICE</item>
         <item>PHONE MIRROR · BETA</item>
@@ -23,6 +25,7 @@
     <string name="settings_group_look">DISPLAY</string>
     <string name="settings_group_prayer">PRAYER</string>
     <string name="settings_group_home">HOME</string>
+    <string name="settings_group_obd">OBD</string>
     <string name="settings_group_system">SYSTEM</string>
     <string name="settings_group_theme_auto">AUTO THEME</string>
     <string name="settings_group_tiles">%1$d TILES</string>
@@ -119,6 +122,27 @@
     <string name="settings_tiles_reset_button">Reset</string>
     <string name="settings_tiles_reset_done">Shortcuts restored to default</string>
 
+    <string name="settings_obd_home_title">DATA DISPLAYED</string>
+    <string name="settings_obd_home_desc">Choose which data will be displayed on home screen (2–4).</string>
+    <string name="settings_obd_rpm">RPM</string>
+    <string name="settings_obd_speed">SPEED</string>
+    <string name="settings_obd_coolant">COOLANT</string>
+    <string name="settings_obd_voltage">VOLTAGE</string>
+    <string name="settings_obd_fuel">FUEL LEVEL</string>
+    <string name="settings_obd_min">At least 2 items must stay on</string>
+    <string name="settings_obd_max">At most 4 items</string>
+    <string name="settings_obd_adapter_title">ADAPTER</string>
+    <string name="settings_obd_adapter_desc">Pair your ELM327 adapter in the headunit Bluetooth settings, then pick it here. AUTO uses a paired device whose name looks like an OBD adapter. In use: %1$s</string>
+    <string name="settings_obd_adapter_auto">AUTO</string>
+    <string name="settings_obd_adapter_change">CHOOSE</string>
+    <string name="settings_obd_conn_title">CONNECTION</string>
+    <string name="settings_obd_connect">CONNECT</string>
+    <string name="settings_obd_disconnect">DISCONNECT</string>
+    <string name="settings_obd_log_title">CONNECTION LOG</string>
+    <string name="settings_obd_log_desc">Newest first. Send it along if OBD refuses to connect.</string>
+    <string name="settings_obd_log_clear">CLEAR</string>
+    <string name="settings_obd_log_empty">Nothing logged yet.</string>
+
     <string name="settings_hidden_title">HIDDEN APPS</string>
     <string name="settings_hidden_none">None yet. Long-press an icon in All Apps to hide it, e.g. an icon that shows up twice.</string>
     <plurals name="settings_hidden_desc">
@@ -212,4 +236,15 @@
     <string name="power_st_restricted">CANNOT RUN IN BACKGROUND</string>
     <string name="power_st_running">RUNNING IN BACKGROUND</string>
     <string name="power_st_allowed">ALLOWED IN BACKGROUND</string>
+    <string name="settings_obd_show_title">SHOW ON HOME</string>
+    <string name="settings_obd_show_desc">The OBD cards below the clock card on home. Hiding them does not disconnect.</string>
+    <string name="settings_obd_list_summary">%1$d ON · DRAG ≡ TO REORDER</string>
+    <string name="settings_obd_pick_title">Choose OBD adapter</string>
+    <string name="settings_obd_pick_none">No paired Bluetooth devices (is Bluetooth off?)</string>
+    <string name="settings_obd_load">ENGINE LOAD</string>
+    <string name="settings_obd_throttle">THROTTLE</string>
+    <string name="settings_obd_intake">INTAKE AIR TEMP</string>
+    <string name="settings_obd_map">MANIFOLD PRESSURE</string>
+    <string name="settings_obd_maf">AIR FLOW (MAF)</string>
+    <string name="settings_obd_oil">OIL TEMP</string>
 </resources>

@@ -15,6 +15,9 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!-- Pengingat sholat melayang di atas Maps/Waze; diberikan lewat ADB lokal (PrayerAlarm.allowOverlay). -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- OBD ELM327: koneksi ke adapter Bluetooth yang sudah dipasangkan -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <application
         android:name=".App"
@@ -139,6 +142,11 @@
             android:name=".TripService"
             android:directBootAware="true"
             android:foregroundServiceType="location"
+            android:exported="false" />
+
+        <!-- Koneksi adapter OBD ELM327 (ObdLink), supaya tidak putus saat aplikasi lain di depan -->
+        <service
+            android:name=".ObdService"
             android:exported="false" />
 
         <service

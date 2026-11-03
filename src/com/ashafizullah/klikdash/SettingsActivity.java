@@ -1,6 +1,7 @@
 package com.ashafizullah.klikdash;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothDevice;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -38,16 +39,16 @@ import static com.ashafizullah.klikdash.HomeActivity.PANEL;
 import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 
 /**
- * Pengaturan KlikDash dalam tab: Launcher (dikelompokkan: tampilan, sholat, screensaver, home, sistem), Hemat Daya,
- * Asisten AI, KlikBeam, Akun (riwayat perjalanan, {@link Account}), dan Pembaruan.
+ * Pengaturan KlikDash dalam tab: Launcher, OBD, Hemat Daya, Asisten AI, KlikBeam, Akun, dan Pembaruan.
  * Tab di kiri pada layar mendatar, di atas pada layar tegak.
  */
 public class SettingsActivity extends Activity {
 
     static final int MATCH = ViewGroup.LayoutParams.MATCH_PARENT, WRAP = ViewGroup.LayoutParams.WRAP_CONTENT;
     static final String EXTRA_TAB = "tab";
-    static final int TAB_LAUNCHER = 0, TAB_POWER = 1, TAB_AI = 2, TAB_BEAM = 3, TAB_ACCOUNT = 4, TAB_UPDATE = 5;
-    static final int TAB_COUNT = 6;
+    static final int TAB_LAUNCHER = 0, TAB_OBD = 1, TAB_POWER = 2, TAB_AI = 3, TAB_BEAM = 4, TAB_ACCOUNT = 5,
+            TAB_UPDATE = 6;
+    static final int TAB_COUNT = 7;
 
     float dp, sp, wDp, hDp, railDp;
     boolean portrait, narrow;
@@ -102,16 +103,19 @@ public class SettingsActivity extends Activity {
         // Kembali dari pengaturan sistem atau Play Store: status tampilan utama atau mesin suara mungkin berubah.
         // Tab Launcher tanpa melompat ke atas: baris screensaver di tengah, kembali dari pemilih foto.
         if (current == TAB_LAUNCHER) rebuildKeepScroll();
+        else if (current == TAB_OBD) rebuildKeepScroll(TAB_OBD); // kembali dari pengaturan Bluetooth
         else if (current == TAB_AI) show(current, true);
         else if (current == TAB_ACCOUNT) {
             show(current, true);
             Account.refresh(this);
         }
         Account.listeners.add(accountRx);
+        ObdLink.I.addListener(obdRx);
     }
 
     @Override protected void onPause() {
         Account.listeners.remove(accountRx);
+        ObdLink.I.removeListener(obdRx);
         super.onPause();
     }
 
@@ -192,6 +196,8 @@ public class SettingsActivity extends Activity {
         if (tab == TAB_POWER) {
             power = new PowerPanel(this);
             v = power.view;
+        } else if (tab == TAB_OBD) {
+            v = obdPanel();
         } else if (tab == TAB_AI) {
             ai = new AiPanel(this);
             v = ai.view;
@@ -210,9 +216,9 @@ public class SettingsActivity extends Activity {
     // ---------------------------------------------------------------- tab Launcher
 
     /** Kelompok accordion tab Launcher; hanya satu yang terbuka (openGroup, -1 = semua tertutup). */
-    static final int GROUP_LOOK = 0, GROUP_PRAYER = 1, GROUP_SAVER = 2, GROUP_HOME = 3, GROUP_SYSTEM = 4;
+    static final int GROUP_LOOK = 0, GROUP_PRAYER = 1, GROUP_SAVER = 2, GROUP_HOME = 3, GROUP_SYSTEM = 4, GROUP_OBD = 5;
     int openGroup = -1;
-    final View[] groupViews = new View[5];
+    final View[] groupViews = new View[6];
 
     View launcherPanel() {
         LinearLayout list = column();
@@ -446,6 +452,106 @@ public class SettingsActivity extends Activity {
         return scroll(list);
     }
 
+    // ---------------------------------------------------------------- tab OBD
+
+    View obdPanel() {
+        LinearLayout list = column();
+        String on = getString(R.string.settings_on).toUpperCase(), off = getString(R.string.settings_off).toUpperCase();
+
+        boolean shown = ObdPrefs.show(prefs);
+        list.addView(row(getString(R.string.settings_obd_show_title), getString(R.string.settings_obd_show_desc),
+                key(shown ? on : off, shown, () -> {
+                    ObdPrefs.setShow(prefs, !ObdPrefs.show(prefs));
+                    rebuildKeepScroll(TAB_OBD);
+                })));
+
+        obdConn = key("", false, () -> {
+            if (ObdPrefs.auto(prefs)) ObdService.disconnect(this); else ObdService.connect(this);
+            obdRefresh();
+        });
+        list.addView(row(getString(R.string.settings_obd_conn_title), "", obdConn));
+        obdStatus = lastDesc; // deskripsi baris ini adalah status koneksi, diperbarui langsung
+
+        list.addView(row(getString(R.string.settings_obd_log_title), getString(R.string.settings_obd_log_desc),
+                key(getString(R.string.settings_obd_log_clear), false, () -> ObdLink.I.clearLog())));
+        obdLog = text("", fMono, 12, HomeActivity.SOFT);
+        obdLog.setSingleLine(false);
+        obdLog.setPadding(0, px(14), 0, px(20));
+        list.addView(obdLog, new LinearLayout.LayoutParams(MATCH, WRAP));
+
+        String mac = ObdPrefs.mac(prefs);
+        String adapter = mac.isEmpty() ? getString(R.string.settings_obd_adapter_auto) : mac;
+        for (BluetoothDevice d : ObdLink.bonded()) if (d.getAddress().equalsIgnoreCase(mac)) adapter = ObdLink.name(d);
+        list.addView(row(getString(R.string.settings_obd_adapter_title),
+                getString(R.string.settings_obd_adapter_desc, adapter),
+                key(getString(R.string.settings_obd_adapter_change), false, this::pickAdapter)));
+
+        List<View> metrics = new ArrayList<>();
+        TextView hint = paragraph(getString(R.string.settings_obd_home_desc));
+        hint.setPadding(0, px(18), 0, px(14));
+        metrics.add(hint);
+        LinearLayout order = column();
+        order.setPadding(0, 0, 0, px(14));
+        order.addView(new ObdOrderList(this, prefs, () -> content.post(() -> rebuildKeepScroll(TAB_OBD))));
+        metrics.add(order);
+        list.addView(group(GROUP_OBD, getString(R.string.settings_obd_home_title),
+                getString(R.string.settings_obd_list_summary, ObdPrefs.enabled(prefs).length), metrics));
+
+        obdRefresh();
+        return scroll(list);
+    }
+
+    /** Dialog daftar perangkat berpasangan (yang namanya mirip adapter OBD di atas) atau OTOMATIS. */
+    void pickAdapter() {
+        List<BluetoothDevice> devs = ObdLink.bonded();
+        devs.sort((x, y) -> Boolean.compare(ObdLink.looksLikeObd(y.getName()), ObdLink.looksLikeObd(x.getName())));
+        String[] names = new String[devs.size() + 1];
+        names[0] = getString(R.string.settings_obd_adapter_auto);
+        for (int i = 0; i < devs.size(); i++) names[i + 1] = ObdLink.name(devs.get(i));
+        AlertDialog.Builder b = new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.settings_obd_pick_title))
+                .setNegativeButton(getString(R.string.common_cancel), null)
+                .setNeutralButton("BLUETOOTH", (d, w) -> {
+                    try {
+                        startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
+                    } catch (Exception ignored) { }
+                });
+        if (devs.isEmpty()) {
+            b.setMessage(getString(R.string.settings_obd_pick_none));
+        } else {
+            b.setItems(names, (d, w) -> {
+                ObdPrefs.setMac(prefs, w == 0 ? "" : devs.get(w - 1).getAddress());
+                if (ObdPrefs.auto(prefs)) ObdService.connect(this);
+                rebuildKeepScroll(TAB_OBD);
+            });
+        }
+        showDark(b);
+    }
+
+    TextView obdStatus, obdLog, lastDesc;
+    Key obdConn;
+
+    final ObdLink.Listener obdRx = new ObdLink.Listener() {
+        @Override public void onLog() { obdRefresh(); }
+    };
+
+    void obdRefresh() {
+        if (obdConn != null) {
+            boolean auto = ObdPrefs.auto(prefs); // langsung berubah saat diketuk, tanpa menunggu koneksinya
+            String l = getString(auto ? R.string.settings_obd_disconnect : R.string.settings_obd_connect);
+            if (!l.equals(obdConn.label)) obdConn.setLabel(l);
+            obdConn.setOn(auto);
+        }
+        if (obdStatus != null) {
+            String d = ObdLink.I.detail();
+            obdStatus.setText(getString(ObdLink.stateRes(ObdLink.I.state())) + (d.isEmpty() ? "" : "\n" + d));
+        }
+        if (obdLog != null) {
+            String t = ObdLink.I.logText(40);
+            obdLog.setText(t.isEmpty() ? getString(R.string.settings_obd_log_empty) : t);
+        }
+    }
+
     /** "A · B · C", tanpa bagian yang null. */
     static String dots(String... parts) {
         StringBuilder b = new StringBuilder();
@@ -500,7 +606,7 @@ public class SettingsActivity extends Activity {
     /** Buka satu kelompok (yang lain menutup) dan gulir supaya kepalanya di atas. */
     void toggleGroup(int id) {
         openGroup = openGroup == id ? -1 : id;
-        show(TAB_LAUNCHER, true);
+        show(current, true);
         View now = content.getChildAt(0), g = openGroup < 0 ? null : groupViews[openGroup];
         if (now instanceof ScrollView && g != null) scrollBeforeDraw(now, g::getTop);
     }
@@ -854,6 +960,7 @@ public class SettingsActivity extends Activity {
         t.addView(h);
         if (desc != null) {
             TextView d = paragraph(desc);
+            lastDesc = d;
             LinearLayout.LayoutParams dl = new LinearLayout.LayoutParams(MATCH, WRAP);
             dl.topMargin = px(6);
             t.addView(d, dl);

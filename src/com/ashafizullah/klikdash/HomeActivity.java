@@ -67,12 +67,14 @@ public class HomeActivity extends Activity {
     Typeface fHeavy, fBold, fMed, fMono, fMonoBold;
     ColorFilter mono;
     SharedPreferences prefs;
+    String obdLayoutSig;
 
     // Bagian home; dibuat di onCreate (butuh resource dan prefs).
     HomeApps apps;
     HomeLocation loc;
     HomeDrawer drawer;
     HomeStatus status;
+    HomeObd obd;
     HomeUpdate update;
 
     final HomeViews.Tile[] tiles = new HomeViews.Tile[HomeApps.SLOTS + 1];
@@ -143,10 +145,12 @@ public class HomeActivity extends Activity {
         // Direct boot: saat boot penyimpanan biasa (CE) masih terkunci beberapa detik, dan firmware hanya bisa
         // memilih launcher yang directBootAware. Maka pengaturan disimpan di penyimpanan DE.
         prefs = openPrefs();
+        obdLayoutSig = ObdPrefs.signature(prefs);
         apps = new HomeApps(this);
         loc = new HomeLocation(this);
         drawer = new HomeDrawer(this);
         status = new HomeStatus(this);
+        obd = new HomeObd(this);
         update = new HomeUpdate(this);
         // Baru menyala: rotasi sekarang adalah bawaan firmware, catat untuk keepOrientation. Orientasi dipilih di
         // Pengaturan: rotasi sekarang bisa hasil pilihan itu, bukan bawaan firmware. Hanya home pertama tiap boot:
@@ -317,6 +321,13 @@ public class HomeActivity extends Activity {
             reloadPrefs();
         }
         if (HomeApps.tileCount(prefs) != shown + 1) { recreate(); return; } // jumlah ubin diganti di Pengaturan
+        String obdSig = ObdPrefs.signature(prefs);
+        if (obdLayoutSig != null && !obdSig.equals(obdLayoutSig)) {
+            obdLayoutSig = obdSig;
+            recreate();
+            return;
+        }
+        obdLayoutSig = obdSig;
         refreshLock(); // PIN bisa diatur atau dihapus di Pengaturan
         keepOrientation();
         QuranService.listeners.add(onQuran);
@@ -331,6 +342,7 @@ public class HomeActivity extends Activity {
         updateTime();
         prayerView.startTicking();
         status.start();
+        obd.start();
         beamShown = BeamHub.running();
         BeamHub.addListener(beamRx);
         refreshDefaultHome();
@@ -600,6 +612,7 @@ public class HomeActivity extends Activity {
         loc.stopSpeed();
         prayerView.stopTicking();
         status.stop();
+        obd.stop();
         BeamHub.removeListener(beamRx);
         QuranService.listeners.remove(onQuran);
         DzikirService.listeners.remove(onDzikir);
@@ -827,7 +840,9 @@ public class HomeActivity extends Activity {
         // Tema kilap: panel jam jadi kartu kaca dengan jarak dalam `inset` di tiap sisi; jarak ke ubin menyempit.
         // `edge`: jarak tepi layar ke panel jam dan ubin.
         int inset = Theme.gloss() ? 16 : 0, sep = Theme.gloss() ? 13 : 57, edge = 24;
-        float spDp = sp / dp, availH = (portrait ? panelH - 24 : screenH - 2 * edge) - 2 * inset;
+        // Kartu OBD (68 + jarak 12) di bawah panel jam, di luar kartunya; tingginya dikurangkan dari panel jam.
+        int obdH = ObdPrefs.show(prefs) ? 80 : 0;
+        float spDp = sp / dp, availH = (portrait ? panelH - 24 : screenH - 2 * edge) - 2 * inset - obdH;
         // Tombol JADIKAN TAMPILAN UTAMA (48 + jarak 14) ikut dihitung bila tampil; lihat refreshDefaultHome.
         reservedDefault = knownDefault != null && !knownDefault;
         float fixed = 48 + 14 * spDp + 42 + 1.3f * (18 + (panelH < 560 ? 28 : 36) + 13) * k * spDp + 14 + 104 * k
@@ -999,7 +1014,16 @@ public class HomeActivity extends Activity {
         left.addView(gauge, gl);
         if (shortPanel) gauge.setVisibility(View.GONE);
 
-        row.addView(left, portrait ? new LinearLayout.LayoutParams(MATCH, px(panelH - 24 + grow))
+        // Kartu jam di atas; kartu OBD terpisah di bawahnya.
+        LinearLayout leftCol = new LinearLayout(this);
+        leftCol.setOrientation(LinearLayout.VERTICAL);
+        leftCol.addView(left, new LinearLayout.LayoutParams(MATCH, 0, 1f));
+        if (obdH > 0) {
+            LinearLayout.LayoutParams obdLp = new LinearLayout.LayoutParams(MATCH, px(68));
+            obdLp.topMargin = px(12);
+            leftCol.addView(obd.buildLeftPanel(px(8)), obdLp);
+        }
+        row.addView(leftCol, portrait ? new LinearLayout.LayoutParams(MATCH, px(panelH - 24 + grow))
                 : new LinearLayout.LayoutParams(px(leftDp), MATCH));
 
         View div = new View(this);
