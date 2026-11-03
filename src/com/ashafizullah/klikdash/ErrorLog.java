@@ -53,6 +53,20 @@ final class ErrorLog {
         });
     }
 
+    /** Kejadian yang bukan crash (mis. pengaturan dipulihkan dari cadangan), dikirim bersama laporan crash. */
+    static void report(Context c, String message, String where) {
+        try {
+            queue(c, new JSONObject()
+                    .put("kind", "error")
+                    .put("message", message.length() > 1000 ? message.substring(0, 1000) : message)
+                    .put("context", where)
+                    .put("appVersion", version(c))
+                    .put("osVersion", "Android " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")")
+                    .put("device", (Build.MANUFACTURER + " " + Build.MODEL).trim())
+                    .put("at", System.currentTimeMillis()));
+        } catch (Throwable ignored) { }
+    }
+
     /** Kirim yang tertunda di latar; gagal (offline, jam belum benar) = coba lagi nanti. */
     static void flush(Context context) {
         Context c = context.getApplicationContext();
