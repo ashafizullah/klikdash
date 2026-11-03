@@ -34,6 +34,9 @@ final class HomeObd implements ObdLink.Listener {
     TextView[] vals;
     View[] cells;
 
+    /** Tinggi kartu (dp): label di atas dan angka di bawah dengan jarak di antaranya. */
+    static final int HEIGHT = 76;
+
     HomeObd(HomeActivity h) { this.h = h; }
 
     /** Satu baris kartu (2–4), sama lebar. */
@@ -134,17 +137,18 @@ final class HomeObd implements ObdLink.Listener {
         }
     }
 
+    /** Putih saat normal; kuning/merah hanya untuk nilai yang melewati batas. */
     static int color(int id, float v) {
-        if (id == ObdPrefs.RPM) return v > 5500 ? WARN : DIM;
-        if (id == ObdPrefs.SPEED) return v > 100 ? WARN : DIM;
+        if (id == ObdPrefs.RPM) return v > 5500 ? WARN : TEXT;
+        if (id == ObdPrefs.SPEED) return v > 100 ? WARN : TEXT;
         if (id == ObdPrefs.COOLANT) return HomeObd.coolColor(v);
-        return DIM;
+        return TEXT;
     }
 
     static int coolColor(float c) {
         if (c >= HomeObd.COOL_DANGER) return HOT;
         if (c >= HomeObd.COOL_PANAS) return WARN;
-        return DIM;
+        return TEXT;
     }
 
     static final int COOL_PANAS = 95;

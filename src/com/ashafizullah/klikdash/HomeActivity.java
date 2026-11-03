@@ -840,8 +840,8 @@ public class HomeActivity extends Activity {
         // Tema kilap: panel jam jadi kartu kaca dengan jarak dalam `inset` di tiap sisi; jarak ke ubin menyempit.
         // `edge`: jarak tepi layar ke panel jam dan ubin.
         int inset = Theme.gloss() ? 16 : 0, sep = Theme.gloss() ? 13 : 57, edge = 24;
-        // Kartu OBD (68 + jarak 12) di bawah panel jam, di luar kartunya; tingginya dikurangkan dari panel jam.
-        int obdH = ObdPrefs.show(prefs) ? 80 : 0;
+        // Kartu OBD (tinggi kartu + jarak 12) di bawah panel jam, di luar kartunya; tingginya dikurangkan dari panel jam.
+        int obdH = ObdPrefs.show(prefs) ? HomeObd.HEIGHT + 12 : 0;
         float spDp = sp / dp, availH = (portrait ? panelH - 24 : screenH - 2 * edge) - 2 * inset - obdH;
         // Tombol JADIKAN TAMPILAN UTAMA (48 + jarak 14) ikut dihitung bila tampil; lihat refreshDefaultHome.
         reservedDefault = knownDefault != null && !knownDefault;
@@ -1019,7 +1019,7 @@ public class HomeActivity extends Activity {
         leftCol.setOrientation(LinearLayout.VERTICAL);
         leftCol.addView(left, new LinearLayout.LayoutParams(MATCH, 0, 1f));
         if (obdH > 0) {
-            LinearLayout.LayoutParams obdLp = new LinearLayout.LayoutParams(MATCH, px(68));
+            LinearLayout.LayoutParams obdLp = new LinearLayout.LayoutParams(MATCH, px(HomeObd.HEIGHT));
             obdLp.topMargin = px(12);
             leftCol.addView(obd.buildLeftPanel(px(8)), obdLp);
         }
