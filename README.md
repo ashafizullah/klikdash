@@ -59,6 +59,9 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
   code (**⚙ › KLIKBEAM**). Full screen, or a floating window over Maps that you move with a finger and resize with two.
   Turn on **BUKA OTOMATIS / OPEN AUTOMATICALLY** (off by default) and the receiver opens by itself when the phone
   starts mirroring; closing it stops mirroring on the phone.
+  Mirroring is **free**, and the receiver is part of KlikDash (MIT). KlikBeam has an optional **Pro** subscription
+  only for account features that run on its server (1-year trip history, up to 5 cars, statistics and export,
+  maintenance reminders); nothing in KlikDash is locked behind it.
 - **Quick panel:** tap **☰** at the top left of the home screen, or swipe in from the left edge: media volume,
   screen brightness, split screen, screensaver now, and **⚙ SETTINGS**.
 - **Split screen:** two apps side by side, for example YouTube and Maps (**☰ › SPLIT SCREEN**). Drag the handle in

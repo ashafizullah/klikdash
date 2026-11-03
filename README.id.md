@@ -59,6 +59,9 @@ merender animasi 3D (~40% CPU).
   (**⚙ › KLIKBEAM**). Layar penuh, atau jendela melayang di atas Maps yang bisa digeser dan diubah ukurannya dengan dua
   jari. Nyalakan **BUKA OTOMATIS** (bawaan mati) supaya penerima terbuka sendiri saat HP mulai
   mirror; menutupnya menghentikan mirror di HP.
+  Mirror **gratis**, dan penerimanya bagian dari KlikDash (MIT). KlikBeam punya langganan **Pro** opsional
+  hanya untuk fitur akun yang berjalan di servernya (riwayat perjalanan 1 tahun, sampai 5 mobil, statistik dan
+  ekspor, pengingat servis); tidak ada fitur KlikDash yang dikunci.
 - **Panel cepat:** ketuk **☰** di kiri atas home, atau geser dari tepi kiri layar: volume media, kecerahan layar,
   layar terbagi, screensaver sekarang, dan **⚙ PENGATURAN**.
 - **Layar terbagi:** dua aplikasi berdampingan, misalnya YouTube dan Maps (**☰ › LAYAR TERBAGI**). Geser pegangan
