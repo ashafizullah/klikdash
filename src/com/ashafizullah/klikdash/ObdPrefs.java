@@ -9,9 +9,8 @@ import java.util.Arrays;
  * menyimpan urutan semua metrik, {@code obdHome} yang menyala.
  */
 final class ObdPrefs {
-    static final int RPM = 0, SPEED = 1, COOLANT = 2, VOLTAGE = 3, FUEL = 4, LOAD = 5, THROTTLE = 6, INTAKE = 7,
-            MAP = 8, MAF = 9, OIL = 10;
-    private static final int[] ALL = {RPM, SPEED, COOLANT, VOLTAGE, FUEL, LOAD, THROTTLE, INTAKE, MAP, MAF, OIL};
+    static final int RPM = 0, SPEED = 1, COOLANT = 2, VOLTAGE = 3, INTAKE = 4;
+    private static final int[] ALL = {RPM, SPEED, COOLANT, VOLTAGE, INTAKE};
     static final int COUNT = ALL.length;
     /** Batas yang tampil di home: satu baris kartu. */
     static final int MIN = 2, MAX = 4;
@@ -82,13 +81,7 @@ final class ObdPrefs {
             case SPEED: return 0x0D;
             case COOLANT: return 0x05;
             case VOLTAGE: return 0x42;
-            case FUEL: return 0x2F;
-            case LOAD: return 0x04;
-            case THROTTLE: return 0x11;
             case INTAKE: return 0x0F;
-            case MAP: return 0x0B;
-            case MAF: return 0x10;
-            case OIL: return 0x5C;
             default: return -1;
         }
     }
@@ -98,13 +91,7 @@ final class ObdPrefs {
             case SPEED: return R.string.settings_obd_speed;
             case COOLANT: return R.string.settings_obd_coolant;
             case VOLTAGE: return R.string.settings_obd_voltage;
-            case FUEL: return R.string.settings_obd_fuel;
-            case LOAD: return R.string.settings_obd_load;
-            case THROTTLE: return R.string.settings_obd_throttle;
             case INTAKE: return R.string.settings_obd_intake;
-            case MAP: return R.string.settings_obd_map;
-            case MAF: return R.string.settings_obd_maf;
-            case OIL: return R.string.settings_obd_oil;
             default: return R.string.settings_obd_rpm;
         }
     }
@@ -114,13 +101,7 @@ final class ObdPrefs {
             case SPEED: return R.string.home_obd_unit_speed;
             case COOLANT: return R.string.home_obd_unit_coolant;
             case VOLTAGE: return R.string.home_obd_unit_voltage;
-            case FUEL: return R.string.home_obd_unit_fuel;
-            case LOAD: return R.string.home_obd_unit_load;
-            case THROTTLE: return R.string.home_obd_unit_throttle;
             case INTAKE: return R.string.home_obd_unit_intake;
-            case MAP: return R.string.home_obd_unit_map;
-            case MAF: return R.string.home_obd_unit_maf;
-            case OIL: return R.string.home_obd_unit_oil;
             default: return R.string.home_obd_unit_rpm;
         }
     }

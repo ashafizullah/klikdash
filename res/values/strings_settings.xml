@@ -129,7 +129,6 @@
     <string name="settings_obd_speed">KECEPATAN</string>
     <string name="settings_obd_coolant">SUHU MESIN</string>
     <string name="settings_obd_voltage">TEGANGAN</string>
-    <string name="settings_obd_fuel">BAHAN BAKAR</string>
     <string name="settings_obd_min">Minimal 2 data harus ditampilkan</string>
     <string name="settings_obd_max">Maksimal 4 data</string>
     <string name="settings_obd_adapter_title">ADAPTER</string>
@@ -237,10 +236,5 @@
     <string name="settings_obd_list_summary">%1$d AKTIF · SERET ≡ UNTUK URUTAN</string>
     <string name="settings_obd_pick_title">Pilih adapter OBD</string>
     <string name="settings_obd_pick_none">Tidak ada perangkat Bluetooth berpasangan (Bluetooth mati?)</string>
-    <string name="settings_obd_load">BEBAN MESIN</string>
-    <string name="settings_obd_throttle">GAS (THROTTLE)</string>
     <string name="settings_obd_intake">SUHU UDARA MASUK</string>
-    <string name="settings_obd_map">TEKANAN MANIFOLD</string>
-    <string name="settings_obd_maf">ALIRAN UDARA (MAF)</string>
-    <string name="settings_obd_oil">SUHU OLI</string>
 </resources>

@@ -447,17 +447,8 @@ final class ObdLink {
                 return b[0];
             case ObdPrefs.COOLANT:
                 return b[0] - 40f;
-            case ObdPrefs.FUEL:
-            case ObdPrefs.LOAD:
-            case ObdPrefs.THROTTLE:
-                return b[0] * 100f / 255f;
             case ObdPrefs.INTAKE:
-            case ObdPrefs.OIL:
                 return b[0] - 40f;
-            case ObdPrefs.MAP:
-                return b[0];
-            case ObdPrefs.MAF:
-                return b.length < 2 ? Float.NaN : (b[0] * 256 + b[1]) / 100f;
             default:
                 return Float.NaN;
         }

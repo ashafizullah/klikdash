@@ -29,13 +29,7 @@
     <string name="home_obd_unit_speed">KM/H</string>
     <string name="home_obd_unit_coolant">COOL °C</string>
     <string name="home_obd_unit_voltage">V</string>
-    <string name="home_obd_unit_fuel">FUEL %</string>
-    <string name="home_obd_unit_load">LOAD %</string>
-    <string name="home_obd_unit_throttle">THROTTLE %</string>
     <string name="home_obd_unit_intake">IAT °C</string>
-    <string name="home_obd_unit_map">MAP kPa</string>
-    <string name="home_obd_unit_maf">MAF g/s</string>
-    <string name="home_obd_unit_oil">OIL °C</string>
     <string name="home_make_default">JADIKAN TAMPILAN UTAMA</string>
     <string name="home_prayer_next_in">▸ %1$s DALAM %2$s</string>
     <string name="home_location_approx">" · PERKIRAAN"</string>

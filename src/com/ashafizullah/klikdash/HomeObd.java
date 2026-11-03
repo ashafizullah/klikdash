@@ -130,7 +130,6 @@ final class HomeObd implements ObdLink.Listener {
     static String format(int id, float v) {
         switch (id) {
             case ObdPrefs.VOLTAGE:
-            case ObdPrefs.MAF:
                 return String.format(Locale.US, "%.1f", v);
             default:
                 return String.valueOf(Math.round(v));

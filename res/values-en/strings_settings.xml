@@ -128,7 +128,6 @@
     <string name="settings_obd_speed">SPEED</string>
     <string name="settings_obd_coolant">COOLANT</string>
     <string name="settings_obd_voltage">VOLTAGE</string>
-    <string name="settings_obd_fuel">FUEL LEVEL</string>
     <string name="settings_obd_min">At least 2 items must stay on</string>
     <string name="settings_obd_max">At most 4 items</string>
     <string name="settings_obd_adapter_title">ADAPTER</string>
@@ -241,10 +240,5 @@
     <string name="settings_obd_list_summary">%1$d ON · DRAG ≡ TO REORDER</string>
     <string name="settings_obd_pick_title">Choose OBD adapter</string>
     <string name="settings_obd_pick_none">No paired Bluetooth devices (is Bluetooth off?)</string>
-    <string name="settings_obd_load">ENGINE LOAD</string>
-    <string name="settings_obd_throttle">THROTTLE</string>
     <string name="settings_obd_intake">INTAKE AIR TEMP</string>
-    <string name="settings_obd_map">MANIFOLD PRESSURE</string>
-    <string name="settings_obd_maf">AIR FLOW (MAF)</string>
-    <string name="settings_obd_oil">OIL TEMP</string>
 </resources>
