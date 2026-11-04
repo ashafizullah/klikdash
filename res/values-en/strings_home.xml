@@ -47,18 +47,18 @@
     <string name="home_app_info">App info</string>
     <string name="home_hidden_done">%1$s hidden</string>
 
-    <string name="home_default_ok">KlikDash is now the home screen</string>
+    <string name="home_default_ok">KlikTV is now the home screen</string>
     <string name="home_need_adb">Not done yet: can\'t reach the headunit\'s ADB. Turn on USB debugging in Developer options, then try again.</string>
     <string name="home_need_adb_port">Not done yet: USB debugging is on, but this headunit doesn\'t open ADB to apps (port 5555, common on Android 11 and later). Open it once from a computer with adb tcpip 5555 (steps in the install guide), then try again.</string>
     <string name="home_need_adb_port_laptop">Not done yet: USB debugging is on, but ADB port 5555 is closed. On Android 10 and older, open it once from a Windows laptop: download klikapps.pages.dev/adb, double-click the file, connect the USB cable, then allow it on the headunit.</string>
     <string name="home_adb_allow">When asked \"Allow USB debugging?\", tick \"Always allow\" and tap OK.</string>
     <string name="home_adb_denied">Not allowed yet. Tap the button again, tick \"Always allow\" when asked \"Allow USB debugging?\", then tap OK.</string>
     <string name="home_setprop_failed">Not done yet: this headunit refuses to change the home screen over ADB.</string>
-    <string name="home_restore_message">Go back to the stock launcher? KlikDash stays installed and can be made the home screen again from the button on its home screen.</string>
+    <string name="home_restore_message">Go back to the stock launcher? KlikTV stays installed and can be made the home screen again from the button on its home screen.</string>
     <string name="home_restore_confirm">Go back</string>
 
     <!-- Safe mode after the home screen crashes repeatedly (see Guard) -->
-    <string name="guard_title">KlikDash stopped several times while opening</string>
+    <string name="guard_title">KlikTV stopped several times while opening</string>
     <string name="guard_message">To keep the headunit usable, the home screen opened in safe mode. Tap TRY AGAIN, or go back to the stock launcher. If it keeps happening, send a photo of this screen to the developer.</string>
     <string name="guard_retry">TRY AGAIN</string>
     <string name="guard_stock">STOCK LAUNCHER</string>
@@ -92,7 +92,7 @@
     <string name="quick_brightness">BRIGHTNESS</string>
     <string name="quick_screen">SCREEN</string>
     <string name="quick_saver">SCREENSAVER NOW</string>
-    <string name="quick_brightness_allow">Allow KlikDash to modify system settings, then come back to change the brightness.</string>
+    <string name="quick_brightness_allow">Allow KlikTV to modify system settings, then come back to change the brightness.</string>
     <string name="quick_settings">SETTINGS</string>
     <string name="quick_split">SPLIT SCREEN</string>
     <string name="quick_split_pick">PICK 2 APPS</string>

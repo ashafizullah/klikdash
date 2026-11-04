@@ -111,6 +111,12 @@ computer with `adb tcpip 5555` (see [docs/INSTALL.md](docs/INSTALL.md)).
 | Other headunits with NWD firmware | 1280×720 | 7+ | ⚠️ should work, not tested |
 | Other Android headunits (FYT, MTK, Rockchip, …) | 1280×720 | 7+ | ⚠️ launcher, prayer times and Quran should work; NWD-specific tweaks do not apply |
 | Other screen sizes or portrait screens | 800×480 and up | 7+ | ⚠️ the layout adapts (checked on an emulator at several sizes), not tested on a real device |
+| Android TV / Android STB with a D-pad remote | various sizes | 7+ | ⚠️ manifest and remote focus are supported; not tested on a TV/STB device |
+
+On a TV/STB, use the arrow keys to move focus, OK/Enter to select, and Back to close a panel or return to the
+previous screen. Edge swipes and drag-to-reorder shortcuts need touch or a mouse; text search needs an on-screen or
+external keyboard. GPS, microphone, Play Store, system permissions, and media playback depend on the device and
+firmware. Manifest and layout support do not guarantee that every third-party app or remote-control variation works.
 
 On Android 7.0–8.1 (checked on an emulator, not yet on a real headunit) everything works, except that the
 Power Saver is weaker: Android 8.1 and older lack the stricter background restriction, so blocked apps are only

@@ -111,6 +111,13 @@ debugging, atau dari komputer dengan `adb tcpip 5555` (lihat [docs/INSTALL.id.md
 | Headunit lain dengan firmware NWD | 1280×720 | 7+ | ⚠️ seharusnya jalan, belum diuji |
 | Headunit Android lain (FYT, MTK, Rockchip, …) | 1280×720 | 7+ | ⚠️ launcher, jadwal sholat, dan Al-Qur'an seharusnya jalan; penyetelan khusus NWD tidak berlaku |
 | Ukuran layar lain atau layar portrait | 800×480 ke atas | 7+ | ⚠️ tata letak menyesuaikan (dicek di emulator berbagai ukuran), belum diuji di perangkat asli |
+| Android TV / Android STB dengan remote D-pad | berbagai ukuran | 7+ | ⚠️ manifest dan fokus remote didukung; belum diuji di perangkat TV/STB |
+
+Di TV/STB, arahkan fokus dengan tombol panah dan pilih dengan OK/Enter; tombol Kembali menutup panel atau kembali
+ke layar sebelumnya. Geser dari tepi dan seret untuk menyusun ulang pintasan memerlukan sentuhan atau mouse; pencarian
+teks memerlukan keyboard layar atau keyboard eksternal. Ketersediaan fitur seperti GPS, mikrofon, Play Store, izin
+sistem, dan pemutar media bergantung pada perangkat serta firmware. Dukungan manifest dan tata letak tidak menjamin
+semua aplikasi pihak ketiga atau semua variasi remote bekerja sama.
 
 Di Android 7.0–8.1 (dicek di emulator, belum di headunit asli) semua fitur jalan, hanya Hemat Daya yang lebih
 lemah: Android 8.1 ke bawah belum punya pembatasan latar yang ketat, jadi aplikasi yang diblokir hanya dihentikan

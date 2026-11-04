@@ -218,6 +218,7 @@ final class Sheet {
         if (a.isFinishing() || a.isDestroyed()) return;
         d.show();
         Notice.track(d);
+        if (keys.getChildCount() > 0) keys.getChildAt(0).requestFocus();
     }
 
     /** Hanya satu jalan keluar yang dijalankan (tombol atau batal). */

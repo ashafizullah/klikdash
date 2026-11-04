@@ -2,7 +2,7 @@
 <!-- Tab AKUN: akun KlikBeam, lokasi parkir dan riwayat perjalanan (Account, TripService). -->
 <resources>
     <string name="account_title">AKUN KLIKBEAM</string>
-    <string name="account_desc">Hubungkan headunit ke akun KlikBeam di HP. Lokasi parkir terakhir dan riwayat perjalanan mobil ini bisa dilihat dari aplikasi KlikBeam. Opsional: semua fitur KlikDash tetap jalan tanpa akun.</string>
+    <string name="account_desc">Hubungkan headunit ke akun KlikBeam di HP. Lokasi parkir terakhir dan riwayat perjalanan mobil ini bisa dilihat dari aplikasi KlikBeam. Opsional: semua fitur KlikTV tetap jalan tanpa akun.</string>
     <string name="account_link">HUBUNGKAN</string>
     <string name="account_privacy_title">DATA YANG DIKIRIM</string>
     <string name="account_privacy_desc">Hanya selama terhubung: rute, jarak, waktu dan kecepatan perjalanan, serta lokasi parkir terakhir. Data dikirim saat headunit online (misalnya lewat hotspot HP) ke akun KlikBeam-mu (lihat kebijakan privasi). Akun gratis menyimpan riwayat 7 hari.</string>

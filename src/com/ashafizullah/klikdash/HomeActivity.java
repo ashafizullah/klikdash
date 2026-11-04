@@ -494,7 +494,10 @@ public class HomeActivity extends Activity {
 
     /** Tombol arah/OK (remote, keyboard) juga diabaikan saat terkunci; tombol media tetap jalan. */
     @Override public boolean dispatchKeyEvent(KeyEvent e) {
-        if (e.getAction() == KeyEvent.ACTION_DOWN) poke(); // tombol setir/remote juga membangunkan; tetap diteruskan
+        if (e.getAction() == KeyEvent.ACTION_DOWN) {
+            poke(); // tombol setir/remote juga membangunkan; tetap diteruskan
+            if (quick != null && quick.isOpen()) quick.touched();
+        }
         if (locked) {
             switch (e.getKeyCode()) {
                 case KeyEvent.KEYCODE_DPAD_UP: case KeyEvent.KEYCODE_DPAD_DOWN: case KeyEvent.KEYCODE_DPAD_LEFT:
@@ -865,7 +868,7 @@ public class HomeActivity extends Activity {
         gear.setContentDescription(getString(R.string.quick_title));
         gear.setOnClickListener(v -> quick.open());
         top.addView(gear, new LinearLayout.LayoutParams(px(40), px(48)));
-        TextView tag = text("KLIKDASH  ·  " + model, fMono, 12, DIM);
+        TextView tag = text("KLIKTV  ·  " + model, fMono, 12, DIM);
         tag.setLetterSpacing(0.25f);
         top.addView(tag, new LinearLayout.LayoutParams(0, WRAP, 1f));
         // Kunci layar (PIN di Pengaturan): gembok muncul hanya bila PIN sudah diatur, lihat refreshLock.
