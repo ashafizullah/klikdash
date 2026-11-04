@@ -149,9 +149,15 @@ public class HomeActivity extends Activity {
         status = new HomeStatus(this);
         update = new HomeUpdate(this);
         // Baru menyala: rotasi sekarang adalah bawaan firmware, catat untuk keepOrientation. Orientasi dipilih di
-        // Pengaturan: rotasi sekarang bisa hasil pilihan itu, bukan bawaan firmware.
-        if (SystemClock.elapsedRealtime() < 5 * 60_000L && Orientation.mode(prefs) == Orientation.AUTO) {
-            prefs.edit().putInt("homeRotation", getWindowManager().getDefaultDisplay().getRotation()).apply();
+        // Pengaturan: rotasi sekarang bisa hasil pilihan itu, bukan bawaan firmware. Hanya home pertama tiap boot:
+        // recreate() (mis. onConfigurationChanged setelah Maps memutar layar ke potret) akan mencatat rotasi aplikasi
+        // itu, lalu keepOrientation menyimpannya ke user_rotation dan boot berikutnya mencatatnya lagi; layar terkunci miring.
+        if (b == null && SystemClock.elapsedRealtime() < 5 * 60_000L && Orientation.mode(prefs) == Orientation.AUTO) {
+            String boot = bootId();
+            if (boot == null || !boot.equals(prefs.getString("homeRotationBootId", null))) {
+                prefs.edit().putInt("homeRotation", getWindowManager().getDefaultDisplay().getRotation())
+                        .putString("homeRotationBootId", boot).remove("homeRotationBoot").apply();
+            }
         }
 
         fHeavy = font("display.ttf", "'opsz' 72, 'wght' 800");
@@ -300,6 +306,7 @@ public class HomeActivity extends Activity {
 
     @Override protected void onResume() {
         super.onResume();
+        ErrorLog.flush(this); // laporan crash yang tertunda (paling sering tiap 10 menit)
         BeamHub.homeFront = !safe;
         if (android.os.Build.VERSION.SDK_INT < 29) SplitScreen.home(true); // Android 10+: onTopResumedActivityChanged
         if (safe || Theme.stale(this, themeBuilt)) return;
@@ -674,6 +681,19 @@ public class HomeActivity extends Activity {
     private static volatile Integer nwdRotation;
 
     /**
+     * Penanda boot ini dari kernel (berganti tiap boot). Bukan Settings.Global.BOOT_COUNT: home pertama dibuat sebelum
+     * Android selesai boot, saat BOOT_COUNT masih angka boot sebelumnya (NWD K2401: home 11:32:46, layar aktif 11:32:47).
+     */
+    static String bootId() {
+        try (java.io.BufferedReader r = new java.io.BufferedReader(new java.io.FileReader("/proc/sys/kernel/random/boot_id"))) {
+            String s = r.readLine();
+            return s != null && !s.trim().isEmpty() ? s.trim() : null;
+        } catch (java.io.IOException | SecurityException e) {
+            return null;
+        }
+    }
+
+    /**
      * Home kembali ke rotasi bawaan firmware. Aplikasi seperti Maps bisa memutar layar ke potret, dan headunit tanpa
      * sensor putar membiarkannya begitu setelah aplikasi itu ditutup. Firmware NWD mengabaikan setRequestedOrientation
      * dari home, jadi rotasinya dikembalikan lewat pengaturan sistem (ADB lokal, seperti Tweaks). Rotasi bawaan dicatat
@@ -688,11 +708,14 @@ public class HomeActivity extends Activity {
             if (nwdRotation == null) { // getprop menjalankan proses: sekali saja
                 int r = -1;
                 if (HomeSwitch.isNwd()) {
-                    try { r = Integer.parseInt(HomeSwitch.getprop("ro.boot.nwd.rotation")); } catch (NumberFormatException ignored) { }
+                    try { r = Integer.parseInt(HomeSwitch.getprop("ro.boot.nwd.rotation").trim()); } catch (NumberFormatException ignored) { }
+                    if (r >= 90 && r % 90 == 0) r /= 90; // derajat (90/180/270) → Surface.ROTATION_*
                 }
-                nwdRotation = r;
+                nwdRotation = r >= 0 && r <= 3 ? r : -1;
             }
-            int mode = Orientation.mode(p), want = p.getInt("homeRotation", nwdRotation);
+            // NWD: rotasi bawaan dari firmware, bukan yang dicatat saat boot. Catatan itu bisa salah (home pertama dibuat
+            // sebelum firmware memutar layar, atau rotasi aplikasi lain) dan lalu terkunci lewat user_rotation.
+            int mode = Orientation.mode(p), want = nwdRotation >= 0 ? nwdRotation : p.getInt("homeRotation", -1);
             if (mode != Orientation.AUTO) {
                 if (!HomeSwitch.isNwd()) return;
                 want = Orientation.rotation(mode, getWindowManager().getDefaultDisplay(), want);
@@ -775,7 +798,15 @@ public class HomeActivity extends Activity {
     /** Ukuran layar berubah (rotasi, layar lain): bangun ulang tata letak dari awal. */
     @Override public void onConfigurationChanged(android.content.res.Configuration c) {
         super.onConfigurationChanged(c);
-        if (c.screenWidthDp != screenW || c.screenHeightDp != screenH) recreate();
+        if (c.screenWidthDp != screenW || c.screenHeightDp != screenH) {
+            // Baru menyala dan layar berputar selagi home di depan: firmware selesai memutarnya (home pertama bisa
+            // dibuat sebelum itu), jadi ini rotasi bawaannya. Diputar aplikasi lain (mis. Maps) tidak dicatat: home
+            // menerima perubahan itu saat kembali ke depan, sebelum onResume.
+            if (resumed && SystemClock.elapsedRealtime() < 5 * 60_000L && Orientation.mode(prefs) == Orientation.AUTO) {
+                prefs.edit().putInt("homeRotation", getWindowManager().getDefaultDisplay().getRotation()).apply();
+            }
+            recreate();
+        }
     }
 
     static final float SPEED_RATIO = 0.43f; // ukuran angka kecepatan terhadap jam

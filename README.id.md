@@ -59,6 +59,9 @@ merender animasi 3D (~40% CPU).
   (**⚙ › KLIKBEAM**). Layar penuh, atau jendela melayang di atas Maps yang bisa digeser dan diubah ukurannya dengan dua
   jari. Nyalakan **BUKA OTOMATIS** (bawaan mati) supaya penerima terbuka sendiri saat HP mulai
   mirror; menutupnya menghentikan mirror di HP.
+  Mirror **gratis**, dan penerimanya bagian dari KlikDash (MIT). KlikBeam punya langganan **Pro** opsional
+  hanya untuk fitur akun yang berjalan di servernya (riwayat perjalanan 1 tahun, sampai 5 mobil, statistik dan
+  ekspor, pengingat servis); tidak ada fitur KlikDash yang dikunci.
 - **Panel cepat:** ketuk **☰** di kiri atas home, atau geser dari tepi kiri layar: volume media, kecerahan layar,
   layar terbagi, screensaver sekarang, dan **⚙ PENGATURAN**.
 - **Layar terbagi:** dua aplikasi berdampingan, misalnya YouTube dan Maps (**☰ › LAYAR TERBAGI**). Geser pegangan
@@ -145,6 +148,9 @@ Launcher NWD lama **tidak dihapus**. Prosesnya tetap ada karena juga menangani i
 
 ## Catatan
 
+- **Laporan crash.** Bila KlikDash tertutup karena error, pesan error, jejak kode, versi, dan model headunit dikirim
+  ke pengembang saat online berikutnya (tanpa lokasi atau data pribadi; dikaitkan ke akun KlikBeam hanya bila
+  headunit terhubung). Disimpan 30 hari. Matikan lewat **PENGATURAN › PEMBARUAN › LAPORAN CRASH**.
 - **Privasi dan biaya asisten suara.** Ucapan Anda ditranskripsi oleh pengenal yang dipilih di **Pengenalan
   suara**: Android (aplikasi Google, diproses Google) atau ElevenLabs Scribe. Teksnya, beserta
   daftar nama aplikasi terpasang, jam sekarang, dan lokasi bila perintahnya butuh, dikirim ke penyedia AI profil

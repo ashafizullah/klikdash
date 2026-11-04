@@ -21,9 +21,7 @@
     <string name="settings_beam_android">ANDROID</string>
     <string name="settings_beam_ios">IPHONE</string>
     <string name="settings_beam_android_tag">UJI TERTUTUP DI PLAY STORE</string>
-    <string name="settings_beam_step1">Gabung grup penguji KlikBeam.</string>
-    <string name="settings_beam_step2">Buka halaman penguji, lalu ketuk \"Jadi penguji\".</string>
-    <string name="settings_beam_step3">Pasang KlikBeam dari Play Store. Pakai akun Google yang sama dengan langkah 1.</string>
+    <string name="settings_beam_android_text">Pindai QR ini dengan HP Android: halamannya berisi tiga langkah ikut uji coba (gabung grup penguji, jadi penguji, pasang dari Play Store) beserta videonya.</string>
     <string name="settings_beam_scan">PINDAI DENGAN HP</string>
     <string name="settings_beam_ios_tag">TERSEDIA DI APP STORE</string>
     <string name="settings_beam_ios_text">Pasang KlikBeam dari App Store: pindai QR ini dengan kamera iPhone, lalu ketuk Dapatkan.</string>

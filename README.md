@@ -59,6 +59,9 @@ stock launcher renders a 3D animation nonstop (~40% CPU).
   code (**⚙ › KLIKBEAM**). Full screen, or a floating window over Maps that you move with a finger and resize with two.
   Turn on **BUKA OTOMATIS / OPEN AUTOMATICALLY** (off by default) and the receiver opens by itself when the phone
   starts mirroring; closing it stops mirroring on the phone.
+  Mirroring is **free**, and the receiver is part of KlikDash (MIT). KlikBeam has an optional **Pro** subscription
+  only for account features that run on its server (1-year trip history, up to 5 cars, statistics and export,
+  maintenance reminders); nothing in KlikDash is locked behind it.
 - **Quick panel:** tap **☰** at the top left of the home screen, or swipe in from the left edge: media volume,
   screen brightness, split screen, screensaver now, and **⚙ SETTINGS**.
 - **Split screen:** two apps side by side, for example YouTube and Maps (**☰ › SPLIT SCREEN**). Drag the handle in
@@ -143,6 +146,9 @@ The old NWD launcher is **not removed**. Its process stays because it also handl
 
 ## Notes
 
+- **Crash reports.** When KlikDash closes because of an error, it sends the error message, stack trace, version and
+  headunit model to the developer the next time it is online (no location or personal data; linked to a KlikBeam
+  account only if the headunit is linked). Kept 30 days. Turn it off under **SETTINGS › UPDATES › CRASH REPORTS**.
 - **Voice assistant privacy and cost.** What you say is transcribed by the recognizer chosen under
   **PENGENALAN SUARA / SPEECH RECOGNITION**: Android (the Google app, processed by Google) or ElevenLabs Scribe.
   The text, with the list of installed app names, the current time and, when a command needs it, the location,

@@ -9,9 +9,8 @@ VIDEOS = {
     'qr_usb_allow': 'https://youtu.be/eVMA64kG_H8?t=62',
     'qr_wireless': 'https://youtu.be/qDb4Irg5wok',
     'qr_laptop': 'https://youtu.be/fZOYDMW89rU',
-    # Pengaturan › KlikBeam › Android: ikut uji tertutup
-    'qr_beam_group': 'https://groups.google.com/g/klikbeam-testers',
-    'qr_beam_testing': 'https://play.google.com/apps/testing/com.ashafizullah.klikbeam',
+    # Pengaturan › KlikBeam › Android: halaman cara ikut uji tertutup
+    'qr_beam_beta': 'https://klikbeam.ashafizullah.com/beta',
     # Pengaturan › KlikBeam › iPhone: App Store
     'qr_beam_appstore': 'https://apps.apple.com/id/app/klikbeam/id6826742960',
 }
