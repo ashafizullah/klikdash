@@ -38,6 +38,8 @@ public final class TripService extends Service {
     private boolean flushing;
     /** Waktu GPS fix terakhir dan jam monotonik saat itu: jam sistem headunit bisa salah sebelum {@link Clock} membetulkannya. */
     private long fixTime, fixElapsed;
+    /** GPS sudah terdaftar di LocationManager; belum = dicoba lagi tiap {@link #tick}. */
+    private boolean listening;
 
     /** Nyalakan atau matikan sesuai akun dan setelan; aman dipanggil berkali-kali (home onResume, Pengaturan). */
     static void sync(Context c) {
@@ -62,11 +64,7 @@ public final class TripService extends Service {
         recorder = new TripRecorder(Account.dir(this));
         lm = (LocationManager) getSystemService(LOCATION_SERVICE);
         cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-        try {
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, gps);
-        } catch (SecurityException | IllegalArgumentException e) {
-            android.util.Log.w("KlikDash", "trip: GPS tidak tersedia", e);
-        }
+        listen();
         try {
             cm.registerDefaultNetworkCallback(online);
         } catch (RuntimeException ignored) { }
@@ -77,12 +75,29 @@ public final class TripService extends Service {
     @Override public void onDestroy() {
         instance = null;
         Account.MAIN.removeCallbacks(tick);
-        lm.removeUpdates(gps);
+        try {
+            lm.removeUpdates(gps);
+        } catch (RuntimeException ignored) { }
         try {
             cm.unregisterNetworkCallback(online);
         } catch (RuntimeException ignored) { }
         unregisterReceiver(timeSet);
         super.onDestroy();
+    }
+
+    /**
+     * Daftarkan GPS. Bisa gagal dengan RuntimeException apa saja dari system_server: di K2401 (laporan crash 1.9.20)
+     * LocationManagerService melempar NullPointerException (PackageManager-nya belum ada) bila dipanggil terlalu awal
+     * saat boot, dan dulu itu mematikan seluruh proses termasuk home. Gagal = coba lagi di {@link #tick}.
+     */
+    private void listen() {
+        if (listening) return;
+        try {
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, gps);
+            listening = true;
+        } catch (RuntimeException e) {
+            android.util.Log.w("KlikDash", "trip: GPS belum bisa didaftarkan, dicoba lagi", e);
+        }
     }
 
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
@@ -125,6 +140,7 @@ public final class TripService extends Service {
 
     private final Runnable tick = new Runnable() {
         @Override public void run() {
+            listen();
             boolean was = recorder.active();
             if (fixElapsed > 0) recorder.tick(fixTime + android.os.SystemClock.elapsedRealtime() - fixElapsed);
             if (was != recorder.active()) Account.changed();
