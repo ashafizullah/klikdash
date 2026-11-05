@@ -36,7 +36,7 @@ final class Orientation {
 
     /**
      * Rotasi sistem (Surface.ROTATION_*) untuk orientasi pilihan, atau -1 bila OTOMATIS atau layar sudah begitu.
-     * prefer: rotasi bawaan firmware (mis. ro.boot.nwd.rotation), dipakai bila orientasinya cocok.
+     * prefer: rotasi bawaan firmware (mis. ro.boot.nwd.orientation), dipakai bila orientasinya cocok.
      */
     static int rotation(int mode, Display d, int prefer) {
         if (mode == AUTO) return -1;
