@@ -401,6 +401,20 @@ public class SettingsActivity extends Activity {
                 })));
 
 
+        // Aplikasi yang dibuka sendiri saat headunit menyala (StartApp). Opsional, bawaan tidak ada.
+        android.content.ComponentName startCn = StartApp.get(prefs);
+        String startName = startCn != null ? StartApp.label(this, startCn) : null;
+        homeRows.add(row(getString(R.string.settings_start_title), startCn == null ? getString(R.string.settings_start_desc_none)
+                        : startName == null ? getString(R.string.settings_start_missing)
+                        : getString(R.string.settings_start_desc, startName),
+                key(getString(startCn == null ? R.string.settings_start_pick : R.string.settings_start_change), false,
+                        this::pickStartApp),
+                key(getString(R.string.settings_off), startCn == null, () -> {
+                    StartApp.set(prefs, null);
+                    rebuildKeepScroll();
+                })));
+
+
         // Kunci layar: PIN 4 angka, gembok di home (ScreenLock). Ubah/hapus minta PIN lama.
         if (ScreenLock.hasPin(prefs)) {
             homeRows.add(row(getString(R.string.settings_lock_title), getString(R.string.settings_lock_desc_on),
@@ -429,6 +443,7 @@ public class SettingsActivity extends Activity {
         list.addView(group(GROUP_HOME, getString(R.string.settings_group_home), dots(
                 getString(R.string.settings_group_welcome, getString(wm == Welcome.MODE_OFF ? R.string.settings_off
                         : wm == Welcome.MODE_CUSTOM ? R.string.settings_welcome_custom : R.string.settings_welcome_default)),
+                startName != null ? getString(R.string.settings_group_start, startName.toUpperCase(Lang.locale())) : null,
                 ScreenLock.hasPin(prefs) ? getString(R.string.settings_group_pin) : null,
                 hid > 0 ? getString(R.string.settings_group_hidden, hid) : null), homeRows));
 
@@ -789,6 +804,21 @@ public class SettingsActivity extends Activity {
                     e.apply();
                     Notice.ok(this, getString(R.string.settings_tiles_reset_done));
                 }));
+    }
+
+    /** BUKA SAAT MENYALA: pilih satu aplikasi dari Semua Aplikasi. */
+    void pickStartApp() {
+        java.util.List<String[]> apps = StartApp.choices(this);
+        String[] names = new String[apps.size()];
+        for (int i = 0; i < names.length; i++) names[i] = apps.get(i)[1];
+        showDark(new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.settings_start_dialog))
+                .setItems(names, (d, w) -> {
+                    StartApp.set(prefs, android.content.ComponentName.unflattenFromString(apps.get(w)[0]));
+                    Notice.ok(this, getString(R.string.settings_start_set, names[w]));
+                    rebuildKeepScroll();
+                })
+                .setNegativeButton(getString(R.string.common_close), null));
     }
 
     /** Aplikasi tersembunyi: ketuk satu untuk memunculkannya lagi di Semua Aplikasi, atau tampilkan semua. */

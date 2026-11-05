@@ -30,6 +30,7 @@
     <string name="settings_group_alert">PENGINGAT %1$s</string>
     <string name="settings_group_saver">%1$s · %2$s</string>
     <string name="settings_group_welcome">SAMBUTAN %1$s</string>
+    <string name="settings_group_start">BUKA %1$s</string>
     <string name="settings_group_pin">PIN AKTIF</string>
     <string name="settings_group_hidden">%1$d DISEMBUNYIKAN</string>
 
@@ -108,6 +109,15 @@
     <string name="settings_welcome_f_text">ARTI ATAU PESAN</string>
     <string name="settings_welcome_f_text_hint">mis. Hati-hati di jalan, jaga jarak aman.</string>
     <string name="settings_welcome_need_text">Isi teks Arab atau pesan</string>
+
+    <string name="settings_start_title">BUKA SAAT MENYALA</string>
+    <string name="settings_start_desc_none">Pilih satu aplikasi yang langsung dibuka saat headunit menyala, mis. Maps atau pemutar musik. Sekarang tidak ada.</string>
+    <string name="settings_start_desc">%1$s dibuka sendiri saat headunit menyala. Bila sambutan tampil, dibuka setelah sambutan ditutup. Tidak dibuka saat mobil berjalan.</string>
+    <string name="settings_start_missing">Aplikasi yang dipilih sudah tidak ada di headunit. Pilih yang lain atau matikan.</string>
+    <string name="settings_start_pick">PILIH</string>
+    <string name="settings_start_change">GANTI</string>
+    <string name="settings_start_dialog">Aplikasi yang dibuka saat menyala</string>
+    <string name="settings_start_set">%1$s akan dibuka saat headunit menyala</string>
 
     <string name="settings_prayer_title">PENGINGAT SHOLAT</string>
     <string name="settings_prayer_desc">Notifikasi saat masuk waktu Subuh, Dzuhur, Ashar, Maghrib, dan Isya, tanpa adzan. Muncul juga di atas aplikasi lain seperti Maps.</string>

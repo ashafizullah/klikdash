@@ -29,6 +29,7 @@
     <string name="settings_group_alert">ALERTS %1$s</string>
     <string name="settings_group_saver">%1$s · %2$s</string>
     <string name="settings_group_welcome">WELCOME %1$s</string>
+    <string name="settings_group_start">OPENS %1$s</string>
     <string name="settings_group_pin">PIN ON</string>
     <string name="settings_group_hidden">%1$d HIDDEN</string>
 
@@ -107,6 +108,15 @@
     <string name="settings_welcome_f_text">MEANING OR MESSAGE</string>
     <string name="settings_welcome_f_text_hint">e.g. Drive safely and keep your distance.</string>
     <string name="settings_welcome_need_text">Fill in the Arabic text or a message</string>
+
+    <string name="settings_start_title">OPEN AT STARTUP</string>
+    <string name="settings_start_desc_none">Pick one app to open automatically when the headunit starts, e.g. Maps or a music player. Currently none.</string>
+    <string name="settings_start_desc">%1$s opens automatically when the headunit starts. If the welcome card is shown, it opens after the card closes. It does not open while the car is moving.</string>
+    <string name="settings_start_missing">The chosen app is no longer on this headunit. Pick another one or turn it off.</string>
+    <string name="settings_start_pick">PICK</string>
+    <string name="settings_start_change">CHANGE</string>
+    <string name="settings_start_dialog">App to open at startup</string>
+    <string name="settings_start_set">%1$s will open when the headunit starts</string>
 
     <string name="settings_prayer_title">PRAYER REMINDER</string>
     <string name="settings_prayer_desc">A notification when Fajr, Dhuhr, Asr, Maghrib and Isha begin, without the adhan. Also shown on top of other apps such as Maps.</string>

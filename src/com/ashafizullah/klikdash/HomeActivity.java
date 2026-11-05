@@ -251,8 +251,13 @@ public class HomeActivity extends Activity {
         Clock.allowBackgroundGps(this);
         home.postDelayed(warmVoice, 20_000); // sesudah boot selesai berebut CPU
         // Baru menyala (bukan sekadar dibangun ulang, mis. ganti tema atau pembaruan): sambutan.
-        if (SystemClock.elapsedRealtime() < 5 * 60_000L || welcomeAgain) {
-            root.post(() -> { if (!rebuilding) Welcome.maybeShow(this, prefs); }); // home ini sudah diganti: biar yang baru
+        boolean booted = SystemClock.elapsedRealtime() < 5 * 60_000L;
+        if (booted || welcomeAgain) {
+            root.post(() -> {
+                if (rebuilding) return; // home ini sudah diganti: biar yang baru
+                Welcome.maybeShow(this, prefs);
+                if (booted) StartApp.schedule(this); // sesudah sambutan: menunggunya ditutup
+            });
         }
         welcomeAgain = false;
         if (SystemClock.elapsedRealtime() < 5 * 60_000L) update.schedule();
@@ -314,6 +319,7 @@ public class HomeActivity extends Activity {
         if (HomeApps.tileCount(prefs) != shown + 1) { recreate(); return; } // jumlah ubin diganti di Pengaturan
         refreshLock(); // PIN bisa diatur atau dihapus di Pengaturan
         keepOrientation();
+        StartApp.attach(this);
         QuranService.listeners.add(onQuran);
         DzikirService.listeners.add(onDzikir);
         MediaListener.listeners.add(onMedia);
@@ -616,6 +622,7 @@ public class HomeActivity extends Activity {
             updateTime();
             poke();
             Welcome.maybeShow(HomeActivity.this, prefs);
+            StartApp.schedule(HomeActivity.this);
             home.removeCallbacks(warmVoice);
             home.postDelayed(warmVoice, 10_000);
             update.schedule();
