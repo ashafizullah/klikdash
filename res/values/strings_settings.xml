@@ -5,6 +5,7 @@
     <string name="settings_close">TUTUP  ✕</string>
     <string-array name="settings_tab_names">
         <item>LAUNCHER</item>
+        <item>OBD</item>
         <item>HEMAT DAYA</item>
         <item>ASISTEN AI</item>
         <item>KLIKBEAM</item>
@@ -13,6 +14,7 @@
     </string-array>
     <string-array name="settings_tab_captions">
         <item>TAMPILAN &amp; PINTASAN</item>
+        <item>ADAPTER &amp; HOME</item>
         <item>APLIKASI DI LATAR</item>
         <item>PROFIL &amp; SUARA</item>
         <item>MIRROR HP · BETA</item>
@@ -24,6 +26,7 @@
     <string name="settings_group_look">TAMPILAN</string>
     <string name="settings_group_prayer">SHOLAT</string>
     <string name="settings_group_home">HOME</string>
+    <string name="settings_group_obd">OBD</string>
     <string name="settings_group_system">SISTEM</string>
     <string name="settings_group_theme_auto">TEMA OTOMATIS</string>
     <string name="settings_group_tiles">%1$d PINTASAN</string>
@@ -130,6 +133,26 @@
     <string name="settings_tiles_reset_button">Atur ulang</string>
     <string name="settings_tiles_reset_done">Pintasan dikembalikan ke bawaan</string>
 
+    <string name="settings_obd_home_title">DATA DITAMPILKAN</string>
+    <string name="settings_obd_home_desc">Pilih data apa yang ditampilkan di layar home (2–4).</string>
+    <string name="settings_obd_rpm">RPM</string>
+    <string name="settings_obd_speed">KECEPATAN</string>
+    <string name="settings_obd_coolant">SUHU MESIN</string>
+    <string name="settings_obd_voltage">TEGANGAN</string>
+    <string name="settings_obd_min">Minimal 2 data harus ditampilkan</string>
+    <string name="settings_obd_max">Maksimal 4 data</string>
+    <string name="settings_obd_adapter_title">ADAPTER</string>
+    <string name="settings_obd_adapter_desc">Pasangkan adapter ELM327 di pengaturan Bluetooth headunit, lalu pilih di sini. OTOMATIS memakai perangkat berpasangan yang namanya mirip adapter OBD. Dipakai: %1$s</string>
+    <string name="settings_obd_adapter_auto">OTOMATIS</string>
+    <string name="settings_obd_adapter_change">PILIH</string>
+    <string name="settings_obd_conn_title">KONEKSI</string>
+    <string name="settings_obd_connect">SAMBUNGKAN</string>
+    <string name="settings_obd_disconnect">PUTUSKAN</string>
+    <string name="settings_obd_log_title">LOG KONEKSI</string>
+    <string name="settings_obd_log_desc">Riwayat terbaru di atas. Kirim isinya bila OBD tidak mau tersambung.</string>
+    <string name="settings_obd_log_clear">BERSIHKAN</string>
+    <string name="settings_obd_log_empty">Belum ada catatan.</string>
+
     <string name="settings_hidden_title">APLIKASI TERSEMBUNYI</string>
     <string name="settings_hidden_none">Belum ada. Tekan lama ikon di Semua Aplikasi untuk menyembunyikannya, mis. ikon yang muncul dobel.</string>
     <plurals name="settings_hidden_desc">
@@ -218,4 +241,10 @@
     <string name="power_st_restricted">TIDAK BISA JALAN DI LATAR</string>
     <string name="power_st_running">SEDANG BERJALAN DI LATAR</string>
     <string name="power_st_allowed">BOLEH JALAN DI LATAR</string>
+    <string name="settings_obd_show_title">TAMPILKAN DI HOME</string>
+    <string name="settings_obd_show_desc">Kartu OBD di bawah kartu jam di home. Menyembunyikannya tidak memutus koneksi.</string>
+    <string name="settings_obd_list_summary">%1$d AKTIF · SERET ≡ UNTUK URUTAN</string>
+    <string name="settings_obd_pick_title">Pilih adapter OBD</string>
+    <string name="settings_obd_pick_none">Tidak ada perangkat Bluetooth berpasangan (Bluetooth mati?)</string>
+    <string name="settings_obd_intake">SUHU UDARA MASUK</string>
 </resources>

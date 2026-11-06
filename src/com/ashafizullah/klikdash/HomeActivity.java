@@ -67,12 +67,14 @@ public class HomeActivity extends Activity {
     Typeface fHeavy, fBold, fMed, fMono, fMonoBold;
     ColorFilter mono;
     SharedPreferences prefs;
+    String obdLayoutSig;
 
     // Bagian home; dibuat di onCreate (butuh resource dan prefs).
     HomeApps apps;
     HomeLocation loc;
     HomeDrawer drawer;
     HomeStatus status;
+    HomeObd obd;
     HomeUpdate update;
 
     final HomeViews.Tile[] tiles = new HomeViews.Tile[HomeApps.SLOTS + 1];
@@ -143,10 +145,12 @@ public class HomeActivity extends Activity {
         // Direct boot: saat boot penyimpanan biasa (CE) masih terkunci beberapa detik, dan firmware hanya bisa
         // memilih launcher yang directBootAware. Maka pengaturan disimpan di penyimpanan DE.
         prefs = openPrefs();
+        obdLayoutSig = ObdPrefs.signature(prefs);
         apps = new HomeApps(this);
         loc = new HomeLocation(this);
         drawer = new HomeDrawer(this);
         status = new HomeStatus(this);
+        obd = new HomeObd(this);
         update = new HomeUpdate(this);
         // Baru menyala: rotasi sekarang adalah bawaan firmware, catat untuk keepOrientation. Orientasi dipilih di
         // Pengaturan: rotasi sekarang bisa hasil pilihan itu, bukan bawaan firmware. Hanya home pertama tiap boot:
@@ -315,8 +319,20 @@ public class HomeActivity extends Activity {
         BeamHub.homeFront = !safe;
         if (android.os.Build.VERSION.SDK_INT < 29) SplitScreen.home(true); // Android 10+: onTopResumedActivityChanged
         if (safe || Theme.stale(this, themeBuilt)) return;
-        reloadPrefs();
+        // Jangan reloadPrefs di setiap resume: salinan prefs lama + MODE_MULTI_PROCESS di modul lain bisa
+        // menimpa ubin. Reload hanya setelah bangun (ACC), buka Pengaturan, atau CE terbuka (wakeRx/unlockRx).
+        if (prefsReloadOnResume) {
+            prefsReloadOnResume = false;
+            reloadPrefs();
+        }
         if (HomeApps.tileCount(prefs) != shown + 1) { recreate(); return; } // jumlah ubin diganti di Pengaturan
+        String obdSig = ObdPrefs.signature(prefs);
+        if (obdLayoutSig != null && !obdSig.equals(obdLayoutSig)) {
+            obdLayoutSig = obdSig;
+            recreate();
+            return;
+        }
+        obdLayoutSig = obdSig;
         refreshLock(); // PIN bisa diatur atau dihapus di Pengaturan
         keepOrientation();
         StartApp.attach(this);
@@ -332,6 +348,7 @@ public class HomeActivity extends Activity {
         updateTime();
         prayerView.startTicking();
         status.start();
+        obd.start();
         beamShown = BeamHub.running();
         BeamHub.addListener(beamRx);
         refreshDefaultHome();
@@ -521,6 +538,7 @@ public class HomeActivity extends Activity {
 
     void openSettings() {
         userLaunch = true;
+        prefsReloadOnResume = true;
         startActivity(new Intent(this, SettingsActivity.class));
     }
 
@@ -600,6 +618,7 @@ public class HomeActivity extends Activity {
         loc.stopSpeed();
         prayerView.stopTicking();
         status.stop();
+        obd.stop();
         BeamHub.removeListener(beamRx);
         QuranService.listeners.remove(onQuran);
         DzikirService.listeners.remove(onDzikir);
@@ -610,6 +629,8 @@ public class HomeActivity extends Activity {
 
     /** true bila aplikasi di depan dibuka lewat KlikDash (ubin/daftar), bukan muncul sendiri. */
     boolean userLaunch;
+    /** Muat ulang ubin/lokasi dari disk di onResume berikutnya (Pengaturan mengubah prefs). */
+    boolean prefsReloadOnResume;
     /** Awal jendela "baru menyala": boot (0) atau saat bangun dari tidur (ACC on). */
     long wakeAt;
 
@@ -745,24 +766,28 @@ public class HomeActivity extends Activity {
         }, "orientation").start();
     }
 
-    /** Prefs di penyimpanan DE (lihat Prefs); pindahkan sekali dari CE (versi lama) begitu CE sudah terbuka. */
+    static final String PREFS_NAME = "klikdash";
+    static final String PREFS_CE_MIGRATED = "prefs_ce_migrated";
+
+    /** Prefs di penyimpanan DE; pindahkan sekali dari CE (versi lama) begitu CE sudah terbuka. */
     SharedPreferences openPrefs() {
         Context de = createDeviceProtectedStorageContext();
-        // Pindah sekali per proses: moveSharedPreferencesFrom membaca isi folder di disk tiap dipanggil.
-        if (!prefsMoved && getSystemService(UserManager.class).isUserUnlocked()) {
-            de.moveSharedPreferencesFrom(this, "klikdash");
-            prefsMoved = true;
+        if (getSystemService(UserManager.class).isUserUnlocked()) {
+            SharedPreferences boot = de.getSharedPreferences(PREFS_CE_MIGRATED, MODE_PRIVATE);
+            if (!boot.getBoolean("done", false)) {
+                de.moveSharedPreferencesFrom(this, PREFS_NAME);
+                boot.edit().putBoolean("done", true).commit();
+            }
         }
-        return Prefs.of(this);
+        return de.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
     }
-
-    private static boolean prefsMoved;
 
     /** Ambil ulang ubin dan lokasi dari disk (lihat openPrefs), juga perubahan dari Pengaturan. */
     void reloadPrefs() {
         prefs = openPrefs();
         apps.loadSlots();
         loc.reload();
+        invalidateTiles();
     }
 
     /** Setelah CE terbuka: aplikasi non-directBoot (mis. Maps, Al-Qur'an) baru terlihat oleh PackageManager. */
@@ -855,7 +880,9 @@ public class HomeActivity extends Activity {
         // Tema kilap: panel jam jadi kartu kaca dengan jarak dalam `inset` di tiap sisi; jarak ke ubin menyempit.
         // `edge`: jarak tepi layar ke panel jam dan ubin.
         int inset = Theme.gloss() ? 16 : 0, sep = Theme.gloss() ? 13 : 57, edge = 24;
-        float spDp = sp / dp, availH = (portrait ? panelH - 24 : screenH - 2 * edge) - 2 * inset;
+        // Kartu OBD (tinggi kartu + jarak 12) di bawah panel jam, di luar kartunya; tingginya dikurangkan dari panel jam.
+        int obdH = ObdPrefs.show(prefs) ? HomeObd.HEIGHT + 12 : 0;
+        float spDp = sp / dp, availH = (portrait ? panelH - 24 : screenH - 2 * edge) - 2 * inset - obdH;
         // Tombol JADIKAN TAMPILAN UTAMA (48 + jarak 14) ikut dihitung bila tampil; lihat refreshDefaultHome.
         reservedDefault = knownDefault != null && !knownDefault;
         float fixed = 48 + 14 * spDp + 42 + 1.3f * (18 + (panelH < 560 ? 28 : 36) + 13) * k * spDp + 14 + 104 * k
@@ -1027,7 +1054,16 @@ public class HomeActivity extends Activity {
         left.addView(gauge, gl);
         if (shortPanel) gauge.setVisibility(View.GONE);
 
-        row.addView(left, portrait ? new LinearLayout.LayoutParams(MATCH, px(panelH - 24 + grow))
+        // Kartu jam di atas; kartu OBD terpisah di bawahnya.
+        LinearLayout leftCol = new LinearLayout(this);
+        leftCol.setOrientation(LinearLayout.VERTICAL);
+        leftCol.addView(left, new LinearLayout.LayoutParams(MATCH, 0, 1f));
+        if (obdH > 0) {
+            LinearLayout.LayoutParams obdLp = new LinearLayout.LayoutParams(MATCH, px(HomeObd.HEIGHT));
+            obdLp.topMargin = px(12);
+            leftCol.addView(obd.buildLeftPanel(px(8)), obdLp);
+        }
+        row.addView(leftCol, portrait ? new LinearLayout.LayoutParams(MATCH, px(panelH - 24 + grow))
                 : new LinearLayout.LayoutParams(px(leftDp), MATCH));
 
         View div = new View(this);

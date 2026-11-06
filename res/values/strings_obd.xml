@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="obd_channel">OBD</string>
+    <string name="obd_close">PUTUSKAN</string>
+    <string name="obd_state_off">OBD tidak aktif</string>
+    <string name="obd_state_no_adapter">Adapter OBD tidak ditemukan</string>
+    <string name="obd_state_connecting">Menyambung ke adapter…</string>
+    <string name="obd_state_init">Menyiapkan adapter…</string>
+    <string name="obd_state_ecu_wait">Adapter tersambung, menunggu mobil (kontak ON?)</string>
+    <string name="obd_state_live">Data real-time aktif</string>
+    <string name="obd_state_retry">Terputus, mencoba lagi…</string>
+</resources>

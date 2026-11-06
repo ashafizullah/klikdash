@@ -200,6 +200,8 @@ final class HomeLocation {
 
     /** Kecepatan dari GPS; headunit ini tidak menyediakan kecepatan dari CAN (can_config_speed=0). */
     long speedAt;
+    /** Kecepatan GPS terakhir (km/jam); dipakai angka di sebelah jam bila OBD tidak tersambung. */
+    int gpsKmh;
     /** Kecepatan terakhir untuk asisten AI (alat car_status); basi bila lastKmhAt lebih dari 10 detik lalu. */
     static volatile int lastKmh;
     static volatile long lastKmhAt;
@@ -215,19 +217,36 @@ final class HomeLocation {
             speedAt = SystemClock.elapsedRealtime();
             int kmh = Math.round(l.getSpeed() * 3.6f);
             if (kmh < 3) kmh = 0; // diam: abaikan goyangan GPS
-            lastKmh = kmh;
-            lastKmhAt = speedAt;
-            show(h.speed, String.valueOf(kmh), kmh > 100 ? WARN : DIM); // di atas batas tol
+            gpsKmh = kmh;
+            updateSpeed();
         }
         @Override public void onStatusChanged(String p, int s, Bundle b) { }
         @Override public void onProviderEnabled(String p) { }
         @Override public void onProviderDisabled(String p) { }
     };
 
-    /** Tanpa pembaruan 5 detik (GPS hilang sinyal): tampilkan "--" alih-alih angka basi. */
+    /**
+     * Angka di sebelah jam: dari OBD bila tersambung dan datanya baru, kalau tidak dari GPS. Tanpa pembaruan 5 detik
+     * dari GPS (hilang sinyal) tampilkan "--" alih-alih angka basi.
+     */
+    void updateSpeed() {
+        float obd = ObdLink.I.speed();
+        long now = SystemClock.elapsedRealtime();
+        int kmh;
+        if (!Float.isNaN(obd)) kmh = Math.round(obd);
+        else if (now - speedAt <= 5000) kmh = gpsKmh;
+        else {
+            show(h.speed, "--", DIM);
+            return;
+        }
+        lastKmh = kmh;
+        lastKmhAt = now;
+        show(h.speed, String.valueOf(kmh), kmh > 100 ? WARN : DIM); // di atas batas tol
+    }
+
     final Runnable speedStale = new Runnable() {
         @Override public void run() {
-            if (SystemClock.elapsedRealtime() - speedAt > 5000) show(h.speed, "--", DIM);
+            updateSpeed();
             h.speed.postDelayed(this, 1000);
         }
     };

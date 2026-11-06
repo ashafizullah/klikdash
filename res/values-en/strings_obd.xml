@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="obd_channel">OBD</string>
+    <string name="obd_close">DISCONNECT</string>
+    <string name="obd_state_off">OBD is off</string>
+    <string name="obd_state_no_adapter">OBD adapter not found</string>
+    <string name="obd_state_connecting">Connecting to adapter…</string>
+    <string name="obd_state_init">Setting up adapter…</string>
+    <string name="obd_state_ecu_wait">Adapter connected, waiting for the car (ignition ON?)</string>
+    <string name="obd_state_live">Live data</string>
+    <string name="obd_state_retry">Disconnected, retrying…</string>
+</resources>
