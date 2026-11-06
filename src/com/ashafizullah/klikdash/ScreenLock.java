@@ -328,6 +328,7 @@ final class ScreenLock {
             p.setStyle(Paint.Style.STROKE);
             p.setStrokeCap(Paint.Cap.ROUND);
             setClickable(true);
+            TvFocus.enable(this);
         }
 
         void set(boolean closed) {
@@ -355,6 +356,7 @@ final class ScreenLock {
                 c.drawLine(left, top + 2 * s, left, cy - 1 * s, p);
                 c.drawLine(right, top + 2 * s, right, top + 5 * s, p);
             }
+            TvFocus.draw(c, this, dp);
         }
 
         @Override protected void drawableStateChanged() {

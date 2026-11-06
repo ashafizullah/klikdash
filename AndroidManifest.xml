@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ashafizullah.klikdash">
 
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- Android 10+: fix GPS saat aplikasi lain di depan, untuk membetulkan jam (Clock); diberikan lewat ADB lokal. -->
@@ -18,8 +20,9 @@
 
     <application
         android:name=".App"
-        android:label="KlikDash"
+        android:label="@string/app_name"
         android:icon="@drawable/ic_launcher"
+        android:banner="@drawable/tv_banner"
         android:theme="@style/KlikDash"
         android:allowBackup="false"
         android:networkSecurityConfig="@xml/network_security"
@@ -27,6 +30,7 @@
 
         <activity
             android:name=".HomeActivity"
+            android:banner="@drawable/tv_banner"
             android:directBootAware="true"
             android:launchMode="singleTask"
             android:stateNotNeeded="true"
@@ -39,6 +43,7 @@
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -46,12 +51,14 @@
             android:name=".QuranActivity"
             android:label="@string/app_quran"
             android:icon="@drawable/ic_quran"
+            android:banner="@drawable/tv_banner"
             android:taskAffinity="com.ashafizullah.klikdash.quran"
             android:launchMode="singleTask"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden|navigation|uiMode|density|locale|layoutDirection|fontScale">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -59,12 +66,14 @@
             android:name=".DzikirActivity"
             android:label="@string/app_dzikir"
             android:icon="@drawable/ic_dzikir"
+            android:banner="@drawable/tv_banner"
             android:taskAffinity="com.ashafizullah.klikdash.dzikir"
             android:launchMode="singleTask"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden|navigation|uiMode|density|locale|layoutDirection|fontScale">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -81,6 +90,7 @@
             android:name=".AskActivity"
             android:label="@string/app_ask"
             android:icon="@drawable/ic_ask"
+            android:banner="@drawable/tv_banner"
             android:taskAffinity="com.ashafizullah.klikdash.ask"
             android:launchMode="singleTask"
             android:excludeFromRecents="true"
@@ -88,6 +98,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -152,7 +163,7 @@
         <!-- Hanya untuk melihat sesi media aplikasi lain (notch pemutar di home); notifikasinya tidak dibaca -->
         <service
             android:name=".MediaListener"
-            android:label="KlikDash"
+            android:label="@string/app_name"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
             android:exported="true">
             <intent-filter>

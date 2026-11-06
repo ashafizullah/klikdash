@@ -54,6 +54,8 @@ final class QuickPanel extends FrameLayout {
         @Override public void onChange(boolean self) { refresh(); }
     };
     private final Runnable idleClose = this::close;
+    private View previousFocus;
+    private Key settingsKey;
 
     /** Volume diubah dari luar (tombol setir, aplikasi lain): batang ikut. Terdaftar hanya selama panel terbuka. */
     private final BroadcastReceiver volumeRx = new BroadcastReceiver() {
@@ -96,13 +98,13 @@ final class QuickPanel extends FrameLayout {
         head.addView(title, new LinearLayout.LayoutParams(0, WRAP, 1f));
         head.addView(key("✕", false, this::close), new LinearLayout.LayoutParams(h.px(48), h.px(44)));
         panel.addView(head);
-        Key settings = key("⚙  " + h.getString(R.string.quick_settings), false, () -> {
+        settingsKey = key("⚙  " + h.getString(R.string.quick_settings), false, () -> {
             close();
             h.openSettings();
         });
         LinearLayout.LayoutParams sl = new LinearLayout.LayoutParams(MATCH, h.px(48));
         sl.topMargin = h.px(18);
-        panel.addView(settings, sl);
+        panel.addView(settingsKey, sl);
 
         volume = new Level(h, v -> setVolume(v));
         mute = key(h.getString(R.string.quick_mute), false, this::toggleMute);
@@ -132,7 +134,7 @@ final class QuickPanel extends FrameLayout {
         } catch (android.content.pm.PackageManager.NameNotFoundException e) {
             version = "?";
         }
-        TextView foot = h.text("KLIKDASH  " + version, h.fMono, 11, DIM);
+        TextView foot = h.text("KLIKTV  " + version, h.fMono, 11, DIM);
         foot.setLetterSpacing(0.25f);
         LinearLayout.LayoutParams fl = new LinearLayout.LayoutParams(WRAP, WRAP);
         fl.topMargin = h.px(28); // layar pendek: tidak menempel ke tombol terakhir
@@ -176,8 +178,10 @@ final class QuickPanel extends FrameLayout {
 
     void open() {
         if (isOpen()) return;
+        previousFocus = h.getCurrentFocus();
         refresh();
         setVisibility(VISIBLE);
+        settingsKey.requestFocus();
         h.registerReceiver(volumeRx, new IntentFilter("android.media.VOLUME_CHANGED_ACTION"));
         if (mcu) {
             h.getContentResolver().registerContentObserver(Settings.System.getUriFor(MCU_VOLUME), false, mcuRx);
@@ -189,6 +193,8 @@ final class QuickPanel extends FrameLayout {
     void close() {
         if (!isOpen()) return;
         setVisibility(GONE);
+        if (previousFocus != null && previousFocus.getVisibility() == View.VISIBLE) previousFocus.requestFocus();
+        previousFocus = null;
         removeCallbacks(idleClose);
         try { h.unregisterReceiver(volumeRx); } catch (IllegalArgumentException ignored) { }
         if (mcu) h.getContentResolver().unregisterContentObserver(mcuRx);
@@ -361,6 +367,20 @@ final class QuickPanel extends FrameLayout {
             this.onSet = onSet;
             dp = c.getResources().getDisplayMetrics().density;
             slop = android.view.ViewConfiguration.get(c).getScaledTouchSlop();
+            TvFocus.enable(this);
+        }
+
+        @Override public boolean onKeyDown(int keyCode, android.view.KeyEvent event) {
+            if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_LEFT || keyCode == android.view.KeyEvent.KEYCODE_DPAD_RIGHT) {
+                int next = Math.max(0, Math.min(max, value + (keyCode == android.view.KeyEvent.KEYCODE_DPAD_RIGHT ? 1 : -1)));
+                if (next != value) {
+                    value = next;
+                    set(value, max);
+                    onSet.set(value);
+                }
+                return true;
+            }
+            return super.onKeyDown(keyCode, event);
         }
 
         private void pick(float x) {
@@ -412,6 +432,7 @@ final class QuickPanel extends FrameLayout {
                 float x = i * (w + gap);
                 c.drawRect(x, top, x + w, bottom, paint);
             }
+            TvFocus.draw(c, this, dp);
         }
     }
 
@@ -427,6 +448,7 @@ final class QuickPanel extends FrameLayout {
             dp = c.getResources().getDisplayMetrics().density;
             paint.setStrokeCap(Paint.Cap.ROUND);
             setClickable(true);
+            TvFocus.enable(this);
         }
 
         @Override protected void onDraw(Canvas c) {
@@ -434,6 +456,7 @@ final class QuickPanel extends FrameLayout {
             paint.setColor(isPressed() ? AMBER : HomeActivity.TEXT);
             paint.setStrokeWidth(2.2f * dp);
             for (int i = -1; i <= 1; i++) c.drawLine(x, cy + i * gap, x + (i == 1 ? w * .65f : w), cy + i * gap, paint);
+            TvFocus.draw(c, this, dp);
         }
 
         @Override protected void drawableStateChanged() {
