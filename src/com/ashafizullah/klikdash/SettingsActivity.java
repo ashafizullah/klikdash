@@ -108,6 +108,7 @@ public class SettingsActivity extends Activity {
             Account.refresh(this);
         }
         Account.listeners.add(accountRx);
+        if (CarGuard.settingsLocked(this)) CarGuard.lockSettings(this); // penjaga aktif: PIN dulu (PUTUSKAN dll.)
     }
 
     @Override protected void onPause() {
@@ -116,6 +117,7 @@ public class SettingsActivity extends Activity {
     }
 
     @Override protected void onDestroy() {
+        CarGuard.settingsClosed(this);
         if (ai != null && ai.voice != null) ai.voice.release();
         super.onDestroy();
     }

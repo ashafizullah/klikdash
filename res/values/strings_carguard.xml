@@ -21,4 +21,8 @@
     <string name="carguard_warn_overlay">⚠ Izin tampil di atas aplikasi lain belum diberikan: pesan penjaga tidak bisa muncul. Ketuk IZINKAN.</string>
     <string name="carguard_warn_ssid">⚠ Lokasi/izin dibutuhkan untuk mengenali hotspot: izinkan lokasi (juga di latar) untuk KlikDash dan nyalakan lokasi, atau matikan hotspot di headunit.</string>
     <string name="carguard_allow">IZINKAN</string>
+    <string name="carguard_settings_locked">PENGATURAN TERKUNCI</string>
+    <string name="carguard_settings_locked_desc">Penjaga anti-maling aktif. Masukkan PIN penjaga untuk membuka pengaturan.</string>
+    <string name="carguard_settings_locked_hint">Terbuka sendiri bila HP yang dikenali tersambung. Lupa PIN? Matikan penjaga dari aplikasi KlikBeam saat headunit online.</string>
+    <string name="carguard_cancel">BATAL</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.ashafizullah.klikdash;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -91,6 +92,11 @@ import static com.ashafizullah.klikdash.HomeActivity.TEXT;
  * menunggu sampai online dan jam benar, paling lama {@link #START_MAX_MS}; waktunya dihitung dari elapsedRealtime, jadi
  * tetap tepat walau jam headunit baru dikoreksi jaringan.
  *
+ * <p>Selama penjaga aktif dan belum dibuka di berkendara ini (PIN benar atau HP dikenali tersambung = DISARMED),
+ * Pengaturan KlikDash ditutup pad PIN yang sama ({@link #lockSettings}): tanpa itu orang lain bisa menekan PUTUSKAN,
+ * yang ikut menghapus penjaga. Salah PIN di sana ikut dihitung untuk jeda berlipat. PIN benar di sana juga membuka
+ * penjaga untuk berkendara ini.
+ *
  * <p>Selama SHOWING dan ada internet, lokasi terakhir dikirim tiap {@link #ALERT_MS}, juga bila layar tidak bisa tampil
  * karena izin overlay belum ada. Keadaan per boot disimpan di prefs DE terpisah "carguard" (paling sering tiap
  * {@link #PERSIST_MS}), bukan prefs utama yang dicerminkan ke cadangan.
@@ -132,6 +138,8 @@ final class CarGuard {
     private final Map<String, String> btConnected = new ConcurrentHashMap<>();
     private final Map<String, Long> reported = new ConcurrentHashMap<>();
     private Overlay overlay;
+    /** Pad PIN yang menutup Pengaturan KlikDash, atau null. */
+    private Overlay settingsLock;
     private boolean wasLinked = true;
     /** Pengaturan yang sudah diurai, dipakai ulang sampai teks di prefs berubah. */
     private String cfgRaw;
@@ -237,6 +245,7 @@ final class CarGuard {
      */
     private void configChanged() {
         JSONObject c = cfg();
+        if (c == null) unlockSettings(); // penjaga dimatikan dari HP: Pengaturan terbuka lagi
         if (c == null && state != IDLE) {
             hide();
             setState(DISARMED);
@@ -349,6 +358,7 @@ final class CarGuard {
             if (active && (state == ARMED || state == SHOWING) && now >= settleUntil && trustedPresent(c)) {
                 hide(); // pemilik datang: HP-nya tersambung
                 setState(DISARMED);
+                unlockSettings();
             } else if (active && state == ARMED && now >= deadline) {
                 setState(SHOWING);
                 show(false);
@@ -653,6 +663,7 @@ final class CarGuard {
         lockoutUntil = 0;
         hide();
         setState(DISARMED);
+        unlockSettings();
     }
 
     // ---------------------------------------------------------------- layar
@@ -679,6 +690,36 @@ final class CarGuard {
      * Uji dari Pengaturan: tampil sekarang dengan tombol TUTUP UJI, tanpa mengubah keadaan berkendara.
      * @return false bila izin overlay belum ada (layar izin dibuka)
      */
+    /** Pengaturan KlikDash terkunci: penjaga aktif dan belum dibuka di berkendara ini. */
+    static boolean settingsLocked(Context c) {
+        start(c);
+        return instance.cfg() != null && instance.state != DISARMED;
+    }
+
+    /** Tutup Pengaturan dengan pad PIN penjaga, di jendela activity itu sendiri (tanpa izin overlay). */
+    static void lockSettings(Activity a) {
+        start(a);
+        CarGuard g = instance;
+        if (g.settingsLock != null && g.settingsLock.host == a) return;
+        if (g.settingsLock != null) g.settingsLock.remove();
+        Overlay o = g.new Overlay(false, g.cfg(), a);
+        g.settingsLock = o.add() ? o : null;
+    }
+
+    /** Activity Pengaturan ditutup: lepaskan pad-nya (dibuat lagi saat dibuka). */
+    static void settingsClosed(Activity a) {
+        if (instance != null && instance.settingsLock != null && instance.settingsLock.host == a) {
+            instance.settingsLock.remove();
+            instance.settingsLock = null;
+        }
+    }
+
+    private void unlockSettings() {
+        if (settingsLock == null) return;
+        settingsLock.remove();
+        settingsLock = null;
+    }
+
     static boolean test(Context c) {
         start(c);
         if (!overlayAllowed(c)) {
@@ -701,7 +742,7 @@ final class CarGuard {
             }
             return;
         }
-        Overlay o = new Overlay(test, cfg());
+        Overlay o = new Overlay(test, cfg(), null);
         if (o.add()) overlay = o;
     }
 
@@ -713,6 +754,9 @@ final class CarGuard {
     /** Layar penuh di atas semua aplikasi: tidak bisa ditutup dengan kembali atau home, hanya dengan PIN. */
     private final class Overlay {
         final boolean test;
+        /** Bukan layar penjaga, tetapi pad yang menutup Pengaturan KlikDash ({@link #lockSettings}) di activity ini. */
+        final Activity host;
+        final boolean settings;
         /** updatedAt pengaturan yang ditampilkan; berubah = dibangun ulang ({@link #configChanged}). */
         final String stamp;
         final Context c;
@@ -725,8 +769,10 @@ final class CarGuard {
         final Key ok;
         boolean checking;
 
-        Overlay(boolean test, JSONObject cfg) {
+        Overlay(boolean test, JSONObject cfg, Activity host) {
             this.test = test;
+            this.host = host;
+            settings = host != null;
             stamp = cfg != null ? cfg.optString("updatedAt") : "";
             Theme.load(app);
             c = Lang.wrap(app);
@@ -739,19 +785,23 @@ final class CarGuard {
             root = new FrameLayout(c) {
                 @Override public boolean dispatchKeyEvent(KeyEvent e) {
                     int k = e.getKeyCode();
-                    if (k == KeyEvent.KEYCODE_BACK || k == KeyEvent.KEYCODE_ESCAPE) return true; // tidak bisa ditutup
+                    if (k == KeyEvent.KEYCODE_BACK || k == KeyEvent.KEYCODE_ESCAPE) {
+                        if (settings && e.getAction() == KeyEvent.ACTION_UP) cancelSettings();
+                        return true; // layar penjaga tidak bisa ditutup; pad Pengaturan: kembali = batal
+                    }
                     return super.dispatchKeyEvent(e);
                 }
             };
             root.setBackgroundColor(0xFF000000 | BG);
             root.setFocusableInTouchMode(true);
+            root.setClickable(true); // sentuhan tidak tembus ke Pengaturan di bawahnya
 
             float wDp = c.getResources().getDisplayMetrics().widthPixels / dp;
             float hDp = c.getResources().getDisplayMetrics().heightPixels / dp;
             boolean wide = wDp > hDp;
             // Tinggi tombol menyesuaikan layar supaya pad selalu muat (sisanya: judul, titik, status, padding, TUTUP UJI).
             float avail = wide ? hDp - 56 : hDp * 0.55f;
-            float keyH = Math.max(34, Math.min(52, (avail - (test ? 176 : 118)) / 4f - 8));
+            float keyH = Math.max(34, Math.min(52, (avail - (test || settings ? 176 : 118)) / 4f - 8));
 
             LinearLayout body = new LinearLayout(c);
             body.setOrientation(wide ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
@@ -763,16 +813,25 @@ final class CarGuard {
             LinearLayout info = new LinearLayout(c);
             info.setOrientation(LinearLayout.VERTICAL);
             info.setGravity(Gravity.CENTER_VERTICAL);
-            info.addView(text("⚠", heavy, wide ? 54 : 40, HOT));
+            if (settings) {
+                TextView title = text(c.getString(R.string.carguard_settings_locked), monoBold, 16, AMBER);
+                title.setLetterSpacing(0.25f);
+                info.addView(title);
+                TextView m = text(c.getString(R.string.carguard_settings_locked_desc), heavy, wide ? 26 : 20, TEXT);
+                m.setLineSpacing(0, 1.05f);
+                info.addView(m, top(wide ? 14 : 10));
+                info.addView(text(c.getString(R.string.carguard_settings_locked_hint), mono, 12, DIM), top(14));
+            }
+            if (!settings) info.addView(text("⚠", heavy, wide ? 54 : 40, HOT));
             TextView title = text(c.getString(R.string.carguard_attention), monoBold, 16, HOT);
             title.setLetterSpacing(0.25f);
-            info.addView(title, top(4));
+            if (!settings) info.addView(title, top(4));
             String msg = cfg != null ? cfg.optString("message") : "";
             if (msg.isEmpty()) msg = c.getString(R.string.carguard_sample_message);
             TextView m = text(msg, heavy, wide ? 30 : 22, TEXT);
             m.setLineSpacing(0, 1.05f);
-            info.addView(m, top(wide ? 14 : 10));
-            String phone = cfg != null ? cfg.optString("phone") : "";
+            if (!settings) info.addView(m, top(wide ? 14 : 10));
+            String phone = cfg != null && !settings ? cfg.optString("phone") : "";
             if (!phone.isEmpty()) info.addView(text(phone, heavy, wide ? 56 : 36, AMBER), top(wide ? 16 : 10));
             if (test) info.addView(text(c.getString(R.string.carguard_test_note), mono, 12, DIM), top(14));
             ScrollView infoScroll = new ScrollView(c);
@@ -826,8 +885,9 @@ final class CarGuard {
             LinearLayout.LayoutParams gp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             gp.topMargin = px(8);
             padBox.addView(grid, gp);
-            if (test) {
-                Key close = new Key(c, monoBold, c.getString(R.string.carguard_close_test), false, CarGuard.this::hide);
+            if (test || settings) {
+                Key close = new Key(c, monoBold, c.getString(settings ? R.string.carguard_cancel : R.string.carguard_close_test), false,
+                        settings ? this::cancelSettings : CarGuard.this::hide);
                 LinearLayout.LayoutParams cl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, px(44));
                 cl.topMargin = px(10);
                 padBox.addView(close, cl);
@@ -841,8 +901,25 @@ final class CarGuard {
             if (!test && lockedOut()) countdown();
         }
 
+        /** BATAL / kembali di pad Pengaturan: tutup Pengaturan, kembali ke home. */
+        void cancelSettings() {
+            if (settingsLock == this) settingsLock = null;
+            remove();
+            host.finish();
+        }
+
         @SuppressWarnings("deprecation")
         boolean add() {
+            if (settings) {
+                try {
+                    ((ViewGroup) host.getWindow().getDecorView()).addView(root,
+                            new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                    root.requestFocus();
+                    return true;
+                } catch (RuntimeException e) {
+                    return false;
+                }
+            }
             WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
                     WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT,
                     Compat.O ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE,
@@ -861,6 +938,10 @@ final class CarGuard {
 
         void remove() {
             try {
+                if (settings) {
+                    if (root.getParent() instanceof ViewGroup) ((ViewGroup) root.getParent()).removeView(root);
+                    return;
+                }
                 wm.removeView(root);
             } catch (RuntimeException ignored) { }
         }
@@ -897,9 +978,9 @@ final class CarGuard {
             ok.setLabel("OK");
             pin.setLength(0);
             dots.invalidate();
-            if (overlay != this) return; // ditutup selama dicek
+            if ((settings ? settingsLock : overlay) != this) return; // ditutup selama dicek
             if (good) {
-                if (test) hide(); else pinOk();
+                if (test) hide(); else pinOk(); // pinOk juga membuka Pengaturan
                 return;
             }
             if (!test) wrongPin();
