@@ -10,8 +10,15 @@
     <string name="carguard_close_test">CLOSE TEST</string>
     <string name="carguard_title">ANTI-THEFT GUARD</string>
     <string name="carguard_status_off">Off. Set it up in the KlikBeam app (Pro): Garage › car › Anti-theft guard. If the car starts without the owner\'s phone, the headunit shows the owner\'s message until a PIN is entered, no internet needed.</string>
-    <string name="carguard_status_on">On, set from the KlikBeam app. Trusted phones: %1$s. The message shows %2$d min after the car starts if no trusted phone connects.</string>
+    <string name="carguard_status_on">On, set from the KlikBeam app. %1$s. The message shows %2$d min after the car starts if no trusted phone connects.</string>
     <string name="carguard_hotspot">hotspot</string>
     <string name="carguard_bluetooth">Bluetooth</string>
     <string name="carguard_test">TEST</string>
+    <plurals name="carguard_trusted_count">
+        <item quantity="one">1 trusted phone</item>
+        <item quantity="other">%d trusted phones</item>
+    </plurals>
+    <string name="carguard_warn_overlay">⚠ Permission to show over other apps is missing: the guard message can\'t appear. Tap ALLOW.</string>
+    <string name="carguard_warn_ssid">⚠ Location/permission is needed to recognise hotspots: allow location (also in the background) for KlikDash and turn location on, or turn off the headunit\'s own hotspot.</string>
+    <string name="carguard_allow">ALLOW</string>
 </resources>

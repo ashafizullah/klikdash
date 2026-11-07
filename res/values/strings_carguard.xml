@@ -10,8 +10,15 @@
     <string name="carguard_close_test">TUTUP UJI</string>
     <string name="carguard_title">PENJAGA ANTI-MALING</string>
     <string name="carguard_status_off">Mati. Atur dari aplikasi KlikBeam (Pro): Garasi › mobil › Penjaga anti-maling. Bila mobil menyala tanpa HP pemilik, headunit menampilkan pesan pemilik sampai PIN dimasukkan, tanpa perlu internet.</string>
-    <string name="carguard_status_on">Aktif, diatur dari aplikasi KlikBeam. HP dikenali: %1$s. Pesan tampil %2$d menit setelah mobil menyala bila tidak ada HP dikenali yang tersambung.</string>
+    <string name="carguard_status_on">Aktif, diatur dari aplikasi KlikBeam. %1$s. Pesan tampil %2$d menit setelah mobil menyala bila tidak ada HP dikenali yang tersambung.</string>
     <string name="carguard_hotspot">hotspot</string>
     <string name="carguard_bluetooth">Bluetooth</string>
     <string name="carguard_test">UJI</string>
+    <plurals name="carguard_trusted_count">
+        <item quantity="one">1 HP dikenali</item>
+        <item quantity="other">%d HP dikenali</item>
+    </plurals>
+    <string name="carguard_warn_overlay">⚠ Izin tampil di atas aplikasi lain belum diberikan: pesan penjaga tidak bisa muncul. Ketuk IZINKAN.</string>
+    <string name="carguard_warn_ssid">⚠ Lokasi/izin dibutuhkan untuk mengenali hotspot: izinkan lokasi (juga di latar) untuk KlikDash dan nyalakan lokasi, atau matikan hotspot di headunit.</string>
+    <string name="carguard_allow">IZINKAN</string>
 </resources>

@@ -307,6 +307,7 @@ final class Account {
     /** Token tidak berlaku lagi (diputus dari HP atau akun dihapus): kembali ke keadaan tanpa akun. */
     static void forget(Context c) {
         Prefs.of(c).edit().remove(K_TOKEN).remove(K_CAR).remove(K_ACCOUNT).remove(K_TRIPS).apply();
+        CarGuard.forget(c); // penjaga milik akun lama: pengaturan, keadaan, dan layarnya ikut hilang
         deleteTree(dir(c));
         MAIN.post(() -> TripService.sync(c));
         changed();
