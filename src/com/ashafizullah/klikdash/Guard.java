@@ -24,6 +24,11 @@ import android.widget.Toast;
  *   dikembalikan lewat ADB lokal, seperti tombol LAUNCHER BAWAAN.</li>
  * </ul>
  * Hitungan kembali 0 setelah home normal berjalan semenit, atau saat pengguna menekan COBA LAGI.
+ *
+ * <p>Gagal tanpa pengecualian Java (home macet lalu dibunuh sistem, crash native, atau headunit dinyalakan ulang karena
+ * logo tidak hilang) juga dihitung: {@link #opening} menandai "sedang membuka home" (boot dan pid proses ini), dan
+ * {@link #shown} menghapusnya begitu frame pertama tergambar atau home tertutup aplikasi lain. Penanda dari proses lain
+ * yang masih ada saat home dibuka = percobaan itu tidak pernah tampil.
  */
 final class Guard {
     static final int SAFE_AFTER = 2, RESTORE_AFTER = 3;
@@ -61,16 +66,46 @@ final class Guard {
         if (SystemClock.elapsedRealtime() - Process.getStartElapsedRealtime() > WINDOW) return;
         SharedPreferences s = store(c);
         int n = s.getInt("crashes", 0) + 1;
-        // commit, bukan apply: proses ini segera mati.
-        s.edit().putInt("crashes", n).putString("last", describe(e)).commit();
-        if (n >= RESTORE_AFTER && HomeSwitch.isNwd()) restoreStock(c);
+        // commit, bukan apply: proses ini segera mati. Penanda dibuang: crash ini sudah dihitung di sini.
+        s.edit().putInt("crashes", n).putString("last", describe(e)).remove(OPENING).commit();
+        if (n >= RESTORE_AFTER && HomeSwitch.isNwd()) restoreStock(c, true);
+    }
+
+    private static final String OPENING = "opening";
+
+    /** Home mulai dibuka (attachBaseContext). Penanda proses lain yang tersisa dihitung sebagai satu kegagalan. */
+    static void opening(Context c) {
+        try {
+            String me = HomeActivity.bootId() + ":" + Process.myPid();
+            SharedPreferences s = store(c);
+            String prev = s.getString(OPENING, null);
+            if (me.equals(prev)) return; // recreate di proses yang sama (mis. layar diputar sebelum frame pertama)
+            SharedPreferences.Editor e = s.edit().putString(OPENING, me);
+            int n = s.getInt("crashes", 0);
+            if (prev != null) {
+                n++;
+                e.putInt("crashes", n).putString("last", "home did not appear (hang, native crash, or restart at the boot logo)");
+            }
+            e.commit();
+            if (prev != null && n >= RESTORE_AFTER && HomeSwitch.isNwd()) restoreStock(c, false);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /** Frame pertama home tergambar, atau home tertutup aplikasi lain sebelum itu: percobaan ini tidak gagal. */
+    static void shown(Context c) {
+        try {
+            SharedPreferences s = store(c);
+            if (s.contains(OPENING)) s.edit().remove(OPENING).apply();
+        } catch (Throwable ignored) {
+        }
     }
 
     /**
      * Di thread lain (thread utama melarang jaringan, termasuk soket ke adbd lokal), ditunggu sebentar sebelum proses
      * mati. adbd bisa belum siap di awal boot: gagal diam-diam, crash berikutnya mencoba lagi.
      */
-    private static void restoreStock(Context c) {
+    private static void restoreStock(Context c, boolean wait) {
         Tweaks.init(c);
         Thread t = new Thread(() -> {
             try {
@@ -79,6 +114,7 @@ final class Guard {
             }
         }, "guard-restore");
         t.start();
+        if (!wait) return; // dari attachBaseContext: home (mode aman) tetap dibuka sambil menunggu
         try {
             t.join(6000);
         } catch (InterruptedException ignored) {

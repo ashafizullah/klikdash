@@ -126,6 +126,7 @@ public class HomeActivity extends Activity {
 
     @Override protected void attachBaseContext(Context base) {
         Guard.install(base);
+        Guard.opening(base); // percobaan sebelumnya yang tidak pernah tampil = gagal (lihat Guard)
         safe = Guard.safe(base);
         super.attachBaseContext(safe ? Guard.lang(base) : Lang.wrap(base));
     }
@@ -133,7 +134,15 @@ public class HomeActivity extends Activity {
     @Override protected void onCreate(Bundle b) {
         if (safe) {
             super.onCreate(b);
-            setContentView(Guard.view(this));
+            View v = Guard.view(this);
+            setContentView(v);
+            v.getViewTreeObserver().addOnPreDrawListener(new android.view.ViewTreeObserver.OnPreDrawListener() {
+                @Override public boolean onPreDraw() {
+                    v.getViewTreeObserver().removeOnPreDrawListener(this);
+                    Guard.shown(HomeActivity.this);
+                    return true;
+                }
+            });
             return;
         }
         themeBuilt = Theme.apply(this);
@@ -216,6 +225,7 @@ public class HomeActivity extends Activity {
         root.getViewTreeObserver().addOnPreDrawListener(new android.view.ViewTreeObserver.OnPreDrawListener() {
             @Override public boolean onPreDraw() {
                 root.getViewTreeObserver().removeOnPreDrawListener(this);
+                Guard.shown(HomeActivity.this); // tampil: percobaan ini tidak gagal
                 root.post(apps::load); // berjalan sesudah frame ini selesai
                 return true;
             }
@@ -588,6 +598,7 @@ public class HomeActivity extends Activity {
     }
 
     @Override protected void onPause() {
+        Guard.shown(this); // tertutup aplikasi lain (mis. Al-Qur'an dibuka saat boot) sebelum frame pertama: bukan gagal
         BeamHub.homeFront = false;
         SplitScreen.home(false);
         if (safe) {
