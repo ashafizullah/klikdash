@@ -5,7 +5,7 @@
     <string name="account_desc">Hubungkan headunit ke akun KlikBeam di HP. Lokasi parkir terakhir dan riwayat perjalanan mobil ini bisa dilihat dari aplikasi KlikBeam. Opsional: semua fitur KlikDash tetap jalan tanpa akun.</string>
     <string name="account_link">HUBUNGKAN</string>
     <string name="account_privacy_title">DATA YANG DIKIRIM</string>
-    <string name="account_privacy_desc">Hanya selama terhubung: rute, jarak, waktu dan kecepatan perjalanan, serta lokasi parkir terakhir; untuk penjaga anti-maling juga nama hotspot dan perangkat Bluetooth yang tersambung, dan lokasi mobil saat pesan penjaga tampil. Data dikirim saat headunit online (misalnya lewat hotspot HP) ke akun KlikBeam-mu (lihat kebijakan privasi). Akun gratis menyimpan riwayat 7 hari.</string>
+    <string name="account_privacy_desc">Hanya selama terhubung: rute, jarak, waktu dan kecepatan perjalanan, serta lokasi parkir terakhir; untuk penjaga anti-maling juga nama hotspot dan perangkat Bluetooth yang tersambung, dan lokasi mobil saat pesan penjaga tampil; juga waktu dan lokasi saat mobil dinyalakan. Data dikirim saat headunit online (misalnya lewat hotspot HP) ke akun KlikBeam-mu (lihat kebijakan privasi). Akun gratis menyimpan riwayat 7 hari.</string>
 
     <string name="account_scan">PINDAI DARI\nKLIKBEAM DI HP</string>
     <string name="account_code_label">KODE</string>

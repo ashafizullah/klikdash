@@ -86,6 +86,11 @@ import static com.ashafizullah.klikdash.HomeActivity.TEXT;
  * sebelum tidur masih tercatat sesaat); sesudahnya tick yang menurunkan ke DISARMED. Layar yang sedang tampil tetap
  * tampil saat berkendara baru dimulai.
  *
+ * <p>Setiap mulai berkendara juga dilaporkan ke server ({@code POST /v1/device/started}, {@link #reportStart}) untuk
+ * notifikasi "mobil dinyalakan" (KlikBeam Pro, dinyalakan pemilik di aplikasi; server yang memutuskan push). Laporan
+ * menunggu sampai online dan jam benar, paling lama {@link #START_MAX_MS}; waktunya dihitung dari elapsedRealtime, jadi
+ * tetap tepat walau jam headunit baru dikoreksi jaringan.
+ *
  * <p>Selama SHOWING dan ada internet, lokasi terakhir dikirim tiap {@link #ALERT_MS}, juga bila layar tidak bisa tampil
  * karena izin overlay belum ada. Keadaan per boot disimpan di prefs DE terpisah "carguard" (paling sering tiap
  * {@link #PERSIST_MS}), bukan prefs utama yang dicerminkan ke cadangan.
@@ -96,6 +101,8 @@ final class CarGuard {
     private static final long GAP_MS = 2 * 60_000L, SETTLE_MS = 20_000, TICK_MS = 5_000, IDLE_TICK_MS = 60_000,
             SYNC_MS = 15 * 60_000L, SYNC_MIN_MS = 60_000, ALERT_MS = 2 * 60_000L, SEEN_MS = 10 * 60_000L,
             PERSIST_MS = 30_000, ALLOW_MS = 10 * 60_000L, LOCKOUT_MS = 30_000, LOCKOUT_MAX_MS = 30 * 60_000L;
+    /** Laporan mobil dinyalakan: ditunda sebentar (lokasi/jaringan), dicoba ulang tiap 30 dtk, dibuang setelah 30 mnt. */
+    private static final long START_DELAY_MS = 5_000, START_RETRY_MS = 30_000, START_MAX_MS = 30 * 60_000L;
     private static final int MAX_TRIES = 5, PIN_MAX = 6, NAME_MAX = 64;
     /** Keadaan satu kali berkendara. */
     private static final int IDLE = 0, ARMED = 1, SHOWING = 2, DISARMED = 3;
@@ -118,6 +125,8 @@ final class CarGuard {
     private boolean accOff;
     /** Salah PIN berturut-turut, berapa kali sudah dikunci (jeda berlipat), dan akhir jeda (elapsedRealtime). */
     private int wrong, lockLevel;
+    /** elapsedRealtime saat mobil dinyalakan yang belum terlapor (-1 = tidak ada), dan kapan dicoba lagi. */
+    private long startPending = -1, startNextTry;
     private long lockoutUntil;
     /** Bluetooth yang tersambung: alamat MAC → nama. Dibaca juga di thread NET. */
     private final Map<String, String> btConnected = new ConcurrentHashMap<>();
@@ -289,6 +298,8 @@ final class CarGuard {
         JSONObject c = cfg();
         seedBluetooth();
         settleUntil = now + SETTLE_MS;
+        startPending = now;
+        startNextTry = now + START_DELAY_MS;
         if (c == null) {
             hide();
             setState(IDLE);
@@ -346,6 +357,7 @@ final class CarGuard {
             }
             if (state == SHOWING && now >= nextAlert) alert(); // juga tanpa izin overlay: pemilik tetap diberi tahu
             if (now >= nextSync) sync();
+            if (startPending >= 0 && now >= startNextTry) reportStart();
             persist(false);
             boolean busy = active || state == SHOWING || overlay != null;
             Account.MAIN.postDelayed(this, busy ? TICK_MS : IDLE_TICK_MS);
@@ -398,6 +410,7 @@ final class CarGuard {
             Account.MAIN.postDelayed(() -> {
                 if (SystemClock.elapsedRealtime() - lastSyncTry >= SYNC_MIN_MS) sync(); // jaringan naik-turun: paling sering 1×/menit
                 if (state == SHOWING) nextAlert = 0;
+                if (startPending >= 0) reportStart();
             }, 3000);
         }
     };
@@ -521,6 +534,29 @@ final class CarGuard {
             if (body.has("wifi")) reported.put("wifi:" + wifi, now);
             for (int i = 0; i < bt.length(); i++) reported.put("bt:" + bt.getJSONObject(i).getString("addr"), now);
         } catch (Exception ignored) { } // offline: dicoba lagi saat tersambung berikutnya
+    }
+
+    /** Laporkan mobil dinyalakan (lihat catatan kelas). Gagal (offline, dll.): dicoba lagi lewat tick atau saat online. */
+    private void reportStart() {
+        long now = SystemClock.elapsedRealtime(), pending = startPending;
+        if (pending < 0) return;
+        if (now - pending > START_MAX_MS) {
+            startPending = -1;
+            return;
+        }
+        startNextTry = now + START_RETRY_MS;
+        String auth = Account.deviceAuth(app);
+        if (auth == null || System.currentTimeMillis() < Built.TIME) return; // belum terhubung / jam belum benar
+        long at = System.currentTimeMillis() - (now - pending);
+        double[] loc = lastLocation();
+        Account.NET.execute(() -> {
+            try {
+                JSONObject b = new JSONObject().put("at", iso(at));
+                if (loc != null) b.put("lat", loc[0]).put("lng", loc[1]);
+                Account.call(app, "POST", "/v1/device/started", auth, b.toString());
+                Account.MAIN.post(() -> { if (startPending == pending) startPending = -1; });
+            } catch (Exception ignored) { } // dicoba lagi
+        });
     }
 
     private boolean due(String key, long now) {
