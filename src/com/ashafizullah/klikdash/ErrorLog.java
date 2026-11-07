@@ -63,6 +63,7 @@ final class ErrorLog {
                     .put("appVersion", version(c))
                     .put("osVersion", "Android " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")")
                     .put("device", (Build.MANUFACTURER + " " + Build.MODEL).trim())
+                    .put("package", c.getPackageName()) // server membuang laporan salinan berpaket lain
                     .put("at", System.currentTimeMillis()));
         } catch (Throwable ignored) { }
     }
@@ -89,6 +90,7 @@ final class ErrorLog {
                 .put("appVersion", version(c))
                 .put("osVersion", "Android " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")")
                 .put("device", (Build.MANUFACTURER + " " + Build.MODEL).trim())
+                .put("package", c.getPackageName())
                 .put("at", System.currentTimeMillis());
     }
 
