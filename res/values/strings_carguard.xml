@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Penjaga anti-maling (CarGuard): layar penuh, PIN, dan baris di tab Akun Pengaturan. -->
+<resources>
+    <string name="carguard_attention">PERHATIAN</string>
+    <string name="carguard_sample_message">Mobil ini dilaporkan hilang. Jika Anda menemukannya atau bukan pemiliknya, hubungi:</string>
+    <string name="carguard_test_note">UJI PENJAGA: beginilah tampilan headunit bila mobil menyala tanpa HP yang dikenali.</string>
+    <string name="carguard_enter_pin">MASUKKAN PIN</string>
+    <string name="carguard_wrong_pin">PIN SALAH</string>
+    <string name="carguard_wait">COBA LAGI DALAM %1$d DETIK</string>
+    <string name="carguard_close_test">TUTUP UJI</string>
+    <string name="carguard_title">PENJAGA ANTI-MALING</string>
+    <string name="carguard_status_off">Mati. Atur dari aplikasi KlikBeam (Pro): Garasi › mobil › Penjaga anti-maling. Bila mobil menyala tanpa HP pemilik, headunit menampilkan pesan pemilik sampai PIN dimasukkan, tanpa perlu internet.</string>
+    <string name="carguard_status_on">Aktif, diatur dari aplikasi KlikBeam. HP dikenali: %1$s. Pesan tampil %2$d menit setelah mobil menyala bila tidak ada HP dikenali yang tersambung.</string>
+    <string name="carguard_hotspot">hotspot</string>
+    <string name="carguard_bluetooth">Bluetooth</string>
+    <string name="carguard_test">UJI</string>
+</resources>

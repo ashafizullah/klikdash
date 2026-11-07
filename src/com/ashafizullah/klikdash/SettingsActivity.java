@@ -1058,6 +1058,8 @@ public class SettingsActivity extends Activity {
             list.addView(row(getString(R.string.account_trips_title), tripsStatus(on),
                     key(getString(R.string.settings_on), on, () -> { Account.setTripsOn(this, true); rebuildKeepScroll(TAB_ACCOUNT); }),
                     key(getString(R.string.settings_off), !on, () -> { Account.setTripsOn(this, false); rebuildKeepScroll(TAB_ACCOUNT); })));
+            list.addView(row(getString(R.string.carguard_title), CarGuard.status(this),
+                    key(getString(R.string.carguard_test), false, () -> CarGuard.test(this))));
         } else {
             Account.Pairing p = Account.pairing;
             if (p == null) {

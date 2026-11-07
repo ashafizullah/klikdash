@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Penjaga anti-maling (CarGuard): layar penuh, PIN, dan baris di tab Akun Pengaturan. -->
+<resources>
+    <string name="carguard_attention">ATTENTION</string>
+    <string name="carguard_sample_message">This car has been reported missing. If you found it or are not the owner, please call:</string>
+    <string name="carguard_test_note">GUARD TEST: this is what the headunit shows when the car starts without a trusted phone.</string>
+    <string name="carguard_enter_pin">ENTER PIN</string>
+    <string name="carguard_wrong_pin">WRONG PIN</string>
+    <string name="carguard_wait">TRY AGAIN IN %1$d SECONDS</string>
+    <string name="carguard_close_test">CLOSE TEST</string>
+    <string name="carguard_title">ANTI-THEFT GUARD</string>
+    <string name="carguard_status_off">Off. Set it up in the KlikBeam app (Pro): Garage › car › Anti-theft guard. If the car starts without the owner\'s phone, the headunit shows the owner\'s message until a PIN is entered, no internet needed.</string>
+    <string name="carguard_status_on">On, set from the KlikBeam app. Trusted phones: %1$s. The message shows %2$d min after the car starts if no trusted phone connects.</string>
+    <string name="carguard_hotspot">hotspot</string>
+    <string name="carguard_bluetooth">Bluetooth</string>
+    <string name="carguard_test">TEST</string>
+</resources>

@@ -15,6 +15,11 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!-- Pengingat sholat melayang di atas Maps/Waze; diberikan lewat ADB lokal (PrayerAlarm.allowOverlay). -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- Penjaga anti-maling (CarGuard): hotspot HP pemilik yang tersambung (SSID), perangkat Bluetooth yang tersambung,
+         dan kabar jaringan tersedia (juga dipakai TripService untuk mengunggah begitu online). Semuanya izin normal. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
 
     <application
         android:name=".App"

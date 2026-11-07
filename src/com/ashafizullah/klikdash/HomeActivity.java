@@ -327,6 +327,7 @@ public class HomeActivity extends Activity {
         PrayerAlarm.home = new java.lang.ref.WeakReference<>(this);
         PrayerAlarm.schedule(this);
         TripService.sync(this); // akun KlikBeam: proses dimulai ulang atau izin lokasi baru diberikan
+        CarGuard.start(this); // penjaga anti-maling: proses baru = mulai berkendara (lihat CarGuard)
         apps.untrim();
         refreshTiles();
         updateTime();

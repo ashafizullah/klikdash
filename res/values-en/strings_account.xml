@@ -4,7 +4,7 @@
     <string name="account_desc">Link this headunit to the KlikBeam account on your phone. See where this car is parked and its trip history in the KlikBeam app. Optional: everything else in KlikDash works without an account.</string>
     <string name="account_link">LINK</string>
     <string name="account_privacy_title">WHAT IS SENT</string>
-    <string name="account_privacy_desc">Only while linked: the route, distance, time and speed of each trip, and where the car was last parked. It is sent when the headunit is online (for example through your phone\'s hotspot) to your KlikBeam account (see the privacy policy). Free accounts keep 7 days of history.</string>
+    <string name="account_privacy_desc">Only while linked: the route, distance, time and speed of each trip, and where the car was last parked; for the anti-theft guard also the names of connected hotspots and Bluetooth devices, and the car\'s location while the guard message shows. It is sent when the headunit is online (for example through your phone\'s hotspot) to your KlikBeam account (see the privacy policy). Free accounts keep 7 days of history.</string>
 
     <string name="account_scan">SCAN WITH\nKLIKBEAM</string>
     <string name="account_code_label">CODE</string>

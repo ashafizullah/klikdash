@@ -274,6 +274,7 @@ final class Account {
         Context c = app.getApplicationContext();
         String auth = deviceAuth(c);
         if (auth == null) return;
+        CarGuard.refresh(c); // pengaturan penjaga anti-maling yang baru diubah dari HP ikut tampil
         NET.execute(() -> {
             try {
                 JSONObject d = call(c, "GET", "/v1/device", auth, null).getJSONObject("data");
