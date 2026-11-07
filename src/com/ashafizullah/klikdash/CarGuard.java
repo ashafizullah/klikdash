@@ -72,6 +72,9 @@ import static com.ashafizullah.klikdash.HomeActivity.TEXT;
  * <ul>
  *   <li>boot baru ({@code /proc/sys/kernel/random/boot_id} berbeda dari yang tersimpan);</li>
  *   <li>siaran bangun NWD ({@code com.nwd.ACTION_AUTO_SLEEP_WAKE_STATE}, {@code com.nwd.android.ACTION_SYSTEM_AUTO_WAKEUP});</li>
+ *   <li>ACC on di NWD: {@code com.nwd.action.ACTION_MCU_STATE_CHANGE} dengan {@code extra_mcu_state} 1 setelah 0 atau 3
+ *   (ACC off). Kunci OFF sebentar tidak membuat headunit tidur (hanya lampu layar mati), jadi hanya siaran ini yang
+ *   menandai mobil dinyalakan lagi. Diuji di NWD K2401.</li>
  *   <li>jeda lebih dari {@link #GAP_MS} sejak tick terakhir (elapsedRealtime ikut berjalan saat CPU tidur): headunit
  *   tidur saat ACC off, proses mati selama tidur, atau citra RAM fast boot dipulihkan;</li>
  *   <li>SCREEN_ON setelah layar mati lebih dari {@link #GAP_MS}, tetapi hanya di headunit yang belum pernah mengirim
@@ -97,6 +100,8 @@ final class CarGuard {
     /** Keadaan satu kali berkendara. */
     private static final int IDLE = 0, ARMED = 1, SHOWING = 2, DISARMED = 3;
     private static final String[] NWD_WAKE = {"com.nwd.ACTION_AUTO_SLEEP_WAKE_STATE", "com.nwd.android.ACTION_SYSTEM_AUTO_WAKEUP"};
+    /** Keadaan MCU NWD (byte {@code extra_mcu_state}): 1 = ACC on, 0 = ACC off, 3 = ACC off dengan mati tertunda. */
+    private static final String NWD_MCU = "com.nwd.action.ACTION_MCU_STATE_CHANGE";
 
     private static CarGuard instance;
     /** Pengecekan PIN (PBKDF2 ±0,5–1 dtk di headunit) di luar thread utama. */
@@ -109,6 +114,8 @@ final class CarGuard {
     private long deadline, settleUntil, lastTick, lastPersist = -PERSIST_MS;
     private long screenOffAt = -1, nextSync, lastSyncTry = -SYNC_MIN_MS, nextAlert, lastAllowTry = -ALLOW_MS,
             lastNwdWake = -GAP_MS - 1;
+    /** MCU NWD melaporkan ACC off; ACC on berikutnya adalah mulai berkendara. */
+    private boolean accOff;
     /** Salah PIN berturut-turut, berapa kali sudah dikunci (jeda berlipat), dan akhir jeda (elapsedRealtime). */
     private int wrong, lockLevel;
     private long lockoutUntil;
@@ -142,6 +149,7 @@ final class CarGuard {
         f.addAction(Intent.ACTION_SCREEN_OFF);
         f.addAction(Intent.ACTION_SCREEN_ON);
         for (String a : NWD_WAKE) f.addAction(a);
+        f.addAction(NWD_MCU);
         f.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         f.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         f.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
@@ -358,6 +366,16 @@ final class CarGuard {
                 if (!store.getBoolean(K_NWD, false)) store.edit().putBoolean(K_NWD, true).apply();
                 if (now - lastNwdWake > GAP_MS) driveStart(); // dua siaran untuk satu kali bangun: yang kedua diabaikan
                 lastNwdWake = now;
+            } else if (NWD_MCU.equals(a)) {
+                byte mcu = i.getByteExtra("extra_mcu_state", (byte) -1);
+                if (mcu == 0 || mcu == 3) {
+                    accOff = true;
+                    if (!store.getBoolean(K_NWD, false)) store.edit().putBoolean(K_NWD, true).apply();
+                } else if (mcu == 1 && accOff) { // siaran dikirim dua kali: yang kedua sudah accOff = false
+                    accOff = false;
+                    if (now - lastNwdWake > 10_000) driveStart();
+                    lastNwdWake = now; // siaran bangun NWD sesudahnya tidak memulai lagi
+                }
             } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(a) || BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(a)) {
                 Object d = i.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 String addr = btAddr(d);
