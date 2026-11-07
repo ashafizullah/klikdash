@@ -92,15 +92,15 @@ import static com.ashafizullah.klikdash.HomeActivity.TEXT;
  * menunggu sampai online dan jam benar, paling lama {@link #START_MAX_MS}; waktunya dihitung dari elapsedRealtime, jadi
  * tetap tepat walau jam headunit baru dikoreksi jaringan.
  *
- * <p>Selama penjaga aktif dan belum dibuka di berkendara ini (PIN benar atau HP dikenali tersambung = DISARMED),
- * Pengaturan KlikDash ditutup pad PIN yang sama ({@link #lockSettings}): tanpa itu orang lain bisa menekan PUTUSKAN,
- * yang ikut menghapus penjaga. Salah PIN di sana ikut dihitung untuk jeda berlipat. PIN benar di sana juga membuka
- * penjaga untuk berkendara ini.
+ * <p>Kunci pengaturan ({@code settingsLock}, sakelar terpisah di aplikasi, lepas dari penjaga dan WiFi): Pengaturan
+ * KlikDash ditutup pad PIN yang sama setiap kali dibuka ({@link #lockSettings}); tanpa itu orang lain bisa menekan
+ * PUTUSKAN, yang ikut menghapus penjaga. PIN benar membuka Pengaturan (dan Settings Android) sampai home tampil lagi
+ * ({@link #homeResumed}), dan juga membuka penjaga untuk berkendara ini. Salah PIN ikut dihitung untuk jeda berlipat.
  *
- * <p>Settings Android dan aplikasi pengaturan NWD ({@link #LOCKED_APPS}) juga ditutup pad PIN selama terkunci: dari
- * sana orang bisa menghapus data atau mencopot KlikDash, mengganti home, atau mencabut izin overlay. Aplikasi di depan
- * dibaca dari UsageStats (izin "akses penggunaan", diberikan lewat ADB lokal bila bisa) tiap {@link #WATCH_MS}, hanya
- * selama terkunci (belum DISARMED): biasanya beberapa menit pertama berkendara, sampai HP dikenali tersambung atau PIN benar.
+ * <p>Settings Android dan aplikasi pengaturan NWD ({@link #LOCKED_APPS}) juga ditutup pad PIN selama kunci pengaturan
+ * aktif dan belum dibuka: dari sana orang bisa menghapus data atau mencopot KlikDash, mengganti home, atau mencabut izin
+ * overlay. Aplikasi di depan dibaca dari UsageStats (izin "akses penggunaan", diberikan lewat ADB lokal bila bisa) tiap
+ * {@link #WATCH_MS}: satu panggilan ringan, berhenti selama Pengaturan sedang dibuka dengan PIN.
  *
  * <p>Selama SHOWING dan ada internet, lokasi terakhir dikirim tiap {@link #ALERT_MS}, juga bila layar tidak bisa tampil
  * karena izin overlay belum ada. Keadaan per boot disimpan di prefs DE terpisah "carguard" (paling sering tiap
@@ -154,6 +154,8 @@ final class CarGuard {
     private Overlay sysLock;
     /** Pemantau aplikasi di depan sedang berjalan; aplikasi di depan terakhir dan batas bacaan UsageStats berikutnya. */
     private boolean watching;
+    /** PIN benar: Pengaturan KlikDash dan Settings Android terbuka sampai home tampil lagi. */
+    private boolean settingsOpen;
     private String topApp;
     private long usageFrom = -1, lastUsageTry = -ALLOW_MS;
     private boolean wasLinked = true;
@@ -225,6 +227,24 @@ final class CarGuard {
         return cfg;
     }
 
+    /** Pengaturan kunci pengaturan (PIN + settingsLock), lepas dari penjaga; null bila tidak dikunci. */
+    private JSONObject lockCfg() {
+        try {
+            String raw = Prefs.of(app).getString(K_CFG, null);
+            if (raw == null) return null;
+            JSONObject j = new JSONObject(raw);
+            return j.optBoolean("settingsLock") && !j.optString("pinHash").isEmpty() ? j : null;
+        } catch (org.json.JSONException e) {
+            return null;
+        }
+    }
+
+    /** Kunci pengaturan dinyalakan dari aplikasi (dipakai baris status di Pengaturan). */
+    static boolean settingsLockOn(Context c) {
+        start(c);
+        return instance.lockCfg() != null;
+    }
+
     private static JSONObject parse(String s) {
         if (s == null) return null;
         try {
@@ -247,7 +267,7 @@ final class CarGuard {
                 JSONObject d = Account.call(app, "GET", "/v1/device/guard", auth, null).getJSONObject("data");
                 if (!auth.equals(Account.deviceAuth(app))) return; // dilepas dari akun selama menunggu
                 SharedPreferences.Editor e = Prefs.of(app).edit();
-                if (d.optBoolean("enabled")) e.putString(K_CFG, d.toString()); else e.remove(K_CFG);
+                if (d.optBoolean("enabled") || d.optBoolean("settingsLock")) e.putString(K_CFG, d.toString()); else e.remove(K_CFG);
                 e.apply();
                 Account.MAIN.post(this::configChanged);
             } catch (Exception ignored) { } // offline; DEVICE_UNLINKED → Account.forget → forget()
@@ -261,7 +281,7 @@ final class CarGuard {
      */
     private void configChanged() {
         JSONObject c = cfg();
-        if (c == null) unlockSettings(); // penjaga dimatikan dari HP: Pengaturan terbuka lagi
+        if (lockCfg() == null) unlockSettings(); // kunci pengaturan dimatikan dari HP: Pengaturan terbuka lagi
         if (c == null && state != IDLE) {
             hide();
             setState(DISARMED);
@@ -683,6 +703,7 @@ final class CarGuard {
         lockoutUntil = 0;
         hide();
         setState(DISARMED);
+        settingsOpen = true;
         unlockSettings();
     }
 
@@ -710,10 +731,21 @@ final class CarGuard {
      * Uji dari Pengaturan: tampil sekarang dengan tombol TUTUP UJI, tanpa mengubah keadaan berkendara.
      * @return false bila izin overlay belum ada (layar izin dibuka)
      */
-    /** Pengaturan KlikDash terkunci: penjaga aktif dan belum dibuka di berkendara ini. */
+    /** Pengaturan KlikDash terkunci: kunci pengaturan aktif dan belum dibuka dengan PIN sejak home terakhir tampil. */
     static boolean settingsLocked(Context c) {
         start(c);
-        return instance.cfg() != null && instance.state != DISARMED;
+        return instance.lockCfg() != null && !instance.settingsOpen;
+    }
+
+    /** Home tampil lagi: Pengaturan yang dibuka dengan PIN terkunci lagi, dan pemantau Settings Android jalan lagi. */
+    static void homeResumed(Context c) {
+        start(c);
+        CarGuard g = instance;
+        g.settingsOpen = false;
+        if (g.systemLocked() && !g.watching) {
+            g.watching = true;
+            Account.MAIN.post(g.watch);
+        }
     }
 
     /** Tutup Pengaturan dengan pad PIN penjaga, di jendela activity itu sendiri (tanpa izin overlay). */
@@ -746,7 +778,7 @@ final class CarGuard {
     }
 
     /** Settings Android dikunci: penjaga aktif dan belum dibuka (saat SHOWING layar penjaga sudah menutup semuanya). */
-    private boolean systemLocked() { return cfg() != null && state != DISARMED && state != SHOWING && Account.linked(app); }
+    private boolean systemLocked() { return lockCfg() != null && !settingsOpen && state != SHOWING && Account.linked(app); }
 
     /** Tiap WATCH_MS selama terkunci: Settings di depan → pad PIN; berhenti sendiri saat tidak terkunci lagi. */
     private final Runnable watch = new Runnable() {
@@ -1083,7 +1115,7 @@ final class CarGuard {
         void submit() {
             if (blocked() || pin.length() < 4) return;
             String s = pin.toString();
-            JSONObject latest = cfg();
+            JSONObject latest = settings ? lockCfg() : cfg();
             checking = true;
             ok.setLabel("…");
             CHECK.execute(() -> {
@@ -1169,7 +1201,13 @@ final class CarGuard {
     /** Teks status untuk tab Akun: jumlah HP dikenali (bukan namanya), dan peringatan bila penjaga tidak bisa bekerja penuh. */
     static String status(Context c) {
         JSONObject cfg = config(c);
-        if (cfg == null) return c.getString(R.string.carguard_status_off);
+        boolean lock = settingsLockOn(c);
+        if (cfg == null) {
+            if (!lock) return c.getString(R.string.carguard_status_off);
+            StringBuilder s = new StringBuilder(c.getString(R.string.carguard_status_lock_only));
+            if (!usageAllowed(c)) s.append("\n").append(c.getString(R.string.carguard_warn_usage));
+            return s.toString();
+        }
         JSONArray t = cfg.optJSONArray("trusted");
         int n = t == null ? 0 : t.length();
         boolean wifiTrusted = false;
@@ -1179,8 +1217,9 @@ final class CarGuard {
         }
         StringBuilder s = new StringBuilder(c.getString(R.string.carguard_status_on,
                 c.getResources().getQuantityString(R.plurals.carguard_trusted_count, n, n), cfg.optInt("graceMinutes", 3)));
+        if (lock) s.append("\n").append(c.getString(R.string.carguard_status_lock));
         if (!overlayAllowed(c)) s.append("\n").append(c.getString(R.string.carguard_warn_overlay));
-        else if (!usageAllowed(c)) s.append("\n").append(c.getString(R.string.carguard_warn_usage));
+        else if (lock && !usageAllowed(c)) s.append("\n").append(c.getString(R.string.carguard_warn_usage));
         if (wifiTrusted && ssidBlind(c)) s.append("\n").append(c.getString(R.string.carguard_warn_ssid));
         return s.toString();
     }

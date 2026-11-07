@@ -108,7 +108,7 @@ public class SettingsActivity extends Activity {
             Account.refresh(this);
         }
         Account.listeners.add(accountRx);
-        if (CarGuard.settingsLocked(this)) CarGuard.lockSettings(this); // penjaga aktif: PIN dulu (PUTUSKAN dll.)
+        if (CarGuard.settingsLocked(this)) CarGuard.lockSettings(this); // kunci pengaturan aktif: PIN dulu (PUTUSKAN dll.)
     }
 
     @Override protected void onPause() {
@@ -1061,7 +1061,7 @@ public class SettingsActivity extends Activity {
                     key(getString(R.string.settings_on), on, () -> { Account.setTripsOn(this, true); rebuildKeepScroll(TAB_ACCOUNT); }),
                     key(getString(R.string.settings_off), !on, () -> { Account.setTripsOn(this, false); rebuildKeepScroll(TAB_ACCOUNT); })));
             View guardTest = key(getString(R.string.carguard_test), false, () -> CarGuard.test(this));
-            list.addView(CarGuard.permissionsOk(this) || CarGuard.config(this) == null
+            list.addView(CarGuard.permissionsOk(this) || (CarGuard.config(this) == null && !CarGuard.settingsLockOn(this))
                     ? row(getString(R.string.carguard_title), CarGuard.status(this), guardTest)
                     : row(getString(R.string.carguard_title), CarGuard.status(this),
                             key(getString(R.string.carguard_allow), true, () -> CarGuard.openPermissionSettings(this)), guardTest));

@@ -321,6 +321,7 @@ public class HomeActivity extends Activity {
 
     @Override protected void onResume() {
         super.onResume();
+        CarGuard.homeResumed(this); // Pengaturan yang dibuka dengan PIN terkunci lagi
         ErrorLog.flush(this); // laporan crash yang tertunda (paling sering tiap 10 menit)
         BeamHub.homeFront = !safe;
         if (android.os.Build.VERSION.SDK_INT < 29) SplitScreen.home(true); // Android 10+: onTopResumedActivityChanged
