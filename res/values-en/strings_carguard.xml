@@ -25,4 +25,5 @@
     <string name="carguard_settings_locked_desc">The anti-theft guard is on. Enter the guard PIN to open settings.</string>
     <string name="carguard_settings_locked_hint">Opens by itself when a trusted phone connects. Forgot the PIN? Turn the guard off in the KlikBeam app while the headunit is online.</string>
     <string name="carguard_cancel">CANCEL</string>
+    <string name="carguard_warn_usage">⚠ Usage access is not granted: Android Settings cannot be locked while the guard is on. Tap ALLOW, then turn it on for KlikDash.</string>
 </resources>

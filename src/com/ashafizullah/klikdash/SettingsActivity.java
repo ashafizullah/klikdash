@@ -1061,10 +1061,10 @@ public class SettingsActivity extends Activity {
                     key(getString(R.string.settings_on), on, () -> { Account.setTripsOn(this, true); rebuildKeepScroll(TAB_ACCOUNT); }),
                     key(getString(R.string.settings_off), !on, () -> { Account.setTripsOn(this, false); rebuildKeepScroll(TAB_ACCOUNT); })));
             View guardTest = key(getString(R.string.carguard_test), false, () -> CarGuard.test(this));
-            list.addView(CarGuard.overlayAllowed(this) || CarGuard.config(this) == null
+            list.addView(CarGuard.permissionsOk(this) || CarGuard.config(this) == null
                     ? row(getString(R.string.carguard_title), CarGuard.status(this), guardTest)
                     : row(getString(R.string.carguard_title), CarGuard.status(this),
-                            key(getString(R.string.carguard_allow), true, () -> CarGuard.openOverlaySettings(this)), guardTest));
+                            key(getString(R.string.carguard_allow), true, () -> CarGuard.openPermissionSettings(this)), guardTest));
         } else {
             Account.Pairing p = Account.pairing;
             if (p == null) {

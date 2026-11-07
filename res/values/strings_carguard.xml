@@ -25,4 +25,5 @@
     <string name="carguard_settings_locked_desc">Penjaga anti-maling aktif. Masukkan PIN penjaga untuk membuka pengaturan.</string>
     <string name="carguard_settings_locked_hint">Terbuka sendiri bila HP yang dikenali tersambung. Lupa PIN? Matikan penjaga dari aplikasi KlikBeam saat headunit online.</string>
     <string name="carguard_cancel">BATAL</string>
+    <string name="carguard_warn_usage">⚠ Izin akses penggunaan belum diberikan: Settings Android tidak bisa dikunci selama penjaga aktif. Ketuk IZINKAN, lalu nyalakan untuk KlikDash.</string>
 </resources>

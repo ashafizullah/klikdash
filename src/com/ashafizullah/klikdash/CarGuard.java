@@ -97,6 +97,11 @@ import static com.ashafizullah.klikdash.HomeActivity.TEXT;
  * yang ikut menghapus penjaga. Salah PIN di sana ikut dihitung untuk jeda berlipat. PIN benar di sana juga membuka
  * penjaga untuk berkendara ini.
  *
+ * <p>Settings Android dan aplikasi pengaturan NWD ({@link #LOCKED_APPS}) juga ditutup pad PIN selama terkunci: dari
+ * sana orang bisa menghapus data atau mencopot KlikDash, mengganti home, atau mencabut izin overlay. Aplikasi di depan
+ * dibaca dari UsageStats (izin "akses penggunaan", diberikan lewat ADB lokal bila bisa) tiap {@link #WATCH_MS}, hanya
+ * selama terkunci (belum DISARMED): biasanya beberapa menit pertama berkendara, sampai HP dikenali tersambung atau PIN benar.
+ *
  * <p>Selama SHOWING dan ada internet, lokasi terakhir dikirim tiap {@link #ALERT_MS}, juga bila layar tidak bisa tampil
  * karena izin overlay belum ada. Keadaan per boot disimpan di prefs DE terpisah "carguard" (paling sering tiap
  * {@link #PERSIST_MS}), bukan prefs utama yang dicerminkan ke cadangan.
@@ -109,6 +114,11 @@ final class CarGuard {
             PERSIST_MS = 30_000, ALLOW_MS = 10 * 60_000L, LOCKOUT_MS = 30_000, LOCKOUT_MAX_MS = 30 * 60_000L;
     /** Laporan mobil dinyalakan: ditunda sebentar (lokasi/jaringan), dicoba ulang tiap 30 dtk, dibuang setelah 30 mnt. */
     private static final long START_DELAY_MS = 5_000, START_RETRY_MS = 30_000, START_MAX_MS = 30 * 60_000L;
+    /** Aplikasi yang ditutup pad PIN selama terkunci (lihat catatan kelas). */
+    private static final java.util.Set<String> LOCKED_APPS = new java.util.HashSet<>(java.util.Arrays.asList(
+            "com.android.settings", "com.nwd.factory.setting", "com.android.packageinstaller",
+            "com.google.android.packageinstaller", "com.android.permissioncontroller", "com.google.android.permissioncontroller"));
+    private static final long WATCH_MS = 1_000;
     private static final int MAX_TRIES = 5, PIN_MAX = 6, NAME_MAX = 64;
     /** Keadaan satu kali berkendara. */
     private static final int IDLE = 0, ARMED = 1, SHOWING = 2, DISARMED = 3;
@@ -140,6 +150,12 @@ final class CarGuard {
     private Overlay overlay;
     /** Pad PIN yang menutup Pengaturan KlikDash, atau null. */
     private Overlay settingsLock;
+    /** Pad PIN di atas Settings Android / pengaturan NWD, atau null. */
+    private Overlay sysLock;
+    /** Pemantau aplikasi di depan sedang berjalan; aplikasi di depan terakhir dan batas bacaan UsageStats berikutnya. */
+    private boolean watching;
+    private String topApp;
+    private long usageFrom = -1, lastUsageTry = -ALLOW_MS;
     private boolean wasLinked = true;
     /** Pengaturan yang sudah diurai, dipakai ulang sampai teks di prefs berubah. */
     private String cfgRaw;
@@ -366,6 +382,10 @@ final class CarGuard {
                 show(false); // izin overlay baru diberikan, atau gagal tampil sebelumnya
             }
             if (state == SHOWING && now >= nextAlert) alert(); // juga tanpa izin overlay: pemilik tetap diberi tahu
+            if (systemLocked() && !watching) {
+                watching = true;
+                Account.MAIN.post(watch);
+            }
             if (now >= nextSync) sync();
             if (startPending >= 0 && now >= startNextTry) reportStart();
             persist(false);
@@ -702,7 +722,7 @@ final class CarGuard {
         CarGuard g = instance;
         if (g.settingsLock != null && g.settingsLock.host == a) return;
         if (g.settingsLock != null) g.settingsLock.remove();
-        Overlay o = g.new Overlay(false, g.cfg(), a);
+        Overlay o = g.new Overlay(false, g.cfg(), a, false);
         g.settingsLock = o.add() ? o : null;
     }
 
@@ -715,9 +735,97 @@ final class CarGuard {
     }
 
     private void unlockSettings() {
-        if (settingsLock == null) return;
-        settingsLock.remove();
-        settingsLock = null;
+        if (settingsLock != null) {
+            settingsLock.remove();
+            settingsLock = null;
+        }
+        if (sysLock != null) {
+            sysLock.remove();
+            sysLock = null;
+        }
+    }
+
+    /** Settings Android dikunci: penjaga aktif dan belum dibuka (saat SHOWING layar penjaga sudah menutup semuanya). */
+    private boolean systemLocked() { return cfg() != null && state != DISARMED && state != SHOWING && Account.linked(app); }
+
+    /** Tiap WATCH_MS selama terkunci: Settings di depan → pad PIN; berhenti sendiri saat tidak terkunci lagi. */
+    private final Runnable watch = new Runnable() {
+        @Override public void run() {
+            if (!systemLocked()) {
+                watching = false;
+                usageFrom = -1;
+                if (sysLock != null) {
+                    sysLock.remove();
+                    sysLock = null;
+                }
+                return;
+            }
+            String top = foreground();
+            if (top != null && LOCKED_APPS.contains(top)) {
+                if (sysLock == null && overlayAllowed(app)) {
+                    Overlay o = new Overlay(false, cfg(), null, true);
+                    if (o.add()) sysLock = o;
+                }
+            } else if (sysLock != null && top != null) {
+                sysLock.remove(); // Settings ditinggalkan (mis. tombol home sistem)
+                sysLock = null;
+            }
+            Account.MAIN.postDelayed(this, WATCH_MS);
+        }
+    };
+
+    /** Aplikasi terakhir yang ke depan menurut UsageStats, atau null bila izin akses penggunaan belum ada. */
+    private String foreground() {
+        if (!usageAllowed(app)) {
+            long now = SystemClock.elapsedRealtime();
+            if (now - lastUsageTry >= ALLOW_MS) {
+                lastUsageTry = now;
+                Tweaks.shellAsync("cmd appops set " + app.getPackageName() + " GET_USAGE_STATS allow");
+            }
+            return null;
+        }
+        try {
+            android.app.usage.UsageStatsManager um = (android.app.usage.UsageStatsManager) app.getSystemService(Context.USAGE_STATS_SERVICE);
+            long now = System.currentTimeMillis();
+            long from = usageFrom < 0 ? now - 60_000 : usageFrom;
+            android.app.usage.UsageEvents ev = um.queryEvents(from, now);
+            android.app.usage.UsageEvents.Event e = new android.app.usage.UsageEvents.Event();
+            while (ev.hasNextEvent()) {
+                ev.getNextEvent(e);
+                if (e.getEventType() == android.app.usage.UsageEvents.Event.MOVE_TO_FOREGROUND) topApp = e.getPackageName();
+            }
+            usageFrom = now;
+            return topApp;
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    /** Izin "akses penggunaan" (GET_USAGE_STATS) untuk mengunci Settings Android. */
+    static boolean usageAllowed(Context c) {
+        try {
+            android.app.AppOpsManager ops = (android.app.AppOpsManager) c.getSystemService(Context.APP_OPS_SERVICE);
+            @SuppressWarnings("deprecation")
+            int m = ops.checkOpNoThrow(android.app.AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), c.getPackageName());
+            return m == android.app.AppOpsManager.MODE_ALLOWED;
+        } catch (RuntimeException e) {
+            return false;
+        }
+    }
+
+    /** Semua izin penjaga ada (overlay dan akses penggunaan). */
+    static boolean permissionsOk(Context c) { return overlayAllowed(c) && usageAllowed(c); }
+
+    /** IZINKAN di Pengaturan: buka layar izin yang masih kurang. */
+    static void openPermissionSettings(Context c) {
+        if (!overlayAllowed(c)) {
+            openOverlaySettings(c);
+            return;
+        }
+        Tweaks.shellAsync("cmd appops set " + c.getPackageName() + " GET_USAGE_STATS allow");
+        try {
+            c.startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        } catch (RuntimeException ignored) { }
     }
 
     static boolean test(Context c) {
@@ -742,7 +850,7 @@ final class CarGuard {
             }
             return;
         }
-        Overlay o = new Overlay(test, cfg(), null);
+        Overlay o = new Overlay(test, cfg(), null, false);
         if (o.add()) overlay = o;
     }
 
@@ -756,7 +864,8 @@ final class CarGuard {
         final boolean test;
         /** Bukan layar penjaga, tetapi pad yang menutup Pengaturan KlikDash ({@link #lockSettings}) di activity ini. */
         final Activity host;
-        final boolean settings;
+        /** Pad pengaturan (KlikDash atau Settings Android); `system` = di atas Settings Android, sebagai jendela overlay. */
+        final boolean settings, system;
         /** updatedAt pengaturan yang ditampilkan; berubah = dibangun ulang ({@link #configChanged}). */
         final String stamp;
         final Context c;
@@ -769,10 +878,11 @@ final class CarGuard {
         final Key ok;
         boolean checking;
 
-        Overlay(boolean test, JSONObject cfg, Activity host) {
+        Overlay(boolean test, JSONObject cfg, Activity host, boolean system) {
             this.test = test;
             this.host = host;
-            settings = host != null;
+            this.system = system;
+            settings = host != null || system;
             stamp = cfg != null ? cfg.optString("updatedAt") : "";
             Theme.load(app);
             c = Lang.wrap(app);
@@ -903,6 +1013,15 @@ final class CarGuard {
 
         /** BATAL / kembali di pad Pengaturan: tutup Pengaturan, kembali ke home. */
         void cancelSettings() {
+            if (system) {
+                if (sysLock == this) sysLock = null;
+                remove();
+                try { // kembali ke home (KlikDash); Settings tetap di belakang dan dikunci lagi bila dibuka
+                    app.startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+                            .setPackage(app.getPackageName()).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                } catch (RuntimeException ignored) { }
+                return;
+            }
             if (settingsLock == this) settingsLock = null;
             remove();
             host.finish();
@@ -910,7 +1029,7 @@ final class CarGuard {
 
         @SuppressWarnings("deprecation")
         boolean add() {
-            if (settings) {
+            if (settings && !system) {
                 try {
                     ((ViewGroup) host.getWindow().getDecorView()).addView(root,
                             new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -938,7 +1057,7 @@ final class CarGuard {
 
         void remove() {
             try {
-                if (settings) {
+                if (settings && !system) {
                     if (root.getParent() instanceof ViewGroup) ((ViewGroup) root.getParent()).removeView(root);
                     return;
                 }
@@ -978,7 +1097,7 @@ final class CarGuard {
             ok.setLabel("OK");
             pin.setLength(0);
             dots.invalidate();
-            if ((settings ? settingsLock : overlay) != this) return; // ditutup selama dicek
+            if ((system ? sysLock : settings ? settingsLock : overlay) != this) return; // ditutup selama dicek
             if (good) {
                 if (test) hide(); else pinOk(); // pinOk juga membuka Pengaturan
                 return;
@@ -1061,6 +1180,7 @@ final class CarGuard {
         StringBuilder s = new StringBuilder(c.getString(R.string.carguard_status_on,
                 c.getResources().getQuantityString(R.plurals.carguard_trusted_count, n, n), cfg.optInt("graceMinutes", 3)));
         if (!overlayAllowed(c)) s.append("\n").append(c.getString(R.string.carguard_warn_overlay));
+        else if (!usageAllowed(c)) s.append("\n").append(c.getString(R.string.carguard_warn_usage));
         if (wifiTrusted && ssidBlind(c)) s.append("\n").append(c.getString(R.string.carguard_warn_ssid));
         return s.toString();
     }
