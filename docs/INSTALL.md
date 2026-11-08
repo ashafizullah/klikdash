@@ -22,7 +22,7 @@ phone's hotspot) during the first setup.
 
 ## 1. Download the app
 
-On your phone or laptop, open **[klikapps.pages.dev](https://klikapps.pages.dev)** and tap **Download
+On your phone or laptop, open **[klikapps.ashafizullah.com](https://klikapps.ashafizullah.com)** and tap **Download
 KlikDash**, or use the [Releases](https://github.com/ashafizullah/klikdash/releases/latest) page. You get a
 file called `klikdash-<version>.apk`. Copy it to a USB stick.
 
@@ -78,7 +78,7 @@ tab: port 5555 is opened too, until the headunit restarts.
 **Android 10 and older, with a Windows laptop** (▶️ **[video tutorial](https://youtu.be/fZOYDMW89rU)**, in Indonesian,
 3 minutes): no commands to type.
 
-1. On the laptop, download **[klikapps.pages.dev/adb](https://klikapps.pages.dev/adb)** (`buka-adb-klikdash.bat`). If
+1. On the laptop, download **[klikapps.ashafizullah.com/adb](https://klikapps.ashafizullah.com/adb)** (`buka-adb-klikdash.bat`). If
    the browser warns you, choose **Keep**.
 2. Double-click the file. If *Windows protected your PC* appears, click **More info**, then **Run anyway**.
 3. Connect the headunit to the laptop with a USB cable, then allow **Allow USB debugging?** on the headunit.

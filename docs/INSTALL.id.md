@@ -19,7 +19,7 @@ saat pertama kali memasang.
 
 ## 1. Unduh aplikasinya
 
-Di HP atau laptop, buka **[klikapps.pages.dev](https://klikapps.pages.dev)**, lalu ketuk **Download
+Di HP atau laptop, buka **[klikapps.ashafizullah.com](https://klikapps.ashafizullah.com)**, lalu ketuk **Download
 KlikDash**. Bisa juga lewat halaman [Releases](https://github.com/ashafizullah/klikdash/releases/latest).
 Hasilnya file bernama `klikdash-<versi>.apk`. Salin file itu ke flashdisk.
 
@@ -74,7 +74,7 @@ port 5555 ikut dibuka sampai headunit dinyalakan ulang.
 **Android 10 ke bawah, dengan laptop Windows** (▶️ **[video tutorialnya](https://youtu.be/fZOYDMW89rU)**, 3 menit):
 tanpa mengetik perintah.
 
-1. Di laptop, unduh **[klikapps.pages.dev/adb](https://klikapps.pages.dev/adb)** (`buka-adb-klikdash.bat`). Kalau
+1. Di laptop, unduh **[klikapps.ashafizullah.com/adb](https://klikapps.ashafizullah.com/adb)** (`buka-adb-klikdash.bat`). Kalau
    browser memperingatkan, pilih **Keep**.
 2. Klik dua kali file-nya. Muncul *Windows protected your PC*? Klik **More info**, lalu **Run anyway**.
 3. Sambungkan headunit ke laptop dengan kabel USB, lalu izinkan **Allow USB debugging?** di headunit.

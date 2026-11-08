@@ -27,7 +27,7 @@
 </p>
 
 <p align="center">
-  Bagian dari <a href="https://klikapps.pages.dev"><b>Klik Apps</b></a>, kumpulan aplikasi gratis dan open source: <a href="https://klikapps.pages.dev">klikapps.pages.dev</a>
+  Bagian dari <a href="https://klikapps.ashafizullah.com"><b>Klik Apps</b></a>, kumpulan aplikasi gratis dan open source: <a href="https://klikapps.ashafizullah.com">klikapps.ashafizullah.com</a>
 </p>
 
 <p align="center">
