@@ -79,7 +79,7 @@ fi
 if [ "$MODE" = "release" ]; then
     cp build/klikdash.apk "build/klikdash-$VERSION_NAME.apk"
     unzip -l "build/klikdash-$VERSION_NAME.apk" | grep -qE "assets/quran(-en)?\.txt" && { echo "teks Al-Qur'an ikut di APK rilis!" >&2; exit 1; }
-    # Ikut dilampirkan di tiap rilis: klikapps.pages.dev/adb mengarah ke releases/latest/download/buka-adb-klikdash.bat.
+    # Ikut dilampirkan di tiap rilis: klikapps.ashafizullah.com/adb mengarah ke releases/latest/download/buka-adb-klikdash.bat.
     cp windows/buka-adb-klikdash.bat build/
     ls -lh "build/klikdash-$VERSION_NAME.apk" build/buka-adb-klikdash.bat
 else

@@ -341,7 +341,7 @@ public final class BeamActivity extends Activity implements BeamHub.Listener {
     }
 
     /** Halaman pairing di klikapps; isinya setelah # (tidak dikirim ke server) dibaca halaman lalu aplikasi KlikBeam. */
-    static final String PAIR_PAGE = "klikapps.pages.dev/beam";
+    static final String PAIR_PAGE = "klikapps.ashafizullah.com/beam";
 
     /**
      * Isi QR pairing: kode, alamat, dan nama layanan Bonjour (BeamServer.register), supaya aplikasi KlikBeam yang

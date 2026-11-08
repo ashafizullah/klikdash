@@ -166,7 +166,7 @@ final class PowerPanel {
                                 a.key(a.getString(R.string.power_open_adb), true,
                                         () -> AdbWifiService.offer(a, Tweaks.NO_ADB, null, true, r -> refresh())));
                     } else {
-                        // Android 10 ke bawah: tanpa Wireless debugging, dibuka sekali dari laptop (klikapps.pages.dev/adb).
+                        // Android 10 ke bawah: tanpa Wireless debugging, dibuka sekali dari laptop (klikapps.ashafizullah.com/adb).
                         showHelp(a.getString(R.string.power_need_adb_port), HelpVideo.LAPTOP, null);
                     }
                 });
