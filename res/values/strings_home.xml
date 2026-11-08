@@ -58,6 +58,9 @@
     <string name="home_setprop_failed">Belum berhasil: headunit ini menolak mengganti tampilan utama lewat ADB.</string>
     <string name="home_restore_message">Kembali ke launcher bawaan? KlikDash tetap terpasang dan bisa dijadikan tampilan utama lagi dari tombol di home-nya.</string>
     <string name="home_restore_confirm">Kembali</string>
+    <string name="home_port_not_kept_title">Port ADB tidak tetap terbuka</string>
+    <string name="home_port_not_kept_message">Headunit ini menutup port ADB 5555 setiap kali dinyalakan ulang. Bila tampilan utama KlikDash suatu saat gagal terbuka, headunit bisa tertahan di logo dan tidak bisa dipulihkan dari jarak jauh: KlikDash tidak bisa kembali ke launcher bawaan sendiri, dan perlu kabel USB ke laptop atau recovery. Tetap jadikan tampilan utama?</string>
+    <string name="home_port_not_kept_confirm">Tetap jadikan</string>
 
     <!-- Mode aman setelah home crash berulang (lihat Guard) -->
     <string name="guard_title">KlikDash berhenti beberapa kali saat dibuka</string>

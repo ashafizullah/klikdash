@@ -56,6 +56,9 @@
     <string name="home_setprop_failed">Not done yet: this headunit refuses to change the home screen over ADB.</string>
     <string name="home_restore_message">Go back to the stock launcher? KlikDash stays installed and can be made the home screen again from the button on its home screen.</string>
     <string name="home_restore_confirm">Go back</string>
+    <string name="home_port_not_kept_title">ADB port doesn\'t stay open</string>
+    <string name="home_port_not_kept_message">This headunit closes ADB port 5555 every time it restarts. If KlikDash\'s home screen ever fails to open, the headunit can get stuck at the boot logo and can\'t be recovered remotely: KlikDash can\'t switch back to the stock launcher by itself, and you would need a USB cable to a laptop or recovery mode. Make it the home screen anyway?</string>
+    <string name="home_port_not_kept_confirm">Make it anyway</string>
 
     <!-- Safe mode after the home screen crashes repeatedly (see Guard) -->
     <string name="guard_title">KlikDash stopped several times while opening</string>

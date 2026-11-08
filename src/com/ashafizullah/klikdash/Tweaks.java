@@ -178,6 +178,9 @@ final class Tweaks {
 
     static String exec(String cmd, int timeoutMs) throws IOException { return exec(cmd, timeoutMs, null); }
 
+    /** Seperti {@link #askAsync} tapi mengembalikan keluarannya; {@link NotAllowed} = izin ditolak. Thread latar. */
+    static String ask(String cmd, Runnable onAsk) throws IOException { return exec(cmd, 15000, onAsk); }
+
     /** {@code onAsk} bukan null: boleh meminta izin kunci di layar (lihat {@link #askAsync}). */
     private static String exec(String cmd, int timeoutMs, Runnable onAsk) throws IOException {
         try (Socket s = new Socket()) {

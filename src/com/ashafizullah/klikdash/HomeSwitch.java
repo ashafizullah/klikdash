@@ -47,15 +47,55 @@ final class HomeSwitch {
         return r != null && r.activityInfo != null && c.getPackageName().equals(r.activityInfo.packageName);
     }
 
-    /** NWD: atur property lewat ADB perangkat sendiri (tanpa komputer). Lainnya: buka pengaturan "Aplikasi home". */
+    /**
+     * Port ADB 5555 tetap terbuka setelah headunit dinyalakan ulang (adbd membaca property ini saat mulai). Tanpa itu,
+     * bila home KlikDash gagal tampil, headunit tertahan di logo boot dan tidak bisa dipulihkan dari jaringan: tidak
+     * oleh {@link Guard} (lewat ADB lokal), tidak juga dari laptop. Baris terakhir keluarannya 5555 bila berhasil.
+     */
+    private static final String KEEP_PORT = "setprop persist.adb.tcp.port 5555; getprop persist.adb.tcp.port";
+
+    /**
+     * NWD: atur property lewat ADB perangkat sendiri (tanpa komputer). Lainnya: buka pengaturan "Aplikasi home".
+     * Di NWD dicek dulu bahwa port ADB 5555 terbuka dan tetap terbuka setelah boot; bila tidak, pengguna diperingatkan.
+     */
     static void makeDefault(Activity a, SharedPreferences prefs, Runnable done) {
         if (!isNwd()) {
             openHomeSettings(a);
             return;
         }
+        new Thread(() -> {
+            int r = Tweaks.DONE;
+            boolean kept = false;
+            try {
+                String out = Tweaks.ask(KEEP_PORT, () -> a.runOnUiThread(() -> Notice.info(a, a.getString(R.string.home_adb_allow))));
+                String[] lines = out.trim().split("\n");
+                kept = "5555".equals(lines[lines.length - 1].trim());
+            } catch (Tweaks.NotAllowed e) {
+                r = Tweaks.NOT_ALLOWED;
+            } catch (java.io.IOException e) {
+                r = Tweaks.NO_ADB; // port 5555 tertutup sekarang: jalur biasa (Wireless debugging) yang menanganinya
+            }
+            int res = r;
+            boolean ok = kept;
+            a.runOnUiThread(() -> {
+                if (a.isFinishing() || a.isDestroyed()) return;
+                if (res == Tweaks.NOT_ALLOWED) HelpVideo.fail(a, a.getString(failure(a, res)), HelpVideo.forAdb(a, res));
+                else if (ok || res == Tweaks.NO_ADB) apply(a, prefs, done);
+                else new AlertDialog.Builder(a)
+                        .setTitle(R.string.home_port_not_kept_title)
+                        .setMessage(R.string.home_port_not_kept_message)
+                        .setNegativeButton(R.string.common_cancel, null)
+                        .setPositiveButton(R.string.home_port_not_kept_confirm, (d, w) -> apply(a, prefs, done))
+                        .show();
+            });
+        }, "home-check").start();
+    }
+
+    private static void apply(Activity a, SharedPreferences prefs, Runnable done) {
         String cur = getprop(NWD_PROP), me = a.getPackageName();
         if (!cur.isEmpty() && !cur.equals(me)) prefs.edit().putString("nwdPrev", cur).apply();
-        String cmd = "setprop " + NWD_PROP + " " + me + "; cmd package set-home-activity " + me + "/.HomeActivity";
+        // KEEP_PORT ikut lagi: lewat Wireless debugging (port 5555 tertutup saat dicek) property-nya belum sempat diatur.
+        String cmd = KEEP_PORT + "; setprop " + NWD_PROP + " " + me + "; cmd package set-home-activity " + me + "/.HomeActivity";
         Tweaks.askAsync(cmd,
                 () -> Notice.info(a, a.getString(R.string.home_adb_allow)),
                 r -> a.runOnUiThread(() -> {
