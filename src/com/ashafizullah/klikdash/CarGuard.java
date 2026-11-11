@@ -199,10 +199,23 @@ final class CarGuard {
         app.registerComponentCallbacks(new android.content.ComponentCallbacks() {
             @Override public void onConfigurationChanged(android.content.res.Configuration cfg) {
                 Account.MAIN.post(() -> {
-                    if (overlay == null) return;
-                    boolean test = overlay.test;
-                    hide();
-                    show(test);
+                    if (overlay != null) {
+                        boolean test = overlay.test;
+                        hide();
+                        show(test);
+                    }
+                    // Pad Pengaturan juga: SettingsActivity menangani perubahan konfigurasi sendiri (tidak dibuat ulang).
+                    if (settingsLock != null) {
+                        Activity host = settingsLock.host;
+                        settingsLock.remove();
+                        Overlay o = host.isFinishing() || host.isDestroyed() ? null : new Overlay(false, cfg(), host, false);
+                        settingsLock = o != null && o.add() ? o : null;
+                    }
+                    if (sysLock != null) {
+                        sysLock.remove();
+                        Overlay o = new Overlay(false, cfg(), null, true);
+                        sysLock = o.add() ? o : null;
+                    }
                 });
             }
             @Override public void onLowMemory() { }
