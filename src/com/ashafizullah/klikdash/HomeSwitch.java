@@ -57,12 +57,18 @@ final class HomeSwitch {
     /**
      * NWD: atur property lewat ADB perangkat sendiri (tanpa komputer). Lainnya: buka pengaturan "Aplikasi home".
      * Di NWD dicek dulu bahwa port ADB 5555 terbuka dan tetap terbuka setelah boot; bila tidak, pengguna diperingatkan.
+     * Port 5555 tertutup (Android 11+): dibuka dulu lewat Wireless debugging, lalu dicek dengan cara yang sama.
      */
     static void makeDefault(Activity a, SharedPreferences prefs, Runnable done) {
         if (!isNwd()) {
             openHomeSettings(a);
             return;
         }
+        check(a, prefs, done, true);
+    }
+
+    /** {@code mayOpen}: port 5555 yang tertutup boleh dicoba dibuka lewat Wireless debugging (sekali saja). */
+    private static void check(Activity a, SharedPreferences prefs, Runnable done, boolean mayOpen) {
         new Thread(() -> {
             int r = Tweaks.DONE;
             boolean kept = false;
@@ -73,15 +79,23 @@ final class HomeSwitch {
             } catch (Tweaks.NotAllowed e) {
                 r = Tweaks.NOT_ALLOWED;
             } catch (java.io.IOException e) {
-                r = Tweaks.NO_ADB; // port 5555 tertutup sekarang: jalur biasa (Wireless debugging) yang menanganinya
+                r = Tweaks.NO_ADB; // port 5555 tertutup sekarang
             }
             int res = r;
             boolean ok = kept;
             a.runOnUiThread(() -> {
                 if (a.isFinishing() || a.isDestroyed()) return;
                 if (res == Tweaks.NOT_ALLOWED) HelpVideo.fail(a, a.getString(failure(a, res)), HelpVideo.forAdb(a, res));
-                else if (ok || res == Tweaks.NO_ADB) apply(a, prefs, done);
-                else new AlertDialog.Builder(a)
+                else if (ok) apply(a, prefs, done);
+                else if (res == Tweaks.NO_ADB) {
+                    // Buka port 5555 lewat Wireless debugging (tanpa komputer), lalu cek ulang lewat port itu: tanpa
+                    // port 5555 Guard tidak bisa memulihkan launcher bawaan, jadi home tidak diganti sebelum dicek.
+                    if (!mayOpen || !AdbWifiService.offer(a, res, null, true, w -> {
+                        if (w == Tweaks.DONE) check(a, prefs, done, false);
+                        // Dibatalkan/gagal: video Wireless debugging, dan cara lewat komputer di pesannya.
+                        else HelpVideo.fail(a, a.getString(R.string.home_need_adb_port), HelpVideo.WIRELESS);
+                    })) HelpVideo.fail(a, a.getString(failure(a, res)), HelpVideo.forAdb(a, res));
+                } else new AlertDialog.Builder(a)
                         .setTitle(R.string.home_port_not_kept_title)
                         .setMessage(R.string.home_port_not_kept_message)
                         .setNegativeButton(R.string.common_cancel, null)
@@ -94,21 +108,14 @@ final class HomeSwitch {
     private static void apply(Activity a, SharedPreferences prefs, Runnable done) {
         String cur = getprop(NWD_PROP), me = a.getPackageName();
         if (!cur.isEmpty() && !cur.equals(me)) prefs.edit().putString("nwdPrev", cur).apply();
-        // KEEP_PORT ikut lagi: lewat Wireless debugging (port 5555 tertutup saat dicek) property-nya belum sempat diatur.
-        String cmd = KEEP_PORT + "; setprop " + NWD_PROP + " " + me + "; cmd package set-home-activity " + me + "/.HomeActivity";
+        // Hanya dipanggil setelah check() berhasil menghubungi ADB di port 5555.
+        String cmd = "setprop " + NWD_PROP + " " + me + "; cmd package set-home-activity " + me + "/.HomeActivity";
         Tweaks.askAsync(cmd,
                 () -> Notice.info(a, a.getString(R.string.home_adb_allow)),
                 r -> a.runOnUiThread(() -> {
                     if (done != null) done.run();
                     if (isDefault(a)) Notice.ok(a, a.getString(R.string.home_default_ok));
-                    // Port 5555 tertutup (Android 11+): coba lewat Wireless debugging, tanpa komputer.
-                    else if (!AdbWifiService.offer(a, r, cmd, false, w -> {
-                        if (done != null) done.run();
-                        if (isDefault(a)) Notice.ok(a, a.getString(R.string.home_default_ok));
-                        else if (w == Tweaks.DONE) Notice.fail(a, a.getString(R.string.home_setprop_failed));
-                        // Dibatalkan/gagal: video Wireless debugging, dan cara lewat komputer di pesannya.
-                        else HelpVideo.fail(a, a.getString(R.string.home_need_adb_port), HelpVideo.WIRELESS);
-                    })) HelpVideo.fail(a, a.getString(failure(a, r)), HelpVideo.forAdb(a, r));
+                    else HelpVideo.fail(a, a.getString(failure(a, r)), HelpVideo.forAdb(a, r));
                 }));
     }
 
