@@ -100,6 +100,7 @@ final class BeamDecoder {
     }
 
     private void start() {
+        MediaCodec made = null;
         try {
             MediaFormat f = MediaFormat.createVideoFormat(MIME, width, height);
             f.setByteBuffer("csd-0", withStart(sps));
@@ -108,6 +109,7 @@ final class BeamDecoder {
             f.setInteger(MediaFormat.KEY_PRIORITY, 0); // 0 = realtime
             if (Build.VERSION.SDK_INT >= 30) f.setInteger(MediaFormat.KEY_LOW_LATENCY, 1);
             final MediaCodec c = MediaCodec.createDecoderByType(MIME);
+            made = c;
             c.configure(f, surface, null, 0);
             c.start();
             codec = c;
@@ -118,6 +120,10 @@ final class BeamDecoder {
             drain.start();
             Log.i(TAG, "decoder " + c.getName() + " " + width + "x" + height);
         } catch (Exception e) {
+            // Gagal sebelum jadi `codec`: lepas di sini (release() tidak mengenalnya). Decoder hardware terbatas jumlahnya.
+            if (made != null && made != codec) {
+                try { made.release(); } catch (RuntimeException ignored) { }
+            }
             fail(e);
         }
     }

@@ -166,6 +166,8 @@ final class BeamServer {
             Log.i(TAG, "putus: " + from + " (" + e.getClass().getSimpleName() + ")");
         } catch (IOException e) {
             Log.i(TAG, "putus: " + from + " (" + e.getMessage() + ")");
+        } catch (RuntimeException e) {
+            Log.w(TAG, "putus: " + from, e); // pesan rusak dari pengirim tidak boleh mematikan proses
         } finally {
             closeQuietly(s);
             boolean wasCurrent;
@@ -194,9 +196,9 @@ final class BeamServer {
                 case T_CONFIG: {
                     int w = in.readUnsignedShort();
                     int h = in.readUnsignedShort();
-                    byte[] sps = new byte[in.readInt()];
+                    byte[] sps = new byte[size(in.readInt())];
                     in.readFully(sps);
-                    byte[] pps = new byte[in.readInt()];
+                    byte[] pps = new byte[size(in.readInt())];
                     in.readFully(pps);
                     Log.i(TAG, "CONFIG " + w + "x" + h);
                     decoder.configure(w, h, sps, pps);
@@ -206,7 +208,7 @@ final class BeamServer {
                 case T_FRAME: {
                     boolean key = (in.readUnsignedByte() & 1) != 0;
                     long pts = in.readLong();
-                    int n = len - 9;
+                    int n = size(len - 9);
                     if (n > buf.length) buf = new byte[n + n / 2];
                     in.readFully(buf, 0, n);
                     decoder.feed(buf, n, pts, key);
@@ -219,6 +221,15 @@ final class BeamServer {
                     in.skipBytes(len); // tipe dari versi protokol yang lebih baru
             }
         }
+    }
+
+    /**
+     * Panjang dari pengirim sebelum dipakai mengalokasikan: negatif atau terlalu besar memutus koneksi, bukan
+     * melempar NegativeArraySizeException/OutOfMemoryError yang mematikan seluruh proses (termasuk home).
+     */
+    private static int size(int n) throws IOException {
+        if (n < 0 || n > MAX_LEN) throw new IOException("panjang isi tidak wajar: " + n);
+        return n;
     }
 
     private void register() {
