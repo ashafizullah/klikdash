@@ -78,7 +78,8 @@ import static com.ashafizullah.klikdash.HomeActivity.TEXT;
  *   menandai mobil dinyalakan lagi. Diuji di NWD K2401.</li>
  *   <li>jeda lebih dari {@link #GAP_MS} sejak tick terakhir (elapsedRealtime ikut berjalan saat CPU tidur): headunit
  *   tidur saat ACC off, proses mati selama tidur, atau citra RAM fast boot dipulihkan. Proses yang mati lalu hidup
- *   lagi tanpa CPU tidur selama jeda itu (dimatikan sistem karena RAM menipis) melanjutkan keadaan sebelumnya;</li>
+ *   lagi tanpa CPU tidur selama jeda itu (dimatikan sistem karena RAM menipis) melanjutkan keadaan sebelumnya,
+ *   selama jedanya tidak lebih dari {@link #AWAKE_GAP_MAX_MS};</li>
  *   <li>SCREEN_ON setelah layar mati lebih dari {@link #GAP_MS}, tetapi hanya di headunit yang belum pernah mengirim
  *   siaran bangun NWD ({@link #K_NWD}). Di NWD layar bisa dimatikan sambil berkendara, dan itu tidak boleh membatalkan
  *   PIN yang sudah dimasukkan; di headunit lain SCREEN_ON adalah satu-satunya tanda ACC on yang tersedia, jadi di sana
@@ -110,6 +111,8 @@ import static com.ashafizullah.klikdash.HomeActivity.TEXT;
 final class CarGuard {
     private static final String K_CFG = "guardCfg", STATE_FILE = "carguard", K_DRIVE = "drive", K_NWD = "nwdWake",
             K_LOCK = "lock";
+    /** Jeda terpanjang yang masih dianggap "proses mati di tengah perjalanan" bila CPU tidak tidur (lihat {@link #restore}). */
+    private static final long AWAKE_GAP_MAX_MS = 30 * 60_000L;
     private static final long GAP_MS = 2 * 60_000L, SETTLE_MS = 20_000, TICK_MS = 5_000, IDLE_TICK_MS = 60_000,
             SYNC_MS = 15 * 60_000L, SYNC_MIN_MS = 60_000, ALERT_MS = 2 * 60_000L, SEEN_MS = 10 * 60_000L,
             PERSIST_MS = 30_000, ALLOW_MS = 10 * 60_000L, LOCKOUT_MS = 30_000, LOCKOUT_MAX_MS = 30 * 60_000L;
@@ -340,9 +343,10 @@ final class CarGuard {
             long tickAt = d.optLong("tick"), upAt = d.optLong("up"), gap = now - tickAt;
             // Bagian jeda saat CPU tidur (uptimeMillis berhenti saat tidur). Jeda panjang tanpa tidur = proses dimatikan
             // sistem (RAM menipis, mis. Maps di depan) lalu hidup lagi di tengah perjalanan: bukan berkendara baru.
+            // Dibatasi AWAKE_GAP_MAX_MS: headunit yang tidak tidur saat parkir tetap bersiaga lagi setelah parkir lama.
             long asleep = upAt > 0 ? gap - (SystemClock.uptimeMillis() - upAt) : gap;
             if (boot != null && boot.equals(d.optString("boot")) && tickAt > 0 && tickAt <= now
-                    && (gap <= GAP_MS || asleep <= GAP_MS)) {
+                    && (gap <= GAP_MS || (asleep <= GAP_MS && gap <= AWAKE_GAP_MAX_MS))) {
                 state = d.optInt("state");
                 deadline = d.optLong("deadline");
                 settleUntil = d.optLong("settle");
