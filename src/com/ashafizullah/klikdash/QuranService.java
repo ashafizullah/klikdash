@@ -242,6 +242,8 @@ public class QuranService extends Service
 
     @Override public void onDestroy() {
         downloader.shutdownNow();
+        waitingFor = null; // service mati: unduhan ayat yang selesai belakangan tidak memutar apa pun
+        buffering = false;
         release();
         focus.abandon();
         session.release();
@@ -363,6 +365,10 @@ public class QuranService extends Service
     }
 
     void step(int d) {
+        if (bismillah && d > 0) { // basmalah sedang diputar (ayah sudah 1): berikutnya ayat 1, bukan ayat 2
+            start(surah, 1, false);
+            return;
+        }
         int s = surah, a = ayah + d;
         if (a < 1) {
             if (s > 1) { s--; a = QuranData.count(s); } else a = 1;
@@ -464,6 +470,8 @@ public class QuranService extends Service
     void stopAll() {
         release();
         playing = false;
+        waitingFor = null; // unduhan ayat yang masih berjalan tidak boleh memutar lagi (lihat onFetched)
+        buffering = false;
         focus.abandon();
         stopForeground(true);
         stopSelf();
