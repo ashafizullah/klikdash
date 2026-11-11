@@ -114,7 +114,8 @@ final class Updater {
     static File download(Context c, Release r, Progress p) throws Exception {
         File dir = new File(c.getExternalFilesDir(null), "update");
         if (!dir.isDirectory() && !dir.mkdirs()) throw new IOException(c.getString(R.string.update_err_storage));
-        for (File old : dir.listFiles()) old.delete();
+        File[] olds = dir.listFiles();
+        if (olds != null) for (File old : olds) old.delete();
         File f = new File(dir, "klikdash-" + r.version + ".apk");
         // browser_download_url mengalihkan ke CDN GitHub; HttpURLConnection mengikuti pengalihan https→https.
         HttpURLConnection con = (HttpURLConnection) new URL(r.apkUrl).openConnection();
