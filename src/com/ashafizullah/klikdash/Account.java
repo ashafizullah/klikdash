@@ -342,7 +342,12 @@ final class Account {
             if (parked.isFile()) {
                 String auth = deviceAuth(c);
                 if (auth == null) return true;
-                call(c, "PUT", "/v1/device/parked", auth, readText(parked));
+                try {
+                    call(c, "PUT", "/v1/device/parked", auth, readText(parked));
+                } catch (ApiError e) {
+                    if (!e.rejected()) throw e; // ditolak server: buang, supaya tidak menyumbat antrean trip di belakangnya
+                    android.util.Log.w("KlikDash", "lokasi parkir ditolak server: " + e.code + " " + e.getMessage());
+                }
                 parked.delete();
             }
             File[] q = new File(dir, "queue").listFiles((d, n) -> n.endsWith(".json"));
