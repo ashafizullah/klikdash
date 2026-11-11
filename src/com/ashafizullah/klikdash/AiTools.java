@@ -240,8 +240,14 @@ final class AiTools {
         App x = findApp(a, name);
         Context t = AiStore.inLang(a);
         if (x == null) return t.getString(R.string.as_res_app_not_found, name);
-        ui(a, () -> a.startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
-                .setComponent(x.cn).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)));
+        ui(a, () -> {
+            try {
+                a.startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+                        .setComponent(x.cn).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED));
+            } catch (RuntimeException e) { // baru dicopot/dinonaktifkan, atau activity-nya tidak boleh dibuka
+                Notice.fail(a, t.getString(R.string.as_res_app_not_found, x.label));
+            }
+        });
         return t.getString(R.string.as_res_opening, x.label);
     }
 
@@ -385,7 +391,10 @@ final class AiTools {
         Context t = AiStore.inLang(a);
         if (x == null) return t.getString(R.string.as_res_app_not_found, name);
         String p = x.cn.getPackageName();
-        if (PowerPanel.PROTECTED.contains(p)) return t.getString(R.string.as_res_protected, x.label);
+        // Sama dengan panel Hemat Daya: KlikDash sendiri ("Quran", "Dzikir", "Tanya AI" ada di daftar aplikasi) dan
+        // aplikasi firmware NWD tidak boleh dibatasi; force-stop paket sendiri mematikan home.
+        if (p.equals(a.getPackageName()) || p.contains(".nwd.") || PowerPanel.PROTECTED.contains(p))
+            return t.getString(R.string.as_res_protected, x.label);
         String mode = on ? "ignore" : "allow";
         Tweaks.exec("cmd appops set " + p + " RUN_ANY_IN_BACKGROUND " + mode + "; cmd appops set " + p
                 + " RUN_IN_BACKGROUND " + mode + (on ? "; am force-stop " + p : ""));

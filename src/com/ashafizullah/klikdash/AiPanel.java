@@ -271,6 +271,7 @@ final class AiPanel {
             if (ids.isEmpty() && p.claude()) ids = java.util.Arrays.asList(AiStore.CLAUDE_MODELS);
             final List<String> list = ids;
             a.runOnUiThread(() -> {
+                if (a.isFinishing() || a.isDestroyed()) return; // Pengaturan ditutup selama menunggu jaringan
                 if (list.isEmpty()) { Notice.info(a, a.getString(R.string.ai_no_models)); return; }
                 String[] items = list.toArray(new String[0]);
                 int sel = list.indexOf(model.getText().toString().trim());
@@ -435,6 +436,7 @@ final class AiPanel {
             }
             final String e = err;
             a.runOnUiThread(() -> {
+                if (a.isFinishing() || a.isDestroyed()) return; // Pengaturan ditutup selama menunggu jaringan
                 wait.dismiss();
                 if (vs.isEmpty()) { Notice.fail(a, a.getString(R.string.ai_voices_failed) + (e != null ? ": " + e : "")); return; }
                 showVoices(key, vs);

@@ -189,7 +189,8 @@ final class AiClient {
             JSONObject msg = choices.getJSONObject(0).getJSONObject("message");
             messages.put(msg);
             JSONArray calls = msg.optJSONArray("tool_calls");
-            if (calls == null || calls.length() == 0) return msg.optString("content", "").trim();
+            // isNull dulu: optString mengembalikan teks "null" untuk JSON null, yang lalu ditampilkan dan dibacakan.
+            if (calls == null || calls.length() == 0) return msg.isNull("content") ? "" : msg.optString("content", "").trim();
             for (int i = 0; i < calls.length(); i++) {
                 JSONObject call = calls.getJSONObject(i), fn = call.getJSONObject("function");
                 JSONObject args;
