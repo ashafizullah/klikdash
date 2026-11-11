@@ -218,10 +218,18 @@ final class Updater {
                 }
                 a.getApplicationContext().registerReceiver(new BroadcastReceiver() {
                     @Override public void onReceive(Context c, Intent i) {
+                        // Penerima ini terbuka untuk aplikasi lain: hanya status sesi ini yang diterima.
+                        if (i.getIntExtra(PackageInstaller.EXTRA_SESSION_ID, -1) != id) return;
                         int st = i.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE);
                         if (st == PackageInstaller.STATUS_PENDING_USER_ACTION) {
                             Intent confirm = i.getParcelableExtra(Intent.EXTRA_INTENT);
-                            if (confirm != null) c.startActivity(confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                            // Layar konfirmasi harus milik sistem: siaran palsu tidak bisa membuat KlikDash membuka
+                            // activity aplikasi lain.
+                            android.content.pm.ResolveInfo ri = confirm == null ? null
+                                    : c.getPackageManager().resolveActivity(confirm, 0);
+                            boolean system = ri != null && ri.activityInfo != null && (ri.activityInfo.applicationInfo.flags
+                                    & android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0;
+                            if (system) c.startActivity(confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                         } else {
                             c.unregisterReceiver(this);
                             if (st != PackageInstaller.STATUS_SUCCESS && onFail != null) onFail.run();
