@@ -174,6 +174,8 @@ public class QuranService extends Service
     final ExecutorService downloader = Executors.newSingleThreadExecutor();
     final Set<Integer> queued = new HashSet<>();
     File waitingFor;
+    /** onDestroy sudah jalan: thread unduhan tidak boleh lagi menyentuh notifikasi atau sesi media. */
+    volatile boolean destroyed;
     final AudioAttributes attrs = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_MEDIA)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
@@ -241,7 +243,9 @@ public class QuranService extends Service
     @Override public IBinder onBind(Intent i) { return null; }
 
     @Override public void onDestroy() {
+        destroyed = true;
         downloader.shutdownNow();
+        dlSurah = 0; // chip unduhan di layar Al-Qur'an tidak macet di "NN%"
         waitingFor = null; // service mati: unduhan ayat yang selesai belakangan tidak memutar apa pun
         buffering = false;
         release();
@@ -426,7 +430,10 @@ public class QuranService extends Service
                 int a = (from - 1 + k) % total + 1;
                 if (audioFile(this, s, a).exists() || fetchAudio(s, a)) done++;
                 final int d = done;
+                // Sebelum melapor: sesudah onDestroy, publish() memunculkan lagi notifikasi yang sudah dihapus.
+                if (destroyed || Thread.currentThread().isInterrupted()) return;
                 main.post(() -> {
+                    if (destroyed) return;
                     dlSurah = s;
                     dlDone = d;
                     dlTotal = total;
@@ -435,7 +442,12 @@ public class QuranService extends Service
                 });
                 if (Thread.currentThread().isInterrupted()) return;
             }
-            main.post(() -> { queued.remove(s); dlSurah = 0; publish(); });
+            main.post(() -> {
+                if (destroyed) return;
+                queued.remove(s);
+                dlSurah = 0;
+                publish();
+            });
         });
     }
 
@@ -491,7 +503,7 @@ public class QuranService extends Service
                 pause();
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                resumeOnGain = playing;
+                resumeOnGain = playing || waitingFor != null; // juga saat ayatnya masih diunduh
                 pause();
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
