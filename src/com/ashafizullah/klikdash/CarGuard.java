@@ -77,7 +77,8 @@ import static com.ashafizullah.klikdash.HomeActivity.TEXT;
  *   (ACC off). Kunci OFF sebentar tidak membuat headunit tidur (hanya lampu layar mati), jadi hanya siaran ini yang
  *   menandai mobil dinyalakan lagi. Diuji di NWD K2401.</li>
  *   <li>jeda lebih dari {@link #GAP_MS} sejak tick terakhir (elapsedRealtime ikut berjalan saat CPU tidur): headunit
- *   tidur saat ACC off, proses mati selama tidur, atau citra RAM fast boot dipulihkan;</li>
+ *   tidur saat ACC off, proses mati selama tidur, atau citra RAM fast boot dipulihkan. Proses yang mati lalu hidup
+ *   lagi tanpa CPU tidur selama jeda itu (dimatikan sistem karena RAM menipis) melanjutkan keadaan sebelumnya;</li>
  *   <li>SCREEN_ON setelah layar mati lebih dari {@link #GAP_MS}, tetapi hanya di headunit yang belum pernah mengirim
  *   siaran bangun NWD ({@link #K_NWD}). Di NWD layar bisa dimatikan sambil berkendara, dan itu tidak boleh membatalkan
  *   PIN yang sudah dimasukkan; di headunit lain SCREEN_ON adalah satu-satunya tanda ACC on yang tersedia, jadi di sana
@@ -323,8 +324,12 @@ final class CarGuard {
         } catch (org.json.JSONException ignored) { }
         try {
             JSONObject d = new JSONObject(store.getString(K_DRIVE, "{}"));
-            long tickAt = d.optLong("tick");
-            if (boot != null && boot.equals(d.optString("boot")) && tickAt > 0 && tickAt <= now && now - tickAt <= GAP_MS) {
+            long tickAt = d.optLong("tick"), upAt = d.optLong("up"), gap = now - tickAt;
+            // Bagian jeda saat CPU tidur (uptimeMillis berhenti saat tidur). Jeda panjang tanpa tidur = proses dimatikan
+            // sistem (RAM menipis, mis. Maps di depan) lalu hidup lagi di tengah perjalanan: bukan berkendara baru.
+            long asleep = upAt > 0 ? gap - (SystemClock.uptimeMillis() - upAt) : gap;
+            if (boot != null && boot.equals(d.optString("boot")) && tickAt > 0 && tickAt <= now
+                    && (gap <= GAP_MS || asleep <= GAP_MS)) {
                 state = d.optInt("state");
                 deadline = d.optLong("deadline");
                 settleUntil = d.optLong("settle");
@@ -373,7 +378,8 @@ final class CarGuard {
             String boot = HomeActivity.bootId();
             store.edit()
                     .putString(K_DRIVE, new JSONObject().put("boot", boot == null ? "" : boot).put("state", state)
-                            .put("deadline", deadline).put("settle", settleUntil).put("tick", now).toString())
+                            .put("deadline", deadline).put("settle", settleUntil).put("tick", now)
+                            .put("up", SystemClock.uptimeMillis()).toString())
                     .putString(K_LOCK, new JSONObject().put("level", lockLevel).put("wrong", wrong)
                             .put("left", Math.max(0, lockoutUntil - now)).toString())
                     .apply();
