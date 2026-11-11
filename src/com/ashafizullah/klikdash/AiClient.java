@@ -92,6 +92,7 @@ final class AiClient {
     // ---------------------------------------------------------------- Claude
 
     String askClaude(String userText) throws Exception {
+        final int mark = messages.length(); // riwayat sebelum pertanyaan ini (lihat rollback)
         messages.put(new JSONObject().put("role", "user").put("content", userText));
         String base = trim(profile.baseUrl.isEmpty() ? AiStore.CLAUDE_URL : profile.baseUrl);
         String url = base.endsWith("/v1") ? base + "/messages" : base + "/v1/messages";
@@ -135,10 +136,24 @@ final class AiClient {
             // Simpan seluruh content (termasuk blok thinking/fallback) apa adanya untuk giliran berikutnya.
             messages.put(new JSONObject().put("role", "assistant").put("content", content));
             String stop = res.optString("stop_reason");
-            if ("refusal".equals(stop)) return inLang.getString(R.string.as_refusal);
+            if ("refusal".equals(stop)) {
+                rollback(mark);
+                return inLang.getString(R.string.as_refusal);
+            }
             // Pencarian panjang dijeda server: kirim ulang pesan asisten yang sudah tersimpan apa adanya untuk lanjut.
             if ("pause_turn".equals(stop)) continue;
-            if (!"tool_use".equals(stop)) return text(content);
+            if (!"tool_use".equals(stop)) {
+                String answer = text(content);
+                // Jawaban kosong, atau terpotong (max_tokens) di tengah pemanggilan alat: giliran asisten seperti itu
+                // membuat pertanyaan berikutnya ditolak API (isi kosong / tool_use tanpa tool_result).
+                boolean dangling = content.length() == 0;
+                for (int i = 0; i < content.length(); i++) {
+                    JSONObject b = content.optJSONObject(i);
+                    if (b != null && "tool_use".equals(b.optString("type"))) dangling = true;
+                }
+                if (dangling) rollback(mark);
+                return answer;
+            }
 
             JSONArray results = new JSONArray();
             for (int i = 0; i < content.length(); i++) {
@@ -154,6 +169,11 @@ final class AiClient {
             messages.put(new JSONObject().put("role", "user").put("content", results));
         }
         return inLang.getString(R.string.as_too_many_steps);
+    }
+
+    /** Buang pertanyaan ini dan jawabannya dari riwayat: percakapan lanjut dari keadaan sebelum pertanyaan itu. */
+    private void rollback(int mark) {
+        while (messages.length() > mark) messages.remove(messages.length() - 1);
     }
 
     /**
