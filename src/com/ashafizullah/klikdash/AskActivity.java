@@ -235,6 +235,7 @@ public class AskActivity extends Activity {
 
     @Override protected void onDestroy() {
         alive = false;
+        if (client != null) client.cancelled = true;
         if (recognizer != null) recognizer.destroy();
         voice.release();
         super.onDestroy();
@@ -364,6 +365,7 @@ public class AskActivity extends Activity {
     // ---------------------------------------------------------------- tanya & jawab
 
     void ask(String text) {
+        if (!alive) return; // hasil pengenalan suara datang setelah layar ditutup
         heard.setText("“" + text + "”");
         answer.setText("");
         again.setVisibility(View.INVISIBLE);

@@ -102,15 +102,18 @@ final class AiVoice {
         if (text == null || text.trim().isEmpty()) { post(done); return; }
         String key = AiStore.elKey(ctx), voice = AiStore.elVoice(ctx);
         if (AiStore.elTts(ctx) && !key.isEmpty() && !voice.isEmpty()) {
+            final int g = gen;
+            // Berkas per ucapan: unduhan ucapan lama yang masih berjalan tidak menimpa berkas ucapan baru.
+            File out = new File(ctx.getCacheDir(), "ai-say-" + (g & 7) + ".mp3");
             new Thread(() -> {
                 try {
                     long t0 = android.os.SystemClock.elapsedRealtime();
-                    File f = elevenTts(text, key, voice, AiStore.elModel(ctx), AiStore.lang(ctx));
+                    File f = elevenTts(text, key, voice, AiStore.elModel(ctx), AiStore.lang(ctx), out);
                     android.util.Log.i("KlikDashAI", "TTS " + voice + " " + (android.os.SystemClock.elapsedRealtime() - t0) + " ms");
-                    main.post(() -> play(f, done));
+                    main.post(() -> { if (g == gen) play(f, done); });
                 } catch (Exception e) {
                     android.util.Log.w("KlikDashAI", "TTS gagal: " + e.getMessage());
-                    main.post(() -> androidSay(text, done)); // kuota habis / offline: tetap bersuara
+                    main.post(() -> { if (g == gen) androidSay(text, done); }); // kuota habis / offline: tetap bersuara
                 }
             }, "el-tts").start();
         } else {
@@ -118,7 +121,14 @@ final class AiVoice {
         }
     }
 
-    File elevenTts(String text, String key, String voice, String model, String lang) throws Exception {
+    /**
+     * Nomor ucapan, naik tiap {@link #stop} (thread utama). Ucapan yang unduhan atau mesin TTS-nya baru siap setelah
+     * dihentikan (mikrofon ditekan, TANYA ditutup, ucapan baru) tidak diputar: tanpa ini jawaban lama masuk ke
+     * mikrofon yang sedang mendengar, atau berbunyi setelah layar ditutup.
+     */
+    int gen;
+
+    File elevenTts(String text, String key, String voice, String model, String lang, File f) throws Exception {
         HttpURLConnection c = (HttpURLConnection) new URL(EL_API + "/text-to-speech/" + voice
                 + "?output_format=mp3_44100_128").openConnection();
         c.setConnectTimeout(15000);
@@ -134,7 +144,6 @@ final class AiVoice {
             try (OutputStream o = c.getOutputStream()) { o.write(body.toString().getBytes(StandardCharsets.UTF_8)); }
             int code = c.getResponseCode();
             if (code >= 400) throw AiClient.AiError.http(code, AiClient.read(c.getErrorStream()));
-            File f = new File(ctx.getCacheDir(), "ai-say.mp3");
             try (InputStream in = c.getInputStream(); OutputStream out = new FileOutputStream(f)) {
                 byte[] buf = new byte[16384];
                 for (int k; (k = in.read(buf)) > 0; ) out.write(buf, 0, k);
@@ -245,7 +254,9 @@ final class AiVoice {
 
     void androidSay(String text, Runnable done, boolean retry) {
         if (sharedState == READY) { speakNow(text, done, retry); return; }
+        final int g = gen;
         whenReady.add(() -> {
+            if (g != gen) return; // dihentikan selagi mesin TTS disiapkan
             if (sharedState == READY) speakNow(text, done, retry); else post(done);
         });
         warm(ctx);
@@ -277,6 +288,7 @@ final class AiVoice {
     }
 
     void stop() {
+        gen++;
         if (boost != null) {
             try { boost.release(); } catch (Exception ignored) { }
             boost = null;

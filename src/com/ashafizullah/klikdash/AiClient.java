@@ -43,6 +43,12 @@ final class AiClient {
     final int search;
     /** Web search Anthropic ditolak (dimatikan admin organisasi, atau model tidak mendukung): sesi ini tanpa pencarian. */
     boolean searchRejected;
+    /** TANYA ditutup: langkah dan alat berikutnya tidak dijalankan (buka Maps, ubah volume, dst. setelah layar ditutup). */
+    volatile boolean cancelled;
+
+    private void live() throws IOException {
+        if (cancelled) throw new java.io.InterruptedIOException("TANYA ditutup");
+    }
 
     AiClient(Activity a, AiStore.Profile p) {
         activity = a;
@@ -90,6 +96,7 @@ final class AiClient {
         String base = trim(profile.baseUrl.isEmpty() ? AiStore.CLAUDE_URL : profile.baseUrl);
         String url = base.endsWith("/v1") ? base + "/messages" : base + "/v1/messages";
         for (int step = 0; step < MAX_STEPS; step++) {
+            live();
             JSONArray tools = AiTools.claudeTools(inLang, search == TINYFISH_SEARCH);
             boolean withSearch = search == ANTHROPIC_SEARCH && !searchRejected;
             if (withSearch) tools.put(anthropicSearchTool());
@@ -137,6 +144,7 @@ final class AiClient {
             for (int i = 0; i < content.length(); i++) {
                 JSONObject b = content.getJSONObject(i);
                 if (!"tool_use".equals(b.optString("type"))) continue;
+                live();
                 String out = AiTools.run(activity, b.optString("name"), b.optJSONObject("input") != null
                         ? b.getJSONObject("input") : new JSONObject());
                 results.put(new JSONObject().put("type", "tool_result").put("tool_use_id", b.optString("id"))
@@ -176,6 +184,7 @@ final class AiClient {
         messages.put(new JSONObject().put("role", "user").put("content", userText));
         String url = trim(profile.baseUrl.isEmpty() ? AiStore.OPENAI_URL : profile.baseUrl) + "/chat/completions";
         for (int step = 0; step < MAX_STEPS; step++) {
+            live();
             JSONObject body = new JSONObject()
                     .put("model", profile.model)
                     .put("messages", messages)
@@ -199,6 +208,7 @@ final class AiClient {
                 } catch (Exception e) {
                     args = new JSONObject();
                 }
+                live();
                 String out = AiTools.run(activity, fn.optString("name"), args);
                 messages.put(new JSONObject().put("role", "tool").put("tool_call_id", call.optString("id")).put("content", out));
             }
