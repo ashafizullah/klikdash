@@ -547,8 +547,15 @@ public class QuranService extends Service
                 .putString(MediaMetadata.METADATA_KEY_ARTIST, RECITER)
                 .putString(MediaMetadata.METADATA_KEY_ALBUM, res(this).getString(R.string.app_quran))
                 .build());
-        nm.notify(1, notification());
-        if (!playing) stopForeground(false);
+        // Foreground selama memutar atau menunggu ayatnya diunduh, bukan hanya saat onStartCommand: setelah jeda
+        // (buffering, audio fokus hilang sesaat, tombol media) layanan yang lanjut memutar tanpa foreground dihentikan
+        // Android ±1 menit setelah KlikDash ke latar ("Stopping service due to app idle").
+        if (playing || buffering) {
+            startForeground(1, notification());
+        } else {
+            nm.notify(1, notification());
+            stopForeground(false);
+        }
         notifyListeners();
     }
 

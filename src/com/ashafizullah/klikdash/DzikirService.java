@@ -329,8 +329,13 @@ public class DzikirService extends Service
                 .putString(MediaMetadata.METADATA_KEY_ARTIST, status())
                 .putString(MediaMetadata.METADATA_KEY_ALBUM, QuranService.res(this).getString(R.string.app_dzikir))
                 .build());
-        nm.notify(NOTIFICATION_ID, notification());
-        if (!playing) stopForeground(false);
+        // Foreground selama memutar, bukan hanya saat onStartCommand (lihat QuranService.publish).
+        if (playing) {
+            startForeground(NOTIFICATION_ID, notification());
+        } else {
+            nm.notify(NOTIFICATION_ID, notification());
+            stopForeground(false);
+        }
         notifyListeners();
     }
 
