@@ -144,7 +144,15 @@ public class QuranActivity extends Activity {
             try {
                 QuranData.load(this);
             } catch (Exception e) {
-                runOnUiThread(() -> loading.setText(R.string.quran_load_failed));
+                android.util.Log.w("KlikDash", "Muat teks Al-Qur'an gagal", e);
+                // Hasil unduhan rusak: buang, lalu pakai teks bawaan APK bila ada, atau tawarkan unduh ulang.
+                boolean dropped = QuranData.dropDownloaded(this);
+                runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
+                    if (!dropped) loading.setText(R.string.quran_load_failed);
+                    else if (QuranData.available(this)) loadText();
+                    else askDownload();
+                });
                 return;
             }
             if (en && QuranData.availableEn(this)) {

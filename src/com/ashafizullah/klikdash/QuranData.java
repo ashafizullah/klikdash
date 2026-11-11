@@ -94,6 +94,9 @@ final class QuranData {
                 }
             }
         }
+        // Berkas terpotong atau rusak (unduhan terputus): gagal di sini, bukan NullPointerException saat dibaca nanti.
+        if (k != AYAH_TOTAL) throw new IOException("quran.txt: " + k + " ayat");
+        for (Surah s : ss) if (s == null) throw new IOException("quran.txt: surah tidak lengkap");
         arab = ar;
         latin = la;
         indo = id;
@@ -129,6 +132,21 @@ final class QuranData {
      * Jalankan di thread latar.
      */
     static void download(Context c, Progress p) throws Exception {
+        synchronized (TEXT_LOCK) { // satu unduhan sekaligus: dua penulis ke berkas .part yang sama saling merusak
+            if (textFile(c).length() > 0) return; // sudah diunduh layar lain selama menunggu
+            downloadText(c, p);
+        }
+    }
+
+    private static final Object TEXT_LOCK = new Object(), EN_LOCK = new Object();
+
+    /** Hapus teks hasil unduhan yang tidak bisa dimuat, supaya bisa diunduh ulang. True bila ada yang dihapus. */
+    static boolean dropDownloaded(Context c) {
+        File f = textFile(c);
+        return f.length() > 0 && f.delete();
+    }
+
+    private static void downloadText(Context c, Progress p) throws Exception {
         File dst = textFile(c), tmp = new File(dst.getPath() + ".part");
         try (Writer w = new OutputStreamWriter(new FileOutputStream(tmp), StandardCharsets.UTF_8)) {
             for (int n = 1; n <= SURAH_COUNT; n++) {
@@ -190,6 +208,13 @@ final class QuranData {
 
     /** Seperti {@link #download}, untuk terjemahan Saheeh International dari alquran.cloud (±1 MB). */
     static void downloadEn(Context c, Progress p) throws Exception {
+        synchronized (EN_LOCK) {
+            if (enFile(c).length() > 0) return;
+            downloadEnText(c, p);
+        }
+    }
+
+    private static void downloadEnText(Context c, Progress p) throws Exception {
         File dst = enFile(c), tmp = new File(dst.getPath() + ".part");
         try (Writer w = new OutputStreamWriter(new FileOutputStream(tmp), StandardCharsets.UTF_8)) {
             for (int n = 1; n <= SURAH_COUNT; n++) {
