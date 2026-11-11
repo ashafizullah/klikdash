@@ -17,7 +17,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -117,7 +116,12 @@ final class DzikirAudio {
                 List<String> todo = new ArrayList<>();
                 for (String clip : clips(c)) {
                     boolean quran = clip.startsWith(QURAN);
-                    if (!quran && !index.has(clip)) throw new IOException("Rekaman " + clip + " tidak ada di index.json");
+                    if (!quran && !index.has(clip)) {
+                        // Rekaman versi ini sudah dihapus/diganti nama di repo (rilis lebih baru): yang sudah ada di
+                        // sini tetap dipakai, dan rekaman lain tetap bisa diunduh.
+                        if (file(c, clip).exists()) continue;
+                        throw new IOException("Rekaman " + clip + " tidak ada di index.json");
+                    }
                     String sha = quran ? null : index.getJSONObject(clip).getString("sha1");
                     if (!file(c, clip).exists() || (!quran && (all || !sha.equals(p.getString("sha_" + clip, null))))) {
                         todo.add(clip);
@@ -156,8 +160,10 @@ final class DzikirAudio {
                 JSONObject index = new JSONObject(QuranData.fetch(BASE + "index.json")).getJSONObject("files");
                 SharedPreferences p = prefs(c);
                 boolean changed = false;
-                for (Iterator<String> it = index.keys(); it.hasNext(); ) {
-                    String clip = it.next();
+                // Hanya rekaman yang dipakai versi ini, sama dengan yang diunduh download(): rekaman baru di repo untuk
+                // rilis berikutnya tidak boleh menawarkan pembaruan yang tidak mengunduh apa-apa, berulang-ulang.
+                for (String clip : clips(c)) {
+                    if (clip.startsWith(QURAN) || !index.has(clip)) continue;
                     if (!index.getJSONObject(clip).getString("sha1").equals(p.getString("sha_" + clip, null))) changed = true;
                 }
                 final boolean u = changed;
