@@ -142,13 +142,20 @@ final class BeamServer {
             s.setSoTimeout(IDLE_TIMEOUT_MS);
             DataInputStream in = new DataInputStream(new BufferedInputStream(s.getInputStream(), 64 * 1024));
             OutputStream out = s.getOutputStream();
-            if (in.readInt() != MAGIC || in.readInt() != code) {
+            if (blocked()) { // terlalu banyak kode salah: tutup tanpa membaca kodenya
+                Log.i(TAG, "dijeda (kode salah berulang): " + from);
+                return;
+            }
+            boolean magic = in.readInt() == MAGIC;
+            if (!magic || in.readInt() != code) {
                 out.write(0);
                 out.flush();
                 Log.w(TAG, "ditolak: " + from);
+                if (magic) wrongCode();
                 listener.onRejected(from);
                 return;
             }
+            rightCode();
             if (!gate.admit()) {
                 Log.i(TAG, "ditunda (penerima baru ditutup): " + from);
                 return;
@@ -180,6 +187,28 @@ final class BeamServer {
                 listener.onEnded();
             }
         }
+    }
+
+    // Kode pairing 6 angka: tanpa jeda, perangkat lain di WiFi yang sama bisa mencoba semuanya dalam hitungan menit.
+    // Statis: bertahan saat server dibuat ulang (penerima ditutup lalu siaga lagi).
+    private static final int MAX_WRONG = 5;
+    private static final long BLOCK_MS = 30_000, BLOCK_MAX_MS = 30 * 60_000L;
+    private static int wrong, blockLevel;
+    private static long blockedUntil;
+
+    private static synchronized boolean blocked() { return android.os.SystemClock.elapsedRealtime() < blockedUntil; }
+
+    /** Setelah MAX_WRONG kode salah: semua koneksi ditolak 30 detik, lalu berlipat tiap terulang (maks. 30 menit). */
+    private static synchronized void wrongCode() {
+        if (++wrong < MAX_WRONG) return;
+        wrong = 0;
+        blockedUntil = android.os.SystemClock.elapsedRealtime() + Math.min(BLOCK_MAX_MS, BLOCK_MS << Math.min(blockLevel, 10));
+        blockLevel++;
+    }
+
+    private static synchronized void rightCode() {
+        wrong = 0;
+        blockLevel = 0;
     }
 
     private void readLoop(Socket s, DataInputStream in) throws IOException {
