@@ -121,8 +121,11 @@ final class ErrorLog {
             Account.call(c, "POST", "/v1/errors", Account.deviceAuth(c),
                     new JSONObject().put("platform", "klikdash").put("items", items).toString());
             synchronized (ErrorLog.class) {
+                // Buang yang terkirim menurut isinya, bukan jumlahnya: antrean yang penuh bisa sudah membuang baris
+                // terlama selama pengiriman, dan memotong dari depan akan ikut menghapus laporan baru.
                 List<String> now = read(c);
-                write(c, now.subList(Math.min(lines.size(), now.size()), now.size()));
+                for (String l : lines) now.remove(l);
+                write(c, now);
             }
         } catch (Account.ApiError e) {
             // Ditolak server (isi tidak valid): buang, supaya tidak dikirim ulang terus.
