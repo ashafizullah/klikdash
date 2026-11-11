@@ -43,6 +43,11 @@ final class AiStore {
 
     static final class Profile {
         String id, name, type, baseUrl, apiKey, model;
+        /**
+         * Key terenkripsi seperti tersimpan dan hasil dekripsinya saat dimuat ("" bila Keystore gagal). Key yang tidak
+         * diubah ditulis balik apa adanya ({@link #saveProfiles}): Keystore yang gagal sesaat tidak menghapus key.
+         */
+        String stored, readKey;
 
         boolean claude() { return CLAUDE.equals(type); }
 
@@ -77,7 +82,8 @@ final class AiStore {
                 p.type = o.optString("type", CLAUDE);
                 p.baseUrl = o.optString("baseUrl");
                 p.model = o.optString("model");
-                p.apiKey = decrypt(o.optString("apiKey"));
+                p.stored = o.optString("apiKey");
+                p.apiKey = p.readKey = decrypt(p.stored);
                 out.add(p);
             }
         } catch (Exception ignored) { }
@@ -89,10 +95,18 @@ final class AiStore {
         try {
             for (Profile p : list) {
                 a.put(new JSONObject().put("id", p.id).put("name", p.name).put("type", p.type)
-                        .put("baseUrl", p.baseUrl).put("model", p.model).put("apiKey", encrypt(p.apiKey)));
+                        .put("baseUrl", p.baseUrl).put("model", p.model).put("apiKey", stored(p)));
             }
         } catch (Exception ignored) { }
         prefs(c).edit().putString("profiles", a.toString()).apply();
+    }
+
+    /** Key profil untuk disimpan: yang tidak berubah sejak dimuat tetap ciphertext lamanya, tanpa dienkripsi ulang. */
+    private static String stored(Profile p) {
+        boolean had = p.stored != null && !p.stored.isEmpty();
+        if (had && p.apiKey.equals(p.readKey)) return p.stored;
+        String enc = encrypt(p.apiKey);
+        return enc.isEmpty() && !p.apiKey.isEmpty() && had ? p.stored : enc; // enkripsi gagal: key lama lebih baik dari kosong
     }
 
     static Profile active(Context c) {
@@ -132,7 +146,14 @@ final class AiStore {
 
     static String elVoiceName(Context c) { return prefs(c).getString("elVoiceName", ""); }
 
-    static void saveElKey(Context c, String key) { prefs(c).edit().putString("elKey", encrypt(key)).apply(); }
+    static void saveElKey(Context c, String key) { saveKey(c, "elKey", key); }
+
+    /** Key yang diisi tapi gagal dienkripsi (Keystore) tidak menimpa key lama dengan kosong. */
+    private static void saveKey(Context c, String name, String key) {
+        String enc = encrypt(key);
+        if (enc.isEmpty() && key != null && !key.isEmpty()) return;
+        prefs(c).edit().putString(name, enc).apply();
+    }
 
     static void saveElVoice(Context c, String id, String name) {
         prefs(c).edit().putString("elVoice", id).putString("elVoiceName", name).apply();
@@ -166,7 +187,7 @@ final class AiStore {
     /** Tanpa dekripsi (Keystore lambat), untuk memilih alat saat sesi dibuat. */
     static boolean hasTinyfishKey(Context c) { return !prefs(c).getString("tfKey", "").isEmpty(); }
 
-    static void saveTinyfishKey(Context c, String key) { prefs(c).edit().putString("tfKey", encrypt(key)).apply(); }
+    static void saveTinyfishKey(Context c, String key) { saveKey(c, "tfKey", key); }
 
     // ---------------------------------------------------------------- enkripsi (Android Keystore, AES-GCM)
 
