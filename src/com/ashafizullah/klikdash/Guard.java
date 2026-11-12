@@ -74,7 +74,11 @@ final class Guard {
     }
 
     private static void crashed(Context c, Throwable e) {
-        if (systemDied(e)) return;
+        if (systemDied(e)) {
+            // Penanda ikut dibuang: kalau tidak, pembukaan berikutnya menghitungnya sebagai "home tidak tampil".
+            store(c).edit().remove(OPENING).commit();
+            return;
+        }
         if (SystemClock.elapsedRealtime() - Process.getStartElapsedRealtime() > WINDOW) return;
         SharedPreferences s = store(c);
         int n = s.getInt("crashes", 0) + 1;
