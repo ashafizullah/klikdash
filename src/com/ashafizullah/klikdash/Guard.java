@@ -62,7 +62,19 @@ final class Guard {
         });
     }
 
+    /**
+     * system_server mati (mis. ACC off / shutdown head unit): proses ini ikut jatuh,
+     * bukan salah home. Tidak dihitung dan tidak dilaporkan.
+     */
+    static boolean systemDied(Throwable e) {
+        for (int i = 0; e != null && i < 16; e = e.getCause(), i++) {
+            if ("android.os.DeadSystemException".equals(e.getClass().getName())) return true;
+        }
+        return false;
+    }
+
     private static void crashed(Context c, Throwable e) {
+        if (systemDied(e)) return;
         if (SystemClock.elapsedRealtime() - Process.getStartElapsedRealtime() > WINDOW) return;
         SharedPreferences s = store(c);
         int n = s.getInt("crashes", 0) + 1;

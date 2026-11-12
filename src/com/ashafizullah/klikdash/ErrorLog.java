@@ -48,7 +48,7 @@ final class ErrorLog {
         Thread.UncaughtExceptionHandler prev = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
             // Langsung ke file: proses akan berhenti, tidak sempat kirim ke jaringan.
-            try { if (enabled(c)) queue(c, entry(c, e, "uncaught:" + t.getName())); } catch (Throwable ignored) { }
+            try { if (enabled(c) && !Guard.systemDied(e)) queue(c, entry(c, e, "uncaught:" + t.getName())); } catch (Throwable ignored) { }
             if (prev != null) prev.uncaughtException(t, e);
         });
     }
