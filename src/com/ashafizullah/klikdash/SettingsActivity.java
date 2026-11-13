@@ -175,7 +175,9 @@ public class SettingsActivity extends Activity {
         root.addView(body, new LinearLayout.LayoutParams(MATCH, 0, 1f));
         setContentView(root);
         current = -1;
-        show(tab);
+        int selectedTab = Math.max(0, Math.min(TAB_COUNT - 1, tab));
+        show(selectedTab);
+        tabs[selectedTab].requestFocus();
     }
 
     void show(int tab) { show(tab, false); }
@@ -484,6 +486,7 @@ public class SettingsActivity extends Activity {
         head.setPadding(0, px(22), 0, px(22));
         StateListDrawable press = new StateListDrawable();
         press.addState(new int[]{android.R.attr.state_pressed}, new ColorDrawable(PANEL));
+        press.addState(new int[]{android.R.attr.state_focused}, new ColorDrawable(PANEL));
         head.setBackground(press);
         LinearLayout t = column();
         TextView h = text(title, fHeavy, 30, TEXT);
@@ -501,6 +504,7 @@ public class SettingsActivity extends Activity {
         gl.leftMargin = gl.rightMargin = px(16);
         head.addView(sign, gl);
         head.setContentDescription(title);
+        TvFocus.enable(head);
         head.setOnClickListener(v -> toggleGroup(id));
         g.addView(head, new LinearLayout.LayoutParams(MATCH, WRAP));
         g.addView(rule(), ruleParams(true, 0, 0));
@@ -1333,6 +1337,7 @@ public class SettingsActivity extends Activity {
             cp.setTextSize(sp(10));
             cp.setLetterSpacing(0.2f);
             setClickable(true);
+            TvFocus.enable(this);
             setOnClickListener(v -> click.run());
         }
 
@@ -1372,6 +1377,7 @@ public class SettingsActivity extends Activity {
                         android.text.TextUtils.TruncateAt.END);
                 c.drawText(cs, 0, cs.length(), x, h / 2f + px(22), cp);
             }
+            TvFocus.draw(c, this, dp);
         }
     }
 }

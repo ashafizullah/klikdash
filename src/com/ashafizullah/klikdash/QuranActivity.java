@@ -261,6 +261,7 @@ public class QuranActivity extends Activity {
         surahAdapter.notifyDataSetChanged();
         open(QuranService.surah, QuranService.ayah);
         surahList.setSelectionFromTop(Math.max(0, surah - 3), 0);
+        surahList.requestFocus();
         refreshPlayer();
         if (en && QuranData.en == null && !prefs.getBoolean("enAsked", false)) askDownloadEn();
     }
@@ -339,7 +340,7 @@ public class QuranActivity extends Activity {
         surahList = list();
         surahAdapter = new SurahAdapter();
         surahList.setAdapter(surahAdapter);
-        surahList.setOnItemClickListener((p, v, pos, id) -> pickSurah(pos + 1));
+        surahList.setItemsCanFocus(true);
         left.addView(surahList, new LinearLayout.LayoutParams(MATCH, 0, 1f));
         row.addView(left, portrait ? new LinearLayout.LayoutParams(MATCH, px(hDp * 0.34f))
                 : new LinearLayout.LayoutParams(px(listDp()), MATCH));
@@ -401,6 +402,7 @@ public class QuranActivity extends Activity {
         ayahList = list();
         ayahAdapter = new AyahAdapter();
         ayahList.setAdapter(ayahAdapter);
+        ayahList.setItemsCanFocus(true);
         // Baris basmalah: mulai dari basmalah; baris ayat 1: langsung ayat 1 (juga saat basmalah sedang diputar).
         ayahList.setOnItemClickListener((p, v, pos, id) -> QuranService.play(this, surah, ayahAt(pos), pos < offset()));
         right.addView(ayahList, new LinearLayout.LayoutParams(MATCH, 0, 1f));
@@ -708,7 +710,7 @@ public class QuranActivity extends Activity {
         ListView l = new ListView(this);
         l.setDivider(new ColorDrawable(LINE));
         l.setDividerHeight(px(1));
-        l.setSelector(new ColorDrawable(0));
+        l.setSelector(TvFocus.selector());
         l.setOverScrollMode(View.OVER_SCROLL_NEVER);
         l.setVerticalScrollBarEnabled(false);
         return l;
@@ -732,6 +734,7 @@ public class QuranActivity extends Activity {
 
         SurahRow() {
             super(QuranActivity.this);
+            TvFocus.enable(this);
             num.setTypeface(fMono);
             num.setTextSize(sp(11));
             num.setLetterSpacing(0.1f);
@@ -745,6 +748,9 @@ public class QuranActivity extends Activity {
             arab.setTextSize(sp(22));
             arab.setTextAlign(Paint.Align.RIGHT);
             setLayoutParams(new AbsListView.LayoutParams(MATCH, px(72)));
+            setClickable(true);
+            TvFocus.enable(this);
+            setOnClickListener(v -> pickSurah(no));
         }
 
         @Override protected void drawableStateChanged() {
@@ -787,6 +793,7 @@ public class QuranActivity extends Activity {
                     + (have[no] >= q.count ? " · " + offline : "");
             CharSequence mm = TextUtils.ellipsize(m, meta, avail, TextUtils.TruncateAt.END);
             c.drawText(mm, 0, mm.length(), x, px(56), meta);
+            TvFocus.draw(c, this, dp);
         }
     }
 
@@ -808,9 +815,14 @@ public class QuranActivity extends Activity {
         final TextView num, live, arab, latin, indo;
         final Paint bar = new Paint();
         boolean active;
+        int position;
 
         AyahRow() {
             super(QuranActivity.this);
+            setClickable(true);
+            TvFocus.enable(this);
+            setOnClickListener(v -> QuranService.play(QuranActivity.this, surah, ayahAt(position),
+                    position < offset()));
             setOrientation(VERTICAL);
             setPadding(px(28), px(18), px(28), px(22));
             setWillNotDraw(false);
@@ -877,6 +889,7 @@ public class QuranActivity extends Activity {
                 bar.setColor(AMBER);
                 c.drawRect(0, 0, px(4), getHeight(), bar);
             }
+            TvFocus.draw(c, this, dp);
         }
     }
 
@@ -889,6 +902,7 @@ public class QuranActivity extends Activity {
 
         @Override public View getView(int pos, View v, ViewGroup parent) {
             AyahRow r = v instanceof AyahRow ? (AyahRow) v : new AyahRow();
+            r.position = pos;
             boolean live = QuranService.active && QuranService.surah == surah;
             if (pos < offset()) {
                 r.bind("BASMALAH", QuranData.BISMILLAH, "Bismillāhir-raḥmānir-raḥīm(i).",
@@ -918,6 +932,7 @@ public class QuranActivity extends Activity {
             stroke.setStrokeWidth(px(1));
             stroke.setColor(LINE);
             setClickable(true);
+            TvFocus.enable(this);
             setOnClickListener(v -> click.run());
         }
 
@@ -940,6 +955,7 @@ public class QuranActivity extends Activity {
             if (main && playing) {
                 c.drawRect(cx - r * 0.8f, cy - r, cx - r * 0.25f, cy + r, ink);
                 c.drawRect(cx + r * 0.25f, cy - r, cx + r * 0.8f, cy + r, ink);
+                TvFocus.draw(c, this, dp);
                 return;
             }
             if (main) {
@@ -957,6 +973,7 @@ public class QuranActivity extends Activity {
             }
             path.close();
             c.drawPath(path, ink);
+            TvFocus.draw(c, this, dp);
         }
     }
 }

@@ -153,6 +153,10 @@ working.**
 
 ## Everyday use
 
+- **TV/STB remote:** use the arrows to move focus (shown by an amber outline), **OK/Enter** to select, and
+  **Back** to close a panel or return. The **☰** button opens the quick panel; focus the volume or brightness bar
+  and press left/right to adjust it. App search needs an on-screen or external keyboard. Reordering shortcuts by
+  dragging needs touch or a mouse.
 - **Open an app:** tap its tile.
 - **Change a tile's app:** long-press the tile, release in place, then pick an app.
 - **Swap two tiles:** long-press a tile, drag it onto another one, and release.
@@ -174,6 +178,11 @@ working.**
   times on the left, and bigger tiles, icons and text. Hidden shortcuts are kept and come back when you
   raise the number again.
 - **CPU temperature** at the top left turns amber from 70 °C and red ("PANAS", hot) from 85 °C.
+
+Android TV/STB support includes launcher metadata and D-pad navigation for KlikDash's controls; KlikDash has not
+been tested on physical TV/STB devices. System screens (such as choosing the default launcher or granting
+permissions), third-party apps, and features requiring GPS, a microphone, or Play Store availability vary by
+device and firmware.
 
 ## Power saver (Hemat Daya)
 

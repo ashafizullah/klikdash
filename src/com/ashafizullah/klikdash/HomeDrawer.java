@@ -45,6 +45,7 @@ final class HomeDrawer {
     /** Layar terbagi ({@link SplitScreen}): 1 = memilih aplikasi kiri, 2 = kanan; 0 = tidak. */
     int splitStep;
     android.content.ComponentName splitLeft;
+    View previousFocus;
     /** Aplikasi yang tampil di laci: semua, atau yang cocok dengan pencarian (lihat filter). */
     final List<HomeApps.App> shown = new ArrayList<>();
 
@@ -145,12 +146,6 @@ final class HomeDrawer {
         grid.setClipToPadding(false);
         adapter = new AppAdapter();
         grid.setAdapter(adapter);
-        grid.setOnItemClickListener((p, v, pos, id) -> onPick(shown.get(pos)));
-        grid.setOnItemLongClickListener((p, v, pos, id) -> {
-            v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-            appMenu(shown.get(pos));
-            return true;
-        });
         d.addView(grid, new LinearLayout.LayoutParams(MATCH, 0, 1f));
         noApps = h.text("", h.fMono, 14, DIM);
         noApps.setLetterSpacing(0.15f);
@@ -206,7 +201,7 @@ final class HomeDrawer {
     void hideKeyboard() {
         android.view.inputmethod.InputMethodManager imm = h.getSystemService(android.view.inputmethod.InputMethodManager.class);
         if (imm != null) imm.hideSoftInputFromWindow(search.getWindowToken(), 0);
-        view.requestFocus();
+        grid.requestFocus();
     }
 
     /** Pilih dua aplikasi untuk layar terbagi: kiri, lalu kanan. */
@@ -217,6 +212,8 @@ final class HomeDrawer {
     }
 
     void open(int slot) {
+        View focus = h.getCurrentFocus();
+        if (focus != null && focus != view && !isOpen()) previousFocus = focus;
         pickSlot = slot;
         splitStep = 0;
         title.setText(slot >= 0
@@ -227,7 +224,7 @@ final class HomeDrawer {
         grid.setSelection(0);
         h.home.setVisibility(View.GONE);
         view.setVisibility(View.VISIBLE);
-        view.requestFocus();
+        grid.requestFocus();
     }
 
     void close() {
@@ -237,6 +234,8 @@ final class HomeDrawer {
         search.setText("");
         view.setVisibility(View.GONE);
         h.home.setVisibility(View.VISIBLE);
+        if (previousFocus != null && previousFocus.getVisibility() == View.VISIBLE) previousFocus.requestFocus();
+        previousFocus = null;
     }
 
     void onPick(HomeApps.App a) {
@@ -277,6 +276,14 @@ final class HomeDrawer {
             label.setTextSize(h.sp(20));
             label.setLetterSpacing(0.04f);
             label.setTextAlign(Paint.Align.CENTER);
+            setClickable(true);
+            setOnClickListener(v -> { if (app != null) onPick(app); });
+            setOnLongClickListener(v -> {
+                if (app == null) return false;
+                performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+                appMenu(app);
+                return true;
+            });
         }
 
         @Override protected void onDraw(Canvas c) {
@@ -287,6 +294,7 @@ final class HomeDrawer {
             label.setColor(down ? INK : TEXT);
             CharSequence s = TextUtils.ellipsize(app.upper, label, w - h.px(20), TextUtils.TruncateAt.END);
             c.drawText(s, 0, s.length(), w / 2f, ht - h.px(20), label);
+            TvFocus.draw(c, this, h.dp);
         }
     }
 
