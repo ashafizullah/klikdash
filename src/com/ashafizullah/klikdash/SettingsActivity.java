@@ -166,7 +166,8 @@ public class SettingsActivity extends Activity {
             body.addView(rail, new LinearLayout.LayoutParams(MATCH, WRAP));
             body.addView(rule(), ruleParams(true, 0, 0));
         } else {
-            body.addView(rail, new LinearLayout.LayoutParams(px(railDp), MATCH));
+            // Layar pendek (mis. headunit 1024×600 berdensitas tinggi): enam tab 64 dp tidak muat, jadi rail bisa digulir.
+            body.addView(scroll(rail), new LinearLayout.LayoutParams(px(railDp), MATCH));
             body.addView(rule(), ruleParams(false, 0, 28));
         }
         content = new FrameLayout(this);
