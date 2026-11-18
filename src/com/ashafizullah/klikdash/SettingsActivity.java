@@ -2,6 +2,7 @@ package com.ashafizullah.klikdash;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -717,18 +718,30 @@ public class SettingsActivity extends Activity {
                 a.runOnUiThread(() -> {
                     prog.setMessage(a.getString(R.string.update_installing));
                     Updater.install(a, apk, () -> a.runOnUiThread(() -> {
-                        prog.dismiss();
+                        if (!dismissIfAlive(a, prog)) return;
                         Notice.info(a, a.getString(R.string.update_allow_install));
                     }));
                 });
             } catch (Exception e) {
                 a.runOnUiThread(() -> {
-                    prog.dismiss();
+                    if (!dismissIfAlive(a, prog)) return;
                     Notice.show(a, Notice.FAIL, a.getString(R.string.update_title),
                             e.getMessage() != null ? e.getMessage() : a.getString(R.string.update_try_later));
                 });
             }
         }, "update-download").start();
+    }
+
+    /**
+     * Tutup dialog yang dibuka sebelum kerja di latar. Activity-nya bisa sudah ditutup atau dibuat ulang selama unduhan
+     * (laporan crash 1.10.6: dismiss() melempar "not attached to window manager"). Hasil: activity masih hidup.
+     */
+    static boolean dismissIfAlive(Activity a, Dialog d) {
+        if (a.isFinishing() || a.isDestroyed()) return false;
+        try {
+            if (d.isShowing()) d.dismiss();
+        } catch (IllegalArgumentException ignored) { } // jendelanya sudah dilepas lebih dulu
+        return true;
     }
 
     void setAutoUpdate(boolean on) {
