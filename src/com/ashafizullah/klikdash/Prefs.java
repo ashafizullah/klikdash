@@ -69,8 +69,11 @@ final class Prefs {
             for (Map.Entry<String, ?> en : b.getAll().entrySet()) {
                 if (!cur.containsKey(en.getKey()) && put(e, en.getKey(), en.getValue())) n++;
             }
+            String disk = diskState(); // sebelum commit: keadaan file seperti yang terbaca kosong
             e.commit();
-            return "prefs restored from backup: " + n + " keys restored, " + cur.size() + " kept " + cur.keySet();
+            // Baris pertama tetap sama supaya tetap satu grup di /admin/errors; baris kedua untuk mencari penyebabnya.
+            return "prefs restored from backup: " + n + " keys restored, " + cur.size() + " kept " + cur.keySet()
+                    + "\n" + disk;
         }
         long size = new java.io.File(de.getDataDir(), "shared_prefs/" + BACKUP + ".xml").length();
         if (size > 100) {
@@ -82,6 +85,26 @@ final class Prefs {
         }
         p.edit().putBoolean(MARK, true).commit(); // baru dipasang, atau versi sebelum ada cadangan
         return null;
+    }
+
+    /**
+     * Keadaan file pengaturan saat terbaca tanpa MARK, untuk laporan: hilang atau kosong, ada .bak (tulisan terputus),
+     * umur file dan cadangan, dan lama headunit menyala (sesaat setelah boot atau di tengah jalan).
+     */
+    private static String diskState() {
+        try {
+            java.io.File dir = new java.io.File(de.getDataDir(), "shared_prefs");
+            java.io.File f = new java.io.File(dir, NAME + ".xml"), bak = new java.io.File(dir, NAME + ".xml.bak"),
+                    b = new java.io.File(dir, BACKUP + ".xml");
+            long now = System.currentTimeMillis();
+            return "file " + (f.exists() ? f.length() + " B, age " + (now - f.lastModified()) / 1000 + " s" : "missing")
+                    + "; bak " + (bak.exists() ? bak.length() + " B" : "none")
+                    + "; backup " + b.length() + " B, age " + (now - b.lastModified()) / 1000 + " s"
+                    + "; uptime " + android.os.SystemClock.elapsedRealtime() / 1000 + " s"
+                    + "; process " + (android.os.SystemClock.elapsedRealtime() - android.os.Process.getStartElapsedRealtime()) / 1000 + " s";
+        } catch (RuntimeException e) {
+            return "disk state: " + e;
+        }
     }
 
     /** Cerminkan pengaturan yang sehat ke cadangan (di thread utama, beberapa detik setelah berubah). */
