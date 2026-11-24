@@ -241,8 +241,27 @@ final class QuickPanel extends FrameLayout {
             mute.setOn(on); // batang menyusul saat MCU melapor (mcuRx)
             return;
         }
-        audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_TOGGLE_MUTE, 0);
+        adjust(AudioManager.ADJUST_TOGGLE_MUTE);
         refresh();
+    }
+
+    /**
+     * Headunit 8227L (dan perangkat "satu volume" lain) menyamakan STREAM_MUSIC dengan aliran suara UI, jadi bisu, buka
+     * bisu, atau volume 0 di sana ikut mengubah mode dering. Android 7+ menolak itu dari aplikasi tanpa akses Jangan
+     * Ganggu ("Not allowed to change Do Not Disturb state"), kecuali datang dari tombol fisik (FLAG_FROM_KEY, @hide).
+     * Panel ini pengganti tombol volume, jadi saat ditolak ulangi sebagai tombol.
+     */
+    private static final int FLAG_FROM_KEY = 1 << 12;
+
+    private void adjust(int direction) {
+        try {
+            audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, direction, 0);
+        } catch (SecurityException e) {
+            try {
+                audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, direction, FLAG_FROM_KEY);
+            } catch (SecurityException ignored) { // batang kembali ke nilai sebenarnya lewat refresh()
+            }
+        }
     }
 
     private void setVolume(int v) {
@@ -252,10 +271,17 @@ final class QuickPanel extends FrameLayout {
             volume.set(v, volume.max); // tanpa menunggu laporan MCU (mcuRx), supaya batang tidak meloncat balik
             return;
         }
-        if (audio.isStreamMute(AudioManager.STREAM_MUSIC) && v > 0) {
-            audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0);
+        if (audio.isStreamMute(AudioManager.STREAM_MUSIC) && v > 0) adjust(AudioManager.ADJUST_UNMUTE);
+        try {
+            audio.setStreamVolume(AudioManager.STREAM_MUSIC, v, 0);
+        } catch (SecurityException e) {
+            // setStreamVolume tidak mengenal FLAG_FROM_KEY: pindahkan mode dering dulu lewat jalur tombol, lalu ulangi.
+            adjust(v > 0 ? AudioManager.ADJUST_UNMUTE : AudioManager.ADJUST_MUTE);
+            try {
+                audio.setStreamVolume(AudioManager.STREAM_MUSIC, v, 0);
+            } catch (SecurityException ignored) {
+            }
         }
-        audio.setStreamVolume(AudioManager.STREAM_MUSIC, v, 0);
         refresh();
     }
 
