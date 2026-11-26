@@ -50,6 +50,11 @@ final class Guard {
         Context app = base.getApplicationContext() != null ? base.getApplicationContext() : base;
         Thread.UncaughtExceptionHandler next = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            if (finalizerTimeout(t, e)) {
+                // Bukan crash home: tidak dihitung. ErrorLog (next) yang menelannya; tanpa next proses dibiarkan hidup.
+                if (next != null) next.uncaughtException(t, e);
+                return;
+            }
             try {
                 crashed(app, e);
             } catch (Throwable ignored) {
@@ -71,6 +76,17 @@ final class Guard {
             if ("android.os.DeadSystemException".equals(e.getClass().getName())) return true;
         }
         return false;
+    }
+
+    /**
+     * Pengawas finalizer ART: satu finalize() lebih dari 10 detik → TimeoutException di thread FinalizerWatchdogDaemon,
+     * lalu handler bawaan membunuh proses. Yang macet hampir selalu kode sistem (mis. BinderProxy.destroy saat
+     * system_server tersendat di headunit lambat atau saat ACC off), bukan kode KlikDash. Pengecualian ini ditelan:
+     * thread pengawas berhenti, finalizer tetap jalan, proses tetap hidup.
+     */
+    static boolean finalizerTimeout(Thread t, Throwable e) {
+        return e instanceof java.util.concurrent.TimeoutException && t != null
+                && "FinalizerWatchdogDaemon".equals(t.getName());
     }
 
     private static void crashed(Context c, Throwable e) {

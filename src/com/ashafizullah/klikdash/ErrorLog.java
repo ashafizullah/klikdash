@@ -47,6 +47,9 @@ final class ErrorLog {
         Context c = context.getApplicationContext();
         Thread.UncaughtExceptionHandler prev = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            // Finalizer sistem macet >10 dtk (lihat Guard.finalizerTimeout): jangan teruskan ke handler bawaan yang
+            // membunuh proses, dan jangan dilaporkan sebagai crash.
+            if (Guard.finalizerTimeout(t, e)) return;
             // Langsung ke file: proses akan berhenti, tidak sempat kirim ke jaringan.
             try { if (enabled(c) && !Guard.systemDied(e)) queue(c, entry(c, e, "uncaught:" + t.getName())); } catch (Throwable ignored) { }
             if (prev != null) prev.uncaughtException(t, e);
