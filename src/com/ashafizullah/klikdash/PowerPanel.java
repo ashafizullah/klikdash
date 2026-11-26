@@ -92,12 +92,12 @@ final class PowerPanel {
         list = new ListView(a);
         list.setDivider(new ColorDrawable(LINE));
         list.setDividerHeight(a.px(1));
-        list.setSelector(new ColorDrawable(0));
+        list.setSelector(TvFocus.selector());
         list.setOverScrollMode(View.OVER_SCROLL_NEVER);
         list.setVerticalScrollBarEnabled(false);
         adapter = new Adapter();
         list.setAdapter(adapter);
-        list.setOnItemClickListener((p, v, pos, id) -> toggle(items.get(pos)));
+        list.setItemsCanFocus(true);
         body.addView(list, MATCH, MATCH);
         cover = new ScrollView(a);
         cover.setFillViewport(true);
@@ -283,6 +283,9 @@ final class PowerPanel {
             stroke.setStrokeWidth(a.px(1));
             stroke.setColor(LINE);
             setLayoutParams(new AbsListView.LayoutParams(MATCH, a.px(84)));
+            setClickable(true);
+            TvFocus.enable(this);
+            setOnClickListener(v -> { if (item != null) toggle(item); });
         }
 
         @Override protected void drawableStateChanged() {
@@ -319,6 +322,7 @@ final class PowerPanel {
             status.setColor(item.running && !item.restricted ? AMBER : item.restricted ? DIM : FAINT);
             CharSequence ss = TextUtils.ellipsize(st + "  ·  " + item.pkg, status, avail, TextUtils.TruncateAt.END);
             c.drawText(ss, 0, ss.length(), tx, a.px(62), status);
+            TvFocus.draw(c, this, a.dp);
         }
     }
 

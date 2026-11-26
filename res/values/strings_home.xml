@@ -49,21 +49,21 @@
     <string name="home_app_info">Info aplikasi</string>
     <string name="home_hidden_done">%1$s disembunyikan</string>
 
-    <string name="home_default_ok">KlikDash sekarang tampilan utama</string>
+    <string name="home_default_ok">KlikTV sekarang tampilan utama</string>
     <string name="home_need_adb">Belum berhasil: ADB headunit tidak bisa dihubungi. Aktifkan USB debugging di Opsi pengembang, lalu coba lagi.</string>
     <string name="home_need_adb_port">Belum berhasil: USB debugging sudah aktif, tapi headunit ini belum membuka ADB untuk aplikasi (port 5555, umum di Android 11 ke atas). Buka sekali dari komputer dengan adb tcpip 5555 (langkahnya di panduan pemasangan), lalu coba lagi.</string>
     <string name="home_need_adb_port_laptop">Belum berhasil: USB debugging sudah aktif, tapi port ADB 5555 tertutup. Di Android 10 ke bawah, buka sekali dari laptop Windows: unduh klikapps.ashafizullah.com/adb, klik dua kali file-nya, sambungkan kabel USB, lalu izinkan di headunit.</string>
     <string name="home_adb_allow">Muncul pertanyaan \"Allow USB debugging?\": centang \"Always allow\", lalu ketuk OK.</string>
     <string name="home_adb_denied">Belum diizinkan. Ketuk tombolnya lagi, centang \"Always allow\" pada pertanyaan \"Allow USB debugging?\", lalu ketuk OK.</string>
     <string name="home_setprop_failed">Belum berhasil: headunit ini menolak mengganti tampilan utama lewat ADB.</string>
-    <string name="home_restore_message">Kembali ke launcher bawaan? KlikDash tetap terpasang dan bisa dijadikan tampilan utama lagi dari tombol di home-nya.</string>
+    <string name="home_restore_message">Kembali ke launcher bawaan? KlikTV tetap terpasang dan bisa dijadikan tampilan utama lagi dari tombol di home-nya.</string>
     <string name="home_restore_confirm">Kembali</string>
     <string name="home_port_not_kept_title">Port ADB tidak tetap terbuka</string>
     <string name="home_port_not_kept_message">Headunit ini menutup port ADB 5555 setiap kali dinyalakan ulang. Bila tampilan utama KlikDash suatu saat gagal terbuka, headunit bisa tertahan di logo dan tidak bisa dipulihkan dari jarak jauh: KlikDash tidak bisa kembali ke launcher bawaan sendiri, dan perlu kabel USB ke laptop atau recovery. Tetap jadikan tampilan utama?</string>
     <string name="home_port_not_kept_confirm">Tetap jadikan</string>
 
     <!-- Mode aman setelah home crash berulang (lihat Guard) -->
-    <string name="guard_title">KlikDash berhenti beberapa kali saat dibuka</string>
+    <string name="guard_title">KlikTV berhenti beberapa kali saat dibuka</string>
     <string name="guard_message">Supaya headunit tetap bisa dipakai, home dibuka dalam mode aman. Ketuk COBA LAGI, atau kembali ke launcher bawaan. Bila terus berulang, kirim foto layar ini ke pengembang.</string>
     <string name="guard_retry">COBA LAGI</string>
     <string name="guard_stock">LAUNCHER BAWAAN</string>
@@ -96,7 +96,7 @@
     <string name="quick_brightness">KECERAHAN</string>
     <string name="quick_screen">LAYAR</string>
     <string name="quick_saver">SCREENSAVER SEKARANG</string>
-    <string name="quick_brightness_allow">Izinkan KlikDash mengubah setelan sistem, lalu kembali untuk mengatur kecerahan.</string>
+    <string name="quick_brightness_allow">Izinkan KlikTV mengubah setelan sistem, lalu kembali untuk mengatur kecerahan.</string>
     <string name="quick_settings">PENGATURAN</string>
     <string name="quick_split">LAYAR TERBAGI</string>
     <string name="quick_split_pick">PILIH 2 APLIKASI</string>

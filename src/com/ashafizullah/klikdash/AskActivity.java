@@ -442,6 +442,7 @@ public class AskActivity extends Activity {
         Mic() {
             super(AskActivity.this);
             setClickable(true);
+            TvFocus.enable(this);
             setContentDescription(getString(R.string.ask_mic));
             ring.setStyle(Paint.Style.STROKE);
             ring.setStrokeWidth(px(3));
@@ -501,6 +502,7 @@ public class AskActivity extends Activity {
                     c.restore();
                 }
             }
+            TvFocus.draw(c, this, dp);
         }
     }
 }

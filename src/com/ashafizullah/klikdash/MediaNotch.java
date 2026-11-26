@@ -118,6 +118,8 @@ final class MediaNotch extends LinearLayout {
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         tl.leftMargin = Math.round(12 * dp);
         info.addView(title, tl);
+        TvFocus.enable(info);
+        info.setBackground(TvFocus.selector());
         info.setOnClickListener(v -> { if (shown != null) shown.open(a); });
         // Tekan lama di mana saja pada notch: hentikan yang diputar (notch ikut hilang).
         View.OnLongClickListener stop = v -> {
@@ -229,6 +231,8 @@ final class MediaNotch extends LinearLayout {
         // Font sistem: font display KlikDash tidak punya ▶ dan ⏭, cadangannya tampil kecil dan tidak seragam.
         TextView t = text(s, Typeface.DEFAULT_BOLD, 16, HomeActivity.INK);
         t.setGravity(Gravity.CENTER);
+        TvFocus.enable(t);
+        t.setBackground(TvFocus.selector());
         t.setOnClickListener(v -> click.run());
         return t;
     }

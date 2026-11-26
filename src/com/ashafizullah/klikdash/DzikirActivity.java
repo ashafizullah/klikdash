@@ -121,6 +121,7 @@ public class DzikirActivity extends Activity {
         setContentView(buildUi());
         String p = getIntent().getStringExtra("period");
         open(p != null ? p : DzikirService.active ? DzikirService.period : currentPeriod(this));
+        list.requestFocus();
         if (DzikirAudio.ready(this) && !DzikirAudio.updateAsked) DzikirAudio.checkUpdate(this);
         pruneCounts(this);
     }
@@ -493,11 +494,12 @@ public class DzikirActivity extends Activity {
         list = new ListView(this);
         list.setDivider(new ColorDrawable(LINE));
         list.setDividerHeight(px(1));
-        list.setSelector(new ColorDrawable(0));
+        list.setSelector(TvFocus.selector());
         list.setOverScrollMode(View.OVER_SCROLL_NEVER);
         list.setVerticalScrollBarEnabled(false);
         adapter = new ItemAdapter();
         list.setAdapter(adapter);
+        list.setItemsCanFocus(true);
         list.setOnItemClickListener((p, v, pos, id) -> pickItem(pos));
         left.addView(list, new LinearLayout.LayoutParams(MATCH, 0, 1f));
         row.addView(left, portrait ? new LinearLayout.LayoutParams(MATCH, px(hDp * 0.34f))
@@ -665,6 +667,7 @@ public class DzikirActivity extends Activity {
             small.setLetterSpacing(0.25f);
             small.setTextAlign(Paint.Align.CENTER);
             setClickable(true);
+            TvFocus.enable(this);
             setOnClickListener(v -> count());
         }
 
@@ -691,6 +694,7 @@ public class DzikirActivity extends Activity {
             if (small.measureText(hint) > w - px(16)) hint = finished ? "ALHAMDULILLAH" : full ? sShortFull : sShortCount;
             c.drawText(n, w / 2f, px(40), big);
             c.drawText(hint, w / 2f, px(60), small);
+            TvFocus.draw(c, this, dp);
         }
     }
 
@@ -713,6 +717,9 @@ public class DzikirActivity extends Activity {
             meta.setTextSize(sp(9));
             meta.setLetterSpacing(0.15f);
             setLayoutParams(new AbsListView.LayoutParams(MATCH, px(66)));
+            setClickable(true);
+            TvFocus.enable(this);
+            setOnClickListener(v -> pickItem(i));
         }
 
         @Override protected void drawableStateChanged() {
@@ -742,6 +749,7 @@ public class DzikirActivity extends Activity {
             meta.setColor(ok ? AMBER : FAINT);
             String m = ok ? sDone : Math.min(counts[i], it.count) + " / " + it.count + "×";
             c.drawText(m, x, px(52), meta);
+            TvFocus.draw(c, this, dp);
         }
     }
 

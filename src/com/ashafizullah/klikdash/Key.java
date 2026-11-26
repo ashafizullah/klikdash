@@ -39,6 +39,7 @@ final class Key extends View {
         p.setLetterSpacing(0.2f);
         p.setTextAlign(Paint.Align.CENTER);
         setClickable(true);
+        TvFocus.enable(this);
         if (click != null) setOnClickListener(v -> click.run());
     }
 
@@ -85,5 +86,6 @@ final class Key extends View {
         p.setAlpha(isEnabled() ? 255 : 110);
         Paint.FontMetrics fm = p.getFontMetrics();
         c.drawText(label, w / 2f, h / 2f - (fm.ascent + fm.descent) / 2f, p);
+        TvFocus.draw(c, this, dp);
     }
 }

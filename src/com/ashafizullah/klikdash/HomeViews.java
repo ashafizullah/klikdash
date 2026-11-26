@@ -43,6 +43,7 @@ final class HomeViews {
             stroke.setStyle(Paint.Style.STROKE);
             stroke.setStrokeWidth(h.px(1));
             stroke.setColor(LINE);
+            TvFocus.enable(this);
         }
 
         @Override protected void drawableStateChanged() {
@@ -197,6 +198,7 @@ final class HomeViews {
             CharSequence s = TextUtils.ellipsize(name, label, avail, TextUtils.TruncateAt.END);
             c.drawText(s, 0, s.length(), m, base, label);
             drawDragState(c);
+            TvFocus.draw(c, this, h.dp);
         }
     }
 
@@ -230,6 +232,7 @@ final class HomeViews {
             p.setColor(down || accent ? INK : TEXT);
             Paint.FontMetrics fm = p.getFontMetrics();
             c.drawText(caption, getWidth() / 2f, getHeight() / 2f - (fm.ascent + fm.descent) / 2f, p);
+            TvFocus.draw(c, this, h.dp);
         }
     }
 

@@ -4,7 +4,7 @@
   Selalu dibaca lewat AiStore.inLang(context).
 -->
 <resources>
-    <string name="as_system">Kamu asisten suara KlikDash di headunit mobil. Pengemudi sedang menyetir dan mendengarkan jawabanmu lewat speaker, jadi jawab dalam bahasa Indonesia, sangat singkat (paling banyak dua kalimat), tanpa markdown, daftar, atau emoji, dan jangan minta pengemudi melihat atau menyentuh layar. Untuk perintah mobil, panggil alat yang sesuai lalu konfirmasi singkat apa yang sudah dilakukan. Kalau permintaan tidak jelas, tanya balik dengan satu pertanyaan pendek. Sekarang %1$s. Aplikasi terpasang: %2$s.</string>
+    <string name="as_system">Kamu asisten suara KlikTV di headunit mobil. Pengemudi sedang menyetir dan mendengarkan jawabanmu lewat speaker, jadi jawab dalam bahasa Indonesia, sangat singkat (paling banyak dua kalimat), tanpa markdown, daftar, atau emoji, dan jangan minta pengemudi melihat atau menyentuh layar. Untuk perintah mobil, panggil alat yang sesuai lalu konfirmasi singkat apa yang sudah dilakukan. Kalau permintaan tidak jelas, tanya balik dengan satu pertanyaan pendek. Sekarang %1$s. Aplikasi terpasang: %2$s.</string>
     <string name="as_system_web">Untuk pertanyaan yang butuh info terbaru (berita, harga, cuaca, jadwal, skor), cari di web dulu, lalu jawab intinya saja tanpa membacakan alamat situs; sebut nama sumbernya bila perlu.</string>
     <!-- SimpleDateFormat: teks di antara tanda kutip tunggal tidak diubah -->
     <string name="as_now_pattern">EEEE d MMMM yyyy, HH:mm</string>
@@ -20,7 +20,7 @@
     <string name="as_tool_open_dzikir">Buka dzikir pagi atau petang, bisa sekaligus memutar audionya.</string>
     <string name="as_tool_restrict_background">Larang (restrict=true) atau izinkan (false) aplikasi berjalan di latar, untuk menghemat daya.</string>
     <string name="as_tool_car_status">Status headunit: jam, tanggal Masehi &amp; Hijriah, kecepatan, suhu CPU, dan lokasi.</string>
-    <string name="as_tool_go_home">Kembali ke layar home KlikDash.</string>
+    <string name="as_tool_go_home">Kembali ke layar home KlikTV.</string>
     <string name="as_tool_web_search">Cari informasi terkini di web: berita, harga, cuaca, jadwal, skor, info tempat atau acara. Pakai hanya bila jawabannya butuh info terbaru atau tidak kamu ketahui.</string>
     <string name="as_param_app">Nama aplikasi</string>
     <string name="as_param_period">Kosongkan untuk mengikuti waktu sekarang</string>
@@ -71,7 +71,7 @@
     <string name="as_sorry">Maaf, %1$s.</string>
     <string name="as_refusal">Maaf, permintaan itu tidak bisa saya proses.</string>
     <string name="as_too_many_steps">Maaf, terlalu banyak langkah. Coba ulangi dengan lebih singkat.</string>
-    <string name="as_test_say">Halo, saya asisten KlikDash. Mau ke mana kita hari ini?</string>
+    <string name="as_test_say">Halo, saya asisten KlikTV. Mau ke mana kita hari ini?</string>
     <string name="as_test_prompt">Tes koneksi. Jawab satu kalimat singkat bahwa kamu siap, tanpa memakai alat.</string>
     <string name="as_warm">Siap.</string>
     <string name="as_example">navigasi ke SPBU terdekat</string>

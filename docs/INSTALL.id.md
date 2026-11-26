@@ -149,6 +149,10 @@ tidak berfungsi.**
 
 ## Pemakaian sehari-hari
 
+- **TV/STB dengan remote:** gunakan panah untuk memindahkan fokus (ditandai bingkai amber), **OK/Enter** untuk
+  memilih, dan **Kembali** untuk menutup panel atau kembali. Tombol **☰** membuka panel cepat; pilih batang volume
+  atau kecerahan lalu tekan kiri/kanan untuk mengubah nilainya. Pencarian aplikasi memerlukan keyboard layar atau
+  keyboard eksternal. Menyusun ulang pintasan dengan seret memerlukan sentuhan atau mouse.
 - **Buka aplikasi:** ketuk pintasannya.
 - **Ganti aplikasi di pintasan:** tekan lama pintasan, lepas di tempat, lalu pilih aplikasinya.
 - **Tukar posisi pintasan:** tekan lama pintasan, geser ke pintasan lain, lalu lepas.
@@ -168,6 +172,10 @@ tidak berfungsi.**
   Makin sedikit, makin besar jam, kecepatan, tanggal, dan jadwal sholat di kiri, juga pintasan, ikon, dan tulisannya. Pintasan yang tidak tampil tetap tersimpan dan muncul
   lagi bila jumlahnya ditambah.
 - **Suhu CPU** di kiri atas berwarna amber mulai 70 °C dan merah ("PANAS") mulai 85 °C.
+
+Dukungan Android TV/STB mencakup metadata launcher dan navigasi kontrol bawaan; KlikDash belum diuji pada TV/STB
+fisik. Layar sistem (misalnya memilih launcher default atau memberi izin), aplikasi pihak ketiga, serta fitur yang
+memerlukan GPS, mikrofon, atau Play Store dapat berbeda atau tidak tersedia pada firmware tertentu.
 
 ## Hemat Daya
 

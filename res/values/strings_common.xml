@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Teks bersama. Bahasa Indonesia adalah bawaan (res/values); terjemahan English di res/values-en. -->
 <resources>
+    <string name="app_name">KlikTV</string>
     <string name="app_quran">Al-Qur\'an</string>
     <string name="app_dzikir">Dzikir</string>
     <string name="app_ask">Tanya AI</string>
-    <string name="app_settings">Pengaturan KlikDash</string>
+    <string name="app_settings">Pengaturan KlikTV</string>
 
     <string name="channel_prayer">Pengingat waktu sholat</string>
     <string name="channel_quran">Murattal</string>
